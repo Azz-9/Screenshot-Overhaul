@@ -1,0 +1,30 @@
+{
+	"schemaVersion": 1,
+	"id": "screenshot_utilities",
+	"version": "${version}",
+
+	"name": "Screenshot Utilities",
+	"description": "la description",
+	"authors": [],
+	"contact": {},
+
+	"license": "MIT",
+	"icon": "assets/screenshot_utilities/icon.png",
+
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient"
+		]
+	},
+
+	"mixins": [
+		"screenshot_utilities.mixins.json"
+	],
+
+	"depends": {
+		"fabricloader": ">=${loader_version}",
+		"fabric-api": "*",
+		"minecraft": "${minecraft_version}"
+	}
+}
