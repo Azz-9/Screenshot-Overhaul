@@ -1,20 +1,27 @@
 package me.Azz_9.screenshot_utilities.client.config;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.MinecraftClient;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class Config {
-	public static ConfigObject<Path> screenshotsPath = new ConfigObject<>(null, "");
-	public static ConfigObject<Boolean> showChatMessage = new ConfigObject<>(false, "");
+	private static Config INSTANCE;
 
-	public static Path getScreenshotsDir() {
+	public final ConfigObject<Path> screenshotsPath = new ConfigObject<>(null, "");
+	public final ConfigObject<Boolean> showChatMessage = new ConfigObject<>(false, "");
+
+	public static Config getInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new Config();
+		}
+		return INSTANCE;
+	}
+
+	public Path getScreenshotsDir() {
 		if (screenshotsPath.getValue() == null) {
-			screenshotsPath.setValue(FabricLoader.getInstance().getGameDir().resolve("screenshots"));
+			screenshotsPath.setValue(MinecraftClient.getInstance().runDirectory.toPath().resolve("screenshots"));
 		}
 
 		if (!Files.exists(screenshotsPath.getValue())) {

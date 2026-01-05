@@ -2,7 +2,7 @@ package me.Azz_9.screenshot_utilities.client.config;
 
 public class ConfigObject<T> {
 	private T value;
-	private T defaultValue;
+	private final T defaultValue;
 	String translationKey;
 
 	public ConfigObject(T defaultValue, String translationKey) {
@@ -16,5 +16,13 @@ public class ConfigObject<T> {
 	}
 	public void setValue(T value) {
 		this.value = value;
+	}
+
+	public T getDefaultValue() {
+		return defaultValue;
+	}
+
+	public String getTranslationKey() {
+		return translationKey;
 	}
 }

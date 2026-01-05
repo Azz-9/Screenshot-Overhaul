@@ -1,6 +1,6 @@
 package me.Azz_9.screenshot_utilities.mixin;
 
-import me.Azz_9.screenshot_utilities.client.gui.ScreenshotViewerScreen;
+import me.Azz_9.screenshot_utilities.client.gui.ScreenshotGalleryScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -34,7 +34,7 @@ public abstract class TitleScreenMixin extends Screen {
 		TextIconButtonWidget screenshotViewerButton = this.addDrawableChild(
 				TextIconButtonWidget.builder(
 								Text.translatable("screenshot_utilities.options.screenshots"),
-								(btn) -> MinecraftClient.getInstance().setScreen(new ScreenshotViewerScreen()),
+								(btn) -> MinecraftClient.getInstance().setScreen(new ScreenshotGalleryScreen()),
 							true
 						)
 						.width(20)
