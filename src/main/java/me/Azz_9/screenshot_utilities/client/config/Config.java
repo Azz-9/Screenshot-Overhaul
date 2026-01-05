@@ -9,21 +9,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class Config {
-	public static Path screenshotsPath;
+	public static ConfigObject<Path> screenshotsPath = new ConfigObject<>(null, "");
+	public static ConfigObject<Boolean> showChatMessage = new ConfigObject<>(false, "");
 
 	public static Path getScreenshotsDir() {
-		if (screenshotsPath == null) {
-			screenshotsPath = FabricLoader.getInstance().getGameDir().resolve("screenshots");
+		if (screenshotsPath.getValue() == null) {
+			screenshotsPath.setValue(FabricLoader.getInstance().getGameDir().resolve("screenshots"));
 		}
 
-		if (!Files.exists(screenshotsPath)) {
+		if (!Files.exists(screenshotsPath.getValue())) {
 			try {
-				Files.createDirectories(screenshotsPath);
+				Files.createDirectories(screenshotsPath.getValue());
 			} catch (IOException e) {
 				throw new RuntimeException("Creating screenshots directory", e);
 			}
 		}
 
-		return screenshotsPath;
+		return screenshotsPath.getValue();
 	}
 }
