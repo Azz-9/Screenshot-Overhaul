@@ -8,6 +8,7 @@
 	"client": [
 		"KeyBindingMixin",
 		"ScreenshotRecorderMixin",
+		"TextFieldWidgetMixin",
 		"TitleScreenMixin"
 	],
 	"injectors": {
