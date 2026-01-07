@@ -37,6 +37,7 @@ public abstract class TitleScreenMixin extends Screen {
 								(btn) -> MinecraftClient.getInstance().setScreen(new ScreenshotGalleryScreen()),
 							true
 						)
+						.useTextAsTooltip()
 						.width(20)
 						.texture(Identifier.of(MOD_ID, "icon/screenshot"), 15, 15)
 						.build()
