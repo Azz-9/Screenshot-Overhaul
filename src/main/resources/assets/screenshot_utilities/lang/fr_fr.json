@@ -3,5 +3,8 @@
 	"screenshot_utilities.controls.photo_mode": "Ouvrir le mode photo",
 
 	"screenshot_utilities.narrator.screenshot_gallery": "Visionneuse de captures d'écran",
-	"screenshot_utilities.options.screenshots": "Captures d'écrans..."
+	"screenshot_utilities.options.screenshots": "Captures d'écrans...",
+
+	"screenshot_utilities.navigation.back": "Retour",
+	"screenshot_utilities.navigation.next": "Suivant"
 }

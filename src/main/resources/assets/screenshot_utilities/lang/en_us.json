@@ -3,5 +3,8 @@
 	"screenshot_utilities.controls.photo_mode": "Open photo mode",
 
 	"screenshot_utilities.narrator.screenshot_gallery": "Screenshot gallery",
-	"screenshot_utilities.options.screenshots": "Screenshots..."
+	"screenshot_utilities.options.screenshots": "Screenshots...",
+
+	"screenshot_utilities.navigation.back": "Back",
+	"screenshot_utilities.navigation.next": "Next"
 }

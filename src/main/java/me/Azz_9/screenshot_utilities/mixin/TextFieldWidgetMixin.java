@@ -22,6 +22,8 @@ public abstract class TextFieldWidgetMixin extends ClickableWidget implements Te
 	private int textX;
 	@Shadow
 	private int textY;
+	@Shadow
+	private int firstCharacterIndex;
 
 	public TextFieldWidgetMixin(int x, int y, int width, int height, Text message) {
 		super(x, y, width, height, message);

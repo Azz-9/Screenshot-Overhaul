@@ -53,6 +53,16 @@ public abstract class SimpleParentWidget extends AbstractParentElement implement
 		this.hovered = hovered;
 	}
 
+	public void setActive(boolean active) {
+		for (Element child : children) {
+			if (child instanceof SimpleParentWidget simpleParentWidget) {
+				simpleParentWidget.setActive(active);
+			} else if (child instanceof ClickableWidget clickableWidget) {
+				clickableWidget.active = active;
+			}
+		}
+	}
+
 
 	@Override
 	public Selectable.SelectionType getType() {
@@ -163,7 +173,7 @@ public abstract class SimpleParentWidget extends AbstractParentElement implement
 			}
 
 		}
-		
+
 		return false;
 	}
 }

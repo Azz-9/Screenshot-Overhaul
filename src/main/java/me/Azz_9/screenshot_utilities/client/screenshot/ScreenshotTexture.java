@@ -7,10 +7,7 @@ import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,11 +19,16 @@ import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MO
 public final class ScreenshotTexture implements AutoCloseable {
 
 	private final Identifier id;
-	private NativeImageBackedTexture texture;
 	private final CompletableFuture<NativeImage> imageFuture;
+	private NativeImageBackedTexture texture;
+	private NativeImage pendingImage;
 
 	public ScreenshotTexture(Path file) {
-		this.id = Identifier.of(MOD_ID, "screenshots/" + file.getFileName().toString().hashCode());
+		this.id = Identifier.of(MOD_ID, "screenshots/" + file.toAbsolutePath()
+				.toString()
+				.toLowerCase()
+				.replace('\\', '/')
+				.replaceAll("[^a-z0-9/._-]", "_"));
 
 		this.imageFuture = CompletableFuture.supplyAsync(() -> {
 			try (InputStream in = Files.newInputStream(file)) {
@@ -47,10 +49,14 @@ public final class ScreenshotTexture implements AutoCloseable {
 		NativeImage img = imageFuture.join();
 		if (img == null) return;
 
+		pendingImage = img;
 		texture = new NativeImageBackedTexture(id::toString, img);
+
 		MinecraftClient.getInstance()
 				.getTextureManager()
 				.registerTexture(id, texture);
+
+		pendingImage = null;
 	}
 
 	public Identifier id() {
@@ -58,18 +64,27 @@ public final class ScreenshotTexture implements AutoCloseable {
 	}
 
 	public int width() {
-		return texture != null ? texture.getImage().getWidth() : 0;
+		if (texture == null || texture.getImage() == null) return 0;
+		return texture.getImage().getWidth();
 	}
 
 	public int height() {
-		return texture != null ? texture.getImage().getHeight() : 0;
+		if (texture == null || texture.getImage() == null) return 0;
+		return texture.getImage().getHeight();
 	}
 
 	@Override
 	public void close() {
 		if (texture != null) {
-			texture.close();
+			MinecraftClient client = MinecraftClient.getInstance();
+			client.execute(() -> client.getTextureManager().destroyTexture(this.id));
+
 			texture = null;
+		}
+
+		if (pendingImage != null) {
+			pendingImage.close();
+			pendingImage = null;
 		}
 	}
 }

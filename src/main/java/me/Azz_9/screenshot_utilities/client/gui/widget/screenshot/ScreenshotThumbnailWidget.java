@@ -1,10 +1,12 @@
 package me.Azz_9.screenshot_utilities.client.gui.widget.screenshot;
 
 import me.Azz_9.screenshot_utilities.client.gui.FocusManager;
+import me.Azz_9.screenshot_utilities.client.gui.ScreenshotGalleryScreen;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotDrawHelper;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.cursor.StandardCursors;
@@ -39,7 +41,7 @@ public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCl
 	public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
 		texture.uploadIfNeeded();
 
-		float targetScale = isHovered() ? HOVER_SCALE : 1.0f;
+		float targetScale = isHovered() && isInteractable() ? HOVER_SCALE : 1.0f;
 		currentScale += (targetScale - currentScale) * SCALE_SPEED;
 
 		if (!texture.isReady()) {
@@ -70,7 +72,12 @@ public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCl
 		matrices.popMatrix();
 		context.disableScissor();
 
-		if (isHovered()) {
+		setCursor(context);
+	}
+
+	@Override
+	protected void setCursor(DrawContext context) {
+		if (this.isHovered() && this.isInteractable()) {
 			context.setCursor(StandardCursors.POINTING_HAND);
 		}
 	}
@@ -78,7 +85,9 @@ public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCl
 	@Override
 	public void onClick(Click click, boolean doubled) {
 		this.focusManager.clearFocus();
-		System.out.println("thumbnail clicked");
+		if (MinecraftClient.getInstance().currentScreen instanceof ScreenshotGalleryScreen screen) {
+			screen.selectScreenshot(texture);
+		}
 	}
 
 	@Override

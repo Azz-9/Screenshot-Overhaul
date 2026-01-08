@@ -8,6 +8,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.cursor.Cursor;
+import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
 import org.joml.Matrix3x2fStack;
@@ -57,6 +59,10 @@ public class ScreenshotNameWidget extends TextFieldWidget {
 		}
 
 		context.disableScissor();
+
+		if (this.isHovered()) {
+			context.setCursor(this.isInteractable() ? StandardCursors.IBEAM : Cursor.DEFAULT);
+		}
 	}
 
 	private void renderUnderline(DrawContext context) {
