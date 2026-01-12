@@ -4,12 +4,23 @@
 	"package": "me.Azz_9.screenshot_utilities.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
+		"EntityMixin"
 	],
 	"client": [
-		"KeyBindingMixin",
+		"CameraMixin",
+		"ClientPlayerInteractionManagerMixin",
+		"ClientPlayNetworkHandlerMixin",
+		"ClientWorldMixin",
+		"GameOptionsMixin",
+		"GameRendererMixin",
+		"InGameHudMixin",
+		"MinecraftClientMixin",
+		"MouseMixin",
+		"ParticleManagerMixin",
 		"ScreenshotRecorderMixin",
 		"TextFieldWidgetMixin",
-		"TitleScreenMixin"
+		"TitleScreenMixin",
+		"WorldRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

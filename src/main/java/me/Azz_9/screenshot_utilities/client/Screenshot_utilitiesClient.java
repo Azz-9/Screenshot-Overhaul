@@ -6,6 +6,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.util.Identifier;
@@ -13,21 +14,36 @@ import org.jetbrains.annotations.NotNull;
 
 @Environment(EnvType.CLIENT)
 public class Screenshot_utilitiesClient implements ClientModInitializer {
+	public static final MinecraftClient CLIENT = MinecraftClient.getInstance();
 	public static final String MOD_ID = "screenshot_utilities";
 
-	public static KeyBinding openPhotoMode;
+	private static KeyBinding openPhotoMode;
+	private static KeyBinding rollLeft;
+	private static KeyBinding rollRight;
+
+	public static @NotNull KeyBinding getOpenPhotoModeKeybind() {
+		return openPhotoMode;
+	}
+
+	public static @NotNull KeyBinding getRollLeftKeybind() {
+		return rollLeft;
+	}
+
+	public static @NotNull KeyBinding getRollRightKeybind() {
+		return rollRight;
+	}
 
 	@Override
 	public void onInitializeClient() {
+		ClientTickEvents.START_CLIENT_TICK.register(client -> {
+			PhotoMode.startTick();
+		});
+
 		KeyBinding.Category keybind_category = KeyBinding.Category.create(Identifier.of(MOD_ID, "screenshot-utilities"));
 
 		openPhotoMode = KeyBindingHelper.registerKeyBinding(new KeyBinding("screenshot_utilities.controls.photo_mode", InputUtil.Type.KEYSYM, InputUtil.GLFW_KEY_F10, keybind_category));
-	}
 
-	public static @NotNull KeyBinding getOpenPhotoModeKeybind() {
-		if (openPhotoMode == null) {
-			throw new RuntimeException("open photo mode not set!");
-		}
-		return openPhotoMode;
+		rollLeft = KeyBindingHelper.registerKeyBinding(new KeyBinding("screenshot_utilities.controls.roll_left", InputUtil.Type.KEYSYM, InputUtil.GLFW_KEY_Q, keybind_category));
+		rollRight = KeyBindingHelper.registerKeyBinding(new KeyBinding("screenshot_utilities.controls.roll_right", InputUtil.Type.KEYSYM, InputUtil.GLFW_KEY_E, keybind_category));
 	}
 }

@@ -16,6 +16,17 @@ public final class ScreenshotDrawHelper {
 			int x, int y,
 			int boxW, int boxH
 	) {
+		drawCover(ctx, textureId, imgW, imgH, x, y, boxW, boxH, 0xffffffff);
+	}
+
+	public static void drawCover(
+			DrawContext ctx,
+			Identifier textureId,
+			int imgW, int imgH,
+			int x, int y,
+			int boxW, int boxH,
+			int color
+	) {
 		float imgRatio = imgW / (float) imgH;
 		float boxRatio = boxW / (float) boxH;
 
@@ -38,7 +49,8 @@ public final class ScreenshotDrawHelper {
 				u, v,
 				boxW, boxH,
 				regionW, regionH,
-				imgW, imgH
+				imgW, imgH,
+				color
 		);
 	}
 }

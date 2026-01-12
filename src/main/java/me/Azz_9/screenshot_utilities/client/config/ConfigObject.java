@@ -1,9 +1,9 @@
 package me.Azz_9.screenshot_utilities.client.config;
 
 public class ConfigObject<T> {
-	private T value;
 	private final T defaultValue;
 	String translationKey;
+	private T value;
 
 	public ConfigObject(T defaultValue, String translationKey) {
 		this.value = defaultValue;
@@ -14,6 +14,7 @@ public class ConfigObject<T> {
 	public T getValue() {
 		return value;
 	}
+
 	public void setValue(T value) {
 		this.value = value;
 	}
@@ -24,5 +25,9 @@ public class ConfigObject<T> {
 
 	public String getTranslationKey() {
 		return translationKey;
+	}
+
+	public void resetToDefault() {
+		this.setValue(getDefaultValue());
 	}
 }

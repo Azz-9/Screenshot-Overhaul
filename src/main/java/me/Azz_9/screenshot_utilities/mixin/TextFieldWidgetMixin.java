@@ -2,7 +2,6 @@ package me.Azz_9.screenshot_utilities.mixin;
 
 import me.Azz_9.screenshot_utilities.api.widget.TextFieldAccessor;
 import me.Azz_9.screenshot_utilities.client.gui.widget.screenshot.ScreenshotNameWidget;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -14,6 +13,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
 
 @Mixin(TextFieldWidget.class)
 public abstract class TextFieldWidgetMixin extends ClickableWidget implements TextFieldAccessor {
@@ -44,7 +45,7 @@ public abstract class TextFieldWidgetMixin extends ClickableWidget implements Te
 
 	@Unique
 	public void recenter() {
-		TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+		TextRenderer textRenderer = CLIENT.textRenderer;
 		this.textX = getX() + (getWidth() - textRenderer.getWidth(getText())) / 2;
 		this.textY = getY() + (getHeight() - textRenderer.fontHeight) / 2;
 	}

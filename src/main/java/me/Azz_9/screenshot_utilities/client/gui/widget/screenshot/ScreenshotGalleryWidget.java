@@ -2,10 +2,12 @@ package me.Azz_9.screenshot_utilities.client.gui.widget.screenshot;
 
 import me.Azz_9.screenshot_utilities.client.gui.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -137,4 +139,33 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 	public FocusManager getFocusManager() {
 		return focusManager;
 	}
+
+	public int indexOf(ScreenshotTexture texture) {
+		for (int i = 0; i < entries.size(); i++) {
+			ScreenshotEntryWidget entry = entries.get(i);
+			if (entry.getTexture() == texture) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	@Nullable
+	public ScreenshotTexture getPrevious(ScreenshotTexture current) {
+		int index = indexOf(current);
+		if (index > 0) {
+			return entries.get(index - 1).getTexture();
+		}
+		return null;
+	}
+
+	@Nullable
+	public ScreenshotTexture getNext(ScreenshotTexture current) {
+		int index = indexOf(current);
+		if (index >= 0 && index < entries.size() - 1) {
+			return entries.get(index + 1).getTexture();
+		}
+		return null;
+	}
+
 }

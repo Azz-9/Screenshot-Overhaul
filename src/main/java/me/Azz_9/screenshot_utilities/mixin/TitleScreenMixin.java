@@ -3,7 +3,6 @@ package me.Azz_9.screenshot_utilities.mixin;
 import me.Azz_9.screenshot_utilities.client.gui.ScreenshotGalleryScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.TextIconButtonWidget;
@@ -14,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MOD_ID;
 
 @Environment(EnvType.CLIENT)
@@ -34,8 +34,8 @@ public abstract class TitleScreenMixin extends Screen {
 		TextIconButtonWidget screenshotViewerButton = this.addDrawableChild(
 				TextIconButtonWidget.builder(
 								Text.translatable("screenshot_utilities.options.screenshots"),
-								(btn) -> MinecraftClient.getInstance().setScreen(new ScreenshotGalleryScreen()),
-							true
+								(btn) -> CLIENT.setScreen(new ScreenshotGalleryScreen()),
+								true
 						)
 						.useTextAsTooltip()
 						.width(20)

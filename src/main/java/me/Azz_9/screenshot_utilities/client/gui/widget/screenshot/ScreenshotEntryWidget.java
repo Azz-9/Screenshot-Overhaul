@@ -2,6 +2,7 @@ package me.Azz_9.screenshot_utilities.client.gui.widget.screenshot;
 
 import me.Azz_9.screenshot_utilities.client.gui.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
@@ -72,6 +73,10 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements AutoClo
 	@Override
 	public void close() {
 		thumbnailWidget.close();
+	}
+
+	public ScreenshotTexture getTexture() {
+		return thumbnailWidget.getTexture();
 	}
 
 	@Override

@@ -4,7 +4,6 @@ import me.Azz_9.screenshot_utilities.api.widget.TextFieldAccessor;
 import me.Azz_9.screenshot_utilities.client.gui.FocusManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
@@ -15,6 +14,8 @@ import net.minecraft.text.Text;
 import org.joml.Matrix3x2fStack;
 
 import java.io.File;
+
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
 
 @Environment(EnvType.CLIENT)
 public class ScreenshotNameWidget extends TextFieldWidget {
@@ -27,7 +28,7 @@ public class ScreenshotNameWidget extends TextFieldWidget {
 	private String baseName;
 
 	public ScreenshotNameWidget(int x, int y, int width, int height, File screenshot, FocusManager focusManager) {
-		super(MinecraftClient.getInstance().textRenderer, x, y, width, height, Text.empty());
+		super(CLIENT.textRenderer, x, y, width, height, Text.empty());
 		this.focusManager = focusManager;
 
 		setText(screenshot.getName());
@@ -66,7 +67,7 @@ public class ScreenshotNameWidget extends TextFieldWidget {
 	}
 
 	private void renderUnderline(DrawContext context) {
-		TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+		TextRenderer textRenderer = CLIENT.textRenderer;
 
 		int textX = ((TextFieldAccessor) this).screenshotUtilities$getTextX();
 		int textY = ((TextFieldAccessor) this).screenshotUtilities$getTextY();

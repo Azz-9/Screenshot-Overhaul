@@ -1,6 +1,8 @@
 {
 	"key.category.screenshot_utilities.screenshot-utilities": "Screenshot utilities",
 	"screenshot_utilities.controls.photo_mode": "Open photo mode",
+	"screenshot_utilities.controls.roll_left": "Roll left",
+	"screenshot_utilities.controls.roll_right": "Roll right",
 
 	"screenshot_utilities.narrator.screenshot_gallery": "Screenshot gallery",
 	"screenshot_utilities.options.screenshots": "Screenshots...",

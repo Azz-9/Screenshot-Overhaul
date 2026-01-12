@@ -1,16 +1,18 @@
 package me.Azz_9.screenshot_utilities.client.config;
 
-import net.minecraft.client.MinecraftClient;
+import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
+
 public class Config {
 	private static Config INSTANCE;
 
-	public final ConfigObject<Path> screenshotsPath = new ConfigObject<>(null, "");
-	public final ConfigObject<Boolean> showChatMessage = new ConfigObject<>(false, "");
+	public final ConfigObject<Path> screenshotsDir = new ConfigObject<>(CLIENT.runDirectory.toPath().resolve("screenshots"), "");
+	public final ConfigObject<Boolean> showChatMessage = new ConfigObject<>(true, "");
 
 	public static Config getInstance() {
 		if (INSTANCE == null) {
@@ -20,18 +22,19 @@ public class Config {
 	}
 
 	public Path getScreenshotsDir() {
-		if (screenshotsPath.getValue() == null) {
-			screenshotsPath.setValue(MinecraftClient.getInstance().runDirectory.toPath().resolve("screenshots"));
+		if (screenshotsDir.getValue() == null) {
+			ScreenshotLogger.warn("screenshotsDir is null -> reset to default");
+			screenshotsDir.resetToDefault();
 		}
 
-		if (!Files.exists(screenshotsPath.getValue())) {
+		if (!Files.exists(screenshotsDir.getValue())) {
 			try {
-				Files.createDirectories(screenshotsPath.getValue());
+				Files.createDirectories(screenshotsDir.getValue());
 			} catch (IOException e) {
-				throw new RuntimeException("Creating screenshots directory", e);
+				ScreenshotLogger.error("Could not create screenshotsDir: {}, error: {}", screenshotsDir.getValue(), e);
 			}
 		}
 
-		return screenshotsPath.getValue();
+		return screenshotsDir.getValue();
 	}
 }

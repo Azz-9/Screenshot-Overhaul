@@ -2,7 +2,6 @@ package me.Azz_9.screenshot_utilities.client.screenshot;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
@@ -13,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MOD_ID;
 
 @Environment(EnvType.CLIENT)
@@ -20,10 +20,12 @@ public final class ScreenshotTexture implements AutoCloseable {
 
 	private final Identifier id;
 	private final CompletableFuture<NativeImage> imageFuture;
+	private final int maxSize; // 0 = full res
 	private NativeImageBackedTexture texture;
 	private NativeImage pendingImage;
 
-	public ScreenshotTexture(Path file) {
+	public ScreenshotTexture(Path file, int maxSize) {
+		this.maxSize = maxSize;
 		this.id = Identifier.of(MOD_ID, "screenshots/" + file.toAbsolutePath()
 				.toString()
 				.toLowerCase()
@@ -39,6 +41,10 @@ public final class ScreenshotTexture implements AutoCloseable {
 		}, Util.getMainWorkerExecutor());
 	}
 
+	public static ScreenshotTexture loadThumbnail(Path file, int maxSize) {
+		return new ScreenshotTexture(file, maxSize);
+	}
+
 	public boolean isReady() {
 		return imageFuture.isDone() && texture != null;
 	}
@@ -52,9 +58,7 @@ public final class ScreenshotTexture implements AutoCloseable {
 		pendingImage = img;
 		texture = new NativeImageBackedTexture(id::toString, img);
 
-		MinecraftClient.getInstance()
-				.getTextureManager()
-				.registerTexture(id, texture);
+		CLIENT.getTextureManager().registerTexture(id, texture);
 
 		pendingImage = null;
 	}
@@ -76,8 +80,7 @@ public final class ScreenshotTexture implements AutoCloseable {
 	@Override
 	public void close() {
 		if (texture != null) {
-			MinecraftClient client = MinecraftClient.getInstance();
-			client.execute(() -> client.getTextureManager().destroyTexture(this.id));
+			CLIENT.execute(() -> CLIENT.getTextureManager().destroyTexture(this.id));
 
 			texture = null;
 		}

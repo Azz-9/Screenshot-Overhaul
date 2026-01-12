@@ -6,7 +6,6 @@ import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotDrawHelper;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.cursor.StandardCursors;
@@ -16,6 +15,8 @@ import net.minecraft.text.Text;
 import org.joml.Matrix3x2fStack;
 
 import java.io.File;
+
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
 
 @Environment(EnvType.CLIENT)
 public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCloseable {
@@ -34,7 +35,7 @@ public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCl
 		super(x, y, width, height, Text.literal(screenshot.getName()));
 		this.focusManager = focusManager;
 		this.screenshot = screenshot;
-		this.texture = new ScreenshotTexture(screenshot.toPath());
+		this.texture = new ScreenshotTexture(screenshot.toPath(), 256);
 	}
 
 	@Override
@@ -85,9 +86,13 @@ public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCl
 	@Override
 	public void onClick(Click click, boolean doubled) {
 		this.focusManager.clearFocus();
-		if (MinecraftClient.getInstance().currentScreen instanceof ScreenshotGalleryScreen screen) {
+		if (CLIENT.currentScreen instanceof ScreenshotGalleryScreen screen) {
 			screen.selectScreenshot(texture);
 		}
+	}
+
+	public ScreenshotTexture getTexture() {
+		return texture;
 	}
 
 	@Override
