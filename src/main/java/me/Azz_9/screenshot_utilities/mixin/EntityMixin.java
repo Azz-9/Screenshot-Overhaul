@@ -1,6 +1,8 @@
 package me.Azz_9.screenshot_utilities.mixin;
 
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -9,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
 
+@Environment(EnvType.CLIENT)
 @Mixin(Entity.class)
 public abstract class EntityMixin {
 

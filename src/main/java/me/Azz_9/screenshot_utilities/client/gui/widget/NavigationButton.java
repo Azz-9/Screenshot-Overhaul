@@ -1,28 +1,24 @@
 package me.Azz_9.screenshot_utilities.client.gui.widget;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ButtonTextures;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MOD_ID;
 
+@Environment(EnvType.CLIENT)
 public class NavigationButton extends ButtonWidget {
 
-	private static final ButtonTextures TEXTURES = new ButtonTextures(
-			Identifier.ofVanilla("widget/button"),
-			Identifier.ofVanilla("widget/button_disabled"),
-			Identifier.ofVanilla("widget/button_highlighted")
-	);
+	private static final @NonNull Identifier BACK_TEXTURE = Identifier.of(MOD_ID, "icon/arrow_left");
+	private static final @NonNull Identifier NEXT_TEXTURE = Identifier.of(MOD_ID, "icon/arrow_right");
 
-	private static final Identifier BACK_TEXTURE = Identifier.of(MOD_ID, "icon/arrow_left");
-	private static final Identifier NEXT_TEXTURE = Identifier.of(MOD_ID, "icon/arrow_right");
-	@NotNull
-	private final NavigationButton.NavigationTypes navigation;
+	private final @NonNull NavigationTypes navigation;
 
-	public NavigationButton(int x, int y, int width, int height, @NotNull NavigationButton.NavigationTypes navigation, PressAction onPress) {
+	public NavigationButton(int x, int y, int width, int height, @NonNull NavigationTypes navigation, PressAction onPress) {
 		super(x, y, width, height, navigation == NavigationTypes.BACK
 						? net.minecraft.text.Text.translatable("screenshot_utilities.navigation.back")
 						: net.minecraft.text.Text.translatable("screenshot_utilities.navigation.next"),

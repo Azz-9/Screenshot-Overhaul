@@ -8,5 +8,10 @@
 	"screenshot_utilities.options.screenshots": "Screenshots...",
 
 	"screenshot_utilities.navigation.back": "Back",
-	"screenshot_utilities.navigation.next": "Next"
+	"screenshot_utilities.navigation.next": "Next",
+
+	"screenshot_utilities.gallery_widget.no_screenshot": "It looks like you haven't taken a screenshot yet.",
+	"screenshot_utilities.gallery_widget.search_bar": "Search bar",
+	"screenshot_utilities.gallery_widget.search_bar.placeholder": "Search..."
+
 }

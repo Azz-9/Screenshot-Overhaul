@@ -1,6 +1,6 @@
-package me.Azz_9.screenshot_utilities.client.gui.widget.screenshot;
+package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery;
 
-import me.Azz_9.screenshot_utilities.client.gui.FocusManager;
+import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
 import net.fabricmc.api.EnvType;
@@ -8,6 +8,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.ParentElement;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import org.jspecify.annotations.NonNull;
 
 import java.io.File;
 
@@ -16,49 +17,61 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements AutoClo
 
 	public static final int NAME_HEIGHT = 30;
 
-	private final FocusManager focusManager;
+	private final @NonNull ScreenshotThumbnailWidget thumbnailWidget;
+	private final @NonNull ScreenshotNameWidget nameWidget;
 
-	private final ScreenshotThumbnailWidget thumbnailWidget;
-	private final ScreenshotNameWidget nameWidget;
+	private final @NonNull File screenshotFile;
+	private int baseY;
 
-	private final File screenshot;
-	private final int baseY;
-
-	public ScreenshotEntryWidget(int x, int y, int thumbnailWidth, int thumbnailHeight, File screenshot, FocusManager focusManager) {
+	public ScreenshotEntryWidget(int x, int y, int thumbnailWidth, int thumbnailHeight, @NonNull File screenshotFile) {
 		super(x, y, thumbnailWidth, thumbnailHeight + NAME_HEIGHT);
-		this.focusManager = focusManager;
 
 		this.baseY = y;
-		this.screenshot = screenshot;
+		this.screenshotFile = screenshotFile;
 
 		this.thumbnailWidget = new ScreenshotThumbnailWidget(
 				x, y,
 				thumbnailWidth, thumbnailHeight,
-				screenshot,
-				focusManager
+				screenshotFile
 		);
 
 		this.nameWidget = new ScreenshotNameWidget(
 				x, y + thumbnailHeight,
 				thumbnailWidth, NAME_HEIGHT,
-				screenshot,
-				focusManager
+				screenshotFile
 		);
 
 		addAllChildren(thumbnailWidget, nameWidget);
+	}
+
+	public ScreenshotEntryWidget(@NonNull File screenshotFile) {
+		this(0, 0, 0, 0, screenshotFile);
 	}
 
 	public int getBaseY() {
 		return baseY;
 	}
 
+	public void setBaseY(int baseY) {
+		this.baseY = baseY;
+	}
+
 	@Override
-	public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+	public void renderWidget(@NonNull DrawContext context, int mouseX, int mouseY, float delta) {
 		// fond global
-		context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x801E1E1E);
+		context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), Colors.BLACK_TRANSPARENT);
 
 		thumbnailWidget.render(context, mouseX, mouseY, delta);
 		nameWidget.render(context, mouseX, mouseY, delta);
+	}
+
+	@Override
+	public void setX(int x) {
+		if (getX() != x) {
+			super.setX(x);
+			thumbnailWidget.setX(x);
+			nameWidget.setX(x);
+		}
 	}
 
 	@Override
@@ -75,8 +88,17 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements AutoClo
 		thumbnailWidget.close();
 	}
 
+	@NonNull
 	public ScreenshotTexture getTexture() {
 		return thumbnailWidget.getTexture();
+	}
+
+	public @NonNull File getScreenshotFile() {
+		return screenshotFile;
+	}
+
+	public String getName() {
+		return nameWidget.getText();
 	}
 
 	@Override

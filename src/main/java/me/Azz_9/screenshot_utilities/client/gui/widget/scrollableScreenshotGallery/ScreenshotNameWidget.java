@@ -1,7 +1,8 @@
-package me.Azz_9.screenshot_utilities.client.gui.widget.screenshot;
+package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery;
 
-import me.Azz_9.screenshot_utilities.api.widget.TextFieldAccessor;
-import me.Azz_9.screenshot_utilities.client.gui.FocusManager;
+import me.Azz_9.screenshot_utilities.accessors.widget.TextFieldAccessor;
+import me.Azz_9.screenshot_utilities.client.Colors;
+import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;
@@ -11,7 +12,9 @@ import net.minecraft.client.gui.cursor.Cursor;
 import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.MathHelper;
 import org.joml.Matrix3x2fStack;
+import org.jspecify.annotations.NonNull;
 
 import java.io.File;
 
@@ -21,15 +24,15 @@ import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CL
 public class ScreenshotNameWidget extends TextFieldWidget {
 
 	private static final float UNDERLINE_SPEED = 0.4f;
-	private final FocusManager focusManager;
-	private final File screenshot;
-	private final String extension;
-	private float underlineProgress = 0.0f;
-	private String baseName;
 
-	public ScreenshotNameWidget(int x, int y, int width, int height, File screenshot, FocusManager focusManager) {
+	private final @NonNull File screenshot;
+	private final @NonNull String extension;
+	private @NonNull String baseName;
+	private float underlineProgress = 0.0f;
+	private int onClickX = -1;
+
+	public ScreenshotNameWidget(int x, int y, int width, int height, @NonNull File screenshot) {
 		super(CLIENT.textRenderer, x, y, width, height, Text.empty());
-		this.focusManager = focusManager;
 
 		setText(screenshot.getName());
 		setDrawsBackground(false);
@@ -52,11 +55,23 @@ public class ScreenshotNameWidget extends TextFieldWidget {
 
 		super.renderWidget(context, mouseX, mouseY, deltaTicks);
 
-		float target = this.isFocused() ? 1.0f : 0.0f;
+		float target;
+		int cursorX;
+		if (isFocused()) {
+			target = 1.0f;
+			cursorX = MathHelper.clamp(
+					onClickX - ((TextFieldAccessor) this).screenshotUtilities$getTextX(),
+					0,
+					CLIENT.textRenderer.getWidth(getText())
+			);
+		} else {
+			target = 0.0f;
+			cursorX = CLIENT.textRenderer.getWidth(getText().substring(0, getCursor()));
+		}
 		underlineProgress += (target - underlineProgress) * UNDERLINE_SPEED;
 
 		if (underlineProgress > 0.001f) {
-			renderUnderline(context);
+			renderUnderline(context, cursorX);
 		}
 
 		context.disableScissor();
@@ -66,7 +81,7 @@ public class ScreenshotNameWidget extends TextFieldWidget {
 		}
 	}
 
-	private void renderUnderline(DrawContext context) {
+	private void renderUnderline(@NonNull DrawContext context, int cursorX) {
 		TextRenderer textRenderer = CLIENT.textRenderer;
 
 		int textX = ((TextFieldAccessor) this).screenshotUtilities$getTextX();
@@ -75,16 +90,14 @@ public class ScreenshotNameWidget extends TextFieldWidget {
 		int fullWidth = textRenderer.getWidth(getText());
 		int underlineHeight = 1;
 
-		float centerX = textX + fullWidth / 2f;
 		float y = textY + textRenderer.fontHeight + 1;
 
 		Matrix3x2fStack matrices = context.getMatrices();
 		matrices.pushMatrix();
-		matrices.translate(centerX, y);
+		matrices.translate(textX + cursorX, y);
 		matrices.scale(underlineProgress, 1.0f);
-		matrices.translate(-fullWidth / 2f, 0);
 
-		context.fill(0, 0, fullWidth, underlineHeight, 0xFFFFFFFF);
+		context.fill(-cursorX, 0, fullWidth - cursorX, underlineHeight, Colors.WHITE);
 
 		matrices.popMatrix();
 	}
@@ -92,7 +105,10 @@ public class ScreenshotNameWidget extends TextFieldWidget {
 
 	@Override
 	public void onClick(Click click, boolean doubled) {
-		focusManager.requestFocus(this);
+		this.onClickX = (int) click.x();
+		if (CLIENT.currentScreen instanceof FocusableScreen screen) {
+			screen.requestFocus(this);
+		}
 		super.onClick(click, doubled);
 	}
 
@@ -104,7 +120,7 @@ public class ScreenshotNameWidget extends TextFieldWidget {
 		}
 	}
 
-	public void commitRename(String newBaseName) {
+	public void commitRename(@NonNull String newBaseName) {
 		if (newBaseName.isBlank()) return;
 
 		File renamed = new File(screenshot.getParentFile(), newBaseName + extension);

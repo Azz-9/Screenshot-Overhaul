@@ -10,26 +10,26 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 @Environment(EnvType.CLIENT)
 public class Screenshot_utilitiesClient implements ClientModInitializer {
-	public static final MinecraftClient CLIENT = MinecraftClient.getInstance();
-	public static final String MOD_ID = "screenshot_utilities";
+	public static final @NonNull MinecraftClient CLIENT = MinecraftClient.getInstance();
+	public static final @NonNull String MOD_ID = "screenshot_utilities";
 
 	private static KeyBinding openPhotoMode;
 	private static KeyBinding rollLeft;
 	private static KeyBinding rollRight;
 
-	public static @NotNull KeyBinding getOpenPhotoModeKeybind() {
+	public static @NonNull KeyBinding getOpenPhotoModeKeybind() {
 		return openPhotoMode;
 	}
 
-	public static @NotNull KeyBinding getRollLeftKeybind() {
+	public static @NonNull KeyBinding getRollLeftKeybind() {
 		return rollLeft;
 	}
 
-	public static @NotNull KeyBinding getRollRightKeybind() {
+	public static @NonNull KeyBinding getRollRightKeybind() {
 		return rollRight;
 	}
 

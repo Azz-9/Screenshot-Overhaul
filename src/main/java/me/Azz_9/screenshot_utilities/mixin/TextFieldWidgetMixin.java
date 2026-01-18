@@ -1,7 +1,9 @@
 package me.Azz_9.screenshot_utilities.mixin;
 
-import me.Azz_9.screenshot_utilities.api.widget.TextFieldAccessor;
-import me.Azz_9.screenshot_utilities.client.gui.widget.screenshot.ScreenshotNameWidget;
+import me.Azz_9.screenshot_utilities.accessors.widget.TextFieldAccessor;
+import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.ScreenshotNameWidget;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -16,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
 
+@Environment(EnvType.CLIENT)
 @Mixin(TextFieldWidget.class)
 public abstract class TextFieldWidgetMixin extends ClickableWidget implements TextFieldAccessor {
 

@@ -2,6 +2,8 @@ package me.Azz_9.screenshot_utilities.mixin;
 
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoModeHud;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.gui.screen.world.LevelLoadingScreen;
@@ -16,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
 
+@Environment(EnvType.CLIENT)
 @Mixin(InGameHud.class)
 public abstract class InGameHudMixin {
 	@Inject(method = "render", at = @At("HEAD"), cancellable = true)

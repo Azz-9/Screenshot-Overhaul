@@ -1,6 +1,8 @@
 package me.Azz_9.screenshot_utilities.client.photoMode;
 
 import com.mojang.authlib.GameProfile;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.input.KeyboardInput;
 import net.minecraft.client.network.ClientConnectionState;
@@ -19,16 +21,15 @@ import java.util.UUID;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
 
+@Environment(EnvType.CLIENT)
 public class PhotoMode {
 
 	private static boolean enabled;
 	private static long frozenTime;
 
-	@Nullable
-	private static PhotoCamera camera = null;
+	private static @Nullable PhotoCamera camera = null;
 
-	@Nullable
-	private static Perspective prevCameraType = null;
+	private static @Nullable Perspective prevCameraType = null;
 
 	public static @Nullable PhotoCamera getCamera() {
 		return camera;

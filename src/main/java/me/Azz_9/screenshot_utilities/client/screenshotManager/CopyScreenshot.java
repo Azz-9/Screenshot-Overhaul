@@ -11,7 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class CopyScreenshot {
-	public static void copyToClipboard(BufferedImage image) {
+	public static void copyToClipboard(@NonNull BufferedImage image) {
 		Transferable transferableImage = new Transferable() {
 			@Override
 			public DataFlavor[] getTransferDataFlavors() {
@@ -31,7 +31,7 @@ public class CopyScreenshot {
 				return image;
 			}
 		};
-		
+
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		clipboard.setContents(transferableImage, null);
 	}

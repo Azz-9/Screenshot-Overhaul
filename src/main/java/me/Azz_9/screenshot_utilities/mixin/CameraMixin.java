@@ -2,6 +2,8 @@ package me.Azz_9.screenshot_utilities.mixin;
 
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoCamera;
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.enums.CameraSubmersionType;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
@@ -13,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+@Environment(EnvType.CLIENT)
 @Mixin(Camera.class)
 public abstract class CameraMixin {
 

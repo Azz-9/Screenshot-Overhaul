@@ -1,7 +1,9 @@
 package me.Azz_9.screenshot_utilities.mixin;
 
-import me.Azz_9.screenshot_utilities.api.network.ClientPlayNetworkHandlerAccessor;
+import me.Azz_9.screenshot_utilities.accessors.network.ClientPlayNetworkHandlerAccessor;
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.packet.s2c.play.PlayerRespawnS2CPacket;
 import org.spongepowered.asm.mixin.Mixin;
@@ -10,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+@Environment(EnvType.CLIENT)
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class ClientPlayNetworkHandlerMixin implements ClientPlayNetworkHandlerAccessor {
 

@@ -1,6 +1,8 @@
 package me.Azz_9.screenshot_utilities.client.photoMode;
 
-import me.Azz_9.screenshot_utilities.api.network.ClientPlayNetworkHandlerAccessor;
+import me.Azz_9.screenshot_utilities.accessors.network.ClientPlayNetworkHandlerAccessor;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.input.KeyboardInput;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -14,9 +16,11 @@ import net.minecraft.stat.StatHandler;
 import net.minecraft.util.PlayerInput;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import org.jspecify.annotations.NonNull;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
 
+@Environment(EnvType.CLIENT)
 public class PhotoCamera extends ClientPlayerEntity {
 
 	public static final double DIAGONAL_MULTIPLIER = MathHelper.sin((float) Math.toRadians(45));
@@ -26,7 +30,15 @@ public class PhotoCamera extends ClientPlayerEntity {
 	public float prevRoll = 0.0f;
 	private double speed = 1.0f;
 
-	public PhotoCamera(MinecraftClient client, ClientWorld world, ClientPlayNetworkHandler networkHandler, StatHandler stats, ClientRecipeBook recipeBook, PlayerInput lastPlayerInput, boolean lastSprinting) {
+	public PhotoCamera(
+			@NonNull MinecraftClient client,
+			@NonNull ClientWorld world,
+			@NonNull ClientPlayNetworkHandler networkHandler,
+			@NonNull StatHandler stats,
+			@NonNull ClientRecipeBook recipeBook,
+			@NonNull PlayerInput lastPlayerInput,
+			boolean lastSprinting
+	) {
 		super(client, world, networkHandler, stats, recipeBook, lastPlayerInput, lastSprinting);
 		setId(-500);
 		setPose(EntityPose.SWIMMING);
@@ -41,7 +53,7 @@ public class PhotoCamera extends ClientPlayerEntity {
 		}
 	}
 
-	private static double getSwimmingY(Entity entity) {
+	private static double getSwimmingY(@NonNull Entity entity) {
 		if (entity.getPose() == EntityPose.SWIMMING) {
 			return entity.getY();
 		}

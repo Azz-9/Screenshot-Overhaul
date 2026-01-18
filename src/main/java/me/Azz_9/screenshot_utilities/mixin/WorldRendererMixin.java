@@ -1,6 +1,8 @@
 package me.Azz_9.screenshot_utilities.mixin;
 
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.RenderTickCounter;
@@ -18,15 +20,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
 
+@Environment(EnvType.CLIENT)
 @Mixin(WorldRenderer.class)
 public abstract class WorldRendererMixin {
 
-	@ModifyVariable(
-			method = "render",
-			at = @At("HEAD"),
-			argsOnly = true,
-			index = 2
-	)
+	@ModifyVariable(method = "render", at = @At("HEAD"), argsOnly = true, index = 2)
 	private static RenderTickCounter freezeTickDelta(RenderTickCounter tickCounter) {
 		if (PhotoMode.isEnabled()) {
 			return RenderTickCounter.ZERO;

@@ -1,18 +1,22 @@
 package me.Azz_9.screenshot_utilities.client.gui.widget;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.Widget;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+@Environment(EnvType.CLIENT)
 public abstract class SimpleParentWidget extends AbstractParentElement implements Drawable, Element, Widget, Selectable {
 
-	private final List<Element> children = new ArrayList<>();
-	public boolean visible = true;
+	private final @NonNull List<@NonNull Element> children = new ArrayList<>();
+	private boolean visible = true;
 	private int width;
 	private int height;
 	private int x;
@@ -34,7 +38,7 @@ public abstract class SimpleParentWidget extends AbstractParentElement implement
 		}
 	}
 
-	protected abstract void renderWidget(DrawContext context, int mouseX, int mouseY, float deltaTicks);
+	protected abstract void renderWidget(@NonNull DrawContext context, int mouseX, int mouseY, float deltaTicks);
 
 	private boolean isInBounds(double x, double y) {
 		return x >= this.getX() && y >= this.getY() && x < this.getRight() && y < this.getBottom();
@@ -63,6 +67,13 @@ public abstract class SimpleParentWidget extends AbstractParentElement implement
 		}
 	}
 
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
 
 	@Override
 	public Selectable.SelectionType getType() {
@@ -73,11 +84,11 @@ public abstract class SimpleParentWidget extends AbstractParentElement implement
 		}
 	}
 
-	public void addChild(Element child) {
+	public void addChild(@NonNull Element child) {
 		children.add(child);
 	}
 
-	public void addAllChildren(Element... children) {
+	public void addAllChildren(@NonNull Element... children) {
 		for (Element child : children) {
 			addChild(child);
 		}

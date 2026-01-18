@@ -1,7 +1,9 @@
-package me.Azz_9.screenshot_utilities.client.gui.widget.screenshot;
+package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery;
 
-import me.Azz_9.screenshot_utilities.client.gui.FocusManager;
-import me.Azz_9.screenshot_utilities.client.gui.ScreenshotGalleryScreen;
+import me.Azz_9.screenshot_utilities.client.Colors;
+import me.Azz_9.screenshot_utilities.client.gui.Loading;
+import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
+import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotDrawHelper;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
 import net.fabricmc.api.EnvType;
@@ -12,7 +14,9 @@ import net.minecraft.client.gui.cursor.StandardCursors;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.ColorHelper;
 import org.joml.Matrix3x2fStack;
+import org.jspecify.annotations.NonNull;
 
 import java.io.File;
 
@@ -22,32 +26,41 @@ import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CL
 public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCloseable {
 
 	private static final float HOVER_SCALE = 1.04f;
-	private static final float SCALE_SPEED = 0.15f;
 
-	private final FocusManager focusManager;
+	private static final float HOVER_SPEED = 10f;
+	private static final float APPEAR_SPEED = 8f;
 
-	private final ScreenshotTexture texture;
-	private final File screenshot;
+	private final @NonNull ScreenshotTexture texture;
+	private final @NonNull File screenshot;
 
 	private float currentScale = 1.0f;
+	private float appearProgress = 0f; // 0 → 1
 
-	public ScreenshotThumbnailWidget(int x, int y, int width, int height, File screenshot, FocusManager focusManager) {
+	private boolean appeared = false;
+
+	public ScreenshotThumbnailWidget(int x, int y, int width, int height, @NonNull File screenshot) {
 		super(x, y, width, height, Text.literal(screenshot.getName()));
-		this.focusManager = focusManager;
 		this.screenshot = screenshot;
-		this.texture = new ScreenshotTexture(screenshot.toPath(), 256);
+		this.texture = ScreenshotTexture.loadThumbnail(screenshot.toPath());
 	}
 
 	@Override
 	public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-		texture.uploadIfNeeded();
-
-		float targetScale = isHovered() && isInteractable() ? HOVER_SCALE : 1.0f;
-		currentScale += (targetScale - currentScale) * SCALE_SPEED;
-
 		if (!texture.isReady()) {
+			Loading.drawLoadingSpinner(
+					context,
+					getX() + getWidth() / 2,
+					getY() + getHeight() / 2,
+					(int) (Math.min(getWidth(), getHeight()) * 0.05f),
+					10
+			);
 			return;
 		}
+
+		float dt = delta / 20f;
+
+		updateAppearProgress(dt);
+		updateHoverScale(dt);
 
 		context.enableScissor(getX(), getY(), getRight(), getBottom());
 
@@ -63,11 +76,10 @@ public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCl
 
 		ScreenshotDrawHelper.drawCover(
 				context,
-				texture.id(),
-				texture.width(),
-				texture.height(),
+				texture,
 				getX(), getY(),
-				getWidth(), getHeight()
+				getWidth(), getHeight(),
+				ColorHelper.withAlpha(appearProgress, Colors.WHITE)
 		);
 
 		matrices.popMatrix();
@@ -76,8 +88,24 @@ public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCl
 		setCursor(context);
 	}
 
+	private void updateAppearProgress(float dt) {
+		if (!appeared) {
+			appearProgress += (float) ((1f - appearProgress) * (1f - Math.exp(-APPEAR_SPEED * dt)));
+			if (appearProgress > 0.999f) {
+				appearProgress = 1f;
+				appeared = true;
+			}
+		}
+	}
+
+
+	private void updateHoverScale(float dt) {
+		float targetScale = (isHovered() && isInteractable()) ? HOVER_SCALE : 1.0f;
+		currentScale += (float) ((targetScale - currentScale) * (1f - Math.exp(-HOVER_SPEED * dt)));
+	}
+
 	@Override
-	protected void setCursor(DrawContext context) {
+	protected void setCursor(@NonNull DrawContext context) {
 		if (this.isHovered() && this.isInteractable()) {
 			context.setCursor(StandardCursors.POINTING_HAND);
 		}
@@ -85,12 +113,15 @@ public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCl
 
 	@Override
 	public void onClick(Click click, boolean doubled) {
-		this.focusManager.clearFocus();
+		if (CLIENT.currentScreen instanceof FocusableScreen screen) {
+			screen.clearFocus();
+		}
 		if (CLIENT.currentScreen instanceof ScreenshotGalleryScreen screen) {
 			screen.selectScreenshot(texture);
 		}
 	}
 
+	@NonNull
 	public ScreenshotTexture getTexture() {
 		return texture;
 	}

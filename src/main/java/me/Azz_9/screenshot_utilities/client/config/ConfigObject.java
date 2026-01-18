@@ -1,29 +1,34 @@
 package me.Azz_9.screenshot_utilities.client.config;
 
+import org.jspecify.annotations.NonNull;
+
 public class ConfigObject<T> {
+	@NonNull
 	private final T defaultValue;
+	@NonNull
 	String translationKey;
+	@NonNull
 	private T value;
 
-	public ConfigObject(T defaultValue, String translationKey) {
+	public ConfigObject(@NonNull T defaultValue, @NonNull String translationKey) {
 		this.value = defaultValue;
 		this.defaultValue = defaultValue;
 		this.translationKey = translationKey;
 	}
 
-	public T getValue() {
+	public @NonNull T getValue() {
 		return value;
 	}
 
-	public void setValue(T value) {
+	public void setValue(@NonNull T value) {
 		this.value = value;
 	}
 
-	public T getDefaultValue() {
+	public @NonNull T getDefaultValue() {
 		return defaultValue;
 	}
 
-	public String getTranslationKey() {
+	public @NonNull String getTranslationKey() {
 		return translationKey;
 	}
 

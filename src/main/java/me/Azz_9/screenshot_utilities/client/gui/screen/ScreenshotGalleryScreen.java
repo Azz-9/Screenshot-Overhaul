@@ -1,8 +1,11 @@
-package me.Azz_9.screenshot_utilities.client.gui;
+package me.Azz_9.screenshot_utilities.client.gui.screen;
 
+import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.config.Config;
+import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
+import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.NavigationButton;
-import me.Azz_9.screenshot_utilities.client.gui.widget.screenshot.ScreenshotGalleryWidget;
+import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.ScreenshotGalleryWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotDrawHelper;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
 import net.fabricmc.api.EnvType;
@@ -11,34 +14,30 @@ import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.input.KeyInput;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.ColorHelper;
-import net.minecraft.util.math.MathHelper;
 import org.joml.Matrix3x2fStack;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Environment(EnvType.CLIENT)
-public class ScreenshotGalleryScreen extends Screen {
+public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 	private static final int FULL_VIEW_PADDING = 40;
 	private static final int BOTTOM_PADDING = 60;
 	private static final int NAV_BUTTON_SIZE = 20;
 	private static final int NAV_BUTTON_PADDING = 10;
-	private static final float TRANSITION_DURATION = 0.25f; // secondes
-	private final FocusManager focusManager = new FocusManager();
-	private ScreenshotGalleryWidget gallery;
+	private static final float TRANSITION_DURATION = 0.2f; // secondes
+	private final @NonNull FocusManager focusManager = new FocusManager();
+	private @Nullable ScreenshotGalleryWidget gallery;
 	// full view
 	private NavigationButton backButton, nextButton;
-	@Nullable
-	private ScreenshotTexture selectedTexture = null;
-	private ScreenshotTexture outgoingTexture;
-	private ScreenshotTexture incomingTexture;
+	private @Nullable ScreenshotTexture selectedTexture = null;
+	private @Nullable ScreenshotTexture outgoingTexture = null;
 
 	private float transitionTime = 0f;
 	private int transitionDirection = 0; // -1 = back, +1 = next
@@ -49,19 +48,28 @@ public class ScreenshotGalleryScreen extends Screen {
 	}
 
 	@Override
+	public void requestFocus(@Nullable Element widget) {
+		focusManager.requestFocus(widget);
+	}
+
+	@Override
+	public void clearFocus() {
+		focusManager.clearFocus();
+	}
+
+	@Override
+	public @NonNull FocusManager getFocusManager() {
+		return focusManager;
+	}
+
+	@Override
 	protected void init() {
 		File folder = Config.getInstance().getScreenshotsDir().toFile();
-
-		List<File> screenshots = Arrays.stream(
-				Objects.requireNonNull(folder.listFiles(f ->
-						f.getName().endsWith(".png") || f.getName().endsWith(".jpg") || f.getName().endsWith(".jpeg")
-				))
-		).toList();
 
 		gallery = new ScreenshotGalleryWidget(
 				10, 10,
 				width - 100, height - 20,
-				screenshots, focusManager
+				folder
 		);
 
 		backButton = new NavigationButton(
@@ -83,27 +91,33 @@ public class ScreenshotGalleryScreen extends Screen {
 		addDrawableChild(gallery);
 	}
 
-	public void selectScreenshot(ScreenshotTexture texture) {
-		this.selectedTexture = texture;
+	public void selectScreenshot(@NonNull ScreenshotTexture texture) {
+		selectedTexture = texture;
 
 		backButton.visible = true;
 		nextButton.visible = true;
 
 		updateNavButtons();
-		gallery.setActive(false);
+
+		if (gallery != null) {
+			gallery.setActive(false);
+		}
 	}
 
 	public void deselectScreenshot() {
-		this.selectedTexture = null;
+		selectedTexture = null;
 		backButton.active = false;
 		backButton.visible = false;
 		nextButton.active = false;
 		nextButton.visible = false;
-		gallery.setActive(true);
+
+		if (gallery != null) {
+			gallery.setActive(true);
+		}
 	}
 
 	private void selectPrevious() {
-		if (selectedTexture == null || inTransition) return;
+		if (selectedTexture == null || inTransition || gallery == null) return;
 
 		ScreenshotTexture prev = gallery.getPrevious(selectedTexture);
 		if (prev != null) {
@@ -112,7 +126,7 @@ public class ScreenshotGalleryScreen extends Screen {
 	}
 
 	private void selectNext() {
-		if (selectedTexture == null || inTransition) return;
+		if (selectedTexture == null || inTransition || gallery == null) return;
 
 		ScreenshotTexture next = gallery.getNext(selectedTexture);
 		if (next != null) {
@@ -122,7 +136,7 @@ public class ScreenshotGalleryScreen extends Screen {
 
 	private void startTransition(ScreenshotTexture next, int direction) {
 		this.outgoingTexture = this.selectedTexture;
-		this.incomingTexture = next;
+		this.selectedTexture = next;
 
 		this.transitionDirection = direction;
 		this.transitionTime = 0f;
@@ -133,6 +147,8 @@ public class ScreenshotGalleryScreen extends Screen {
 
 
 	private void updateNavButtons() {
+		if (gallery == null || selectedTexture == null) return;
+
 		backButton.active = gallery.getPrevious(selectedTexture) != null;
 		nextButton.active = gallery.getNext(selectedTexture) != null;
 	}
@@ -148,38 +164,33 @@ public class ScreenshotGalleryScreen extends Screen {
 			if (transitionTime >= TRANSITION_DURATION) {
 				transitionTime = TRANSITION_DURATION;
 				inTransition = false;
-				selectedTexture = incomingTexture;
 				outgoingTexture = null;
-				incomingTexture = null;
 			}
 		}
 
-
 		if (selectedTexture != null) {
-			context.fill(0, 0, width, height, 0x7f000000);
+			context.fill(0, 0, width, height, Colors.BLACK_SEMI_TRANSPARENT);
 
 			if (!inTransition) {
-				drawScreenshot(context, selectedTexture, 0, 1f);
+				drawScreenshot(context, selectedTexture, 0);
 			} else {
 				float t = transitionTime / TRANSITION_DURATION;
 				t = t * t * (3f - 2f * t); // smoothstep
 
-				int slide = (int) ((width + FULL_VIEW_PADDING) * t);
+				int slide = (int) (width * t);
 
 				// ancien screenshot (sortant)
 				drawScreenshot(
 						context,
 						outgoingTexture,
-						-slide * transitionDirection,
-						1f - t
+						-slide * transitionDirection
 				);
 
 				// nouveau screenshot (entrant)
 				drawScreenshot(
 						context,
-						incomingTexture,
-						(width - slide) * transitionDirection,
-						t
+						selectedTexture,
+						(width - slide) * transitionDirection
 				);
 			}
 
@@ -188,7 +199,7 @@ public class ScreenshotGalleryScreen extends Screen {
 		}
 	}
 
-	private void drawScreenshot(DrawContext context, ScreenshotTexture texture, int offsetX, float alpha) {
+	private void drawScreenshot(@NonNull DrawContext context, @Nullable ScreenshotTexture texture, int offsetX) {
 		if (texture == null) return;
 
 		Matrix3x2fStack matrices = context.getMatrices();
@@ -196,23 +207,19 @@ public class ScreenshotGalleryScreen extends Screen {
 
 		matrices.translate(offsetX, 0);
 
-		int a = MathHelper.clamp((int) (alpha * 255), 0, 255);
-
 		ScreenshotDrawHelper.drawCover(
 				context,
-				texture.id(),
-				texture.width(),
-				texture.height(),
+				texture,
 				FULL_VIEW_PADDING,
 				FULL_VIEW_PADDING,
 				width - FULL_VIEW_PADDING * 2,
-				height - FULL_VIEW_PADDING - BOTTOM_PADDING,
-				ColorHelper.withAlpha(a, 0xffffff)
+				height - FULL_VIEW_PADDING - BOTTOM_PADDING
 		);
 
 		matrices.popMatrix();
 	}
 
+	/* ---------------- Inputs ---------------- */
 
 	@Override
 	public boolean mouseClicked(Click click, boolean doubled) {
@@ -239,6 +246,19 @@ public class ScreenshotGalleryScreen extends Screen {
 		return handled;
 	}
 
+	@Override
+	public boolean keyPressed(KeyInput input) {
+		if (selectedTexture != null && input.isEscape()) {
+			deselectScreenshot();
+			return true;
+		}
+		if (input.key() == InputUtil.GLFW_KEY_F5 && gallery != null) {
+			gallery.refresh();
+			return true;
+		}
+		return super.keyPressed(input);
+	}
+
 	/* ---------------- Cleanup ---------------- */
 
 	@Override
@@ -249,6 +269,7 @@ public class ScreenshotGalleryScreen extends Screen {
 		}
 
 		selectedTexture = null;
+		outgoingTexture = null;
 
 		super.close();
 	}

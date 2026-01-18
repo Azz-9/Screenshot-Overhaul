@@ -1,6 +1,6 @@
 package me.Azz_9.screenshot_utilities.mixin;
 
-import me.Azz_9.screenshot_utilities.client.gui.ScreenshotGalleryScreen;
+import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.Screen;
