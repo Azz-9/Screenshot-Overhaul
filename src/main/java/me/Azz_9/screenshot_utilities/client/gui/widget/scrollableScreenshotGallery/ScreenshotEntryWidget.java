@@ -84,6 +84,19 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements AutoClo
 	}
 
 	@Override
+	public void setWidth(int width) {
+		super.setWidth(width);
+		thumbnailWidget.setWidth(width);
+		nameWidget.setWidth(width);
+	}
+
+	@Override
+	public void setHeight(int height) {
+		super.setHeight(height);
+		thumbnailWidget.setHeight(height - NAME_HEIGHT);
+	}
+
+	@Override
 	public void close() {
 		thumbnailWidget.close();
 	}

@@ -17,6 +17,9 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -37,6 +40,10 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 	// smooth scroll
 	private static final double SCROLL_SPEED = 40.0;
 	private static final double SMOOTHING = 25.0;
+	// separator
+	private static final int SEPARATOR_HEIGHT = CLIENT.textRenderer.fontHeight;
+
+	private final List<DateSeparator> separators = new ArrayList<>();
 
 	// header
 	private final @NonNull SearchBar searchBar;
@@ -95,6 +102,12 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 		}, CLIENT);
 	}
 
+	private static LocalDate getScreenshotDate(File file) {
+		return Instant.ofEpochMilli(file.lastModified())
+				.atZone(ZoneId.systemDefault())
+				.toLocalDate();
+	}
+
 	/* ---------------- Layout ---------------- */
 
 	private void buildEntries(@NonNull List<File> screenshots) {
@@ -142,6 +155,8 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 	}
 
 	private void layoutEntries() {
+		separators.clear();
+
 		int availableWidth = getWidth() - PADDING;
 
 		int columns = Math.max(1, availableWidth / (MIN_THUMB_WIDTH + PADDING));
@@ -152,6 +167,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 		int yCursor = getY() + HEADER_HEIGHT + PADDING;
 
 		int col = 0;
+		LocalDate lastDate = null;
 
 		for (ScreenshotEntryWidget entry : entries) {
 
@@ -159,10 +175,27 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 				continue;
 			}
 
+			LocalDate entryDate = getScreenshotDate(entry.getScreenshotFile());
+
+			// separator
+			if (lastDate != null && !entryDate.equals(lastDate)) {
+
+				if (col != 0) {
+					col = 0;
+					xCursor = getX() + PADDING;
+					yCursor += thumbHeight + ScreenshotEntryWidget.NAME_HEIGHT + ROW_SPACING;
+				}
+
+				separators.add(new DateSeparator(yCursor, entryDate));
+				yCursor += SEPARATOR_HEIGHT + ROW_SPACING;
+			}
+
+			lastDate = entryDate;
+
 			entry.setX(xCursor);
 			entry.setBaseY(yCursor);
 			entry.setWidth(thumbWidth);
-			entry.setHeight(thumbHeight);
+			entry.setHeight(thumbHeight + ScreenshotEntryWidget.NAME_HEIGHT);
 
 			col++;
 			xCursor += thumbWidth + PADDING;
@@ -207,6 +240,39 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 
 		context.enableScissor(getX(), getY() + HEADER_HEIGHT, getX() + getWidth(), getY() + getHeight());
 
+		renderSeparators(context);
+		renderEntries(context, mouseX, mouseY, delta);
+
+		context.disableScissor();
+	}
+
+	private void renderHeader(@NonNull DrawContext context, int mouseX, int mouseY, float delta) {
+		this.searchBar.render(context, mouseX, mouseY, delta);
+	}
+
+	private void renderSeparators(@NonNull DrawContext context) {
+		for (DateSeparator sep : separators) {
+			int y = sep.y() - currentScroll;
+
+			if (y < getY() || y > getBottom()) continue;
+
+			String text = sep.date().toString();
+
+			int textWidth = CLIENT.textRenderer.getWidth(text);
+			int textLeft = getX() + (getWidth() - textWidth) / 2;
+			int textRight = textLeft + textWidth;
+			int textPadding = 5;
+
+			context.drawText(CLIENT.textRenderer, text, textLeft, y, Colors.GRAY, false);
+
+			int lineY = y + CLIENT.textRenderer.fontHeight / 2;
+
+			context.fill(getX() + PADDING, lineY, textLeft - textPadding, lineY + 1, Colors.GRAY);
+			context.fill(textRight + textPadding, lineY, getRight() - PADDING, lineY + 1, Colors.GRAY);
+		}
+	}
+
+	private void renderEntries(@NonNull DrawContext context, int mouseX, int mouseY, float delta) {
 		for (ScreenshotEntryWidget entry : entries) {
 			if (!entry.isVisible()) continue;
 
@@ -217,12 +283,6 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 				entry.render(context, mouseX, mouseY, delta);
 			}
 		}
-
-		context.disableScissor();
-	}
-
-	private void renderHeader(@NonNull DrawContext context, int mouseX, int mouseY, float delta) {
-		this.searchBar.render(context, mouseX, mouseY, delta);
 	}
 
 	/* ---------------- Scroll ---------------- */
@@ -298,5 +358,8 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 			return entries.get(index + 1).getTexture();
 		}
 		return null;
+	}
+
+	private record DateSeparator(int y, LocalDate date) {
 	}
 }

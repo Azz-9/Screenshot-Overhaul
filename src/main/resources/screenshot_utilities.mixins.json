@@ -18,7 +18,6 @@
 		"MouseMixin",
 		"ParticleManagerMixin",
 		"ScreenshotRecorderMixin",
-		"TextFieldWidgetMixin",
 		"TitleScreenMixin",
 		"WorldRendererMixin"
 	],
