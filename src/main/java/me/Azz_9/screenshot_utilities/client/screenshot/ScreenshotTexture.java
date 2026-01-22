@@ -20,10 +20,12 @@ public final class ScreenshotTexture implements AutoCloseable {
 	private final int maxSize;
 
 	private @Nullable NativeImageBackedTexture texture;
+	private final Path file;
 	private volatile boolean closed = false;
 
 	private ScreenshotTexture(Path file, int maxSize) {
 		this.maxSize = maxSize;
+		this.file = file;
 
 		this.imageFuture = CompletableFuture.supplyAsync(() -> {
 			try (InputStream in = Files.newInputStream(file)) {
@@ -47,6 +49,10 @@ public final class ScreenshotTexture implements AutoCloseable {
 	@NonNull
 	public static ScreenshotTexture loadScreenshot(Path file) {
 		return new ScreenshotTexture(file, 1920);
+	}
+
+	public Path getFile() {
+		return file;
 	}
 
 	@Nullable

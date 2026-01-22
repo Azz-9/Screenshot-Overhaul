@@ -53,4 +53,48 @@ public final class ScreenshotDrawHelper {
 				)
 		);
 	}
+
+	public static void drawContain(@NonNull DrawContext context, @NonNull ScreenshotTexture texture, int x, int y, int boxW, int boxH) {
+		drawContain(context, texture, x, y, boxW, boxH, Colors.WHITE);
+	}
+
+	public static void drawContain(@NonNull DrawContext context, @NonNull ScreenshotTexture texture, int x, int y, int boxW, int boxH, int color) {
+		float imgRatio = texture.width() / (float) texture.height();
+		float boxRatio = boxW / (float) boxH;
+
+		int drawW, drawH;
+
+		if (imgRatio > boxRatio) {
+			// Image plus large que la box → on limite par la largeur
+			drawW = boxW;
+			drawH = Math.round(boxW / imgRatio);
+		} else {
+			// Image plus haute que la box → on limite par la hauteur
+			drawH = boxH;
+			drawW = Math.round(boxH * imgRatio);
+		}
+
+		// Centrage dans la box
+		int drawX = x + (boxW - drawW) / 2;
+		int drawY = y + (boxH - drawH) / 2;
+
+		NativeImageBackedTexture backedTexture = texture.getTexture();
+		if (backedTexture == null) {
+			return;
+		}
+
+		context.state.addSimpleElement(
+				new TexturedQuadGuiElementRenderState(
+						RenderPipelines.GUI_TEXTURED,
+						TextureSetup.of(backedTexture.getGlTextureView(), backedTexture.getSampler()),
+						new Matrix3x2f(context.getMatrices()),
+						drawX, drawY, drawX + drawW, drawY + drawH,
+						0.0f, 1.0f,   // U
+						0.0f, 1.0f,   // V
+						color,
+						context.scissorStack.peekLast()
+				)
+		);
+	}
+
 }

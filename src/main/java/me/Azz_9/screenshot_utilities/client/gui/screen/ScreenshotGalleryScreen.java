@@ -2,12 +2,14 @@ package me.Azz_9.screenshot_utilities.client.gui.screen;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.config.Config;
+import me.Azz_9.screenshot_utilities.client.gui.Loading;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.NavigationButton;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.ScreenshotGalleryWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotDrawHelper;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Click;
@@ -101,6 +103,12 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 		if (gallery != null) {
 			gallery.setActive(false);
+
+			// pre-load the next et previous screenshots
+			ScreenshotTexture next = gallery.getNext(selectedTexture);
+			ScreenshotTexture prev = gallery.getPrevious(selectedTexture);
+			if (next != null) ScreenshotTextureCache.getScreenshot(next.getFile());
+			if (prev != null) ScreenshotTextureCache.getScreenshot(prev.getFile());
 		}
 	}
 
@@ -171,8 +179,8 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 		if (selectedTexture != null) {
 			context.fill(0, 0, width, height, Colors.BLACK_TRANSPARENT);
 
-			if (!inTransition) {
-				drawScreenshot(context, selectedTexture, 0);
+			if (!inTransition || outgoingTexture == null) {
+				drawScreenshot(context, ScreenshotTextureCache.getScreenshot(selectedTexture.getFile()), 0);
 			} else {
 				float t = transitionTime / TRANSITION_DURATION;
 				t = t * t * (3f - 2f * t); // smoothstep
@@ -182,14 +190,14 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 				// ancien screenshot (sortant)
 				drawScreenshot(
 						context,
-						outgoingTexture,
+						ScreenshotTextureCache.getScreenshot(outgoingTexture.getFile()),
 						-slide * transitionDirection
 				);
 
 				// nouveau screenshot (entrant)
 				drawScreenshot(
 						context,
-						selectedTexture,
+						ScreenshotTextureCache.getScreenshot(selectedTexture.getFile()),
 						(width - slide) * transitionDirection
 				);
 			}
@@ -200,21 +208,39 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	}
 
 	private void drawScreenshot(@NonNull DrawContext context, @Nullable ScreenshotTexture texture, int offsetX) {
-		if (texture == null) return;
+		int fullViewWidth = width - FULL_VIEW_PADDING * 2;
+		int fullViewHeight = height - FULL_VIEW_PADDING - BOTTOM_PADDING;
 
 		Matrix3x2fStack matrices = context.getMatrices();
 		matrices.pushMatrix();
 
 		matrices.translate(offsetX, 0);
 
-		ScreenshotDrawHelper.drawCover(
-				context,
-				texture,
-				FULL_VIEW_PADDING,
-				FULL_VIEW_PADDING,
-				width - FULL_VIEW_PADDING * 2,
-				height - FULL_VIEW_PADDING - BOTTOM_PADDING
-		);
+		if (texture == null) {
+			context.fill(
+					FULL_VIEW_PADDING, FULL_VIEW_PADDING,
+					FULL_VIEW_PADDING + fullViewWidth, FULL_VIEW_PADDING + fullViewHeight,
+					Colors.BLACK_TRANSPARENT
+			);
+
+			Loading.drawLoadingSpinner(
+					context,
+					FULL_VIEW_PADDING + fullViewWidth / 2,
+					FULL_VIEW_PADDING + fullViewHeight / 2,
+					fullViewHeight / 20, fullViewHeight / 10
+			);
+
+		} else {
+
+			ScreenshotDrawHelper.drawContain(
+					context,
+					texture,
+					FULL_VIEW_PADDING,
+					FULL_VIEW_PADDING,
+					fullViewWidth,
+					fullViewHeight
+			);
+		}
 
 		matrices.popMatrix();
 	}
