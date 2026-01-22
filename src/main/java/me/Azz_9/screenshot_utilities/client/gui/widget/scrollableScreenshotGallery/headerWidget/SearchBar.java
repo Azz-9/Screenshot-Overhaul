@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery;
+package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.headerWidget;
 
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.PlaceholderTextFieldWidget;

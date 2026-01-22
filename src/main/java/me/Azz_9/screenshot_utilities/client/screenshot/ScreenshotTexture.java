@@ -18,7 +18,9 @@ public final class ScreenshotTexture implements AutoCloseable {
 
 	private final @NonNull CompletableFuture<NativeImage> imageFuture;
 	private final int maxSize;
+
 	private @Nullable NativeImageBackedTexture texture;
+	private volatile boolean closed = false;
 
 	private ScreenshotTexture(Path file, int maxSize) {
 		this.maxSize = maxSize;
@@ -49,17 +51,28 @@ public final class ScreenshotTexture implements AutoCloseable {
 
 	@Nullable
 	public NativeImageBackedTexture getTexture() {
+		if (closed) return null;
+
 		if (texture != null) {
 			return texture;
 		}
 
-		NativeImage nativeImage = imageFuture.join();
-		if (imageFuture.isDone() && nativeImage != null) {
-			texture = new NativeImageBackedTexture(() -> "screenshot_texture", nativeImage);
-			return texture;
+		if (!imageFuture.isDone()) {
+			return null;
 		}
 
-		return null;
+		NativeImage image;
+		try {
+			image = imageFuture.join();
+		} catch (Exception e) {
+			return null;
+		}
+
+		if (image == null) return null;
+
+		texture = new NativeImageBackedTexture(() -> "screenshot_texture", image);
+
+		return texture;
 	}
 
 	public boolean isReady() {
@@ -78,17 +91,24 @@ public final class ScreenshotTexture implements AutoCloseable {
 
 	@Override
 	public void close() {
+		if (closed) return;
+		closed = true;
+
 		if (texture != null) {
 			texture.close();
-		} else if (!imageFuture.isDone()) {
-			imageFuture.cancel(true);
-			imageFuture.thenAccept(image -> {
-				if (image != null) image.close();
-			});
-		} else {
-			imageFuture.join();
+			texture = null;
 		}
-		texture = null;
+
+		imageFuture.cancel(true);
+
+		if (imageFuture.isDone()) {
+			try {
+				NativeImage image = imageFuture.join();
+				if (image != null) {
+					image.close();
+				}
+			} catch (Exception ignored) {
+			}
+		}
 	}
 }
-

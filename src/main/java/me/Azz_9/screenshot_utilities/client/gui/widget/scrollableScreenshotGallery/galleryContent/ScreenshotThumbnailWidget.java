@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery;
+package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
@@ -6,6 +6,7 @@ import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotDrawHelper;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Click;
@@ -41,8 +42,10 @@ public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCl
 	public ScreenshotThumbnailWidget(int x, int y, int width, int height, @NonNull File screenshot) {
 		super(x, y, width, height, Text.literal(screenshot.getName()));
 		this.screenshot = screenshot;
-		this.texture = ScreenshotTexture.loadThumbnail(screenshot.toPath());
+		this.texture = ScreenshotTextureCache.getThumbnail(screenshot.toPath());
 	}
+
+	// rendering
 
 	@Override
 	public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
@@ -110,6 +113,8 @@ public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCl
 			context.setCursor(StandardCursors.POINTING_HAND);
 		}
 	}
+
+	// input
 
 	@Override
 	public void onClick(Click click, boolean doubled) {

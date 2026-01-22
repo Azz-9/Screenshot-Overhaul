@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery;
+package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
@@ -82,7 +82,6 @@ public class ScreenshotNameWidget extends ClickableWidget {
 	private int fullTextWidth = 0;
 	// underline
 	private float underlineProgress = 0.0f;
-	private int onClickX = -1;
 
 	public ScreenshotNameWidget(int width, int height, File screenshotFile) {
 		this(0, 0, width, height, screenshotFile);
@@ -425,7 +424,6 @@ public class ScreenshotNameWidget extends ClickableWidget {
 
 	@Override
 	public void onClick(Click click, boolean doubled) {
-		this.onClickX = (int) click.x();
 		if (CLIENT.currentScreen instanceof FocusableScreen screen) {
 			screen.requestFocus(this);
 		}

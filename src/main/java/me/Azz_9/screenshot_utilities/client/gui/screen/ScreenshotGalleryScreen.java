@@ -169,7 +169,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 		}
 
 		if (selectedTexture != null) {
-			context.fill(0, 0, width, height, Colors.BLACK_SEMI_TRANSPARENT);
+			context.fill(0, 0, width, height, Colors.BLACK_TRANSPARENT);
 
 			if (!inTransition) {
 				drawScreenshot(context, selectedTexture, 0);

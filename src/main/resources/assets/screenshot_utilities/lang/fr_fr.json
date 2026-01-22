@@ -12,5 +12,7 @@
 
 	"screenshot_utilities.gallery_widget.no_screenshot": "Il semble que vous n'ayez pas encore pris de capture d'écran.",
 	"screenshot_utilities.gallery_widget.search_bar": "Barre de recherche",
-	"screenshot_utilities.gallery_widget.search_bar.placeholder": "Rechercher..."
+	"screenshot_utilities.gallery_widget.search_bar.placeholder": "Rechercher...",
+	"screenshot_utilities.gallery_widget.sort_mode.date_asc": "Les plus anciens",
+	"screenshot_utilities.gallery_widget.sort_mode.date_desc": "Les plus récents"
 }

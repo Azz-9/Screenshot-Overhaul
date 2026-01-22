@@ -1,6 +1,7 @@
 package me.Azz_9.screenshot_utilities.client.config;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
+import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.ScreenshotGalleryWidget;
 import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
@@ -13,10 +14,9 @@ public class Config {
 	@NonNull
 	private static final Config INSTANCE = new Config();
 
-	@NonNull
-	public final ConfigObject<Path> screenshotsDir = new ConfigObject<>(CLIENT.runDirectory.toPath().resolve("screenshots"), "");
-	@NonNull
-	public final ConfigObject<Boolean> showChatMessage = new ConfigObject<>(true, "");
+	public final @NonNull ConfigObject<Path> screenshotsDir = new ConfigObject<>(CLIENT.runDirectory.toPath().resolve("screenshots"), "");
+	public final @NonNull ConfigObject<Boolean> showChatMessage = new ConfigObject<>(true, "");
+	public final @NonNull SavableObject<ScreenshotGalleryWidget.SortMode> sortOrder = new SavableObject<>(ScreenshotGalleryWidget.SortMode.DATE_DESC);
 
 	public static @NonNull Config getInstance() {
 		return INSTANCE;

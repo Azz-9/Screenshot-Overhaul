@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery;
+package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
@@ -13,7 +13,7 @@ import org.jspecify.annotations.NonNull;
 import java.io.File;
 
 @Environment(EnvType.CLIENT)
-public class ScreenshotEntryWidget extends SimpleParentWidget implements AutoCloseable, ParentElement {
+public class ScreenshotEntryWidget extends SimpleParentWidget implements ParentElement {
 
 	public static final int NAME_HEIGHT = 30;
 
@@ -96,7 +96,6 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements AutoClo
 		thumbnailWidget.setHeight(height - NAME_HEIGHT);
 	}
 
-	@Override
 	public void close() {
 		thumbnailWidget.close();
 	}

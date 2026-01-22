@@ -2,16 +2,23 @@ package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGall
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.Colors;
+import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
 import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
+import me.Azz_9.screenshot_utilities.client.gui.widget.TexturedCyclingButtonWidget;
+import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent.ScreenshotEntryWidget;
+import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.headerWidget.SearchBar;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -20,10 +27,12 @@ import java.io.File;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MOD_ID;
 
 @Environment(EnvType.CLIENT)
 public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoCloseable {
@@ -32,52 +41,49 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 	public static final int MIN_THUMB_WIDTH = 140;
 	public static final int MAX_THUMB_WIDTH = 260;
 	private static final double ASPECT_RATIO = 9.0 / 16.0;
-	// layout
-	private static final int PADDING = 10;
-	private static final int ROW_SPACING = 14;
-	private static final int SEARCH_BAR_HEIGHT = 20;
-	private static final int HEADER_HEIGHT = SEARCH_BAR_HEIGHT + PADDING * 2;
-	// smooth scroll
-	private static final double SCROLL_SPEED = 40.0;
-	private static final double SMOOTHING = 25.0;
-	// separator
-	private static final int SEPARATOR_HEIGHT = CLIENT.textRenderer.fontHeight;
-
-	private final List<DateSeparator> separators = new ArrayList<>();
-
-	// header
-	private final @NonNull SearchBar searchBar;
-
-	// gallery content
-	private final @NonNull List<@NonNull ScreenshotEntryWidget> entries = new ArrayList<>();
-
 	private final @NonNull CompletableFuture<List<File>> screenshotFiles;
 	private final @NonNull File screenshotFolder;
 
-	private boolean refreshing = false;
+	// layout
+	private static final int PADDING = 10;
+	private static final int ROW_SPACING = 14;
+	private int contentHeight;
 
+	// smooth scroll
+	private static final double SCROLL_SPEED = 40.0;
+	private static final double SMOOTHING = 25.0;
 	private int currentScroll;
 	private int targetScroll;
 	private long lastUpdateTime = System.nanoTime();
 
-	private int contentHeight;
+	// separator
+	private static final int SEPARATOR_HEIGHT = CLIENT.textRenderer.fontHeight;
+	private final @NonNull List<DateSeparator> separators = new ArrayList<>();
+
+	// header
+	// search bar
+	private static final int SEARCH_BAR_HEIGHT = 20;
+	private static final int SEARCH_BAR_WIDTH = 150;
+	private final @NonNull SearchBar searchBar;
+	// sort button
+	private static final int SORT_BUTTON_SIZE = SEARCH_BAR_HEIGHT;
+	private final @NonNull TexturedCyclingButtonWidget<SortMode> sortButton;
+
+	private static final int HEADER_HEIGHT = SEARCH_BAR_HEIGHT + PADDING * 2;
+
+	// gallery content
+	private final @NonNull List<ScreenshotEntryWidget> entries = new ArrayList<>();
+
+	private boolean refreshing = false;
 
 	public ScreenshotGalleryWidget(int x, int y, int width, int height, @NonNull File screenshotFolder) {
 		super(x, y, width, height);
 		this.targetScroll = 0;
 		this.currentScroll = 0;
 
-		this.searchBar = new SearchBar(
-				CLIENT.textRenderer,
-				getX() + PADDING, getY() + PADDING,
-				getWidth() - PADDING * 2, SEARCH_BAR_HEIGHT
-		);
-		this.searchBar.setChangedListener((text) -> {
-			if (text != null) {
-				filter(text);
-			}
-		});
-		addChild(searchBar);
+		this.searchBar = createSearchBar();
+		this.sortButton = createSortButton();
+		addAllChildren(searchBar, sortButton);
 
 		this.screenshotFolder = screenshotFolder;
 
@@ -97,9 +103,41 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 		this.screenshotFiles.thenAcceptAsync(screenshots -> {
 			// make sure the player didn't leave the screen before building entries
 			if (CLIENT.currentScreen instanceof ScreenshotGalleryScreen) {
-				buildEntries(screenshots);
+				buildEntries(screenshots, false);
+				filter(searchBar.getText(), false);
+				sortEntries(sortButton.getValue(), false);
+				layoutEntries();
 			}
 		}, CLIENT);
+	}
+
+	private SearchBar createSearchBar() {
+		SearchBar searchBar = new SearchBar(
+				CLIENT.textRenderer,
+				getX() + PADDING, getY() + PADDING,
+				SEARCH_BAR_WIDTH, SEARCH_BAR_HEIGHT
+		);
+		searchBar.setChangedListener((text) -> {
+			if (text != null) {
+				filter(text, true);
+			}
+		});
+
+		return searchBar;
+	}
+
+	private TexturedCyclingButtonWidget<SortMode> createSortButton() {
+		TexturedCyclingButtonWidget<SortMode> cyclingButtonWidget = new TexturedCyclingButtonWidget<>(
+				getX() + SEARCH_BAR_WIDTH + PADDING * 2, getY() + PADDING,
+				SORT_BUTTON_SIZE, SORT_BUTTON_SIZE,
+				Config.getInstance().sortOrder.getValue().ordinal(),
+				(btn, sortMode) -> sortEntries(sortMode, true),
+				SortMode.values(),
+				SortMode::getIcon
+		);
+		cyclingButtonWidget.setTooltipFactory((value) -> Tooltip.of(value.getText()));
+
+		return cyclingButtonWidget;
 	}
 
 	private static LocalDate getScreenshotDate(File file) {
@@ -110,7 +148,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 
 	/* ---------------- Layout ---------------- */
 
-	private void buildEntries(@NonNull List<File> screenshots) {
+	private void buildEntries(@NonNull List<File> screenshots, boolean reloadLayout) {
 		entries.forEach(ScreenshotEntryWidget::close);
 		entries.clear();
 
@@ -118,7 +156,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 			addEntry(new ScreenshotEntryWidget(file));
 		}
 
-		layoutEntries();
+		if (reloadLayout) layoutEntries();
 	}
 
 	public void refresh() {
@@ -127,6 +165,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 		refreshing = true;
 
 		ScreenshotLogger.info("Refreshing screenshot gallery entries");
+		ScreenshotTextureCache.clear();
 		buildEntries(
 				Arrays.stream(
 						Objects.requireNonNull(
@@ -136,13 +175,14 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 												|| f.getName().endsWith(".jpeg")
 								)
 						)
-				).toList()
+				).toList(),
+				true
 		);
 
 		refreshing = false;
 	}
 
-	private void filter(@NonNull String query) {
+	private void filter(@NonNull String query, boolean reloadLayout) {
 		String q = query.trim().toLowerCase(Locale.ROOT);
 
 		for (ScreenshotEntryWidget entry : entries) {
@@ -151,8 +191,18 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 			entry.setVisible(matches);
 		}
 
-		layoutEntries();
+		if (reloadLayout) layoutEntries();
 	}
+
+	private void sortEntries(SortMode mode, boolean reloadLayout) {
+		entries.sort(switch (mode) {
+			case DATE_ASC -> Comparator.comparingLong(e -> e.getScreenshotFile().lastModified());
+			case DATE_DESC -> Comparator.comparingLong(e -> -e.getScreenshotFile().lastModified());
+		});
+
+		if (reloadLayout) layoutEntries();
+	}
+
 
 	private void layoutEntries() {
 		separators.clear();
@@ -207,7 +257,8 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 			}
 		}
 
-		contentHeight = yCursor - getY() + thumbHeight + ScreenshotEntryWidget.NAME_HEIGHT;
+		if (col == 0) yCursor -= thumbHeight + ScreenshotEntryWidget.NAME_HEIGHT + ROW_SPACING;
+		contentHeight = yCursor - getY() + thumbHeight + ScreenshotEntryWidget.NAME_HEIGHT + PADDING;
 
 		checkScroll();
 	}
@@ -248,6 +299,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 
 	private void renderHeader(@NonNull DrawContext context, int mouseX, int mouseY, float delta) {
 		this.searchBar.render(context, mouseX, mouseY, delta);
+		this.sortButton.render(context, mouseX, mouseY, delta);
 	}
 
 	private void renderSeparators(@NonNull DrawContext context) {
@@ -256,7 +308,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 
 			if (y < getY() || y > getBottom()) continue;
 
-			String text = sep.date().toString();
+			String text = sep.date().format(DateTimeFormatter.ofPattern("dd LLLL yyyy"));
 
 			int textWidth = CLIENT.textRenderer.getWidth(text);
 			int textLeft = getX() + (getWidth() - textWidth) / 2;
@@ -315,12 +367,9 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 		}
 	}
 
-	/* ---------------- Cleanup ---------------- */
-
 	@Override
 	public void close() {
 		screenshotFiles.cancel(true);
-		entries.forEach(ScreenshotEntryWidget::close);
 	}
 
 	@Override
@@ -361,5 +410,30 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 	}
 
 	private record DateSeparator(int y, LocalDate date) {
+	}
+
+	public enum SortMode {
+		DATE_ASC("screenshot_utilities.gallery_widget.sort_mode.date_asc", "sort_asc"),
+		DATE_DESC("screenshot_utilities.gallery_widget.sort_mode.date_desc", "sort_desc");
+
+		private final @NonNull String translationKey;
+		private final @NonNull Identifier icon;
+
+		SortMode(@NonNull String translationKey, @NonNull String icon) {
+			this.translationKey = translationKey;
+			this.icon = Identifier.of(MOD_ID, "icon/" + icon);
+		}
+
+		public @NonNull String getTranslationKey() {
+			return translationKey;
+		}
+
+		public @NonNull Text getText() {
+			return Text.translatable(getTranslationKey());
+		}
+
+		public @NonNull Identifier getIcon() {
+			return icon;
+		}
 	}
 }
