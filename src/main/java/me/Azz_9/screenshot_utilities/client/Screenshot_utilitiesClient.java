@@ -20,6 +20,7 @@ public class Screenshot_utilitiesClient implements ClientModInitializer {
 	private static KeyBinding openPhotoMode;
 	private static KeyBinding rollLeft;
 	private static KeyBinding rollRight;
+	private static KeyBinding panoramaScreenshot;
 
 	public static @NonNull KeyBinding getOpenPhotoModeKeybind() {
 		return openPhotoMode;
@@ -33,6 +34,10 @@ public class Screenshot_utilitiesClient implements ClientModInitializer {
 		return rollRight;
 	}
 
+	public static @NonNull KeyBinding getPanoramaScreenshotKeybind() {
+		return panoramaScreenshot;
+	}
+
 	@Override
 	public void onInitializeClient() {
 		ClientTickEvents.START_CLIENT_TICK.register(client -> {
@@ -41,9 +46,12 @@ public class Screenshot_utilitiesClient implements ClientModInitializer {
 
 		KeyBinding.Category keybind_category = KeyBinding.Category.create(Identifier.of(MOD_ID, "screenshot-utilities"));
 
+		// photo mode
 		openPhotoMode = KeyBindingHelper.registerKeyBinding(new KeyBinding("screenshot_utilities.controls.photo_mode", InputUtil.Type.KEYSYM, InputUtil.GLFW_KEY_F10, keybind_category));
-
 		rollLeft = KeyBindingHelper.registerKeyBinding(new KeyBinding("screenshot_utilities.controls.roll_left", InputUtil.Type.KEYSYM, InputUtil.GLFW_KEY_Q, keybind_category));
 		rollRight = KeyBindingHelper.registerKeyBinding(new KeyBinding("screenshot_utilities.controls.roll_right", InputUtil.Type.KEYSYM, InputUtil.GLFW_KEY_E, keybind_category));
+
+		// panorama screenshot
+		panoramaScreenshot = KeyBindingHelper.registerKeyBinding(new KeyBinding("screenshot_utilities.controls.panorama_screenshot", InputUtil.Type.KEYSYM, InputUtil.GLFW_KEY_F9, keybind_category));
 	}
 }

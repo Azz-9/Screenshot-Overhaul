@@ -1,5 +1,6 @@
 package me.Azz_9.screenshot_utilities.client.config;
 
+import net.minecraft.text.Text;
 import org.jspecify.annotations.NonNull;
 
 public class ConfigObject<T> extends SavableObject<T> {
@@ -13,5 +14,9 @@ public class ConfigObject<T> extends SavableObject<T> {
 
 	public @NonNull String getTranslationKey() {
 		return translationKey;
+	}
+
+	public @NonNull Text getTranslationText() {
+		return Text.literal(translationKey);
 	}
 }

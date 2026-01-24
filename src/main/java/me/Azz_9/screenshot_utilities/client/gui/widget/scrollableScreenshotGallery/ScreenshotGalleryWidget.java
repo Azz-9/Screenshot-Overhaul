@@ -228,7 +228,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 			LocalDate entryDate = getScreenshotDate(entry.getScreenshotFile());
 
 			// separator
-			if (lastDate != null && !entryDate.equals(lastDate)) {
+			if (!entryDate.equals(lastDate)) {
 
 				if (col != 0) {
 					col = 0;

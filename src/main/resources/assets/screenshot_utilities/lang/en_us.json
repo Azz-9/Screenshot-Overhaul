@@ -3,6 +3,7 @@
 	"screenshot_utilities.controls.photo_mode": "Open photo mode",
 	"screenshot_utilities.controls.roll_left": "Roll left",
 	"screenshot_utilities.controls.roll_right": "Roll right",
+	"screenshot_utilities.controls.panorama_screenshot": "Take panorama screenshot",
 
 	"screenshot_utilities.narrator.screenshot_gallery": "Screenshot gallery",
 	"screenshot_utilities.options.screenshots": "Screenshots...",
@@ -14,5 +15,7 @@
 	"screenshot_utilities.gallery_widget.search_bar": "Search bar",
 	"screenshot_utilities.gallery_widget.search_bar.placeholder": "Search...",
 	"screenshot_utilities.gallery_widget.sort_mode.date_asc": "Oldest first",
-	"screenshot_utilities.gallery_widget.sort_mode.date_desc": "Newest first"
+	"screenshot_utilities.gallery_widget.sort_mode.date_desc": "Newest first",
+
+	"screenshot_utilities.favorite": "Favorite"
 }

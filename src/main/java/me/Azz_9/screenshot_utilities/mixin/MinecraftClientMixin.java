@@ -60,6 +60,8 @@ public abstract class MinecraftClientMixin {
 				PhotoMode.getCamera().rollRight();
 			}
 		}
+
+
 	}
 
 	@Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)

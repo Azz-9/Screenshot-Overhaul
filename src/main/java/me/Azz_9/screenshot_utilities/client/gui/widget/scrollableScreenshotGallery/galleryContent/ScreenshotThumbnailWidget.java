@@ -1,6 +1,5 @@
 package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent;
 
-import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
@@ -82,7 +81,7 @@ public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCl
 				texture,
 				getX(), getY(),
 				getWidth(), getHeight(),
-				ColorHelper.withAlpha(appearProgress, Colors.WHITE)
+				ColorHelper.withAlpha(appearProgress, 0xffffff)
 		);
 
 		matrices.popMatrix();
