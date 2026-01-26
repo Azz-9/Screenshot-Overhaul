@@ -5,7 +5,7 @@ import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
-import me.Azz_9.screenshot_utilities.client.gui.widget.NavigationButton;
+import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.NavigationButton;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.ScreenshotGalleryWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotDrawHelper;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
@@ -16,6 +16,7 @@ import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.input.KeyInput;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
@@ -29,18 +30,30 @@ import java.util.Optional;
 @Environment(EnvType.CLIENT)
 public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
+	// focus manager
+	private final @NonNull FocusManager focusManager = new FocusManager();
+
+	// layout
+	private static final int GLOBAL_PADDING = 10;
 	private static final int FULL_VIEW_PADDING = 40;
 	private static final int BOTTOM_PADDING = 60;
+
+	// settings
+	private static final int SETTINGS_BUTTON_WIDTH = 120;
+	private static final int SETTINGS_BUTTON_HEIGHT = 20;
+	private ButtonWidget settingsButton;
+
+	// gallery
+	private @Nullable ScreenshotGalleryWidget gallery;
+
+	// full view
 	private static final int NAV_BUTTON_SIZE = 20;
 	private static final int NAV_BUTTON_PADDING = 10;
-	private static final float TRANSITION_DURATION = 0.2f; // secondes
-	private final @NonNull FocusManager focusManager = new FocusManager();
-	private @Nullable ScreenshotGalleryWidget gallery;
-	// full view
 	private NavigationButton backButton, nextButton;
 	private @Nullable ScreenshotTexture selectedTexture = null;
 	private @Nullable ScreenshotTexture outgoingTexture = null;
-
+	// transition
+	private static final float TRANSITION_DURATION = 0.2f; // secondes
 	private float transitionTime = 0f;
 	private int transitionDirection = 0; // -1 = back, +1 = next
 	private boolean inTransition = false;
@@ -50,27 +63,23 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	}
 
 	@Override
-	public void requestFocus(@Nullable Element widget) {
-		focusManager.requestFocus(widget);
-	}
-
-	@Override
-	public void clearFocus() {
-		focusManager.clearFocus();
-	}
-
-	@Override
 	public @NonNull FocusManager getFocusManager() {
 		return focusManager;
 	}
 
 	@Override
 	protected void init() {
+		settingsButton = ButtonWidget.builder(Text.translatable("screenshot_utilities.settings"), (btn) -> {
+					System.out.println("settings");
+				})
+				.dimensions(width - SETTINGS_BUTTON_WIDTH - GLOBAL_PADDING, GLOBAL_PADDING, SETTINGS_BUTTON_WIDTH, SETTINGS_BUTTON_HEIGHT)
+				.build();
+
 		File folder = Config.getInstance().getScreenshotsDir().toFile();
 
 		gallery = new ScreenshotGalleryWidget(
-				10, 10,
-				width - 100, height - 20,
+				GLOBAL_PADDING, GLOBAL_PADDING,
+				width - SETTINGS_BUTTON_WIDTH - GLOBAL_PADDING * 2 - 20, height - GLOBAL_PADDING * 2,
 				folder
 		);
 
@@ -91,6 +100,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 		addDrawableChild(backButton);
 		addDrawableChild(nextButton);
 		addDrawableChild(gallery);
+		addDrawableChild(settingsButton);
 	}
 
 	public void selectScreenshot(@NonNull ScreenshotTexture texture) {

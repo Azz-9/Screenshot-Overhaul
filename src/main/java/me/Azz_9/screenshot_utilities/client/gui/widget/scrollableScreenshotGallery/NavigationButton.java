@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_utilities.client.gui.widget;
+package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

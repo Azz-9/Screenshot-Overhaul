@@ -17,5 +17,7 @@
 	"screenshot_utilities.gallery_widget.sort_mode.date_asc": "Oldest first",
 	"screenshot_utilities.gallery_widget.sort_mode.date_desc": "Newest first",
 
-	"screenshot_utilities.favorite": "Favorite"
+	"screenshot_utilities.favorite": "Favorite",
+	
+	"screenshot_utilities.settings": "Settings"
 }

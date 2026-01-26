@@ -9,9 +9,13 @@ import org.jspecify.annotations.Nullable;
 @Environment(EnvType.CLIENT)
 public interface FocusableScreen {
 
-	void requestFocus(@Nullable Element widget);
+	default void requestFocus(@Nullable Element widget) {
+		getFocusManager().requestFocus(widget);
+	}
 
-	void clearFocus();
+	default void clearFocus() {
+		getFocusManager().clearFocus();
+	}
 
 	@NonNull FocusManager getFocusManager();
 }
