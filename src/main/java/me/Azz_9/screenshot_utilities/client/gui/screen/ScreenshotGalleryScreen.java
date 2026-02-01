@@ -27,6 +27,8 @@ import org.jspecify.annotations.Nullable;
 import java.io.File;
 import java.util.Optional;
 
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
+
 @Environment(EnvType.CLIENT)
 public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
@@ -70,7 +72,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	@Override
 	protected void init() {
 		settingsButton = ButtonWidget.builder(Text.translatable("screenshot_utilities.settings"), (btn) -> {
-					System.out.println("settings");
+					CLIENT.setScreen(new SettingsScreen(this));
 				})
 				.dimensions(width - SETTINGS_BUTTON_WIDTH - GLOBAL_PADDING, GLOBAL_PADDING, SETTINGS_BUTTON_WIDTH, SETTINGS_BUTTON_HEIGHT)
 				.build();
