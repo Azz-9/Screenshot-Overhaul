@@ -1,16 +1,18 @@
 package me.Azz_9.screenshot_utilities.mixin;
 
-import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.Frustum;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.render.entity.state.EntityRenderState;
-import net.minecraft.client.render.state.WorldRenderState;
-import net.minecraft.entity.Entity;
-import net.minecraft.world.tick.TickManager;
+import net.minecraft.client.Camera;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.state.level.LevelRenderState;
+import net.minecraft.world.TickRateManager;
+import net.minecraft.world.entity.Entity;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,39 +20,39 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
+import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 
 @Environment(EnvType.CLIENT)
-@Mixin(WorldRenderer.class)
+@Mixin(LevelRenderer.class)
 public abstract class WorldRendererMixin {
 
-	@ModifyVariable(method = "render", at = @At("HEAD"), argsOnly = true, index = 2)
-	private static RenderTickCounter freezeTickDelta(RenderTickCounter tickCounter) {
+	@ModifyVariable(method = "renderLevel", at = @At("HEAD"), argsOnly = true, name = "deltaTracker")
+	private static DeltaTracker freezeTickDelta(DeltaTracker deltaTracker) {
 		if (PhotoMode.isEnabled()) {
-			return RenderTickCounter.ZERO;
+			return DeltaTracker.ZERO;
 		}
 
-		return tickCounter;
+		return deltaTracker;
 	}
 
 	@Shadow
-	protected abstract EntityRenderState getAndUpdateRenderState(Entity entity, float tickProgress);
+	protected abstract EntityRenderState extractEntity(Entity entity, float partialTickTime);
 
 	@Shadow
-	protected abstract boolean canDrawEntityOutlines();
+	protected abstract boolean shouldShowEntityOutlines();
 
 	// Makes the player render if showPlayer is enabled.
-	@Inject(method = "fillEntityRenderStates", at = @At(value = "RETURN"))
-	private void onFillEntityRenderStates(Camera camera, Frustum frustum, RenderTickCounter tickCounter, WorldRenderState renderStates, CallbackInfo ci) {
-		if (CLIENT.world != null && PhotoMode.isEnabled()) {
-			Entity player = CLIENT.player;
-			TickManager tickManager = CLIENT.world.getTickManager();
-			boolean bl = this.canDrawEntityOutlines();
-			float g = tickCounter.getTickProgress(!tickManager.shouldSkipTick(player));
-			EntityRenderState entityRenderState = this.getAndUpdateRenderState(player, g);
-			renderStates.entityRenderStates.add(entityRenderState);
-			if (entityRenderState.hasOutline() && bl) {
-				renderStates.hasOutline = true;
+	@Inject(method = "extractVisibleEntities", at = @At(value = "RETURN"))
+	private void onExtractVisibleEntities(Camera camera, Frustum frustum, DeltaTracker deltaTracker, LevelRenderState output, CallbackInfo ci) {
+		if (MINECRAFT.level != null && PhotoMode.isEnabled()) {
+			Entity player = MINECRAFT.player;
+			TickRateManager tickRateManager = MINECRAFT.level.tickRateManager();
+			boolean shouldShowEntityOutlines = this.shouldShowEntityOutlines();
+			float partialEntity = deltaTracker.getGameTimeDeltaPartialTick(!tickRateManager.isEntityFrozen(player));
+			EntityRenderState entityRenderState = this.extractEntity(player, partialEntity);
+			output.entityRenderStates.add(entityRenderState);
+			if (entityRenderState.appearsGlowing() && shouldShowEntityOutlines) {
+				output.haveGlowingEntities = true;
 			}
 		}
 	}

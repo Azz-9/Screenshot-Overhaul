@@ -1,22 +1,24 @@
 package me.Azz_9.screenshot_utilities.mixin;
 
-import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.Entity;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
+
 @Environment(EnvType.CLIENT)
-@Mixin(ClientWorld.class)
+@Mixin(ClientLevel.class)
 public abstract class ClientWorldMixin {
 
 	@Shadow
-	public abstract void tickEntity(Entity entity);
+	public abstract void tickNonPassenger(Entity entity);
 
 	// visual freeze of the world
 	@Inject(method = "tick", at = @At("HEAD"), cancellable = true)
@@ -30,7 +32,7 @@ public abstract class ClientWorldMixin {
 	private void tickEntities(CallbackInfo ci) {
 		if (PhotoMode.isEnabled()) {
 			if (PhotoMode.getCamera() != null) {
-				this.tickEntity(PhotoMode.getCamera());
+				this.tickNonPassenger(PhotoMode.getCamera());
 			}
 			ci.cancel();
 		}

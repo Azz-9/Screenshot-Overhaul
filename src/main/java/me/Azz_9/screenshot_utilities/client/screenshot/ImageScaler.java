@@ -1,8 +1,10 @@
 package me.Azz_9.screenshot_utilities.client.screenshot;
 
+import com.mojang.blaze3d.platform.NativeImage;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.texture.NativeImage;
+
 import org.jspecify.annotations.NonNull;
 
 @Environment(EnvType.CLIENT)
@@ -68,7 +70,7 @@ public final class ImageScaler {
 
 				for (int sy = srcY0; sy < srcY1; sy++) {
 					for (int sx = srcX0; sx < srcX1; sx++) {
-						int argb = src.getColorArgb(sx, sy);
+						int argb = src.getPixel(sx, sy);
 
 						a += (argb >> 24) & 0xFF;
 						r += (argb >> 16) & 0xFF;
@@ -79,18 +81,14 @@ public final class ImageScaler {
 				}
 
 				if (count == 0) {
-					dst.setColorArgb(x, y, 0);
+					dst.setPixelABGR(x, y, 0);
 				} else {
 					int avgA = (int) (a / count);
 					int avgR = (int) (r / count);
 					int avgG = (int) (g / count);
 					int avgB = (int) (b / count);
 
-					dst.setColorArgb(
-							x,
-							y,
-							(avgA << 24) | (avgR << 16) | (avgG << 8) | avgB
-					);
+					dst.setPixelABGR(x, y, (avgA << 24) | (avgR << 16) | (avgG << 8) | avgB);
 				}
 			}
 		}

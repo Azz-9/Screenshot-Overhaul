@@ -1,10 +1,12 @@
 package me.Azz_9.screenshot_utilities.client.screenshot;
 
+import com.mojang.blaze3d.platform.NativeImage;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.util.Util;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -19,7 +21,7 @@ public final class ScreenshotTexture implements AutoCloseable {
 	private final @NonNull CompletableFuture<NativeImage> imageFuture;
 	private final int maxSize;
 
-	private @Nullable NativeImageBackedTexture texture;
+	private @Nullable DynamicTexture texture;
 	private final Path file;
 	private volatile boolean closed = false;
 
@@ -34,7 +36,7 @@ public final class ScreenshotTexture implements AutoCloseable {
 			} catch (Exception e) {
 				return null;
 			}
-		}, Util.getMainWorkerExecutor());
+		}, Util.backgroundExecutor());
 	}
 
 	private ScreenshotTexture(Path file) {
@@ -56,7 +58,7 @@ public final class ScreenshotTexture implements AutoCloseable {
 	}
 
 	@Nullable
-	public NativeImageBackedTexture getTexture() {
+	public DynamicTexture getTexture() {
 		if (closed) return null;
 
 		if (texture != null) {
@@ -76,7 +78,7 @@ public final class ScreenshotTexture implements AutoCloseable {
 
 		if (image == null) return null;
 
-		texture = new NativeImageBackedTexture(() -> "screenshot_texture", image);
+		texture = new DynamicTexture(() -> "screenshot_texture", image);
 
 		return texture;
 	}
@@ -86,13 +88,13 @@ public final class ScreenshotTexture implements AutoCloseable {
 	}
 
 	public int width() {
-		if (texture == null || texture.getImage() == null) return 0;
-		return texture.getImage().getWidth();
+		if (texture == null) return 0;
+		return texture.getPixels().getWidth();
 	}
 
 	public int height() {
-		if (texture == null || texture.getImage() == null) return 0;
-		return texture.getImage().getHeight();
+		if (texture == null) return 0;
+		return texture.getPixels().getHeight();
 	}
 
 	@Override

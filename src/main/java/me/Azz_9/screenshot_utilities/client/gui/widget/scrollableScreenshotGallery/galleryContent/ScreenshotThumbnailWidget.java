@@ -1,29 +1,32 @@
 package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent;
 
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
+
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.ARGB;
+
+import org.joml.Matrix3x2fStack;
+import org.jspecify.annotations.NonNull;
+
+import java.io.File;
+
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotDrawHelper;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.ColorHelper;
-import org.joml.Matrix3x2fStack;
-import org.jspecify.annotations.NonNull;
-
-import java.io.File;
-
-import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
 
 @Environment(EnvType.CLIENT)
-public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCloseable {
+public class ScreenshotThumbnailWidget extends AbstractWidget implements AutoCloseable {
 
 	private static final float HOVER_SCALE = 1.04f;
 
@@ -39,7 +42,7 @@ public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCl
 	private boolean appeared = false;
 
 	public ScreenshotThumbnailWidget(int x, int y, int width, int height, @NonNull File screenshot) {
-		super(x, y, width, height, Text.literal(screenshot.getName()));
+		super(x, y, width, height, Component.literal(screenshot.getName()));
 		this.screenshot = screenshot;
 		this.texture = ScreenshotTextureCache.getThumbnail(screenshot.toPath());
 	}
@@ -47,10 +50,10 @@ public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCl
 	// rendering
 
 	@Override
-	public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+	public void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
 		if (!texture.isReady()) {
 			Loading.drawLoadingSpinner(
-					context,
+					graphics,
 					getX() + getWidth() / 2,
 					getY() + getHeight() / 2,
 					(int) (Math.min(getWidth(), getHeight()) * 0.05f),
@@ -64,9 +67,9 @@ public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCl
 		updateAppearProgress(dt);
 		updateHoverScale(dt);
 
-		context.enableScissor(getX(), getY(), getRight(), getBottom());
+		graphics.enableScissor(getX(), getY(), getRight(), getBottom());
 
-		Matrix3x2fStack matrices = context.getMatrices();
+		Matrix3x2fStack matrices = graphics.pose();
 		matrices.pushMatrix();
 
 		float cx = getX() + getWidth() / 2f;
@@ -77,17 +80,17 @@ public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCl
 		matrices.translate(-cx, -cy);
 
 		ScreenshotDrawHelper.drawCover(
-				context,
+				graphics,
 				texture,
 				getX(), getY(),
 				getWidth(), getHeight(),
-				ColorHelper.withAlpha(appearProgress, 0xffffff)
+				ARGB.color(appearProgress, 0xffffff)
 		);
 
 		matrices.popMatrix();
-		context.disableScissor();
+		graphics.disableScissor();
 
-		setCursor(context);
+		handleCursor(graphics);
 	}
 
 	private void updateAppearProgress(float dt) {
@@ -102,25 +105,25 @@ public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCl
 
 
 	private void updateHoverScale(float dt) {
-		float targetScale = (isHovered() && isInteractable()) ? HOVER_SCALE : 1.0f;
+		float targetScale = (isHovered() && shouldTakeFocusAfterInteraction()) ? HOVER_SCALE : 1.0f;
 		currentScale += (float) ((targetScale - currentScale) * (1f - Math.exp(-HOVER_SPEED * dt)));
 	}
 
 	@Override
-	protected void setCursor(@NonNull DrawContext context) {
-		if (this.isHovered() && this.isInteractable()) {
-			context.setCursor(StandardCursors.POINTING_HAND);
+	protected void handleCursor(@NonNull GuiGraphicsExtractor graphics) {
+		if (this.isHovered() && this.shouldTakeFocusAfterInteraction()) {
+			graphics.requestCursor(CursorTypes.POINTING_HAND);
 		}
 	}
 
 	// input
 
 	@Override
-	public void onClick(Click click, boolean doubled) {
-		if (CLIENT.currentScreen instanceof FocusableScreen screen) {
+	public void onClick(@NonNull MouseButtonEvent click, boolean doubled) {
+		if (MINECRAFT.screen instanceof FocusableScreen screen) {
 			screen.clearFocus();
 		}
-		if (CLIENT.currentScreen instanceof ScreenshotGalleryScreen screen) {
+		if (MINECRAFT.screen instanceof ScreenshotGalleryScreen screen) {
 			screen.selectScreenshot(texture);
 		}
 	}
@@ -131,7 +134,7 @@ public class ScreenshotThumbnailWidget extends ClickableWidget implements AutoCl
 	}
 
 	@Override
-	protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+	protected void updateWidgetNarration(@NonNull NarrationElementOutput output) {
 	}
 
 	@Override

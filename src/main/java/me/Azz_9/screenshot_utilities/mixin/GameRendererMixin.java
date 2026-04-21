@@ -1,24 +1,27 @@
 package me.Azz_9.screenshot_utilities.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.RotationAxis;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.util.Mth;
+
+import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 
 @Environment(EnvType.CLIENT)
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
 
 	// Hide hand in PhotoMode
-	@Inject(method = "renderHand", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "renderItemInHand", at = @At("HEAD"), cancellable = true)
 	private void onRenderHand(CallbackInfo ci) {
 		if (PhotoMode.isEnabled()) {
 			ci.cancel();
@@ -26,15 +29,15 @@ public abstract class GameRendererMixin {
 	}
 
 	@Inject(
-			method = "renderWorld",
+			method = "renderLevel",
 			at = @At(value = "INVOKE", target = "Lorg/joml/Matrix4f;mul(Lorg/joml/Matrix4fc;)Lorg/joml/Matrix4f;")
 	)
-	private void applyRoll(RenderTickCounter tickCounter, CallbackInfo ci, @Local MatrixStack matrixStack) {
+	private void applyRoll(DeltaTracker deltaTracker, CallbackInfo ci, @Local(name = "projectionMatrix") Matrix4f projectionMatrix) {
 		if (!PhotoMode.isEnabled() || PhotoMode.getCamera() == null) return;
 
-		float roll = PhotoMode.getCamera().getRoll(tickCounter.getTickProgress(true));
+		float roll = PhotoMode.getCamera().getRoll(deltaTracker.getGameTimeDeltaPartialTick(true));
 		if (roll != 0.0f) {
-			matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(roll));
+			projectionMatrix.rotateZ(roll * Mth.DEG_TO_RAD);
 		}
 	}
 }

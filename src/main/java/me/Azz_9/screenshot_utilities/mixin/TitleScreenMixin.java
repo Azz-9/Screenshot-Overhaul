@@ -1,26 +1,29 @@
 package me.Azz_9.screenshot_utilities.mixin;
 
-import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MOD_ID;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.TitleScreen;
-import net.minecraft.client.gui.widget.TextIconButtonWidget;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.components.SpriteIconButton;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
-import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MOD_ID;
+import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
 
 @Environment(EnvType.CLIENT)
 @Mixin(TitleScreen.class)
 public abstract class TitleScreenMixin extends Screen {
 
-	protected TitleScreenMixin(Text title) {
+	protected TitleScreenMixin(Component title) {
 		super(title);
 	}
 
@@ -31,15 +34,15 @@ public abstract class TitleScreenMixin extends Screen {
 		int realmsRightX = this.width / 2 + 100;
 		int margin = 4;
 
-		TextIconButtonWidget screenshotViewerButton = this.addDrawableChild(
-				TextIconButtonWidget.builder(
-								Text.translatable("screenshot_utilities.options.screenshots"),
-								(btn) -> CLIENT.setScreen(new ScreenshotGalleryScreen()),
+		SpriteIconButton screenshotViewerButton = this.addRenderableWidget(
+				SpriteIconButton.TextAndIcon.builder(
+								Component.translatable("screenshot_utilities.options.screenshots"),
+								(btn) -> MINECRAFT.setScreen(new ScreenshotGalleryScreen()),
 								true
 						)
-						.useTextAsTooltip()
+						.withTootip()
 						.width(20)
-						.texture(Identifier.of(MOD_ID, "icon/screenshot"), 15, 15)
+						.sprite(Identifier.fromNamespaceAndPath(MOD_ID, "icon/screenshot"), 15, 15)
 						.build()
 		);
 

@@ -2,15 +2,16 @@ package me.Azz_9.screenshot_utilities.client.gui.focusSystem;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+
 import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public final class FocusManager {
 
-	private @Nullable Element focused;
+	private @Nullable GuiEventListener focused;
 
-	public void requestFocus(@Nullable Element element) {
+	public void requestFocus(@Nullable GuiEventListener element) {
 		if (focused == element) return;
 
 		if (focused != null) {
@@ -28,7 +29,7 @@ public final class FocusManager {
 		requestFocus(null);
 	}
 
-	public @Nullable Element getFocused() {
+	public @Nullable GuiEventListener getFocused() {
 		return focused;
 	}
 }

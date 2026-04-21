@@ -1,25 +1,18 @@
 package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery;
 
-import me.Azz_9.screenshot_utilities.ScreenshotLogger;
-import me.Azz_9.screenshot_utilities.client.Colors;
-import me.Azz_9.screenshot_utilities.client.config.Config;
-import me.Azz_9.screenshot_utilities.client.gui.Loading;
-import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
-import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
-import me.Azz_9.screenshot_utilities.client.gui.widget.TexturedCyclingButtonWidget;
-import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent.ScreenshotEntryWidget;
-import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.headerWidget.SearchBar;
-import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
-import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MOD_ID;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -31,8 +24,17 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
-import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MOD_ID;
+import me.Azz_9.screenshot_utilities.ScreenshotLogger;
+import me.Azz_9.screenshot_utilities.client.Colors;
+import me.Azz_9.screenshot_utilities.client.config.Config;
+import me.Azz_9.screenshot_utilities.client.gui.Loading;
+import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
+import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
+import me.Azz_9.screenshot_utilities.client.gui.widget.TexturedCyclingButtonWidget;
+import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent.ScreenshotEntryWidget;
+import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.headerWidget.SearchBar;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
 
 @Environment(EnvType.CLIENT)
 public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoCloseable {
@@ -57,7 +59,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 	private long lastUpdateTime = System.nanoTime();
 
 	// separator
-	private static final int SEPARATOR_HEIGHT = CLIENT.textRenderer.fontHeight;
+	private static final int SEPARATOR_HEIGHT = MINECRAFT.font.lineHeight;
 	private final @NonNull List<DateSeparator> separators = new ArrayList<>();
 
 	// header
@@ -97,31 +99,27 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 								)
 						)
 				).toList(),
-				Util.getMainWorkerExecutor()
+				Util.backgroundExecutor()
 		);
 
 		this.screenshotFiles.thenAcceptAsync(screenshots -> {
 			// make sure the player didn't leave the screen before building entries
-			if (CLIENT.currentScreen instanceof ScreenshotGalleryScreen) {
+			if (MINECRAFT.screen instanceof ScreenshotGalleryScreen) {
 				buildEntries(screenshots, false);
-				filter(searchBar.getText(), false);
+				filter(searchBar.getValue(), false);
 				sortEntries(sortButton.getValue(), false);
 				layoutEntries();
 			}
-		}, CLIENT);
+		}, MINECRAFT);
 	}
 
 	private SearchBar createSearchBar() {
 		SearchBar searchBar = new SearchBar(
-				CLIENT.textRenderer,
+				MINECRAFT.font,
 				getX() + PADDING, getY() + PADDING,
 				SEARCH_BAR_WIDTH, SEARCH_BAR_HEIGHT
 		);
-		searchBar.setChangedListener((text) -> {
-			if (text != null) {
-				filter(text, true);
-			}
-		});
+		searchBar.setResponder((text) -> filter(text, true));
 
 		return searchBar;
 	}
@@ -135,7 +133,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 				SortMode.values(),
 				SortMode::getIcon
 		);
-		cyclingButtonWidget.setTooltipFactory((value) -> Tooltip.of(value.getText()));
+		cyclingButtonWidget.setTooltipFactory((value) -> Tooltip.create(value.getText()));
 
 		return cyclingButtonWidget;
 	}
@@ -267,42 +265,42 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 	/* ---------------- Rendering ---------------- */
 
 	@Override
-	public void renderWidget(@NonNull DrawContext context, int mouseX, int mouseY, float delta) {
+	public void renderWidget(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
 		updateScroll();
 
 		// background
-		context.fill(getX(), getY(), getRight(), getBottom(), Colors.BLACK_TRANSPARENT);
+		graphics.fill(getX(), getY(), getRight(), getBottom(), Colors.BLACK_TRANSPARENT);
 
-		renderHeader(context, mouseX, mouseY, delta);
+		renderHeader(graphics, mouseX, mouseY, delta);
 
 		if (!screenshotFiles.isDone()) {
 			Loading.drawLoadingSpinner(
-					context,
+					graphics,
 					getX() + getWidth() / 2,
 					getY() + getHeight() / 2,
 					getWidth() / 25, getWidth() / 10
 			);
 			return;
 		} else if (entries.isEmpty()) {
-			context.drawCenteredTextWithShadow(CLIENT.textRenderer, Text.translatable("screenshot_utilities.gallery_widget.no_screenshot").formatted(Formatting.ITALIC),
+			graphics.centeredText(MINECRAFT.font, Component.translatable("screenshot_utilities.gallery_widget.no_screenshot").withStyle(ChatFormatting.ITALIC),
 					getX() + getWidth() / 2, getY() + getHeight() / 5, Colors.GRAY);
 			return;
 		}
 
-		context.enableScissor(getX(), getY() + HEADER_HEIGHT, getX() + getWidth(), getY() + getHeight());
+		graphics.enableScissor(getX(), getY() + HEADER_HEIGHT, getX() + getWidth(), getY() + getHeight());
 
-		renderSeparators(context);
-		renderEntries(context, mouseX, mouseY, delta);
+		renderSeparators(graphics);
+		renderEntries(graphics, mouseX, mouseY, delta);
 
-		context.disableScissor();
+		graphics.disableScissor();
 	}
 
-	private void renderHeader(@NonNull DrawContext context, int mouseX, int mouseY, float delta) {
-		this.searchBar.render(context, mouseX, mouseY, delta);
-		this.sortButton.render(context, mouseX, mouseY, delta);
+	private void renderHeader(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+		this.searchBar.extractRenderState(graphics, mouseX, mouseY, delta);
+		this.sortButton.extractRenderState(graphics, mouseX, mouseY, delta);
 	}
 
-	private void renderSeparators(@NonNull DrawContext context) {
+	private void renderSeparators(@NonNull GuiGraphicsExtractor graphics) {
 		for (DateSeparator sep : separators) {
 			int y = sep.y() - currentScroll;
 
@@ -310,21 +308,21 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 
 			String text = sep.date().format(DateTimeFormatter.ofPattern("dd LLLL yyyy"));
 
-			int textWidth = CLIENT.textRenderer.getWidth(text);
+			int textWidth = MINECRAFT.font.width(text);
 			int textLeft = getX() + (getWidth() - textWidth) / 2;
 			int textRight = textLeft + textWidth;
 			int textPadding = 5;
 
-			context.drawText(CLIENT.textRenderer, text, textLeft, y, Colors.GRAY, false);
+			graphics.text(MINECRAFT.font, text, textLeft, y, Colors.GRAY, false);
 
-			int lineY = y + CLIENT.textRenderer.fontHeight / 2;
+			int lineY = y + MINECRAFT.font.lineHeight / 2;
 
-			context.fill(getX() + PADDING, lineY, textLeft - textPadding, lineY + 1, Colors.GRAY);
-			context.fill(textRight + textPadding, lineY, getRight() - PADDING, lineY + 1, Colors.GRAY);
+			graphics.fill(getX() + PADDING, lineY, textLeft - textPadding, lineY + 1, Colors.GRAY);
+			graphics.fill(textRight + textPadding, lineY, getRight() - PADDING, lineY + 1, Colors.GRAY);
 		}
 	}
 
-	private void renderEntries(@NonNull DrawContext context, int mouseX, int mouseY, float delta) {
+	private void renderEntries(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
 		for (ScreenshotEntryWidget entry : entries) {
 			if (!entry.isVisible()) continue;
 
@@ -332,7 +330,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 			entry.setY(yRender);
 
 			if (yRender + entry.getHeight() >= getY() && yRender <= getBottom()) {
-				entry.render(context, mouseX, mouseY, delta);
+				entry.extractRenderState(graphics, mouseX, mouseY, delta);
 			}
 		}
 	}
@@ -373,7 +371,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 	}
 
 	@Override
-	public void appendNarrations(NarrationMessageBuilder builder) {
+	public void updateNarration(@NonNull NarrationElementOutput output) {
 	}
 
 	private void addEntry(@NonNull ScreenshotEntryWidget entry) {
@@ -421,15 +419,15 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 
 		SortMode(@NonNull String translationKey, @NonNull String icon) {
 			this.translationKey = translationKey;
-			this.icon = Identifier.of(MOD_ID, "icon/" + icon);
+			this.icon = Identifier.fromNamespaceAndPath(MOD_ID, "icon/" + icon);
 		}
 
 		public @NonNull String getTranslationKey() {
 			return translationKey;
 		}
 
-		public @NonNull Text getText() {
-			return Text.translatable(getTranslationKey());
+		public @NonNull Component getText() {
+			return Component.translatable(getTranslationKey());
 		}
 
 		public @NonNull Identifier getIcon() {

@@ -1,151 +1,157 @@
 package me.Azz_9.screenshot_utilities.client.photoMode;
 
-import me.Azz_9.screenshot_utilities.accessors.network.ClientPlayNetworkHandlerAccessor;
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.input.KeyboardInput;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.recipebook.ClientRecipeBook;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.registry.tag.FluidTags;
-import net.minecraft.stat.StatHandler;
-import net.minecraft.util.PlayerInput;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.ClientRecipeBook;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.chat.ChatAbilities;
+import net.minecraft.client.player.KeyboardInput;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.stats.StatsCounter;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Input;
+import net.minecraft.world.phys.Vec3;
+
 import org.jspecify.annotations.NonNull;
 
-import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
+import me.Azz_9.screenshot_utilities.accessors.network.ClientPacketListenerAccessor;
 
 @Environment(EnvType.CLIENT)
-public class PhotoCamera extends ClientPlayerEntity {
+public class PhotoCamera extends LocalPlayer {
 
-	public static final double DIAGONAL_MULTIPLIER = MathHelper.sin((float) Math.toRadians(45));
+	public static final double DIAGONAL_MULTIPLIER = Mth.sin((float) Math.toRadians(45));
 	private static final float ROLL_SPEED_WITH_CTRL = 1.0f;
 	private static final float ROLL_SPEED_WITHOUT_CTRL = 5.0f;
 	public float roll = 0.0f;
 	public float prevRoll = 0.0f;
-	private double speed = 1.0f;
+	private double velocity = 1.0f;
 
 	public PhotoCamera(
-			@NonNull MinecraftClient client,
-			@NonNull ClientWorld world,
-			@NonNull ClientPlayNetworkHandler networkHandler,
-			@NonNull StatHandler stats,
+			@NonNull Minecraft client,
+			@NonNull ClientLevel world,
+			@NonNull ClientPacketListener networkHandler,
+			@NonNull StatsCounter stats,
 			@NonNull ClientRecipeBook recipeBook,
-			@NonNull PlayerInput lastPlayerInput,
-			boolean lastSprinting
+			@NonNull Input lastPlayerInput,
+			boolean lastSprinting,
+			ChatAbilities chatAbilities
 	) {
-		super(client, world, networkHandler, stats, recipeBook, lastPlayerInput, lastSprinting);
+		super(client, world, networkHandler, stats, recipeBook, lastPlayerInput, lastSprinting, chatAbilities);
 		setId(-500);
-		setPose(EntityPose.SWIMMING);
-		((ClientPlayNetworkHandlerAccessor) networkHandler).screenshotUtilities$setLoaded(true); // Otherwise input is frozen
+		setPose(Pose.SWIMMING);
+		((ClientPacketListenerAccessor) networkHandler).screenshotUtilities$setClientLoaded(true); // Otherwise input is frozen
 		getAbilities().flying = true;
-		noClip = true;
+		noPhysics = true;
 		setInvisible(true);
-		input = new KeyboardInput(CLIENT.options);
+		input = new KeyboardInput(MINECRAFT.options);
 
-		if (CLIENT.player != null) {
-			refreshPositionAndAngles(CLIENT.player.getX(), getSwimmingY(CLIENT.player), CLIENT.player.getZ(), CLIENT.player.getYaw(), CLIENT.player.getPitch());
+		if (MINECRAFT.player != null) {
+			absSnapTo(MINECRAFT.player.getX(), getSwimmingY(MINECRAFT.player), MINECRAFT.player.getZ(), MINECRAFT.player.getYRot(), MINECRAFT.player.getXRot());
 		}
 	}
 
 	private static double getSwimmingY(@NonNull Entity entity) {
-		if (entity.getPose() == EntityPose.SWIMMING) {
+		if (entity.getPose() == Pose.SWIMMING) {
 			return entity.getY();
 		}
-		return entity.getY() - entity.getEyeHeight(EntityPose.SWIMMING) + entity.getEyeHeight(entity.getPose());
+		return entity.getY() - entity.getEyeHeight(Pose.SWIMMING) + entity.getEyeHeight(entity.getPose());
 	}
 
 	public float getRoll(float tickDelta) {
-		return MathHelper.lerpAngleDegrees(tickDelta, prevRoll, roll);
+		return Mth.rotLerp(tickDelta, prevRoll, roll);
 	}
 
-	public double getSpeed() {
-		return speed;
+	public double getVelocity() {
+		return velocity;
 	}
 
-	public void setSpeed(double speed) {
-		this.speed = speed;
+	public void setVelocity(double velocity) {
+		this.velocity = velocity;
 	}
 
 	public void spawn() {
-		((ClientWorld) getEntityWorld()).addEntity(this);
+		((ClientLevel) level()).addEntity(this);
 	}
 
 	public void despawn() {
-		((ClientWorld) getEntityWorld()).removeEntity(getId(), RemovalReason.DISCARDED);
+		((ClientLevel) level()).removeEntity(getId(), RemovalReason.DISCARDED);
 	}
 
 	// Prevents collision with solid entities (shulkers, boats)
+
 	@Override
-	public boolean collidesWith(Entity other) {
+	public boolean canCollideWith(@NonNull Entity entity) {
 		return false;
 	}
 
 	// Ensures that the PhotoCamera is always in the swimming pose.
 	@Override
-	public void setPose(EntityPose pose) {
-		super.setPose(EntityPose.SWIMMING);
+	public void setPose(@NonNull Pose pose) {
+		super.setPose(Pose.SWIMMING);
 	}
 
 	// Prevents slow down due to being in swimming pose.
+
 	@Override
-	public boolean shouldSlowDown() {
+	public boolean isMovingSlowly() {
 		return false;
 	}
 
 	@Override
-	protected boolean updateWaterSubmersionState() {
-		this.isSubmergedInWater = this.isSubmergedIn(FluidTags.WATER);
-		return this.isSubmergedInWater;
+	protected boolean updateIsUnderwater() {
+		this.wasUnderwater = this.isEyeInFluid(FluidTags.WATER);
+		return this.wasUnderwater;
 	}
 
 	@Override
-	public void tickMovement() {
-		getAbilities().setFlySpeed(0);
+	public void aiStep() {
+		getAbilities().setFlyingSpeed(0);
 		this.doMotion();
-		super.tickMovement();
+		super.aiStep();
 		getAbilities().flying = true;
 		setOnGround(false);
 	}
 
 	public void doMotion() {
-		double speed = getSpeed();
+		double speed = getVelocity();
 
-		float yaw = getYaw();
+		float yaw = getYRot();
 		double velocityX = 0.0;
 		double velocityY = 0.0;
 		double velocityZ = 0.0;
 
-		Vec3d forward = Vec3d.fromPolar(0, yaw);
-		Vec3d side = Vec3d.fromPolar(0, yaw + 90);
+		Vec3 forward = Vec3.directionFromRotation(0, yaw);
+		Vec3 side = Vec3.directionFromRotation(0, yaw + 90);
 
 		this.input.tick();
 		speed = speed * (this.isSprinting() ? 1.5 : 1.0);
 
 		boolean straight = false;
-		if (this.input.playerInput.forward()) {
+		if (this.input.keyPresses.forward()) {
 			velocityX += forward.x * speed;
 			velocityZ += forward.z * speed;
 			straight = true;
 		}
-		if (this.input.playerInput.backward()) {
+		if (this.input.keyPresses.backward()) {
 			velocityX -= forward.x * speed;
 			velocityZ -= forward.z * speed;
 			straight = true;
 		}
 
 		boolean strafing = false;
-		if (this.input.playerInput.right()) {
+		if (this.input.keyPresses.right()) {
 			velocityZ += side.z * speed;
 			velocityX += side.x * speed;
 			strafing = true;
 		}
-		if (this.input.playerInput.left()) {
+		if (this.input.keyPresses.left()) {
 			velocityZ -= side.z * speed;
 			velocityX -= side.x * speed;
 			strafing = true;
@@ -156,18 +162,18 @@ public class PhotoCamera extends ClientPlayerEntity {
 			velocityZ *= DIAGONAL_MULTIPLIER;
 		}
 
-		if (this.input.playerInput.jump()) {
+		if (this.input.keyPresses.jump()) {
 			velocityY += speed;
 		}
-		if (this.input.playerInput.sneak()) {
+		if (this.input.keyPresses.shift()) {
 			velocityY -= speed;
 		}
 
-		this.setVelocity(velocityX, velocityY, velocityZ);
+		this.setDeltaMovement(velocityX, velocityY, velocityZ);
 	}
 
 	private float getRollSpeed() {
-		return CLIENT.isCtrlPressed() ? ROLL_SPEED_WITH_CTRL : ROLL_SPEED_WITHOUT_CTRL;
+		return MINECRAFT.hasControlDown() ? ROLL_SPEED_WITH_CTRL : ROLL_SPEED_WITHOUT_CTRL;
 	}
 
 	public void rollLeft() {

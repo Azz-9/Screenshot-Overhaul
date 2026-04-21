@@ -1,20 +1,22 @@
 package me.Azz_9.screenshot_utilities.mixin;
 
-import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.Mouse;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.MouseHandler;
+import net.minecraft.util.Mth;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
+import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 
 @Environment(EnvType.CLIENT)
-@Mixin(Mouse.class)
+@Mixin(MouseHandler.class)
 public abstract class MouseMixin {
 
 	@Unique
@@ -22,20 +24,20 @@ public abstract class MouseMixin {
 	@Unique
 	private static final float SCROLL_SPEED_WITHOUT_CTRL = 0.05f;
 
-	@Inject(method = "onMouseScroll", at = @At("HEAD"), cancellable = true)
-	private void onMouseScroll(long window, double horizontal, double vertical, CallbackInfo ci) {
-		if (!PhotoMode.isEnabled() || PhotoMode.getCamera() == null || window != CLIENT.getWindow().getHandle() || CLIENT.currentScreen != null) {
+	@Inject(method = "onScroll", at = @At("HEAD"), cancellable = true)
+	private void onScroll(long handle, double xoffset, double yoffset, CallbackInfo ci) {
+		if (!PhotoMode.isEnabled() || PhotoMode.getCamera() == null || handle != MINECRAFT.getWindow().handle() || MINECRAFT.screen != null) {
 			return;
 		}
 
-		boolean discrete = CLIENT.options.getDiscreteMouseScroll().getValue();
-		double sensitivity = CLIENT.options.getMouseWheelSensitivity().getValue();
+		boolean discrete = MINECRAFT.options.discreteMouseScroll().get();
+		double sensitivity = MINECRAFT.options.mouseWheelSensitivity().get();
 
-		double scroll = (discrete ? Math.signum(vertical) : vertical) * sensitivity;
+		double scroll = (discrete ? Math.signum(yoffset) : yoffset) * sensitivity;
 
 		if (scroll != 0.0) {
-			float scrollSpeed = (CLIENT.isCtrlPressed() ? SCROLL_SPEED_WITH_CTRL : SCROLL_SPEED_WITHOUT_CTRL);
-			PhotoMode.getCamera().setSpeed(MathHelper.clamp(PhotoMode.getCamera().getSpeed() + scroll * scrollSpeed, 0, 5.0));
+			float scrollSpeed = (MINECRAFT.hasControlDown() ? SCROLL_SPEED_WITH_CTRL : SCROLL_SPEED_WITHOUT_CTRL);
+			PhotoMode.getCamera().setVelocity(Mth.clamp(PhotoMode.getCamera().getVelocity() + scroll * scrollSpeed, 0, 5.0));
 		}
 
 		ci.cancel();

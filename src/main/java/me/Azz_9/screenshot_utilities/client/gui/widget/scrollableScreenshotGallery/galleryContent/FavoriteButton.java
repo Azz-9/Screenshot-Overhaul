@@ -1,27 +1,32 @@
 package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent;
 
-import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.util.Identifier;
-
-import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MOD_ID;
 
-public class FavoriteButton extends ButtonWidget {
+
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+
+import org.jspecify.annotations.NonNull;
+
+import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
+
+public class FavoriteButton extends Button {
 	private static final int PADDING = 1;
 
-	private static final Identifier BASE_TEXTURE = Identifier.of(MOD_ID, "icon/favorite");
-	private static final Identifier HOVERED_TEXTURE = Identifier.of(MOD_ID, "icon/favorite_hovered");
-	private static final Identifier FILLED_TEXTURE = Identifier.of(MOD_ID, "icon/favorite_filled");
-	private static final Identifier FILLED_HOVERED_TEXTURE = Identifier.of(MOD_ID, "icon/favorite_filled_hovered");
+	private static final Identifier BASE_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/favorite");
+	private static final Identifier HOVERED_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/favorite_hovered");
+	private static final Identifier FILLED_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/favorite_filled");
+	private static final Identifier FILLED_HOVERED_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/favorite_filled_hovered");
 
 	private boolean filled;
 
-	protected FavoriteButton(int x, int y, int width, int height, PressAction onPress, boolean filled) {
-		super(x, y, width, height, net.minecraft.text.Text.translatable("screenshot_utilities.favorite"), onPress, DEFAULT_NARRATION_SUPPLIER);
+	protected FavoriteButton(int x, int y, int width, int height, OnPress onPress, boolean filled) {
+		super(x, y, width, height, Component.translatable("screenshot_utilities.favorite"), onPress, DEFAULT_NARRATION);
 		this.filled = filled;
 	}
 
@@ -38,8 +43,8 @@ public class FavoriteButton extends ButtonWidget {
 	}
 
 	@Override
-	protected void drawIcon(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
-		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, getTexture(),
+	protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, getTexture(),
 				getX() + PADDING, getY() + PADDING,
 				getWidth() - PADDING * 2, getHeight() - PADDING * 2);
 	}
@@ -61,9 +66,9 @@ public class FavoriteButton extends ButtonWidget {
 	}
 
 	@Override
-	public void onClick(Click click, boolean doubled) {
+	public void onClick(@NonNull MouseButtonEvent click, boolean doubled) {
 		toggle();
-		if (CLIENT.currentScreen instanceof FocusableScreen screen) {
+		if (MINECRAFT.screen instanceof FocusableScreen screen) {
 			screen.requestFocus(this);
 		}
 		super.onClick(click, doubled);

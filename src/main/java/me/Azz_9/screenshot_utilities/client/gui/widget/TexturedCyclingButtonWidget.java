@@ -1,38 +1,43 @@
 package me.Azz_9.screenshot_utilities.client.gui.widget;
 
-import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.input.AbstractInput;
-import net.minecraft.client.option.SimpleOption;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+
+
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
+
+import net.minecraft.client.OptionInstance;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.input.InputWithModifiers;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
+import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 
-public class TexturedCyclingButtonWidget<T> extends ButtonWidget {
+public class TexturedCyclingButtonWidget<T> extends Button {
 	private final @NonNull T[] values;
 	private int index;
 	private final @NonNull Function<T, Identifier> iconGetter;
 	private final @NonNull BiConsumer<TexturedCyclingButtonWidget<T>, T> callback;
-	private SimpleOption.@Nullable TooltipFactory<T> tooltipFactory;
+	private OptionInstance.@Nullable TooltipSupplier<T> tooltipFactory;
 
 	public TexturedCyclingButtonWidget(int x, int y,
-									   int width, int height,
-									   int index,
-									   @NonNull BiConsumer<TexturedCyclingButtonWidget<T>, T> callback,
-									   @NonNull T[] values,
-									   @NonNull Function<T, Identifier> iconGetter) {
-		super(x, y, width, height, net.minecraft.text.Text.empty(), (btn) -> {
-		}, DEFAULT_NARRATION_SUPPLIER);
+	                                   int width, int height,
+	                                   int index,
+	                                   @NonNull BiConsumer<TexturedCyclingButtonWidget<T>, T> callback,
+	                                   @NonNull T[] values,
+	                                   @NonNull Function<T, Identifier> iconGetter) {
+		super(x, y, width, height, Component.empty(), (btn) -> {
+		}, DEFAULT_NARRATION);
 		this.index = index;
 		this.callback = callback;
 		this.values = values;
@@ -44,13 +49,13 @@ public class TexturedCyclingButtonWidget<T> extends ButtonWidget {
 	}
 
 	@Override
-	protected void setCursor(DrawContext context) {
-		if (this.isHovered() && this.isInteractable()) {
-			context.setCursor(StandardCursors.POINTING_HAND);
+	protected void handleCursor(@NonNull GuiGraphicsExtractor graphics) {
+		if (this.isHovered() && this.shouldTakeFocusAfterInteraction()) {
+			graphics.requestCursor(CursorTypes.POINTING_HAND);
 		}
 	}
 
-	public void setTooltipFactory(SimpleOption.@Nullable TooltipFactory<T> tooltipFactory) {
+	public void setTooltipFactory(OptionInstance.@Nullable TooltipSupplier<T> tooltipFactory) {
 		this.tooltipFactory = tooltipFactory;
 		refreshTooltip();
 	}
@@ -62,8 +67,8 @@ public class TexturedCyclingButtonWidget<T> extends ButtonWidget {
 	}
 
 	@Override
-	public void onPress(AbstractInput input) {
-		if (input.hasShift()) {
+	public void onPress(InputWithModifiers input) {
+		if (input.hasShiftDown()) {
 			this.cycle(-1);
 		} else {
 			this.cycle(1);
@@ -73,18 +78,18 @@ public class TexturedCyclingButtonWidget<T> extends ButtonWidget {
 	}
 
 	private void cycle(int amount) {
-		this.index = MathHelper.floorMod(this.index + amount, values.length);
+		this.index = Mth.floorDiv(this.index + amount, values.length);
 	}
 
 	@Override
-	public void drawIcon(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
-		drawButton(context);
-		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, iconGetter.apply(values[index]), getX(), getY(), getWidth(), getHeight());
+	public void extractContents(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
+		extractDefaultSprite(graphics);
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, iconGetter.apply(values[index]), getX(), getY(), getWidth(), getHeight());
 	}
 
 	@Override
-	public void onClick(Click click, boolean doubled) {
-		if (CLIENT.currentScreen instanceof FocusableScreen screen) {
+	public void onClick(@NonNull MouseButtonEvent click, boolean doubled) {
+		if (MINECRAFT.screen instanceof FocusableScreen screen) {
 			screen.requestFocus(this);
 		}
 		super.onClick(click, doubled);

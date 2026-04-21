@@ -2,9 +2,16 @@ package me.Azz_9.screenshot_utilities.client.gui.widget;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.*;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.layouts.LayoutElement;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.input.MouseButtonEvent;
+
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
@@ -13,9 +20,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
-public abstract class SimpleParentWidget extends AbstractParentElement implements Drawable, Element, Widget, Selectable {
+public abstract class SimpleParentWidget extends AbstractContainerEventHandler implements LayoutElement, Renderable, GuiEventListener, NarratableEntry {
 
-	private final @NonNull List<@NonNull Element> children = new ArrayList<>();
+	private final @NonNull List<@NonNull GuiEventListener> children = new ArrayList<>();
 	private boolean visible = true;
 	private int width;
 	private int height;
@@ -31,14 +38,14 @@ public abstract class SimpleParentWidget extends AbstractParentElement implement
 	}
 
 	@Override
-	public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
+	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
 		if (this.visible) {
-			this.hovered = context.scissorContains(mouseX, mouseY) && this.isInBounds(mouseX, mouseY);
-			this.renderWidget(context, mouseX, mouseY, deltaTicks);
+			this.hovered = graphics.containsPointInScissor(mouseX, mouseY) && this.isInBounds(mouseX, mouseY);
+			this.renderWidget(graphics, mouseX, mouseY, deltaTicks);
 		}
 	}
 
-	protected abstract void renderWidget(@NonNull DrawContext context, int mouseX, int mouseY, float deltaTicks);
+	protected abstract void renderWidget(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks);
 
 	private boolean isInBounds(double x, double y) {
 		return x >= this.getX() && y >= this.getY() && x < this.getRight() && y < this.getBottom();
@@ -58,10 +65,10 @@ public abstract class SimpleParentWidget extends AbstractParentElement implement
 	}
 
 	public void setActive(boolean active) {
-		for (Element child : children) {
+		for (GuiEventListener child : children) {
 			if (child instanceof SimpleParentWidget simpleParentWidget) {
 				simpleParentWidget.setActive(active);
-			} else if (child instanceof ClickableWidget clickableWidget) {
+			} else if (child instanceof AbstractWidget clickableWidget) {
 				clickableWidget.active = active;
 			}
 		}
@@ -76,32 +83,32 @@ public abstract class SimpleParentWidget extends AbstractParentElement implement
 	}
 
 	@Override
-	public Selectable.SelectionType getType() {
+	public @NonNull NarrationPriority narrationPriority() {
 		if (this.isFocused()) {
-			return Selectable.SelectionType.FOCUSED;
+			return NarrationPriority.FOCUSED;
 		} else {
-			return this.hovered ? Selectable.SelectionType.HOVERED : Selectable.SelectionType.NONE;
+			return this.hovered ? NarrationPriority.HOVERED : NarrationPriority.NONE;
 		}
 	}
 
-	public void addChild(@NonNull Element child) {
+	public void addChild(@NonNull GuiEventListener child) {
 		children.add(child);
 	}
 
-	public void addAllChildren(@NonNull Element... children) {
-		for (Element child : children) {
+	public void addAllChildren(@NonNull GuiEventListener... children) {
+		for (GuiEventListener child : children) {
 			addChild(child);
 		}
 	}
 
 	@Override
-	public List<Element> children() {
+	public @NonNull List<GuiEventListener> children() {
 		return children;
 	}
 
 	@Override
-	public ScreenRect getNavigationFocus() {
-		return Widget.super.getNavigationFocus();
+	public @NonNull ScreenRectangle getRectangle() {
+		return LayoutElement.super.getRectangle();
 	}
 
 	@Override
@@ -161,20 +168,20 @@ public abstract class SimpleParentWidget extends AbstractParentElement implement
 	}
 
 	@Override
-	public void forEachChild(Consumer<ClickableWidget> consumer) {
-		for (Element child : children) {
-			if (child instanceof ClickableWidget clickableWidget) {
-				consumer.accept(clickableWidget);
+	public void visitWidgets(@NonNull Consumer<AbstractWidget> widgetVisitor) {
+		for (GuiEventListener child : children) {
+			if (child instanceof AbstractWidget clickableWidget) {
+				widgetVisitor.accept(clickableWidget);
 			}
 		}
 	}
 
 	@Override
-	public boolean mouseClicked(Click click, boolean doubled) {
-		Optional<Element> optional = this.hoveredElement(click.x(), click.y());
+	public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
+		Optional<GuiEventListener> optional = this.getChildAt(click.x(), click.y());
 		if (optional.isPresent()) {
-			Element element = optional.get();
-			if (element.mouseClicked(click, doubled) && element.isClickable()) {
+			GuiEventListener element = optional.get();
+			if (element.mouseClicked(click, doubled) && element.shouldTakeFocusAfterInteraction()) {
 				this.setFocused(element);
 				if (click.button() == 0) {
 					this.setDragging(true);

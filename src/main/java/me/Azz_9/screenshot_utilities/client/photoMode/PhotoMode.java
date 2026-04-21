@@ -1,25 +1,28 @@
 package me.Azz_9.screenshot_utilities.client.photoMode;
 
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+
 import com.mojang.authlib.GameProfile;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.input.Input;
-import net.minecraft.client.input.KeyboardInput;
-import net.minecraft.client.network.ClientConnectionState;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.option.Perspective;
-import net.minecraft.client.world.ClientChunkLoadProgress;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.NetworkSide;
-import net.minecraft.resource.featuretoggle.FeatureSet;
+import net.minecraft.client.CameraType;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.CommonListenerCookie;
+import net.minecraft.client.multiplayer.LevelLoadTracker;
+import net.minecraft.client.multiplayer.chat.ChatAbilities;
+import net.minecraft.client.player.ClientInput;
+import net.minecraft.client.player.KeyboardInput;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.ServerLinks;
-import net.minecraft.util.PlayerInput;
+import net.minecraft.world.entity.player.Input;
+import net.minecraft.world.flag.FeatureFlagSet;
+
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.UUID;
-
-import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
 
 @Environment(EnvType.CLIENT)
 public class PhotoMode {
@@ -29,7 +32,7 @@ public class PhotoMode {
 
 	private static @Nullable PhotoCamera camera = null;
 
-	private static @Nullable Perspective prevCameraType = null;
+	private static @Nullable CameraType prevCameraType = null;
 
 	public static @Nullable PhotoCamera getCamera() {
 		return camera;
@@ -44,19 +47,19 @@ public class PhotoMode {
 	}
 
 	public static void enable() {
-		if (CLIENT.world == null || CLIENT.player == null) {
+		if (MINECRAFT.level == null || MINECRAFT.player == null) {
 			return;
 		}
 
-		ClientPlayNetworkHandler networkHandler = new ClientPlayNetworkHandler(
-				CLIENT,
-				new ClientConnection(NetworkSide.CLIENTBOUND),
-				new ClientConnectionState(
-						new ClientChunkLoadProgress(),
+		ClientPacketListener clientPacketListener = new ClientPacketListener(
+				MINECRAFT,
+				new Connection(PacketFlow.CLIENTBOUND),
+				new CommonListenerCookie(
+						new LevelLoadTracker(),
 						new GameProfile(UUID.randomUUID(), "Camera"),
-						CLIENT.getTelemetryManager().createWorldSession(false, null, null),
-						CLIENT.player.getRegistryManager().toImmutable(),
-						FeatureSet.empty(),
+						MINECRAFT.getTelemetryManager().createWorldSessionManager(false, null, null),
+						MINECRAFT.player.registryAccess().freeze(),
+						FeatureFlagSet.of(),
 						null,
 						null,
 						null,
@@ -71,39 +74,39 @@ public class PhotoMode {
 
 		enabled = true;
 
-		frozenTime = CLIENT.world.getTimeOfDay();
+		frozenTime = MINECRAFT.level.getOverworldClockTime();
 
-		CLIENT.chunkCullingEnabled = false;
+		MINECRAFT.smartCull = false;
 
-		camera = new PhotoCamera(CLIENT, CLIENT.world, networkHandler, CLIENT.player.getStatHandler(), CLIENT.player.getRecipeBook(), PlayerInput.DEFAULT, false);
+		camera = new PhotoCamera(MINECRAFT, MINECRAFT.level, clientPacketListener, MINECRAFT.player.getStats(), MINECRAFT.player.getRecipeBook(), Input.EMPTY, false, ChatAbilities.NO_RESTRICTIONS);
 		camera.spawn();
 
-		prevCameraType = CLIENT.options.getPerspective();
-		if (CLIENT.gameRenderer.getCamera().isThirdPerson()) {
-			CLIENT.options.setPerspective(Perspective.FIRST_PERSON);
+		prevCameraType = MINECRAFT.options.getCameraType();
+		if (MINECRAFT.gameRenderer.getMainCamera().isDetached()) {
+			MINECRAFT.options.setCameraType(CameraType.FIRST_PERSON);
 		}
 
-		CLIENT.setCameraEntity(camera);
+		MINECRAFT.setCameraEntity(camera);
 	}
 
 	public static void disable() {
 		enabled = false;
 
-		CLIENT.chunkCullingEnabled = true;
+		MINECRAFT.smartCull = true;
 
 		if (camera != null) {
 			camera.despawn();
-			camera.input = new Input();
+			camera.input = new ClientInput();
 			camera = null;
 		}
 
-		if (CLIENT.player != null) {
-			CLIENT.player.input = new KeyboardInput(CLIENT.options);
-			CLIENT.setCameraEntity(CLIENT.player);
+		if (MINECRAFT.player != null) {
+			MINECRAFT.player.input = new KeyboardInput(MINECRAFT.options);
+			MINECRAFT.setCameraEntity(MINECRAFT.player);
 		}
 
 		if (prevCameraType != null) {
-			CLIENT.options.setPerspective(prevCameraType);
+			MINECRAFT.options.setCameraType(prevCameraType);
 		}
 	}
 
@@ -122,19 +125,19 @@ public class PhotoMode {
 			}
 
 			// Prevent player from being controlled when PhotoMode is enabled
-			if (CLIENT.player != null && CLIENT.player.input instanceof KeyboardInput) {
-				Input input = new Input();
-				PlayerInput keyPresses = CLIENT.player.input.playerInput;
-				input.playerInput = new PlayerInput(
+			if (MINECRAFT.player != null && MINECRAFT.player.input instanceof KeyboardInput) {
+				ClientInput input = new ClientInput();
+				Input keyPresses = MINECRAFT.player.input.keyPresses;
+				input.keyPresses = new Input(
 						false,
 						false,
 						false,
 						false,
 						false,
-						keyPresses.sneak(),
+						keyPresses.shift(),
 						false
 				);
-				CLIENT.player.input = input;
+				MINECRAFT.player.input = input;
 			}
 		}
 	}

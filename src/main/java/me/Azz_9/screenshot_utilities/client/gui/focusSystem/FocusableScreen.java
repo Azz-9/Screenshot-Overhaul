@@ -2,14 +2,15 @@ package me.Azz_9.screenshot_utilities.client.gui.focusSystem;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public interface FocusableScreen {
 
-	default void requestFocus(@Nullable Element widget) {
+	default void requestFocus(@Nullable GuiEventListener widget) {
 		getFocusManager().requestFocus(widget);
 	}
 

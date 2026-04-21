@@ -1,19 +1,21 @@
 package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent;
 
-import me.Azz_9.screenshot_utilities.client.Colors;
-import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
-import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.ParentElement;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.events.ContainerEventHandler;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+
 import org.jspecify.annotations.NonNull;
 
 import java.io.File;
 
+import me.Azz_9.screenshot_utilities.client.Colors;
+import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
+
 @Environment(EnvType.CLIENT)
-public class ScreenshotEntryWidget extends SimpleParentWidget implements ParentElement {
+public class ScreenshotEntryWidget extends SimpleParentWidget implements ContainerEventHandler {
 
 	public static final int NAME_HEIGHT = 30;
 
@@ -67,15 +69,15 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements ParentE
 	}
 
 	@Override
-	public void renderWidget(@NonNull DrawContext context, int mouseX, int mouseY, float delta) {
+	public void renderWidget(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
 		// fond global
-		context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), Colors.BLACK_TRANSPARENT);
+		graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), Colors.BLACK_TRANSPARENT);
 
-		thumbnailWidget.render(context, mouseX, mouseY, delta);
-		nameWidget.render(context, mouseX, mouseY, delta);
+		thumbnailWidget.extractRenderState(graphics, mouseX, mouseY, delta);
+		nameWidget.extractRenderState(graphics, mouseX, mouseY, delta);
 
 		if (isHovered() || favoriteButton.isFilled()) {
-			favoriteButton.render(context, mouseX, mouseY, delta);
+			favoriteButton.extractRenderState(graphics, mouseX, mouseY, delta);
 		}
 
 	}
@@ -113,9 +115,9 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements ParentE
 	}
 
 	private void updateChildrenPos() {
-		thumbnailWidget.setDimensionsAndPosition(getWidth(), getHeight() - NAME_HEIGHT, getX(), getY());
+		thumbnailWidget.setRectangle(getWidth(), getHeight() - NAME_HEIGHT, getX(), getY());
 		favoriteButton.setPosition(thumbnailWidget.getRight() - FAVORITE_BUTTON_SIZE, thumbnailWidget.getY());
-		nameWidget.setDimensionsAndPosition(getWidth(), NAME_HEIGHT, getX(), thumbnailWidget.getBottom());
+		nameWidget.setRectangle(getWidth(), NAME_HEIGHT, getX(), thumbnailWidget.getBottom());
 	}
 
 	public void close() {
@@ -136,6 +138,6 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements ParentE
 	}
 
 	@Override
-	public void appendNarrations(NarrationMessageBuilder builder) {
+	public void updateNarration(@NonNull NarrationElementOutput output) {
 	}
 }

@@ -1,6 +1,7 @@
 package me.Azz_9.screenshot_utilities.client.config;
 
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+
 import org.jspecify.annotations.NonNull;
 
 public class ConfigObject<T> extends SavableObject<T> {
@@ -16,7 +17,7 @@ public class ConfigObject<T> extends SavableObject<T> {
 		return translationKey;
 	}
 
-	public @NonNull Text getTranslationText() {
-		return Text.literal(translationKey);
+	public @NonNull Component getTranslationText() {
+		return Component.translatable(translationKey);
 	}
 }

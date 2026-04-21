@@ -1,32 +1,33 @@
 package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent;
 
-import me.Azz_9.screenshot_utilities.client.Colors;
-import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.cursor.StandardCursors;
-import net.minecraft.client.gui.screen.ButtonTextures;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.screen.narration.NarrationPart;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.input.CharInput;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.client.sound.SoundManager;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.StringHelper;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.WidgetSprites;
+import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
+import net.minecraft.util.StringUtil;
 import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -37,18 +38,19 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
+import me.Azz_9.screenshot_utilities.client.Colors;
+import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 
 @Environment(EnvType.CLIENT)
-public class ScreenshotNameWidget extends ClickableWidget {
+public class ScreenshotNameWidget extends AbstractWidget {
 	public static final int DEFAULT_EDITABLE_COLOR = -2039584;
-	public static final Style PLACEHOLDER_STYLE = Style.EMPTY.withColor(Formatting.DARK_GRAY);
-	private static final ButtonTextures TEXTURES = new ButtonTextures(
-			Identifier.ofVanilla("widget/text_field"), Identifier.ofVanilla("widget/text_field_highlighted")
+	public static final Style PLACEHOLDER_STYLE = Style.EMPTY.withColor(ChatFormatting.DARK_GRAY);
+	private static final WidgetSprites SPRITES = new WidgetSprites(
+			Identifier.withDefaultNamespace("widget/text_field"), Identifier.withDefaultNamespace("widget/text_field_highlighted")
 	);
 	private static final float UNDERLINE_SPEED = 18f;
-	private final TextRenderer textRenderer;
-	private final List<TextFieldWidget.Formatter> formatters = new ArrayList<>();
+	private final Font font;
+	private final List<EditBox.TextFormatter> formatters = new ArrayList<>();
 	// screenshot
 	private final @NonNull File screenshot;
 	private final @NonNull String extension;
@@ -74,8 +76,8 @@ public class ScreenshotNameWidget extends ClickableWidget {
 	private Consumer<String> changedListener;
 	private Predicate<String> textPredicate = Objects::nonNull;
 	@Nullable
-	private Text placeholder;
-	private long lastSwitchFocusTime = Util.getMeasuringTimeMs();
+	private Component placeholder;
+	private long lastSwitchFocusTime = Util.getMillis();
 	private int textX;
 	private int textY;
 	private int renderOffsetX = 0;
@@ -91,11 +93,11 @@ public class ScreenshotNameWidget extends ClickableWidget {
 		this(x, y, width, height, null, screenshotFile);
 	}
 
-	public ScreenshotNameWidget(int x, int y, int width, int height, @Nullable TextFieldWidget copyFrom, File screenshotFile) {
-		super(x, y, width, height, Text.empty());
-		this.textRenderer = CLIENT.textRenderer;
+	public ScreenshotNameWidget(int x, int y, int width, int height, @Nullable EditBox copyFrom, @NonNull File screenshotFile) {
+		super(x, y, width, height, Component.empty());
+		this.font = MINECRAFT.font;
 		if (copyFrom != null) {
-			this.setText(copyFrom.getText());
+			this.setText(copyFrom.getValue());
 		}
 
 		setText(screenshotFile.getName());
@@ -118,14 +120,14 @@ public class ScreenshotNameWidget extends ClickableWidget {
 		this.changedListener = changedListener;
 	}
 
-	public void addFormatter(TextFieldWidget.Formatter formatter) {
+	public void addFormatter(EditBox.TextFormatter formatter) {
 		this.formatters.add(formatter);
 	}
 
 	@Override
-	protected MutableText getNarrationMessage() {
-		Text text = this.getMessage();
-		return Text.translatable("gui.narrate.editBox", text, this.text);
+	protected @NonNull MutableComponent createNarrationMessage() {
+		Component text = this.getMessage();
+		return Component.translatable("gui.narrate.editBox", text, this.text);
 	}
 
 	public String getText() {
@@ -168,26 +170,26 @@ public class ScreenshotNameWidget extends ClickableWidget {
 		this.textPredicate = textPredicate;
 	}
 
-	public void write(String text) {
-		int i = Math.min(this.selectionStart, this.selectionEnd);
-		int j = Math.max(this.selectionStart, this.selectionEnd);
-		int k = this.maxLength - this.text.length() - (i - j);
-		if (k > 0) {
-			String string = StringHelper.stripInvalidChars(text);
-			int l = string.length();
-			if (k < l) {
-				if (Character.isHighSurrogate(string.charAt(k - 1))) {
-					k--;
+	public void write(String input) {
+		int start = Math.min(this.selectionStart, this.selectionEnd);
+		int end = Math.max(this.selectionStart, this.selectionEnd);
+		int maxInsertionLength = this.maxLength - this.text.length() - (start - end);
+		if (maxInsertionLength > 0) {
+			String text = StringUtil.filterText(input);
+			int insertionLength = text.length();
+			if (maxInsertionLength < insertionLength) {
+				if (Character.isHighSurrogate(text.charAt(maxInsertionLength - 1))) {
+					maxInsertionLength--;
 				}
 
-				string = string.substring(0, k);
-				l = k;
+				text = text.substring(0, maxInsertionLength);
+				insertionLength = maxInsertionLength;
 			}
 
-			String string2 = new StringBuilder(this.text).replace(i, j, string).toString();
-			if (this.textPredicate.test(string2)) {
-				this.text = string2;
-				this.setSelectionStart(i + l);
+			String text2 = new StringBuilder(this.text).replace(start, end, text).toString();
+			if (this.textPredicate.test(text2)) {
+				this.text = text2;
+				this.setSelectionStart(start + insertionLength);
 				this.setSelectionEnd(this.selectionStart);
 				this.onChanged(this.text);
 			}
@@ -285,7 +287,7 @@ public class ScreenshotNameWidget extends ClickableWidget {
 	}
 
 	private int getCursorPosWithOffset(int offset) {
-		return Util.moveCursor(this.text, this.selectionStart, offset);
+		return Util.offsetByCodepoints(this.text, this.selectionStart, offset);
 	}
 
 	public void setCursor(int cursor, boolean select) {
@@ -298,7 +300,7 @@ public class ScreenshotNameWidget extends ClickableWidget {
 	}
 
 	public void setSelectionStart(int cursor) {
-		this.selectionStart = MathHelper.clamp(cursor, 0, this.text.length());
+		this.selectionStart = Mth.clamp(cursor, 0, this.text.length());
 		this.updateFirstCharacterIndex(this.selectionStart);
 	}
 
@@ -311,12 +313,12 @@ public class ScreenshotNameWidget extends ClickableWidget {
 	}
 
 	@Override
-	public boolean keyPressed(KeyInput input) {
-		if (this.isInteractable() && this.isFocused()) {
+	public boolean keyPressed(@NonNull KeyEvent input) {
+		if (this.shouldTakeFocusAfterInteraction() && this.isFocused()) {
 			switch (input.key()) {
 				case 259:
 					if (this.editable) {
-						this.erase(-1, input.hasCtrlOrCmd());
+						this.erase(-1, input.hasControlDown());
 					}
 
 					return true;
@@ -331,17 +333,17 @@ public class ScreenshotNameWidget extends ClickableWidget {
 						this.setSelectionEnd(0);
 						return true;
 					} else if (input.isCopy()) {
-						MinecraftClient.getInstance().keyboard.setClipboard(this.getSelectedText());
+						MINECRAFT.keyboardHandler.setClipboard(this.getSelectedText());
 						return true;
 					} else if (input.isPaste()) {
 						if (this.isEditable()) {
-							this.write(MinecraftClient.getInstance().keyboard.getClipboard());
+							this.write(MINECRAFT.keyboardHandler.getClipboard());
 						}
 
 						return true;
 					} else {
 						if (input.isCut()) {
-							MinecraftClient.getInstance().keyboard.setClipboard(this.getSelectedText());
+							MINECRAFT.keyboardHandler.setClipboard(this.getSelectedText());
 							if (this.isEditable()) {
 								this.write("");
 							}
@@ -353,31 +355,31 @@ public class ScreenshotNameWidget extends ClickableWidget {
 					}
 				case 261:
 					if (this.editable) {
-						this.erase(1, input.hasCtrlOrCmd());
+						this.erase(1, input.hasControlDown());
 					}
 
 					return true;
 				case 262:
-					if (input.hasCtrlOrCmd()) {
-						this.setCursor(this.getWordSkipPosition(1), input.hasShift());
+					if (input.hasControlDown()) {
+						this.setCursor(this.getWordSkipPosition(1), input.hasShiftDown());
 					} else {
-						this.moveCursor(1, input.hasShift());
+						this.moveCursor(1, input.hasShiftDown());
 					}
 
 					return true;
 				case 263:
-					if (input.hasCtrlOrCmd()) {
-						this.setCursor(this.getWordSkipPosition(-1), input.hasShift());
+					if (input.hasControlDown()) {
+						this.setCursor(this.getWordSkipPosition(-1), input.hasShiftDown());
 					} else {
-						this.moveCursor(-1, input.hasShift());
+						this.moveCursor(-1, input.hasShiftDown());
 					}
 
 					return true;
 				case 268:
-					this.setCursorToStart(input.hasShift());
+					this.setCursorToStart(input.hasShiftDown());
 					return true;
 				case 269:
-					this.setCursorToEnd(input.hasShift());
+					this.setCursorToEnd(input.hasShiftDown());
 					return true;
 			}
 		} else {
@@ -386,16 +388,16 @@ public class ScreenshotNameWidget extends ClickableWidget {
 	}
 
 	public boolean isActive() {
-		return this.isInteractable() && this.isFocused() && this.isEditable();
+		return this.shouldTakeFocusAfterInteraction() && this.isFocused() && this.isEditable();
 	}
 
 	@Override
-	public boolean charTyped(CharInput input) {
+	public boolean charTyped(@NonNull CharacterEvent input) {
 		if (!this.isActive()) {
 			return false;
-		} else if (input.isValidChar()) {
+		} else if (input.isAllowedChatCharacter()) {
 			if (this.editable) {
-				this.write(input.asString());
+				this.write(input.codepointAsString());
 			}
 
 			return true;
@@ -404,17 +406,17 @@ public class ScreenshotNameWidget extends ClickableWidget {
 		}
 	}
 
-	private int calculateCursorPos(Click click) {
+	private int calculateCursorPos(MouseButtonEvent click) {
 		int baseX = getX() + (drawsBackground ? 4 : 0);
 		int mouseX = (int) click.x();
 
 		int localX = mouseX - baseX - renderOffsetX;
-		localX = MathHelper.clamp(localX, 0, fullTextWidth);
+		localX = Mth.clamp(localX, 0, fullTextWidth);
 
-		return textRenderer.trimToWidth(text, localX).length();
+		return font.plainSubstrByWidth(text, localX).length();
 	}
 
-	private void selectWord(Click click) {
+	private void selectWord(MouseButtonEvent click) {
 		int i = this.calculateCursorPos(click);
 		int j = this.getWordSkipPosition(-1, i);
 		int k = this.getWordSkipPosition(1, i);
@@ -423,37 +425,37 @@ public class ScreenshotNameWidget extends ClickableWidget {
 	}
 
 	@Override
-	public void onClick(Click click, boolean doubled) {
-		if (CLIENT.currentScreen instanceof FocusableScreen screen) {
+	public void onClick(@NonNull MouseButtonEvent click, boolean doubled) {
+		if (MINECRAFT.screen instanceof FocusableScreen screen) {
 			screen.requestFocus(this);
 		}
 
 		if (doubled) {
 			this.selectWord(click);
 		} else {
-			this.setCursor(this.calculateCursorPos(click), click.hasShift());
+			this.setCursor(this.calculateCursorPos(click), click.hasShiftDown());
 		}
 	}
 
 	@Override
-	protected void onDrag(Click click, double offsetX, double offsetY) {
+	protected void onDrag(@NonNull MouseButtonEvent click, double offsetX, double offsetY) {
 		this.setCursor(this.calculateCursorPos(click), true);
 	}
 
 	@Override
-	public void playDownSound(SoundManager soundManager) {
+	public void playDownSound(@NonNull SoundManager soundManager) {
 	}
 
 	@Override
-	public void renderWidget(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
+	public void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
 		if (!this.isVisible()) {
 			return;
 		}
 
 		// === Background ===
 		if (this.drawsBackground()) {
-			Identifier identifier = TEXTURES.get(this.isInteractable(), this.isFocused());
-			context.drawGuiTexture(
+			Identifier identifier = SPRITES.get(this.shouldTakeFocusAfterInteraction(), this.isFocused());
+			graphics.blitSprite(
 					RenderPipelines.GUI_TEXTURED,
 					identifier,
 					this.getX(),
@@ -478,7 +480,7 @@ public class ScreenshotNameWidget extends ClickableWidget {
 		int drawX = innerX + renderOffsetX;
 
 		// Clip pour éviter le débordement
-		context.enableScissor(
+		graphics.enableScissor(
 				innerX,
 				this.getY(),
 				innerX + innerWidth,
@@ -487,8 +489,8 @@ public class ScreenshotNameWidget extends ClickableWidget {
 
 		// === Texte complet ===
 		if (!this.text.isEmpty()) {
-			context.drawText(
-					this.textRenderer,
+			graphics.text(
+					this.font,
 					this.format(this.text),
 					drawX,
 					textY,
@@ -496,8 +498,8 @@ public class ScreenshotNameWidget extends ClickableWidget {
 					this.textShadow
 			);
 		} else if (this.placeholder != null && !this.isFocused()) {
-			context.drawTextWithShadow(
-					this.textRenderer,
+			graphics.text(
+					this.font,
 					this.placeholder,
 					drawX,
 					textY,
@@ -510,10 +512,10 @@ public class ScreenshotNameWidget extends ClickableWidget {
 			int selStart = Math.min(this.selectionStart, this.selectionEnd);
 			int selEnd = Math.max(this.selectionStart, this.selectionEnd);
 
-			int selX1 = drawX + this.textRenderer.getWidth(this.text.substring(0, selStart));
-			int selX2 = drawX + this.textRenderer.getWidth(this.text.substring(0, selEnd));
+			int selX1 = drawX + this.font.width(this.text.substring(0, selStart));
+			int selX2 = drawX + this.font.width(this.text.substring(0, selEnd));
 
-			context.drawSelection(
+			graphics.textHighlight(
 					selX1,
 					textY - 1,
 					selX2,
@@ -526,14 +528,14 @@ public class ScreenshotNameWidget extends ClickableWidget {
 		boolean cursorVisible =
 				this.isFocused()
 						&& this.isEditable()
-						&& (Util.getMeasuringTimeMs() - this.lastSwitchFocusTime) / 300L % 2L == 0L;
+						&& (Util.getMillis() - this.lastSwitchFocusTime) / 300L % 2L == 0L;
 
 		if (cursorVisible) {
-			int cursorX = drawX + this.textRenderer.getWidth(
+			int cursorX = drawX + this.font.width(
 					this.text.substring(0, this.selectionStart)
 			);
 
-			context.fill(
+			graphics.fill(
 					cursorX,
 					textY - 1,
 					cursorX + 1,
@@ -544,19 +546,19 @@ public class ScreenshotNameWidget extends ClickableWidget {
 
 		int cursorX = updateUnderlineProgress(deltaTicks / 20f);
 		if (underlineProgress > 0.001f) {
-			renderUnderline(context, cursorX);
+			renderUnderline(graphics, cursorX);
 		}
 
-		context.disableScissor();
+		graphics.disableScissor();
 
 		// === Curseur souris ===
 		if (this.isHovered()) {
-			context.setCursor(this.isEditable() ? StandardCursors.IBEAM : StandardCursors.NOT_ALLOWED);
+			graphics.requestCursor(this.isEditable() ? CursorTypes.IBEAM : CursorTypes.NOT_ALLOWED);
 		}
 	}
 
-	private void renderUnderline(@NonNull DrawContext context, int cursorTextX) {
-		TextRenderer textRenderer = CLIENT.textRenderer;
+	private void renderUnderline(@NonNull GuiGraphicsExtractor graphics, int cursorTextX) {
+		Font font = MINECRAFT.font;
 
 		if (underlineProgress <= 0.001f) {
 			return;
@@ -565,10 +567,10 @@ public class ScreenshotNameWidget extends ClickableWidget {
 		int innerX = this.getX() + (this.drawsBackground ? 4 : 0);
 		int textBaseX = innerX + renderOffsetX;
 
-		int fullTextWidth = textRenderer.getWidth(this.getText());
+		int fullTextWidth = font.width(this.getText());
 		int underlineHeight = 1;
 
-		int y = textY + textRenderer.fontHeight + 1;
+		int y = textY + font.lineHeight + 1;
 
 		int left = textBaseX;
 		int right = textBaseX + fullTextWidth;
@@ -577,15 +579,15 @@ public class ScreenshotNameWidget extends ClickableWidget {
 		int cursorScreenX = textBaseX + cursorTextX;
 
 		// Interpolation depuis le curseur
-		int animLeft = MathHelper.lerp(underlineProgress, cursorScreenX, left);
-		int animRight = MathHelper.lerp(underlineProgress, cursorScreenX, right);
+		int animLeft = Mth.lerpDiscrete(underlineProgress, cursorScreenX, left);
+		int animRight = Mth.lerpDiscrete(underlineProgress, cursorScreenX, right);
 
 		// Clip pour éviter les débordements
-		context.enableScissor(innerX, this.getY(), innerX + this.getInnerWidth(), this.getY() + this.height);
+		graphics.enableScissor(innerX, this.getY(), innerX + this.getInnerWidth(), this.getY() + this.height);
 
-		context.fill(animLeft, y, animRight, y + underlineHeight, Colors.WHITE);
+		graphics.fill(animLeft, y, animRight, y + underlineHeight, Colors.WHITE);
 
-		context.disableScissor();
+		graphics.disableScissor();
 	}
 
 
@@ -593,28 +595,28 @@ public class ScreenshotNameWidget extends ClickableWidget {
 		float target = this.isFocused() ? 1.0f : 0.0f;
 
 		underlineProgress += (float) ((target - underlineProgress) * (1f - Math.exp(-UNDERLINE_SPEED * dt)));
-		underlineProgress = MathHelper.clamp(underlineProgress, 0.0f, 1.0f);
+		underlineProgress = Mth.clamp(underlineProgress, 0.0f, 1.0f);
 
-		return CLIENT.textRenderer.getWidth(this.text.substring(0, this.getCursor()));
+		return MINECRAFT.font.width(this.text.substring(0, this.getCursor()));
 	}
 
 
-	private OrderedText format(String string) {
-		for (TextFieldWidget.Formatter formatter : this.formatters) {
-			OrderedText orderedText = formatter.format(string, 0);
-			if (orderedText != null) {
-				return orderedText;
+	private FormattedCharSequence format(String string) {
+		for (EditBox.TextFormatter formatter : this.formatters) {
+			FormattedCharSequence formattedCharSequence = formatter.format(string, 0);
+			if (formattedCharSequence != null) {
+				return formattedCharSequence;
 			}
 		}
 
-		return OrderedText.styledForwardsVisitedString(string, Style.EMPTY);
+		return FormattedCharSequence.forward(string, Style.EMPTY);
 	}
 
 	private void updateTextPosition() {
-		if (this.textRenderer != null) {
-			String string = this.textRenderer.trimToWidth(this.text.substring(this.firstCharacterIndex), this.getInnerWidth());
-			this.textX = this.getX() + (this.getWidth() - this.textRenderer.getWidth(string)) / 2;
-			this.textY = this.getY() + (this.height - textRenderer.fontHeight) / 2;
+		if (this.font != null) {
+			String string = this.font.plainSubstrByWidth(this.text.substring(this.firstCharacterIndex), this.getInnerWidth());
+			this.textX = this.getX() + (this.getWidth() - this.font.width(string)) / 2;
+			this.textY = this.getY() + (this.height - font.lineHeight) / 2;
 		}
 	}
 
@@ -656,7 +658,7 @@ public class ScreenshotNameWidget extends ClickableWidget {
 		if (this.focusUnlocked || focused) {
 			super.setFocused(focused);
 			if (focused) {
-				this.lastSwitchFocusTime = Util.getMeasuringTimeMs();
+				this.lastSwitchFocusTime = Util.getMillis();
 			}
 		}
 
@@ -686,18 +688,18 @@ public class ScreenshotNameWidget extends ClickableWidget {
 	}
 
 	public void setSelectionEnd(int index) {
-		this.selectionEnd = MathHelper.clamp(index, 0, this.text.length());
+		this.selectionEnd = Mth.clamp(index, 0, this.text.length());
 		this.updateFirstCharacterIndex(this.selectionEnd);
 	}
 
 	private void updateFirstCharacterIndex(int cursor) {
-		if (this.textRenderer != null) {
+		if (this.font != null) {
 			this.firstCharacterIndex = Math.min(this.firstCharacterIndex, this.text.length());
 			int i = this.getInnerWidth();
-			String string = this.textRenderer.trimToWidth(this.text.substring(this.firstCharacterIndex), i);
+			String string = this.font.plainSubstrByWidth(this.text.substring(this.firstCharacterIndex), i);
 			int j = string.length() + this.firstCharacterIndex;
 			if (cursor == this.firstCharacterIndex) {
-				this.firstCharacterIndex = this.firstCharacterIndex - this.textRenderer.trimToWidth(this.text, i, true).length();
+				this.firstCharacterIndex = this.firstCharacterIndex - this.font.plainSubstrByWidth(this.text, i, true).length();
 			}
 
 			if (cursor > j) {
@@ -706,7 +708,7 @@ public class ScreenshotNameWidget extends ClickableWidget {
 				this.firstCharacterIndex = this.firstCharacterIndex - (this.firstCharacterIndex - cursor);
 			}
 
-			this.firstCharacterIndex = MathHelper.clamp(this.firstCharacterIndex, 0, this.text.length());
+			this.firstCharacterIndex = Mth.clamp(this.firstCharacterIndex, 0, this.text.length());
 		}
 	}
 
@@ -727,29 +729,29 @@ public class ScreenshotNameWidget extends ClickableWidget {
 	}
 
 	public int getCharacterX(int index) {
-		return index > this.text.length() ? this.getX() : this.getX() + this.textRenderer.getWidth(this.text.substring(0, index));
+		return index > this.text.length() ? this.getX() : this.getX() + this.font.width(this.text.substring(0, index));
 	}
 
 	@Override
-	public void appendClickableNarrations(NarrationMessageBuilder builder) {
-		builder.put(NarrationPart.TITLE, this.getNarrationMessage());
+	public void updateWidgetNarration(@NonNull NarrationElementOutput output) {
+		output.add(NarratedElementType.TITLE, this.createNarrationMessage());
 	}
 
-	public void setPlaceholder(Text placeholder) {
+	public void setPlaceholder(Component placeholder) {
 		boolean bl = placeholder.getStyle().equals(Style.EMPTY);
-		this.placeholder = bl ? placeholder.copy().fillStyle(PLACEHOLDER_STYLE) : placeholder;
+		this.placeholder = bl ? placeholder.copy().setStyle(PLACEHOLDER_STYLE) : placeholder;
 	}
 
 	private void updateRenderOffset() {
-		if (textRenderer == null) {
+		if (font == null) {
 			renderOffsetX = 0;
 			return;
 		}
 
-		fullTextWidth = textRenderer.getWidth(text);
+		fullTextWidth = font.width(text);
 		int innerWidth = getInnerWidth();
 
-		int cursorPixelX = textRenderer.getWidth(text.substring(0, selectionStart));
+		int cursorPixelX = font.width(text.substring(0, selectionStart));
 
 		// Centrage idéal
 		int idealCenterOffset = (innerWidth - fullTextWidth) / 2;
@@ -775,7 +777,7 @@ public class ScreenshotNameWidget extends ClickableWidget {
 	@Environment(EnvType.CLIENT)
 	public interface Formatter {
 		@Nullable
-		OrderedText format(String string, int firstCharacterIndex);
+		FormattedCharSequence format(String string, int firstCharacterIndex);
 	}
 
 }

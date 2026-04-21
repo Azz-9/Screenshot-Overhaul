@@ -1,24 +1,26 @@
 package me.Azz_9.screenshot_utilities.client.screenshot;
 
-import me.Azz_9.screenshot_utilities.client.Colors;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.render.state.TexturedQuadGuiElementRenderState;
-import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.client.texture.TextureSetup;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.render.TextureSetup;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.state.gui.BlitRenderState;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+
 import org.joml.Matrix3x2f;
 import org.jspecify.annotations.NonNull;
+
+import me.Azz_9.screenshot_utilities.client.Colors;
 
 @Environment(EnvType.CLIENT)
 public final class ScreenshotDrawHelper {
 
-	public static void drawCover(@NonNull DrawContext context, @NonNull ScreenshotTexture texture, int x, int y, int boxW, int boxH) {
-		drawCover(context, texture, x, y, boxW, boxH, Colors.WHITE);
+	public static void drawCover(@NonNull GuiGraphicsExtractor graphics, @NonNull ScreenshotTexture texture, int x, int y, int boxW, int boxH) {
+		drawCover(graphics, texture, x, y, boxW, boxH, Colors.WHITE);
 	}
 
-	public static void drawCover(@NonNull DrawContext context, @NonNull ScreenshotTexture texture, int x, int y, int boxW, int boxH, int color) {
+	public static void drawCover(@NonNull GuiGraphicsExtractor graphics, @NonNull ScreenshotTexture texture, int x, int y, int boxW, int boxH, int color) {
 		float imgRatio = texture.width() / (float) texture.height();
 		float boxRatio = boxW / (float) boxH;
 
@@ -34,31 +36,31 @@ public final class ScreenshotDrawHelper {
 			v = (texture.height() - regionH) / 2;
 		}
 
-		NativeImageBackedTexture backedTexture = texture.getTexture();
+		DynamicTexture backedTexture = texture.getTexture();
 
 		if (backedTexture == null) {
 			return;
 		}
 
-		context.state.addSimpleElement(
-				new TexturedQuadGuiElementRenderState(
+		graphics.guiRenderState.addGuiElement(
+				new BlitRenderState(
 						RenderPipelines.GUI_TEXTURED,
-						TextureSetup.of(backedTexture.getGlTextureView(), backedTexture.getSampler()),
-						new Matrix3x2f(context.getMatrices()),
+						TextureSetup.singleTexture(backedTexture.getTextureView(), backedTexture.getSampler()),
+						new Matrix3x2f(graphics.pose()),
 						x, y, x + boxW, y + boxH,
 						(float) u / texture.width(), (float) (u + regionW) / texture.width(),
 						(float) v / texture.height(), (float) (v + regionH) / texture.height(),
 						color,
-						context.scissorStack.peekLast()
+						graphics.scissorStack.peek()
 				)
 		);
 	}
 
-	public static void drawContain(@NonNull DrawContext context, @NonNull ScreenshotTexture texture, int x, int y, int boxW, int boxH) {
-		drawContain(context, texture, x, y, boxW, boxH, Colors.WHITE);
+	public static void drawContain(@NonNull GuiGraphicsExtractor graphics, @NonNull ScreenshotTexture texture, int x, int y, int boxW, int boxH) {
+		drawContain(graphics, texture, x, y, boxW, boxH, Colors.WHITE);
 	}
 
-	public static void drawContain(@NonNull DrawContext context, @NonNull ScreenshotTexture texture, int x, int y, int boxW, int boxH, int color) {
+	public static void drawContain(@NonNull GuiGraphicsExtractor graphics, @NonNull ScreenshotTexture texture, int x, int y, int boxW, int boxH, int color) {
 		float imgRatio = texture.width() / (float) texture.height();
 		float boxRatio = boxW / (float) boxH;
 
@@ -78,21 +80,21 @@ public final class ScreenshotDrawHelper {
 		int drawX = x + (boxW - drawW) / 2;
 		int drawY = y + (boxH - drawH) / 2;
 
-		NativeImageBackedTexture backedTexture = texture.getTexture();
+		DynamicTexture backedTexture = texture.getTexture();
 		if (backedTexture == null) {
 			return;
 		}
 
-		context.state.addSimpleElement(
-				new TexturedQuadGuiElementRenderState(
+		graphics.guiRenderState.addGuiElement(
+				new BlitRenderState(
 						RenderPipelines.GUI_TEXTURED,
-						TextureSetup.of(backedTexture.getGlTextureView(), backedTexture.getSampler()),
-						new Matrix3x2f(context.getMatrices()),
+						TextureSetup.singleTexture(backedTexture.getTextureView(), backedTexture.getSampler()),
+						new Matrix3x2f(graphics.pose()),
 						drawX, drawY, drawX + drawW, drawY + drawH,
 						0.0f, 1.0f,   // U
 						0.0f, 1.0f,   // V
 						color,
-						context.scissorStack.peekLast()
+						graphics.scissorStack.peek()
 				)
 		);
 	}

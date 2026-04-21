@@ -1,5 +1,26 @@
 package me.Azz_9.screenshot_utilities.client.gui.screen;
 
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+
+import com.mojang.blaze3d.platform.InputConstants;
+
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+
+import org.joml.Matrix3x2fStack;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
+import java.io.File;
+import java.util.Optional;
+
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
@@ -10,24 +31,6 @@ import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGalle
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotDrawHelper;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.text.Text;
-import org.joml.Matrix3x2fStack;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-
-import java.io.File;
-import java.util.Optional;
-
-import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.CLIENT;
 
 @Environment(EnvType.CLIENT)
 public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
@@ -43,7 +46,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	// settings
 	private static final int SETTINGS_BUTTON_WIDTH = 120;
 	private static final int SETTINGS_BUTTON_HEIGHT = 20;
-	private ButtonWidget settingsButton;
+	private Button settingsButton;
 
 	// gallery
 	private @Nullable ScreenshotGalleryWidget gallery;
@@ -61,7 +64,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	private boolean inTransition = false;
 
 	public ScreenshotGalleryScreen() {
-		super(Text.translatable("screenshot_utilities.narrator.screenshot_gallery"));
+		super(Component.translatable("screenshot_utilities.narrator.screenshot_gallery"));
 	}
 
 	@Override
@@ -71,10 +74,10 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 	@Override
 	protected void init() {
-		settingsButton = ButtonWidget.builder(Text.translatable("screenshot_utilities.settings"), (btn) -> {
-					CLIENT.setScreen(new SettingsScreen(this));
+		settingsButton = Button.builder(Component.translatable("screenshot_utilities.settings"), (btn) -> {
+					MINECRAFT.setScreen(new SettingsScreen(this));
 				})
-				.dimensions(width - SETTINGS_BUTTON_WIDTH - GLOBAL_PADDING, GLOBAL_PADDING, SETTINGS_BUTTON_WIDTH, SETTINGS_BUTTON_HEIGHT)
+				.bounds(width - SETTINGS_BUTTON_WIDTH - GLOBAL_PADDING, GLOBAL_PADDING, SETTINGS_BUTTON_WIDTH, SETTINGS_BUTTON_HEIGHT)
 				.build();
 
 		File folder = Config.getInstance().getScreenshotsDir().toFile();
@@ -99,10 +102,10 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 		nextButton.active = false;
 		nextButton.visible = false;
 
-		addDrawableChild(backButton);
-		addDrawableChild(nextButton);
-		addDrawableChild(gallery);
-		addDrawableChild(settingsButton);
+		addRenderableWidget(backButton);
+		addRenderableWidget(nextButton);
+		addRenderableWidget(gallery);
+		addRenderableWidget(settingsButton);
 	}
 
 	public void selectScreenshot(@NonNull ScreenshotTexture texture) {
@@ -174,8 +177,8 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	}
 
 	@Override
-	public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
-		super.render(context, mouseX, mouseY, deltaTicks);
+	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
+		super.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 
 		float dt = deltaTicks / 20f;
 
@@ -189,10 +192,10 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 		}
 
 		if (selectedTexture != null) {
-			context.fill(0, 0, width, height, Colors.BLACK_TRANSPARENT);
+			graphics.fill(0, 0, width, height, Colors.BLACK_TRANSPARENT);
 
 			if (!inTransition || outgoingTexture == null) {
-				drawScreenshot(context, ScreenshotTextureCache.getScreenshot(selectedTexture.getFile()), 0);
+				drawScreenshot(graphics, ScreenshotTextureCache.getScreenshot(selectedTexture.getFile()), 0);
 			} else {
 				float t = transitionTime / TRANSITION_DURATION;
 				t = t * t * (3f - 2f * t); // smoothstep
@@ -201,42 +204,42 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 				// ancien screenshot (sortant)
 				drawScreenshot(
-						context,
+						graphics,
 						ScreenshotTextureCache.getScreenshot(outgoingTexture.getFile()),
 						-slide * transitionDirection
 				);
 
 				// nouveau screenshot (entrant)
 				drawScreenshot(
-						context,
+						graphics,
 						ScreenshotTextureCache.getScreenshot(selectedTexture.getFile()),
 						(width - slide) * transitionDirection
 				);
 			}
 
-			nextButton.render(context, mouseX, mouseY, deltaTicks);
-			backButton.render(context, mouseX, mouseY, deltaTicks);
+			nextButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
+			backButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 		}
 	}
 
-	private void drawScreenshot(@NonNull DrawContext context, @Nullable ScreenshotTexture texture, int offsetX) {
+	private void drawScreenshot(@NonNull GuiGraphicsExtractor graphics, @Nullable ScreenshotTexture texture, int offsetX) {
 		int fullViewWidth = width - FULL_VIEW_PADDING * 2;
 		int fullViewHeight = height - FULL_VIEW_PADDING - BOTTOM_PADDING;
 
-		Matrix3x2fStack matrices = context.getMatrices();
+		Matrix3x2fStack matrices = graphics.pose();
 		matrices.pushMatrix();
 
 		matrices.translate(offsetX, 0);
 
 		if (texture == null) {
-			context.fill(
+			graphics.fill(
 					FULL_VIEW_PADDING, FULL_VIEW_PADDING,
 					FULL_VIEW_PADDING + fullViewWidth, FULL_VIEW_PADDING + fullViewHeight,
 					Colors.BLACK_TRANSPARENT
 			);
 
 			Loading.drawLoadingSpinner(
-					context,
+					graphics,
 					FULL_VIEW_PADDING + fullViewWidth / 2,
 					FULL_VIEW_PADDING + fullViewHeight / 2,
 					fullViewHeight / 20, fullViewHeight / 10
@@ -245,7 +248,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 		} else {
 
 			ScreenshotDrawHelper.drawContain(
-					context,
+					graphics,
 					texture,
 					FULL_VIEW_PADDING,
 					FULL_VIEW_PADDING,
@@ -260,13 +263,13 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	/* ---------------- Inputs ---------------- */
 
 	@Override
-	public boolean mouseClicked(Click click, boolean doubled) {
+	public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
 		boolean handled = false;
 
-		Optional<Element> optional = this.hoveredElement(click.x(), click.y());
+		Optional<GuiEventListener> optional = this.getChildAt(click.x(), click.y());
 		if (optional.isPresent()) {
-			Element element = optional.get();
-			if (element.mouseClicked(click, doubled) && element.isClickable()) {
+			GuiEventListener element = optional.get();
+			if (element.mouseClicked(click, doubled) && element.shouldTakeFocusAfterInteraction()) {
 				this.setFocused(element);
 				if (click.button() == 0) {
 					this.setDragging(true);
@@ -285,12 +288,12 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	}
 
 	@Override
-	public boolean keyPressed(KeyInput input) {
+	public boolean keyPressed(@NonNull KeyEvent input) {
 		if (selectedTexture != null && input.isEscape()) {
 			deselectScreenshot();
 			return true;
 		}
-		if (input.key() == InputUtil.GLFW_KEY_F5 && gallery != null) {
+		if (input.key() == InputConstants.KEY_F5 && gallery != null) {
 			gallery.refresh();
 			return true;
 		}
@@ -300,7 +303,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	/* ---------------- Cleanup ---------------- */
 
 	@Override
-	public void close() {
+	public void onClose() {
 		if (gallery != null) {
 			gallery.close();
 			gallery = null;
@@ -309,6 +312,6 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 		selectedTexture = null;
 		outgoingTexture = null;
 
-		super.close();
+		super.onClose();
 	}
 }
