@@ -14,10 +14,20 @@
 	"screenshot_utilities.gallery_widget.no_screenshot": "It looks like you haven't taken a screenshot yet.",
 	"screenshot_utilities.gallery_widget.search_bar": "Search bar",
 	"screenshot_utilities.gallery_widget.search_bar.placeholder": "Search...",
+	"screenshot_utilities.gallery_widget.filter": "Filter",
+	"screenshot_utilities.gallery_widget.filter.all": "All",
+	"screenshot_utilities.gallery_widget.filter.favorites": "Favorites",
 	"screenshot_utilities.gallery_widget.sort_mode.date_asc": "Oldest first",
 	"screenshot_utilities.gallery_widget.sort_mode.date_desc": "Newest first",
+	"screenshot_utilities.gallery_widget.open_screenshot_folder": "Open screenshot folder",
+
+	"screenshot_utilities.preview.delete": "Delete",
+	"screenshot_utilities.preview.copy": "Copy",
+
+	"screenshot_utilities.save_and_quit": "Save and quit",
+	"screenshot_utilities.cancel": "Cancel",
 
 	"screenshot_utilities.favorite": "Favorite",
-	
+
 	"screenshot_utilities.settings": "Settings"
 }

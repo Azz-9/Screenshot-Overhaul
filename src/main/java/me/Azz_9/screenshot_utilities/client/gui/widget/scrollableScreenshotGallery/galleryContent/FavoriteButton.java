@@ -4,6 +4,8 @@ import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MI
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MOD_ID;
 
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -15,6 +17,7 @@ import org.jspecify.annotations.NonNull;
 
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 
+@Environment(EnvType.CLIENT)
 public class FavoriteButton extends Button {
 	private static final int PADDING = 1;
 
@@ -50,7 +53,7 @@ public class FavoriteButton extends Button {
 	}
 
 	private Identifier getTexture() {
-		if (isHovered()) {
+		if (isHovered() && active) {
 			if (filled) {
 				return FILLED_HOVERED_TEXTURE;
 			} else {

@@ -40,9 +40,11 @@ import java.util.function.Predicate;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
+import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
+import me.Azz_9.screenshot_utilities.client.gui.trackableChanges.TrackableChanges;
 
 @Environment(EnvType.CLIENT)
-public class ScreenshotNameWidget extends AbstractWidget {
+public class ScreenshotNameWidget extends AbstractWidget implements TrackableChanges {
 	public static final int DEFAULT_EDITABLE_COLOR = -2039584;
 	public static final Style PLACEHOLDER_STYLE = Style.EMPTY.withColor(ChatFormatting.DARK_GRAY);
 	private static final WidgetSprites SPRITES = new WidgetSprites(
@@ -56,6 +58,7 @@ public class ScreenshotNameWidget extends AbstractWidget {
 	private final @NonNull String extension;
 	private final @NonNull String baseName;
 	private String text = "";
+	private final String INITIAL_TEXT;
 	private int maxLength = 32;
 	private boolean drawsBackground = true;
 	private boolean focusUnlocked = true;
@@ -114,6 +117,8 @@ public class ScreenshotNameWidget extends AbstractWidget {
 		setMaxLength(50);
 
 		this.updateTextPosition();
+
+		INITIAL_TEXT = getText();
 	}
 
 	public void setChangedListener(@Nullable Consumer<String> changedListener) {
@@ -200,6 +205,9 @@ public class ScreenshotNameWidget extends AbstractWidget {
 		if (this.changedListener != null) {
 			this.changedListener.accept(newText);
 		}
+
+		if (MINECRAFT.screen instanceof ScreenshotGalleryScreen screen)
+			screen.updateSaveAndQuit();
 
 		this.updateTextPosition();
 	}
@@ -388,7 +396,7 @@ public class ScreenshotNameWidget extends AbstractWidget {
 	}
 
 	public boolean isActive() {
-		return this.shouldTakeFocusAfterInteraction() && this.isFocused() && this.isEditable();
+		return this.shouldTakeFocusAfterInteraction() && this.isEditable();
 	}
 
 	@Override
@@ -491,7 +499,7 @@ public class ScreenshotNameWidget extends AbstractWidget {
 		if (!this.text.isEmpty()) {
 			graphics.text(
 					this.font,
-					this.format(this.text),
+					Component.literal(this.text).withStyle(hasChanged() ? ChatFormatting.ITALIC : ChatFormatting.RESET),
 					drawX,
 					textY,
 					textColor,
@@ -771,6 +779,16 @@ public class ScreenshotNameWidget extends AbstractWidget {
 		else {
 			renderOffsetX = idealCenterOffset;
 		}
+	}
+
+	@Override
+	public boolean hasChanged() {
+		return !INITIAL_TEXT.equals(getText());
+	}
+
+	@Override
+	public void revertChanges() {
+		setText(INITIAL_TEXT);
 	}
 
 	@FunctionalInterface

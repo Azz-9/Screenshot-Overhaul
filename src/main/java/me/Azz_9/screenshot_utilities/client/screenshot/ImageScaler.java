@@ -81,14 +81,14 @@ public final class ImageScaler {
 				}
 
 				if (count == 0) {
-					dst.setPixelABGR(x, y, 0);
+					dst.setPixel(x, y, 0);
 				} else {
 					int avgA = (int) (a / count);
 					int avgR = (int) (r / count);
 					int avgG = (int) (g / count);
 					int avgB = (int) (b / count);
 
-					dst.setPixelABGR(x, y, (avgA << 24) | (avgR << 16) | (avgG << 8) | avgB);
+					dst.setPixel(x, y, (avgA << 24) | (avgR << 16) | (avgG << 8) | avgB);
 				}
 			}
 		}

@@ -2,6 +2,8 @@ package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGall
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -11,6 +13,7 @@ import org.jspecify.annotations.NonNull;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.PlaceholderTextFieldWidget;
 
+@Environment(EnvType.CLIENT)
 public class SearchBar extends PlaceholderTextFieldWidget {
 
 	public SearchBar(Font font, int x, int y, int width, int height) {

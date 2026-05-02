@@ -7,6 +7,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.CycleButton;
+import net.minecraft.client.gui.components.SpriteIconButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -17,22 +19,31 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
+import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.TexturedCyclingButtonWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent.ScreenshotEntryWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.headerWidget.SearchBar;
+import me.Azz_9.screenshot_utilities.client.screenshot.FavoriteManager;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
 
@@ -70,11 +81,20 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 	// sort button
 	private static final int SORT_BUTTON_SIZE = SEARCH_BAR_HEIGHT;
 	private final @NonNull TexturedCyclingButtonWidget<SortMode> sortButton;
+	// open screenshot folder button
+	private static final int OPEN_FOLDER_BUTTON_SIZE = SEARCH_BAR_HEIGHT;
+	private final @NonNull SpriteIconButton openFolderButton;
+	// filter
+	private static final int FILTER_BUTTON_WIDTH = 100;
+	private static final int FILTER_BUTTON_HEIGHT = SEARCH_BAR_HEIGHT;
+	private final @NonNull CycleButton<FilterMode> filterButton;
 
 	private static final int HEADER_HEIGHT = SEARCH_BAR_HEIGHT + PADDING * 2;
 
 	// gallery content
 	private final @NonNull List<ScreenshotEntryWidget> entries = new ArrayList<>();
+
+	private final Supplier<List<File>> screenshotFilesGetter;
 
 	private boolean refreshing = false;
 
@@ -84,21 +104,32 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 		this.currentScroll = 0;
 
 		this.searchBar = createSearchBar();
+		this.filterButton = createFilterButton();
 		this.sortButton = createSortButton();
-		addAllChildren(searchBar, sortButton);
+		this.openFolderButton = createOpenFolderButton();
+		addAllChildren(searchBar, filterButton, sortButton, openFolderButton);
 
 		this.screenshotFolder = screenshotFolder;
 
+		screenshotFilesGetter = () -> {
+			FavoriteManager.load();
+			try {
+				return Files.walk(screenshotFolder.toPath())
+						.filter(p -> {
+							String name = p.getFileName().toString();
+							return name.endsWith(".png")
+									|| name.endsWith(".jpg")
+									|| name.endsWith(".jpeg");
+						})
+						.map(Path::toFile)
+						.toList();
+			} catch (IOException e) {
+				return List.of();
+			}
+		};
+
 		this.screenshotFiles = CompletableFuture.supplyAsync(
-				() -> Arrays.stream(
-						Objects.requireNonNull(
-								screenshotFolder.listFiles(f ->
-										f.getName().endsWith(".png")
-												|| f.getName().endsWith(".jpg")
-												|| f.getName().endsWith(".jpeg")
-								)
-						)
-				).toList(),
+				screenshotFilesGetter,
 				Util.backgroundExecutor()
 		);
 
@@ -106,7 +137,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 			// make sure the player didn't leave the screen before building entries
 			if (MINECRAFT.screen instanceof ScreenshotGalleryScreen) {
 				buildEntries(screenshots, false);
-				filter(searchBar.getValue(), false);
+				searchAndFilter(searchBar.getValue(), filterButton.getValue(), false);
 				sortEntries(sortButton.getValue(), false);
 				layoutEntries();
 			}
@@ -119,14 +150,29 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 				getX() + PADDING, getY() + PADDING,
 				SEARCH_BAR_WIDTH, SEARCH_BAR_HEIGHT
 		);
-		searchBar.setResponder((text) -> filter(text, true));
+		searchBar.setResponder((text) -> searchAndFilter(text, filterButton.getValue(), true));
 
 		return searchBar;
 	}
 
+	private CycleButton<FilterMode> createFilterButton() {
+		return CycleButton.builder(FilterMode::getText, FilterMode.ALL)
+				.withValues(FilterMode.values())
+				.create(getX() + SEARCH_BAR_WIDTH + PADDING * 2, getY() + PADDING,
+						FILTER_BUTTON_WIDTH, FILTER_BUTTON_HEIGHT,
+						Component.translatable("screenshot_utilities.gallery_widget.filter"),
+						(btn, val) -> {
+							if (MINECRAFT.screen instanceof FocusableScreen focusableScreen)
+								focusableScreen.requestFocus(btn);
+
+							searchAndFilter(searchBar.getValue(), val, true);
+						}
+				);
+	}
+
 	private TexturedCyclingButtonWidget<SortMode> createSortButton() {
 		TexturedCyclingButtonWidget<SortMode> cyclingButtonWidget = new TexturedCyclingButtonWidget<>(
-				getX() + SEARCH_BAR_WIDTH + PADDING * 2, getY() + PADDING,
+				getX() + SEARCH_BAR_WIDTH + FILTER_BUTTON_WIDTH + PADDING * 3, getY() + PADDING,
 				SORT_BUTTON_SIZE, SORT_BUTTON_SIZE,
 				Config.getInstance().sortOrder.getValue().ordinal(),
 				(btn, sortMode) -> sortEntries(sortMode, true),
@@ -136,6 +182,27 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 		cyclingButtonWidget.setTooltipFactory((value) -> Tooltip.create(value.getText()));
 
 		return cyclingButtonWidget;
+	}
+
+	private SpriteIconButton createOpenFolderButton() {
+		SpriteIconButton openFolderButton = SpriteIconButton.TextAndIcon.builder(
+						Component.translatable("screenshot_utilities.gallery_widget.open_screenshot_folder"),
+						(btn) -> {
+							if (MINECRAFT.screen instanceof FocusableScreen focusableScreen)
+								focusableScreen.requestFocus(btn);
+
+							Util.getPlatform().openPath(Config.getInstance().getScreenshotsDir());
+						},
+						true
+				)
+				.withTootip()
+				.size(OPEN_FOLDER_BUTTON_SIZE, OPEN_FOLDER_BUTTON_SIZE)
+				.sprite(Identifier.fromNamespaceAndPath(MOD_ID, "icon/folder"), 15, 15)
+				.build();
+
+		openFolderButton.setPosition(getRight() - PADDING - OPEN_FOLDER_BUTTON_SIZE, getY() + PADDING);
+
+		return openFolderButton;
 	}
 
 	private static LocalDate getScreenshotDate(File file) {
@@ -164,29 +231,25 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 
 		ScreenshotLogger.info("Refreshing screenshot gallery entries");
 		ScreenshotTextureCache.clear();
+
 		buildEntries(
-				Arrays.stream(
-						Objects.requireNonNull(
-								screenshotFolder.listFiles(f ->
-										f.getName().endsWith(".png")
-												|| f.getName().endsWith(".jpg")
-												|| f.getName().endsWith(".jpeg")
-								)
-						)
-				).toList(),
+				screenshotFilesGetter.get(),
 				true
 		);
+		searchAndFilter(searchBar.getValue(), filterButton.getValue(), false);
+		sortEntries(sortButton.getValue(), false);
 
 		refreshing = false;
 	}
 
-	private void filter(@NonNull String query, boolean reloadLayout) {
+	private void searchAndFilter(@NonNull String query, FilterMode mode, boolean reloadLayout) {
 		String q = query.trim().toLowerCase(Locale.ROOT);
 
 		for (ScreenshotEntryWidget entry : entries) {
-			boolean matches = q.isEmpty() || entry.getName().toLowerCase(Locale.ROOT).contains(q);
-
-			entry.setVisible(matches);
+			entry.setVisible(
+					(mode == FilterMode.ALL || mode == FilterMode.FAVORITES && FavoriteManager.isFavorite(entry.getPathRelativeToScreenshotDir())) &&
+							(q.isEmpty() || entry.getName().toLowerCase(Locale.ROOT).contains(q))
+			);
 		}
 
 		if (reloadLayout) layoutEntries();
@@ -278,7 +341,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 					graphics,
 					getX() + getWidth() / 2,
 					getY() + getHeight() / 2,
-					getWidth() / 25, getWidth() / 10
+					getWidth() / 50, getWidth() / 20
 			);
 			return;
 		} else if (entries.isEmpty()) {
@@ -297,7 +360,9 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 
 	private void renderHeader(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
 		this.searchBar.extractRenderState(graphics, mouseX, mouseY, delta);
+		this.filterButton.extractRenderState(graphics, mouseX, mouseY, delta);
 		this.sortButton.extractRenderState(graphics, mouseX, mouseY, delta);
+		this.openFolderButton.extractRenderState(graphics, mouseX, mouseY, delta);
 	}
 
 	private void renderSeparators(@NonNull GuiGraphicsExtractor graphics) {
@@ -379,6 +444,10 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 		addChild(entry);
 	}
 
+	public @NonNull List<ScreenshotEntryWidget> getEntries() {
+		return entries;
+	}
+
 	public int indexOf(@NonNull ScreenshotTexture texture) {
 		for (int i = 0; i < entries.size(); i++) {
 			ScreenshotEntryWidget entry = entries.get(i);
@@ -432,6 +501,25 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 
 		public @NonNull Identifier getIcon() {
 			return icon;
+		}
+	}
+
+	public enum FilterMode {
+		ALL("All"),
+		FAVORITES("Favorites");
+
+		private final @NonNull String translationKey;
+
+		FilterMode(@NonNull String translationKey) {
+			this.translationKey = translationKey;
+		}
+
+		public @NonNull String getTranslationKey() {
+			return translationKey;
+		}
+
+		public @NonNull Component getText() {
+			return Component.translatable(getTranslationKey());
 		}
 	}
 }

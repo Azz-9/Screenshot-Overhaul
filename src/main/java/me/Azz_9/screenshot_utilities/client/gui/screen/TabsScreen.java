@@ -3,6 +3,8 @@ package me.Azz_9.screenshot_utilities.client.gui.screen;
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.render.TextureSetup;
@@ -21,6 +23,7 @@ import java.util.List;
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.gui.renderState.HorizontalGradientRenderState;
 
+@Environment(EnvType.CLIENT)
 public class TabsScreen extends AbstractBackNavigableScreen {
 
 	private static final int TABS_X = 10;
@@ -37,14 +40,16 @@ public class TabsScreen extends AbstractBackNavigableScreen {
 		tabs.clear();
 	}
 
-	public void addTab(Tab tab) {
+	public Tab addTab(Tab tab) {
 		tabs.add(tab);
 
 		addRenderableWidget(tab);
+
+		return tab;
 	}
 
-	public void addTab(Component tabText) {
-		addTab(new Tab(getNextTabX(), TABS_Y, tabText, this));
+	public Tab addTab(Component tabText) {
+		return addTab(new Tab(getNextTabX(), TABS_Y, tabText, this));
 	}
 
 	private int getNextTabX() {

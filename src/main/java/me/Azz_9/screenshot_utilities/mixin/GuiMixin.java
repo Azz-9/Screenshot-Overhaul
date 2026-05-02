@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoModeHud;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotPreview;
 
 @Environment(EnvType.CLIENT)
 @Mixin(Gui.class)
@@ -34,6 +35,10 @@ public abstract class GuiMixin {
 		if (PhotoMode.isEnabled()) {
 			ci.cancel();
 		}
+
+		// screenshot preview
+		if (MINECRAFT.screen == null)
+			ScreenshotPreview.render(graphics, 0, 0, deltaTracker.getGameTimeDeltaPartialTick(true));
 	}
 
 	// Makes HUD correspond to the player rather than the PhotoCamera.

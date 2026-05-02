@@ -62,22 +62,24 @@ public class ScreenshotThumbnailWidget extends AbstractWidget implements AutoClo
 			return;
 		}
 
-		float dt = delta / 20f;
+		if (active) {
+			float dt = delta / 20f;
 
-		updateAppearProgress(dt);
-		updateHoverScale(dt);
+			updateAppearProgress(dt);
+			updateHoverScale(dt);
 
-		graphics.enableScissor(getX(), getY(), getRight(), getBottom());
+			graphics.enableScissor(getX(), getY(), getRight(), getBottom());
 
-		Matrix3x2fStack matrices = graphics.pose();
-		matrices.pushMatrix();
+			Matrix3x2fStack matrices = graphics.pose();
+			matrices.pushMatrix();
 
-		float cx = getX() + getWidth() / 2f;
-		float cy = getY() + getHeight() / 2f;
+			float cx = getX() + getWidth() / 2f;
+			float cy = getY() + getHeight() / 2f;
 
-		matrices.translate(cx, cy);
-		matrices.scale(currentScale, currentScale);
-		matrices.translate(-cx, -cy);
+			matrices.translate(cx, cy);
+			matrices.scale(currentScale, currentScale);
+			matrices.translate(-cx, -cy);
+		}
 
 		ScreenshotDrawHelper.drawCover(
 				graphics,
@@ -87,8 +89,10 @@ public class ScreenshotThumbnailWidget extends AbstractWidget implements AutoClo
 				ARGB.color(appearProgress, 0xffffff)
 		);
 
-		matrices.popMatrix();
-		graphics.disableScissor();
+		if (active) {
+			graphics.pose().popMatrix();
+			graphics.disableScissor();
+		}
 
 		handleCursor(graphics);
 	}

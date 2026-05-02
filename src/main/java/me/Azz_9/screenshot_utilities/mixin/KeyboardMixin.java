@@ -4,6 +4,8 @@ import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MI
 
 import com.mojang.blaze3d.platform.InputConstants;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.gui.screens.options.controls.KeyBindsScreen;
 import net.minecraft.client.input.KeyEvent;
@@ -15,7 +17,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient;
+import me.Azz_9.screenshot_utilities.client.config.Config;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotGrabber;
 
+@Environment(EnvType.CLIENT)
 @Mixin(KeyboardHandler.class)
 public abstract class KeyboardMixin {
 	@Inject(method = "keyPress", at = @At("HEAD"))
@@ -26,7 +31,7 @@ public abstract class KeyboardMixin {
 						(keybindsScreen.lastKeySelection <= Util.getMillis() - 20L)) &&
 				Screenshot_utilitiesClient.getPanoramaScreenshotKeybind().matches(event)) {
 
-			MINECRAFT.player.sendSystemMessage(MINECRAFT.grabPanoramixScreenshot(MINECRAFT.gameDirectory));
+			MINECRAFT.player.sendSystemMessage(ScreenshotGrabber.grabPanoramixScreenshot(Config.getInstance().getScreenshotsDir().toFile()));
 
 		}
 	}

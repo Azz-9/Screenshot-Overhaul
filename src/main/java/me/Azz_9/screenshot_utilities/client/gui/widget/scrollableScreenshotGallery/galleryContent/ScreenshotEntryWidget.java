@@ -11,7 +11,9 @@ import org.jspecify.annotations.NonNull;
 import java.io.File;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
+import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
+import me.Azz_9.screenshot_utilities.client.screenshot.FavoriteManager;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
 
 @Environment(EnvType.CLIENT)
@@ -26,6 +28,7 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 	private final @NonNull FavoriteButton favoriteButton;
 
 	private final @NonNull File screenshotFile;
+	private final String pathRelativeToScreenshotDir;
 	private int baseY;
 
 	public ScreenshotEntryWidget(int x, int y, int thumbnailWidth, int thumbnailHeight, @NonNull File screenshotFile) {
@@ -33,6 +36,7 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 
 		this.baseY = y;
 		this.screenshotFile = screenshotFile;
+		this.pathRelativeToScreenshotDir = Config.getInstance().getScreenshotsDir().relativize(screenshotFile.toPath()).toString();
 
 		this.thumbnailWidget = new ScreenshotThumbnailWidget(
 				x, y,
@@ -49,9 +53,9 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 		this.favoriteButton = new FavoriteButton(
 				getRight() - FAVORITE_BUTTON_SIZE,
 				getY(),
-				FAVORITE_BUTTON_SIZE, FAVORITE_BUTTON_SIZE, (btn) -> {
-			System.out.println("favorite button clicked");
-		}, false);
+				FAVORITE_BUTTON_SIZE, FAVORITE_BUTTON_SIZE,
+				(btn) -> FavoriteManager.setFavorite(pathRelativeToScreenshotDir, ((FavoriteButton) btn).isFilled()),
+				FavoriteManager.isFavorite(pathRelativeToScreenshotDir));
 
 		addAllChildren(favoriteButton, thumbnailWidget, nameWidget);
 	}
@@ -76,10 +80,9 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 		thumbnailWidget.extractRenderState(graphics, mouseX, mouseY, delta);
 		nameWidget.extractRenderState(graphics, mouseX, mouseY, delta);
 
-		if (isHovered() || favoriteButton.isFilled()) {
+		if (isHovered() && favoriteButton.active || favoriteButton.isFilled()) {
 			favoriteButton.extractRenderState(graphics, mouseX, mouseY, delta);
 		}
-
 	}
 
 	@Override
@@ -135,6 +138,14 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 
 	public String getName() {
 		return nameWidget.getText();
+	}
+
+	public boolean hasNameChanged() {
+		return nameWidget.hasChanged();
+	}
+
+	public String getPathRelativeToScreenshotDir() {
+		return pathRelativeToScreenshotDir;
 	}
 
 	@Override

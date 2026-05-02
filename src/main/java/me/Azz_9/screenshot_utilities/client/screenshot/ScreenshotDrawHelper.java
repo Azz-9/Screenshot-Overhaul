@@ -99,4 +99,22 @@ public final class ScreenshotDrawHelper {
 		);
 	}
 
+	// Draw en conservant le ratio exact de l'image (pas de crop, pas de letterbox)
+	public static void drawFit(@NonNull GuiGraphicsExtractor graphics, @NonNull ScreenshotTexture texture, int x, int y, int w, int h) {
+		DynamicTexture backedTexture = texture.getTexture();
+		if (backedTexture == null) return;
+
+		graphics.guiRenderState.addGuiElement(
+				new BlitRenderState(
+						RenderPipelines.GUI_TEXTURED,
+						TextureSetup.singleTexture(backedTexture.getTextureView(), backedTexture.getSampler()),
+						new Matrix3x2f(graphics.pose()),
+						x, y, x + w, y + h,
+						0.0f, 1.0f,
+						0.0f, 1.0f,
+						Colors.WHITE,
+						graphics.scissorStack.peek()
+				)
+		);
+	}
 }

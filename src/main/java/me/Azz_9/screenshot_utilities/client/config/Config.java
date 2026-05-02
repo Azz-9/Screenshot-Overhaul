@@ -28,7 +28,7 @@ public class Config {
 			try {
 				Files.createDirectories(screenshotsDir.getValue());
 			} catch (IOException e) {
-				ScreenshotLogger.error("Could not create screenshotsDir: {}, error: {}", screenshotsDir.getValue(), e);
+				ScreenshotLogger.error("Could not create screenshotsDir: {}, error: {}", MINECRAFT.gameDirectory.toPath().relativize(screenshotsDir.getValue()), e);
 			}
 		}
 

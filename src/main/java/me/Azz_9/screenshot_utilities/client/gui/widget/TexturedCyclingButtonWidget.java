@@ -2,9 +2,10 @@ package me.Azz_9.screenshot_utilities.client.gui.widget;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 
-
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -23,6 +24,7 @@ import java.util.function.Function;
 
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 
+@Environment(EnvType.CLIENT)
 public class TexturedCyclingButtonWidget<T> extends Button {
 	private final @NonNull T[] values;
 	private int index;
@@ -50,7 +52,7 @@ public class TexturedCyclingButtonWidget<T> extends Button {
 
 	@Override
 	protected void handleCursor(@NonNull GuiGraphicsExtractor graphics) {
-		if (this.isHovered() && this.shouldTakeFocusAfterInteraction()) {
+		if (this.isHovered()) {
 			graphics.requestCursor(CursorTypes.POINTING_HAND);
 		}
 	}
@@ -78,7 +80,7 @@ public class TexturedCyclingButtonWidget<T> extends Button {
 	}
 
 	private void cycle(int amount) {
-		this.index = Mth.floorDiv(this.index + amount, values.length);
+		this.index = Mth.positiveModulo(this.index + amount, values.length);
 	}
 
 	@Override
@@ -93,5 +95,10 @@ public class TexturedCyclingButtonWidget<T> extends Button {
 			screen.requestFocus(this);
 		}
 		super.onClick(click, doubled);
+	}
+
+	@Override
+	public boolean shouldTakeFocusAfterInteraction() {
+		return false;
 	}
 }

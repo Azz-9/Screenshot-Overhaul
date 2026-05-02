@@ -11,7 +11,6 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -41,11 +40,22 @@ public abstract class TitleScreenMixin extends Screen {
 								true
 						)
 						.withTootip()
-						.width(20)
+						.size(20, 20)
 						.sprite(Identifier.fromNamespaceAndPath(MOD_ID, "icon/screenshot"), 15, 15)
 						.build()
 		);
 
 		screenshotViewerButton.setPosition(realmsRightX + margin, realmsY);
+
+		/*this.addRenderableWidget(Button.builder(
+						Component.literal("Change panorama"),
+						(btn) -> {
+							Identifier identifier = Identifier.fromNamespaceAndPath(MOD_ID, "textures/gui/title/background/panorama");
+							MINECRAFT.getTextureManager().registerAndLoad(identifier, new CubeMapTexture(identifier));
+							//MINECRAFT.gameRenderer.registerPanoramaTextures();
+						}
+				)
+				.bounds(width - 100 - 10, 10, 100, 20)
+				.build());*/
 	}
 }

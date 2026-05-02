@@ -21,6 +21,7 @@ import net.minecraft.world.flag.FeatureFlagSet;
 
 import org.jspecify.annotations.Nullable;
 
+
 import java.util.Collections;
 import java.util.UUID;
 
@@ -72,8 +73,6 @@ public class PhotoMode {
 				)
 		);
 
-		enabled = true;
-
 		frozenTime = MINECRAFT.level.getOverworldClockTime();
 
 		MINECRAFT.smartCull = false;
@@ -87,6 +86,8 @@ public class PhotoMode {
 		}
 
 		MINECRAFT.setCameraEntity(camera);
+
+		enabled = true;
 	}
 
 	public static void disable() {
@@ -105,9 +106,9 @@ public class PhotoMode {
 			MINECRAFT.setCameraEntity(MINECRAFT.player);
 		}
 
-		if (prevCameraType != null) {
+		/*if (prevCameraType != null) {
 			MINECRAFT.options.setCameraType(prevCameraType);
-		}
+		}*/
 	}
 
 	public static void toggle() {

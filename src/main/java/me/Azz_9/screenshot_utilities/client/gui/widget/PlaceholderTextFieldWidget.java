@@ -1,5 +1,7 @@
 package me.Azz_9.screenshot_utilities.client.gui.widget;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
@@ -7,6 +9,7 @@ import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.NonNull;
 
+@Environment(EnvType.CLIENT)
 public class PlaceholderTextFieldWidget extends EditBox {
 
 	private final Font FONT;

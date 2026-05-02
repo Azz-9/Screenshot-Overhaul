@@ -26,13 +26,22 @@ import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 @Mixin(LevelRenderer.class)
 public abstract class WorldRendererMixin {
 
-	@ModifyVariable(method = "renderLevel", at = @At("HEAD"), argsOnly = true, name = "deltaTracker")
+	@ModifyVariable(method = "extractLevel", at = @At("HEAD"), argsOnly = true, name = "deltaTracker")
 	private static DeltaTracker freezeTickDelta(DeltaTracker deltaTracker) {
 		if (PhotoMode.isEnabled()) {
 			return DeltaTracker.ZERO;
 		}
 
 		return deltaTracker;
+	}
+
+	@ModifyVariable(method = "extractLevel", at = @At("HEAD"), argsOnly = true, name = "deltaPartialTick")
+	private static float freezeTickDelta(float deltaPartialTick) {
+		if (PhotoMode.isEnabled()) {
+			return 0;
+		}
+
+		return deltaPartialTick;
 	}
 
 	@Shadow

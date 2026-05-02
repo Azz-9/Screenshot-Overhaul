@@ -14,6 +14,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 @Environment(EnvType.CLIENT)
 public final class ScreenshotTexture implements AutoCloseable {
@@ -26,17 +28,28 @@ public final class ScreenshotTexture implements AutoCloseable {
 	private volatile boolean closed = false;
 
 	private ScreenshotTexture(Path file, int maxSize) {
-		this.maxSize = maxSize;
-		this.file = file;
-
-		this.imageFuture = CompletableFuture.supplyAsync(() -> {
+		this(file, maxSize, () -> {
 			try (InputStream in = Files.newInputStream(file)) {
 				NativeImage img = NativeImage.read(in);
 				return maxSize > 0 ? ImageScaler.downscale(img, maxSize) : img;
 			} catch (Exception e) {
 				return null;
 			}
-		}, Util.backgroundExecutor());
+		});
+	}
+
+	private ScreenshotTexture(Path file, NativeImage image, int maxSize) {
+		this(file, maxSize, () -> maxSize > 0 ? ImageScaler.downscale(image, maxSize) : image);
+	}
+
+	private ScreenshotTexture(Path file, int maxSize, Supplier<NativeImage> imageSupplier) {
+		this.maxSize = maxSize;
+		this.file = file;
+
+		this.imageFuture = CompletableFuture.supplyAsync(
+				imageSupplier,
+				Util.backgroundExecutor()
+		);
 	}
 
 	private ScreenshotTexture(Path file) {
@@ -46,6 +59,10 @@ public final class ScreenshotTexture implements AutoCloseable {
 	@NonNull
 	public static ScreenshotTexture loadThumbnail(Path file) {
 		return new ScreenshotTexture(file, 512);
+	}
+
+	public static ScreenshotTexture loadThumbnail(Path file, NativeImage image) {
+		return new ScreenshotTexture(file, image, 512);
 	}
 
 	@NonNull
@@ -87,14 +104,18 @@ public final class ScreenshotTexture implements AutoCloseable {
 		return imageFuture.isDone();
 	}
 
+	public void whenReady(BiConsumer<NativeImage, Throwable> consumer) {
+		imageFuture.whenComplete(consumer);
+	}
+
 	public int width() {
-		if (texture == null) return 0;
-		return texture.getPixels().getWidth();
+		if (getTexture() == null) return 0;
+		return getTexture().getPixels().getWidth();
 	}
 
 	public int height() {
-		if (texture == null) return 0;
-		return texture.getPixels().getHeight();
+		if (getTexture() == null) return 0;
+		return getTexture().getPixels().getHeight();
 	}
 
 	@Override

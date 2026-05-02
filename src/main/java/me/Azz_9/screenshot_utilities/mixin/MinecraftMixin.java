@@ -3,6 +3,7 @@ package me.Azz_9.screenshot_utilities.mixin;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 
@@ -66,7 +67,7 @@ public abstract class MinecraftMixin {
 
 	@Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
 	private void onSetScreen(Screen screen, CallbackInfo ci) {
-		if (PhotoMode.isEnabled() && !(screen instanceof PauseScreen) && screen != null) {
+		if (PhotoMode.isEnabled() && !(screen instanceof PauseScreen) && !(screen instanceof ChatScreen) && screen != null) {
 			ci.cancel();
 		}
 	}
