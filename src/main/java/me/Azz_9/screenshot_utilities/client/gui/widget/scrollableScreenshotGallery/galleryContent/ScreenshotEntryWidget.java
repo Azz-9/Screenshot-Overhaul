@@ -7,6 +7,7 @@ import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 
@@ -85,6 +86,10 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 		}
 	}
 
+	public void triggerLoad() {
+		thumbnailWidget.load();
+	}
+
 	@Override
 	public void setX(int x) {
 		if (getX() != x) {
@@ -127,9 +132,9 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 		thumbnailWidget.close();
 	}
 
-	@NonNull
-	public ScreenshotTexture getTexture() {
-		return thumbnailWidget.getTexture();
+	@Nullable
+	public ScreenshotTexture getTextureOrNull() {
+		return thumbnailWidget.isLoaded() ? thumbnailWidget.getTexture() : null;
 	}
 
 	public @NonNull File getScreenshotFile() {
@@ -150,5 +155,13 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 
 	@Override
 	public void updateNarration(@NonNull NarrationElementOutput output) {
+	}
+
+	public @NonNull ScreenshotThumbnailWidget getThumbnailWidget() {
+		return thumbnailWidget;
+	}
+
+	public @NonNull ScreenshotNameWidget getNameWidget() {
+		return nameWidget;
 	}
 }

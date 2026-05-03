@@ -93,6 +93,9 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 
 	// gallery content
 	private final @NonNull List<ScreenshotEntryWidget> entries = new ArrayList<>();
+	// Marge de préchargement en pixels au-delà de la zone visible
+	private static final int PRELOAD_MARGIN = 200;
+	private static final int FULLVIEW_PRELOAD_RADIUS = 2;
 
 	private final Supplier<List<File>> screenshotFilesGetter;
 
@@ -246,10 +249,11 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 		String q = query.trim().toLowerCase(Locale.ROOT);
 
 		for (ScreenshotEntryWidget entry : entries) {
-			entry.setVisible(
-					(mode == FilterMode.ALL || mode == FilterMode.FAVORITES && FavoriteManager.isFavorite(entry.getPathRelativeToScreenshotDir())) &&
-							(q.isEmpty() || entry.getName().toLowerCase(Locale.ROOT).contains(q))
-			);
+			boolean visible = (mode == FilterMode.ALL || mode == FilterMode.FAVORITES && FavoriteManager.isFavorite(entry.getPathRelativeToScreenshotDir())) &&
+					(q.isEmpty() || entry.getName().toLowerCase(Locale.ROOT).contains(q));
+
+			entry.setVisible(visible);
+			entry.setActive(visible);
 		}
 
 		if (reloadLayout) layoutEntries();
@@ -263,7 +267,6 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 
 		if (reloadLayout) layoutEntries();
 	}
-
 
 	private void layoutEntries() {
 		separators.clear();
@@ -388,13 +391,24 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 	}
 
 	private void renderEntries(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+		int visibleTop = getY() + HEADER_HEIGHT;
+		int visibleBottom = getY() + getHeight();
+
 		for (ScreenshotEntryWidget entry : entries) {
 			if (!entry.isVisible()) continue;
 
 			int yRender = entry.getBaseY() - currentScroll;
 			entry.setY(yRender);
 
-			if (yRender + entry.getHeight() >= getY() && yRender <= getBottom()) {
+			int entryBottom = yRender + entry.getHeight();
+
+			// Préchargement si l'entrée approche de la zone visible
+			if (entryBottom >= visibleTop - PRELOAD_MARGIN && yRender <= visibleBottom + PRELOAD_MARGIN) {
+				entry.triggerLoad();
+			}
+
+			// Rendu uniquement si réellement visible
+			if (entryBottom >= visibleTop && yRender <= visibleBottom) {
 				entry.extractRenderState(graphics, mouseX, mouseY, delta);
 			}
 		}
@@ -435,6 +449,17 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 		screenshotFiles.cancel(true);
 	}
 
+	public void preloadAround(@NonNull ScreenshotTexture current) {
+		int index = indexOf(current);
+		if (index < 0) return;
+
+		for (int i = index - FULLVIEW_PRELOAD_RADIUS; i <= index + FULLVIEW_PRELOAD_RADIUS; i++) {
+			if (i >= 0 && i < entries.size()) {
+				entries.get(i).triggerLoad();
+			}
+		}
+	}
+
 	@Override
 	public void updateNarration(@NonNull NarrationElementOutput output) {
 	}
@@ -451,7 +476,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 	public int indexOf(@NonNull ScreenshotTexture texture) {
 		for (int i = 0; i < entries.size(); i++) {
 			ScreenshotEntryWidget entry = entries.get(i);
-			if (entry.getTexture() == texture) {
+			if (entry.getTextureOrNull() == texture) {
 				return i;
 			}
 		}
@@ -459,19 +484,25 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 	}
 
 	@Nullable
-	public ScreenshotTexture getPrevious(@NonNull ScreenshotTexture current) {
+	public ScreenshotTexture getPreviousVisibleEntry(@NonNull ScreenshotTexture current) {
 		int index = indexOf(current);
-		if (index > 0) {
-			return entries.get(index - 1).getTexture();
+		while (--index >= 0) {
+			ScreenshotEntryWidget entry = entries.get(index);
+			if (entry.isVisible()) {
+				return entry.getTextureOrNull();
+			}
 		}
 		return null;
 	}
 
 	@Nullable
-	public ScreenshotTexture getNext(@NonNull ScreenshotTexture current) {
+	public ScreenshotTexture getNextVisibleEntry(@NonNull ScreenshotTexture current) {
 		int index = indexOf(current);
-		if (index >= 0 && index < entries.size() - 1) {
-			return entries.get(index + 1).getTexture();
+		while (++index < entries.size()) {
+			ScreenshotEntryWidget entry = entries.get(index);
+			if (entry.isVisible()) {
+				return entry.getTextureOrNull();
+			}
 		}
 		return null;
 	}

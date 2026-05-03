@@ -21,10 +21,10 @@ import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 public class FavoriteButton extends Button {
 	private static final int PADDING = 1;
 
-	private static final Identifier BASE_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/favorite");
-	private static final Identifier HOVERED_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/favorite_hovered");
-	private static final Identifier FILLED_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/favorite_filled");
-	private static final Identifier FILLED_HOVERED_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/favorite_filled_hovered");
+	private static final @NonNull Identifier BASE_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/favorite");
+	private static final @NonNull Identifier HOVERED_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/favorite_hovered");
+	private static final @NonNull Identifier FILLED_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/favorite_filled");
+	private static final @NonNull Identifier FILLED_HOVERED_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/favorite_filled_hovered");
 
 	private boolean filled;
 
@@ -52,7 +52,7 @@ public class FavoriteButton extends Button {
 				getWidth() - PADDING * 2, getHeight() - PADDING * 2);
 	}
 
-	private Identifier getTexture() {
+	private @NonNull Identifier getTexture() {
 		if (isHovered() && active) {
 			if (filled) {
 				return FILLED_HOVERED_TEXTURE;

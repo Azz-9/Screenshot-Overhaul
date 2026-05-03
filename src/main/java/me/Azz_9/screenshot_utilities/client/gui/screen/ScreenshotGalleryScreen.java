@@ -177,10 +177,12 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 			gallery.setActive(false);
 
 			// pre-load the next et previous screenshots
-			ScreenshotTexture next = gallery.getNext(selectedTexture);
-			ScreenshotTexture prev = gallery.getPrevious(selectedTexture);
-			if (next != null) ScreenshotTextureCache.getScreenshot(next.getFile());
-			if (prev != null) ScreenshotTextureCache.getScreenshot(prev.getFile());
+			ScreenshotTexture next = gallery.getNextVisibleEntry(selectedTexture);
+			ScreenshotTexture prev = gallery.getPreviousVisibleEntry(selectedTexture);
+			if (next != null) ScreenshotTextureCache.getFullView(next.getFile());
+			if (prev != null) ScreenshotTextureCache.getFullView(prev.getFile());
+
+			gallery.preloadAround(selectedTexture);
 		}
 	}
 
@@ -202,8 +204,9 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	private void selectPrevious() {
 		if (selectedTexture == null || inTransition || gallery == null) return;
 
-		ScreenshotTexture prev = gallery.getPrevious(selectedTexture);
+		ScreenshotTexture prev = gallery.getPreviousVisibleEntry(selectedTexture);
 		if (prev != null) {
+			gallery.preloadAround(prev);
 			startTransition(prev, -1);
 		}
 	}
@@ -211,8 +214,9 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	private void selectNext() {
 		if (selectedTexture == null || inTransition || gallery == null) return;
 
-		ScreenshotTexture next = gallery.getNext(selectedTexture);
+		ScreenshotTexture next = gallery.getNextVisibleEntry(selectedTexture);
 		if (next != null) {
+			gallery.preloadAround(next);
 			startTransition(next, +1);
 		}
 	}
@@ -232,8 +236,8 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	private void updateNavButtons() {
 		if (gallery == null || selectedTexture == null) return;
 
-		backButton.active = gallery.getPrevious(selectedTexture) != null;
-		nextButton.active = gallery.getNext(selectedTexture) != null;
+		backButton.active = gallery.getPreviousVisibleEntry(selectedTexture) != null;
+		nextButton.active = gallery.getNextVisibleEntry(selectedTexture) != null;
 	}
 
 	// render
@@ -259,7 +263,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 			graphics.fill(0, 0, width, height, Colors.BLACK_TRANSPARENT);
 
 			if (!inTransition || outgoingTexture == null) {
-				drawScreenshot(graphics, ScreenshotTextureCache.getScreenshot(selectedTexture.getFile()), 0);
+				drawScreenshot(graphics, ScreenshotTextureCache.getFullView(selectedTexture.getFile()), 0);
 			} else {
 				float t = transitionTime / TRANSITION_DURATION;
 				t = t * t * (3f - 2f * t); // smoothstep
@@ -269,14 +273,14 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 				// ancien screenshot (sortant)
 				drawScreenshot(
 						graphics,
-						ScreenshotTextureCache.getScreenshot(outgoingTexture.getFile()),
+						ScreenshotTextureCache.getFullView(outgoingTexture.getFile()),
 						-slide * transitionDirection
 				);
 
 				// nouveau screenshot (entrant)
 				drawScreenshot(
 						graphics,
-						ScreenshotTextureCache.getScreenshot(selectedTexture.getFile()),
+						ScreenshotTextureCache.getFullView(selectedTexture.getFile()),
 						(width - slide) * transitionDirection
 				);
 			}

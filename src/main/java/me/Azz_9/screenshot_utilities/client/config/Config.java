@@ -12,8 +12,7 @@ import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.ScreenshotGalleryWidget;
 
 public class Config {
-	@NonNull
-	private static final Config INSTANCE = new Config();
+	private static final @NonNull Config INSTANCE = new Config();
 
 	public final @NonNull ConfigObject<Path> screenshotsDir = new ConfigObject<>(MINECRAFT.gameDirectory.toPath().resolve("screenshots"), "");
 	public final @NonNull ConfigObject<Boolean> showChatMessage = new ConfigObject<>(true, "");

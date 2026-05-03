@@ -8,7 +8,7 @@ public class ConfigObject<T> extends SavableObject<T> {
 
 	private final @NonNull String translationKey;
 
-	public ConfigObject(@NonNull T defaultValue, @NonNull String translationKey) {
+	public ConfigObject(@NonNull final T defaultValue, @NonNull final String translationKey) {
 		super(defaultValue);
 		this.translationKey = translationKey;
 	}

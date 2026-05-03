@@ -16,7 +16,7 @@ public class SettingsScreen extends TabsScreen implements FocusableScreen {
 	// focus manager
 	private final @NonNull FocusManager focusManager = new FocusManager();
 
-	protected SettingsScreen(Screen parent) {
+	protected SettingsScreen(final Screen parent) {
 		super(Component.translatable("screenshot_utilities.settings"), parent);
 	}
 

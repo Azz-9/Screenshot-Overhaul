@@ -15,6 +15,7 @@ import net.minecraft.util.ARGB;
 
 import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 
@@ -29,29 +30,49 @@ import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
 public class ScreenshotThumbnailWidget extends AbstractWidget implements AutoCloseable {
 
 	private static final float HOVER_SCALE = 1.04f;
-
 	private static final float HOVER_SPEED = 10f;
 	private static final float APPEAR_SPEED = 8f;
 
-	private final @NonNull ScreenshotTexture texture;
-	private final @NonNull File screenshot;
+	private @Nullable ScreenshotTexture texture;
+	private final @NonNull File screenshotFile;
+	private boolean loaded = false;
 
 	private float currentScale = 1.0f;
 	private float appearProgress = 0f; // 0 → 1
-
 	private boolean appeared = false;
 
-	public ScreenshotThumbnailWidget(int x, int y, int width, int height, @NonNull File screenshot) {
-		super(x, y, width, height, Component.literal(screenshot.getName()));
-		this.screenshot = screenshot;
-		this.texture = ScreenshotTextureCache.getThumbnail(screenshot.toPath());
+	public ScreenshotThumbnailWidget(int x, int y, int width, int height, @NonNull File screenshotFile) {
+		super(x, y, width, height, Component.literal(screenshotFile.getName()));
+		this.screenshotFile = screenshotFile;
+	}
+
+	/**
+	 * Déclenche le chargement de la texture. Idempotent.
+	 */
+	public void load() {
+		if (!loaded) {
+			loaded = true;
+			texture = ScreenshotTextureCache.getThumbnail(screenshotFile.toPath());
+		}
+	}
+
+	public boolean isLoaded() {
+		return loaded;
 	}
 
 	// rendering
 
+
+	@Override
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		boolean clicked = super.mouseClicked(event, doubleClick);
+
+		return clicked;
+	}
+
 	@Override
 	public void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
-		if (!texture.isReady()) {
+		if (texture == null || !texture.isReady()) {
 			Loading.drawLoadingSpinner(
 					graphics,
 					getX() + getWidth() / 2,
@@ -127,13 +148,15 @@ public class ScreenshotThumbnailWidget extends AbstractWidget implements AutoClo
 		if (MINECRAFT.screen instanceof FocusableScreen screen) {
 			screen.clearFocus();
 		}
-		if (MINECRAFT.screen instanceof ScreenshotGalleryScreen screen) {
+		if (MINECRAFT.screen instanceof ScreenshotGalleryScreen screen && texture != null) {
 			screen.selectScreenshot(texture);
 		}
 	}
 
 	@NonNull
 	public ScreenshotTexture getTexture() {
+		if (texture == null)
+			throw new IllegalStateException("Texture not loaded yet, call load() first");
 		return texture;
 	}
 
@@ -143,6 +166,6 @@ public class ScreenshotThumbnailWidget extends AbstractWidget implements AutoClo
 
 	@Override
 	public void close() {
-		texture.close();
+		if (texture != null) texture.close();
 	}
 }

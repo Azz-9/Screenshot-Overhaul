@@ -29,9 +29,9 @@ public class TabsScreen extends AbstractBackNavigableScreen {
 	private static final int TABS_X = 10;
 	private static final int TABS_Y = 10;
 	private static final int TABS_GAP = 4;
-	private final List<Tab> tabs = new ArrayList<>();
+	private final @NonNull List<Tab> tabs = new ArrayList<>();
 
-	protected TabsScreen(Component title, Screen parent) {
+	protected TabsScreen(final Component title, final Screen parent) {
 		super(title, parent);
 	}
 
@@ -40,7 +40,7 @@ public class TabsScreen extends AbstractBackNavigableScreen {
 		tabs.clear();
 	}
 
-	public Tab addTab(Tab tab) {
+	public @NonNull Tab addTab(@NonNull final Tab tab) {
 		tabs.add(tab);
 
 		addRenderableWidget(tab);
@@ -48,7 +48,7 @@ public class TabsScreen extends AbstractBackNavigableScreen {
 		return tab;
 	}
 
-	public Tab addTab(Component tabText) {
+	public @NonNull Tab addTab(@NonNull final Component tabText) {
 		return addTab(new Tab(getNextTabX(), TABS_Y, tabText, this));
 	}
 
@@ -57,7 +57,7 @@ public class TabsScreen extends AbstractBackNavigableScreen {
 		return tabs.getLast().getRight() + TABS_GAP;
 	}
 
-	public void selectTab(Tab tab) {
+	public void selectTab(@NonNull Tab tab) {
 		tabs.forEach(t -> t.selected = false);
 		tab.selected = true;
 	}
@@ -67,11 +67,11 @@ public class TabsScreen extends AbstractBackNavigableScreen {
 		private static final int PADDING_HORIZONTAL = 8;
 		private static final int PADDING_VERTICAL = 4;
 
-		private final TabsScreen parent;
+		private final @NonNull TabsScreen parent;
 
 		private boolean selected;
 
-		protected Tab(int x, int y, Component message, TabsScreen parent) {
+		protected Tab(int x, int y, @NonNull final Component message, @NonNull final TabsScreen parent) {
 			super(x, y,
 					MINECRAFT.font.width(message) + PADDING_HORIZONTAL * 2,
 					MINECRAFT.font.lineHeight + PADDING_VERTICAL * 2,

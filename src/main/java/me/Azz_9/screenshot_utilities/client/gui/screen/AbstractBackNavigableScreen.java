@@ -4,10 +4,13 @@ package me.Azz_9.screenshot_utilities.client.gui.screen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-public abstract class AbstractBackNavigableScreen extends Screen {
-	protected final Screen PARENT;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
-	protected AbstractBackNavigableScreen(Component title, Screen parent) {
+public abstract class AbstractBackNavigableScreen extends Screen {
+	protected final @Nullable Screen PARENT;
+
+	protected AbstractBackNavigableScreen(@NonNull final Component title, @Nullable final Screen parent) {
 		super(title);
 		this.PARENT = parent;
 	}

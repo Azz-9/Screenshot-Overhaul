@@ -10,7 +10,7 @@ import org.jspecify.annotations.Nullable;
 @Environment(EnvType.CLIENT)
 public interface FocusableScreen {
 
-	default void requestFocus(@Nullable GuiEventListener widget) {
+	default void requestFocus(@Nullable final GuiEventListener widget) {
 		getFocusManager().requestFocus(widget);
 	}
 

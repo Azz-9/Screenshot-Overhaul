@@ -53,7 +53,7 @@ public abstract class SimpleParentWidget extends AbstractContainerEventHandler i
 
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) {
-		return isInBounds(mouseX, mouseY);
+		return visible && isInBounds(mouseX, mouseY);
 	}
 
 	public boolean isHovered() {
@@ -181,10 +181,13 @@ public abstract class SimpleParentWidget extends AbstractContainerEventHandler i
 		Optional<GuiEventListener> optional = this.getChildAt(click.x(), click.y());
 		if (optional.isPresent()) {
 			GuiEventListener element = optional.get();
-			if (element.mouseClicked(click, doubled) && element.shouldTakeFocusAfterInteraction()) {
-				this.setFocused(element);
+			if (element.mouseClicked(click, doubled)) {
 				if (click.button() == 0) {
 					this.setDragging(true);
+				}
+
+				if (shouldTakeFocusAfterInteraction()) {
+					this.setFocused(element);
 				}
 
 				return true;

@@ -11,7 +11,7 @@ public final class FocusManager {
 
 	private @Nullable GuiEventListener focused;
 
-	public void requestFocus(@Nullable GuiEventListener element) {
+	public void requestFocus(@Nullable final GuiEventListener element) {
 		if (focused == element) return;
 
 		if (focused != null) {

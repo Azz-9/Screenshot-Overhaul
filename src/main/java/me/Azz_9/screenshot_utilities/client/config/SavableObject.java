@@ -6,7 +6,7 @@ public class SavableObject<T> {
 	private final @NonNull T defaultValue;
 	private @NonNull T value;
 
-	public SavableObject(@NonNull T defaultValue) {
+	public SavableObject(@NonNull final T defaultValue) {
 		this.value = defaultValue;
 		this.defaultValue = defaultValue;
 	}
