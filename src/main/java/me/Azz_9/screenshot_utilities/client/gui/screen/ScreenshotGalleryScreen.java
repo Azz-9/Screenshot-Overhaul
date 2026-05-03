@@ -368,6 +368,13 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 		return super.keyPressed(input);
 	}
 
+	@Override
+	public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
+		if (selectedTexture != null) return false;
+
+		return super.mouseScrolled(x, y, scrollX, scrollY);
+	}
+
 	/* ---------------- Cleanup ---------------- */
 
 	@Override
