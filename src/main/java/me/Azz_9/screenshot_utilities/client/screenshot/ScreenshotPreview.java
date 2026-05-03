@@ -5,6 +5,7 @@ import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MI
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.util.Ease;
 
 import org.jspecify.annotations.Nullable;
 
@@ -86,12 +87,12 @@ public class ScreenshotPreview {
 		if (hoverStartTime != -1) {
 			// Fade in
 			float t = Math.min(1f, (now - hoverStartTime) / (float) HOVER_FADE_DURATION);
-			lastHoverProgress = lastHoverProgress + (1f - lastHoverProgress) * easeOut(t);
+			lastHoverProgress = lastHoverProgress + (1f - lastHoverProgress) * Ease.outQuad(t);
 			if (t >= 1f) lastHoverProgress = 1f;
 		} else if (hoverEndTime != -1) {
 			// Fade out
 			float t = Math.min(1f, (now - hoverEndTime) / (float) HOVER_FADE_DURATION);
-			lastHoverProgress = lastHoverProgress * (1f - easeIn(t));
+			lastHoverProgress = lastHoverProgress * (1f - Ease.inQuad(t));
 			if (t >= 1f) {
 				lastHoverProgress = 0f;
 				hoverEndTime = -1;
@@ -155,7 +156,7 @@ public class ScreenshotPreview {
 	public static void setScreenshot(File file) {
 		screenshotFile = file;
 		MINECRAFT.execute(() -> {
-			screenshotTexture = ScreenshotTexture.loadThumbnail(file.toPath());
+			screenshotTexture = ScreenshotTextureCache.getThumbnail(file.toPath());
 			screenshotTexture.whenReady((_, _) -> {
 				startTime = System.currentTimeMillis();
 
@@ -167,25 +168,16 @@ public class ScreenshotPreview {
 		});
 	}
 
-	// Easing functions
-	private static float easeOut(float t) {
-		return 1f - (1f - t) * (1f - t);
-	}
-
-	private static float easeIn(float t) {
-		return t * t;
-	}
-
 	private static float computeSlideOffset(long elapsed) {
 		if (elapsed < SLIDE_DURATION) {
 			float t = elapsed / (float) SLIDE_DURATION;
-			return (PREVIEW_WIDTH + MARGIN) * (1f - easeOut(t));
+			return (PREVIEW_WIDTH + MARGIN) * (1f - Ease.outQuad(t));
 		} else if (elapsed < SLIDE_DURATION + HOLD_DURATION || pausedElapsed != -1) {
 			// Figé en position visible si on est dans le hold OU en pause
 			return 0f;
 		} else {
 			float t = (elapsed - SLIDE_DURATION - HOLD_DURATION) / (float) SLIDE_DURATION;
-			return (PREVIEW_WIDTH + MARGIN) * easeIn(Math.min(t, 1f));
+			return (PREVIEW_WIDTH + MARGIN) * Ease.inQuad(Math.min(t, 1f));
 		}
 	}
 
