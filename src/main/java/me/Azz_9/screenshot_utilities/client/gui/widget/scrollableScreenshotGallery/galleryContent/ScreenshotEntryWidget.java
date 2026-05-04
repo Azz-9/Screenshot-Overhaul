@@ -12,9 +12,10 @@ import org.jspecify.annotations.Nullable;
 import java.io.File;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
-import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.FavoriteManager;
+import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotMetadata;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
 
 @Environment(EnvType.CLIENT)
@@ -28,41 +29,40 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 	private final @NonNull ScreenshotNameWidget nameWidget;
 	private final @NonNull FavoriteButton favoriteButton;
 
-	private final @NonNull File screenshotFile;
-	private final String pathRelativeToScreenshotDir;
+	private final @NonNull Screenshot screenshot;
+
 	private int baseY;
 
-	public ScreenshotEntryWidget(int x, int y, int thumbnailWidth, int thumbnailHeight, @NonNull File screenshotFile) {
+	public ScreenshotEntryWidget(int x, int y, int thumbnailWidth, int thumbnailHeight, @NonNull Screenshot screenshot) {
 		super(x, y, thumbnailWidth, thumbnailHeight + NAME_HEIGHT);
 
 		this.baseY = y;
-		this.screenshotFile = screenshotFile;
-		this.pathRelativeToScreenshotDir = Config.getInstance().getScreenshotsDir().relativize(screenshotFile.toPath()).toString();
+		this.screenshot = screenshot;
 
 		this.thumbnailWidget = new ScreenshotThumbnailWidget(
 				x, y,
 				thumbnailWidth, thumbnailHeight,
-				screenshotFile
+				screenshot
 		);
 
 		this.nameWidget = new ScreenshotNameWidget(
 				x, y + thumbnailHeight,
 				thumbnailWidth, NAME_HEIGHT,
-				screenshotFile
+				screenshot.file()
 		);
 
 		this.favoriteButton = new FavoriteButton(
 				getRight() - FAVORITE_BUTTON_SIZE,
 				getY(),
 				FAVORITE_BUTTON_SIZE, FAVORITE_BUTTON_SIZE,
-				(btn) -> FavoriteManager.setFavorite(pathRelativeToScreenshotDir, ((FavoriteButton) btn).isFilled()),
-				FavoriteManager.isFavorite(pathRelativeToScreenshotDir));
+				(btn) -> FavoriteManager.setFavorite(screenshot.pathRelativeToScreenshotDir(), ((FavoriteButton) btn).isFilled()),
+				FavoriteManager.isFavorite(screenshot.pathRelativeToScreenshotDir()));
 
 		addAllChildren(favoriteButton, thumbnailWidget, nameWidget);
 	}
 
-	public ScreenshotEntryWidget(@NonNull File screenshotFile) {
-		this(0, 0, 0, 0, screenshotFile);
+	public ScreenshotEntryWidget(@NonNull Screenshot screenshot) {
+		this(0, 0, 0, 0, screenshot);
 	}
 
 	public int getBaseY() {
@@ -132,13 +132,21 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 		thumbnailWidget.close();
 	}
 
+	public @NonNull Screenshot getScreenshot() {
+		return screenshot;
+	}
+
 	@Nullable
 	public ScreenshotTexture getTextureOrNull() {
 		return thumbnailWidget.isLoaded() ? thumbnailWidget.getTexture() : null;
 	}
 
 	public @NonNull File getScreenshotFile() {
-		return screenshotFile;
+		return screenshot.file();
+	}
+
+	public ScreenshotMetadata getMetadata() {
+		return screenshot.metadata();
 	}
 
 	public String getName() {
@@ -150,7 +158,7 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 	}
 
 	public String getPathRelativeToScreenshotDir() {
-		return pathRelativeToScreenshotDir;
+		return screenshot.pathRelativeToScreenshotDir();
 	}
 
 	@Override

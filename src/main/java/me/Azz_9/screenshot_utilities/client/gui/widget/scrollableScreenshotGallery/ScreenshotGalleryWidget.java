@@ -43,9 +43,7 @@ import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.TexturedCyclingButtonWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent.ScreenshotEntryWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.headerWidget.SearchBar;
-import me.Azz_9.screenshot_utilities.client.screenshot.FavoriteManager;
-import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
-import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
+import me.Azz_9.screenshot_utilities.client.screenshot.*;
 
 @Environment(EnvType.CLIENT)
 public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoCloseable {
@@ -221,7 +219,13 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 		entries.clear();
 
 		for (File file : screenshots) {
-			addEntry(new ScreenshotEntryWidget(file));
+			ScreenshotMetadata metadata;
+			try {
+				metadata = ScreenshotMetadataUtils.readMetadata(file);
+			} catch (Exception e) {
+				metadata = null;
+			}
+			addEntry(new ScreenshotEntryWidget(new Screenshot(file, metadata)));
 		}
 
 		if (reloadLayout) layoutEntries();
@@ -240,7 +244,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 				true
 		);
 		searchAndFilter(searchBar.getValue(), filterButton.getValue(), false);
-		sortEntries(sortButton.getValue(), false);
+		sortEntries(sortButton.getValue(), true);
 
 		refreshing = false;
 	}
@@ -449,8 +453,8 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 		screenshotFiles.cancel(true);
 	}
 
-	public void preloadAround(@NonNull ScreenshotTexture current) {
-		int index = indexOf(current);
+	public void preloadAround(@NonNull Screenshot screenshot) {
+		int index = indexOf(screenshot);
 		if (index < 0) return;
 
 		for (int i = index - FULLVIEW_PRELOAD_RADIUS; i <= index + FULLVIEW_PRELOAD_RADIUS; i++) {
@@ -473,10 +477,10 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 		return entries;
 	}
 
-	public int indexOf(@NonNull ScreenshotTexture texture) {
+	public int indexOf(@NonNull Screenshot screenshot) {
 		for (int i = 0; i < entries.size(); i++) {
 			ScreenshotEntryWidget entry = entries.get(i);
-			if (entry.getTextureOrNull() == texture) {
+			if (entry.getScreenshot() == screenshot) {
 				return i;
 			}
 		}
@@ -484,24 +488,24 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 	}
 
 	@Nullable
-	public ScreenshotTexture getPreviousVisibleEntry(@NonNull ScreenshotTexture current) {
-		int index = indexOf(current);
+	public Screenshot getPreviousVisibleScreenshot(@NonNull Screenshot screenshot) {
+		int index = indexOf(screenshot);
 		while (--index >= 0) {
 			ScreenshotEntryWidget entry = entries.get(index);
 			if (entry.isVisible()) {
-				return entry.getTextureOrNull();
+				return entry.getScreenshot();
 			}
 		}
 		return null;
 	}
 
 	@Nullable
-	public ScreenshotTexture getNextVisibleEntry(@NonNull ScreenshotTexture current) {
-		int index = indexOf(current);
+	public Screenshot getNextVisibleScreenshot(@NonNull Screenshot screenshot) {
+		int index = indexOf(screenshot);
 		while (++index < entries.size()) {
 			ScreenshotEntryWidget entry = entries.get(index);
 			if (entry.isVisible()) {
-				return entry.getTextureOrNull();
+				return entry.getScreenshot();
 			}
 		}
 		return null;

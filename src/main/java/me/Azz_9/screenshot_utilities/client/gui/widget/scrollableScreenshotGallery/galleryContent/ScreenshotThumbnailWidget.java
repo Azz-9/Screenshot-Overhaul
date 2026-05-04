@@ -22,6 +22,7 @@ import java.io.File;
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
+import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotDrawHelper;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
@@ -34,6 +35,7 @@ public class ScreenshotThumbnailWidget extends AbstractWidget implements AutoClo
 	private static final float APPEAR_SPEED = 8f;
 
 	private @Nullable ScreenshotTexture texture;
+	private @NonNull Screenshot screenshot;
 	private final @NonNull File screenshotFile;
 	private boolean loaded = false;
 
@@ -41,9 +43,10 @@ public class ScreenshotThumbnailWidget extends AbstractWidget implements AutoClo
 	private float appearProgress = 0f; // 0 → 1
 	private boolean appeared = false;
 
-	public ScreenshotThumbnailWidget(int x, int y, int width, int height, @NonNull File screenshotFile) {
-		super(x, y, width, height, Component.literal(screenshotFile.getName()));
-		this.screenshotFile = screenshotFile;
+	public ScreenshotThumbnailWidget(int x, int y, int width, int height, @NonNull Screenshot screenshot) {
+		super(x, y, width, height, Component.literal(screenshot.file().getName()));
+		this.screenshotFile = screenshot.file();
+		this.screenshot = screenshot;
 	}
 
 	/**
@@ -61,14 +64,6 @@ public class ScreenshotThumbnailWidget extends AbstractWidget implements AutoClo
 	}
 
 	// rendering
-
-
-	@Override
-	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-		boolean clicked = super.mouseClicked(event, doubleClick);
-
-		return clicked;
-	}
 
 	@Override
 	public void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
@@ -149,7 +144,7 @@ public class ScreenshotThumbnailWidget extends AbstractWidget implements AutoClo
 			screen.clearFocus();
 		}
 		if (MINECRAFT.screen instanceof ScreenshotGalleryScreen screen && texture != null) {
-			screen.selectScreenshot(texture);
+			screen.selectScreenshot(screenshot);
 		}
 	}
 

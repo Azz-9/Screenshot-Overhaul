@@ -33,10 +33,7 @@ import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.NavigationButton;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.ScreenshotGalleryWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent.ScreenshotEntryWidget;
-import me.Azz_9.screenshot_utilities.client.screenshot.FavoriteManager;
-import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotDrawHelper;
-import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
-import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
+import me.Azz_9.screenshot_utilities.client.screenshot.*;
 
 @Environment(EnvType.CLIENT)
 public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
@@ -65,10 +62,10 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 	// full view
 	private static final int NAV_BUTTON_SIZE = 20;
-	private static final int NAV_BUTTON_PADDING = 10;
+	private static final int NAV_BUTTON_MARGIN = 30;
 	private NavigationButton backButton, nextButton;
-	private @Nullable ScreenshotTexture selectedTexture = null;
-	private @Nullable ScreenshotTexture outgoingTexture = null;
+	private @Nullable Screenshot selectedScreenshot = null;
+	private @Nullable Screenshot outgoingScreenshot = null;
 	// transition
 	private static final float TRANSITION_DURATION = 0.2f; // secondes
 	private float transitionTime = 0f;
@@ -109,11 +106,11 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 				.build();
 
 		backButton = new NavigationButton(
-				(width - NAV_BUTTON_PADDING) / 2 - NAV_BUTTON_SIZE, height - 40,
+				NAV_BUTTON_MARGIN, (height - NAV_BUTTON_SIZE) / 2,
 				NAV_BUTTON_SIZE, NAV_BUTTON_SIZE,
 				NavigationButton.NavigationTypes.BACK, (btn) -> selectPrevious());
 		nextButton = new NavigationButton(
-				(width + NAV_BUTTON_PADDING) / 2, height - 40,
+				width - NAV_BUTTON_MARGIN - NAV_BUTTON_SIZE, (height - NAV_BUTTON_SIZE) / 2,
 				NAV_BUTTON_SIZE, NAV_BUTTON_SIZE,
 				NavigationButton.NavigationTypes.NEXT, (btn) -> selectNext());
 
@@ -162,8 +159,8 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 	// Full view
 
-	public void selectScreenshot(@NonNull ScreenshotTexture texture) {
-		selectedTexture = texture;
+	public void selectScreenshot(@NonNull Screenshot screenshot) {
+		selectedScreenshot = screenshot;
 
 		backButton.visible = true;
 		nextButton.visible = true;
@@ -177,17 +174,17 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 			gallery.setActive(false);
 
 			// pre-load the next et previous screenshots
-			ScreenshotTexture next = gallery.getNextVisibleEntry(selectedTexture);
-			ScreenshotTexture prev = gallery.getPreviousVisibleEntry(selectedTexture);
-			if (next != null) ScreenshotTextureCache.getFullView(next.getFile());
-			if (prev != null) ScreenshotTextureCache.getFullView(prev.getFile());
+			Screenshot next = gallery.getNextVisibleScreenshot(selectedScreenshot);
+			Screenshot prev = gallery.getPreviousVisibleScreenshot(selectedScreenshot);
+			if (next != null) ScreenshotTextureCache.getFullView(next.file().toPath());
+			if (prev != null) ScreenshotTextureCache.getFullView(prev.file().toPath());
 
-			gallery.preloadAround(selectedTexture);
+			gallery.preloadAround(selectedScreenshot);
 		}
 	}
 
 	public void deselectScreenshot() {
-		selectedTexture = null;
+		selectedScreenshot = null;
 		backButton.active = false;
 		backButton.visible = false;
 		nextButton.active = false;
@@ -202,9 +199,9 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	}
 
 	private void selectPrevious() {
-		if (selectedTexture == null || inTransition || gallery == null) return;
+		if (selectedScreenshot == null || inTransition || gallery == null) return;
 
-		ScreenshotTexture prev = gallery.getPreviousVisibleEntry(selectedTexture);
+		Screenshot prev = gallery.getPreviousVisibleScreenshot(selectedScreenshot);
 		if (prev != null) {
 			gallery.preloadAround(prev);
 			startTransition(prev, -1);
@@ -212,18 +209,18 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	}
 
 	private void selectNext() {
-		if (selectedTexture == null || inTransition || gallery == null) return;
+		if (selectedScreenshot == null || inTransition || gallery == null) return;
 
-		ScreenshotTexture next = gallery.getNextVisibleEntry(selectedTexture);
+		Screenshot next = gallery.getNextVisibleScreenshot(selectedScreenshot);
 		if (next != null) {
 			gallery.preloadAround(next);
 			startTransition(next, +1);
 		}
 	}
 
-	private void startTransition(ScreenshotTexture next, int direction) {
-		this.outgoingTexture = this.selectedTexture;
-		this.selectedTexture = next;
+	private void startTransition(Screenshot next, int direction) {
+		this.outgoingScreenshot = this.selectedScreenshot;
+		this.selectedScreenshot = next;
 
 		this.transitionDirection = direction;
 		this.transitionTime = 0f;
@@ -234,10 +231,10 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 
 	private void updateNavButtons() {
-		if (gallery == null || selectedTexture == null) return;
+		if (gallery == null || selectedScreenshot == null) return;
 
-		backButton.active = gallery.getPreviousVisibleEntry(selectedTexture) != null;
-		nextButton.active = gallery.getNextVisibleEntry(selectedTexture) != null;
+		backButton.active = gallery.getPreviousVisibleScreenshot(selectedScreenshot) != null;
+		nextButton.active = gallery.getNextVisibleScreenshot(selectedScreenshot) != null;
 	}
 
 	// render
@@ -253,17 +250,17 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 			if (transitionTime >= TRANSITION_DURATION) {
 				transitionTime = TRANSITION_DURATION;
 				inTransition = false;
-				outgoingTexture = null;
+				outgoingScreenshot = null;
 			}
 		}
 
-		if (selectedTexture != null) {
+		if (selectedScreenshot != null) {
 			graphics.requestCursor(CursorType.DEFAULT);
 
 			graphics.fill(0, 0, width, height, Colors.BLACK_TRANSPARENT);
 
-			if (!inTransition || outgoingTexture == null) {
-				drawScreenshot(graphics, ScreenshotTextureCache.getFullView(selectedTexture.getFile()), 0);
+			if (!inTransition || outgoingScreenshot == null) {
+				drawScreenshotWithInfo(graphics, selectedScreenshot, 0);
 			} else {
 				float t = transitionTime / TRANSITION_DURATION;
 				t = t * t * (3f - 2f * t); // smoothstep
@@ -271,18 +268,10 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 				int slide = (int) (width * t);
 
 				// ancien screenshot (sortant)
-				drawScreenshot(
-						graphics,
-						ScreenshotTextureCache.getFullView(outgoingTexture.getFile()),
-						-slide * transitionDirection
-				);
+				drawScreenshotWithInfo(graphics, selectedScreenshot, -slide * transitionDirection);
 
 				// nouveau screenshot (entrant)
-				drawScreenshot(
-						graphics,
-						ScreenshotTextureCache.getFullView(selectedTexture.getFile()),
-						(width - slide) * transitionDirection
-				);
+				drawScreenshotWithInfo(graphics, selectedScreenshot, (width - slide) * transitionDirection);
 			}
 
 			nextButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
@@ -290,14 +279,17 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 		}
 	}
 
-	private void drawScreenshot(@NonNull GuiGraphicsExtractor graphics, @Nullable ScreenshotTexture texture, int offsetX) {
-		int fullViewWidth = width - FULL_VIEW_PADDING * 2;
-		int fullViewHeight = height - FULL_VIEW_PADDING - BOTTOM_PADDING;
+	private void drawScreenshotWithInfo(@NonNull GuiGraphicsExtractor graphics, Screenshot screenshot, int offsetX) {
+		ScreenshotTexture texture = ScreenshotTextureCache.getFullView(screenshot.file().toPath());
 
 		Matrix3x2fStack matrices = graphics.pose();
 		matrices.pushMatrix();
 
 		matrices.translate(offsetX, 0);
+
+		// screenshot
+		int fullViewWidth = width - FULL_VIEW_PADDING * 2;
+		int fullViewHeight = height - FULL_VIEW_PADDING - BOTTOM_PADDING;
 
 		if (texture == null) {
 			graphics.fill(
@@ -312,9 +304,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 					FULL_VIEW_PADDING + fullViewHeight / 2,
 					fullViewHeight / 20, fullViewHeight / 10
 			);
-
 		} else {
-
 			ScreenshotDrawHelper.drawContain(
 					graphics,
 					texture,
@@ -324,6 +314,26 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 					fullViewHeight
 			);
 		}
+
+		// info
+		int center = fullViewWidth / 2;
+
+		graphics.centeredText(MINECRAFT.font, screenshot.pathRelativeToScreenshotDir(), center, FULL_VIEW_PADDING + fullViewHeight + 10, Colors.WHITE);
+		StringBuilder line = new StringBuilder();
+		if (screenshot.metadata().x() != null && screenshot.metadata().y() != null && screenshot.metadata().z() != null) {
+			line.append("XYZ: ").append(screenshot.metadata().x())
+					.append(" ").append(screenshot.metadata().y())
+					.append(" ").append(screenshot.metadata().z());
+		}
+		if (screenshot.metadata().worldName() != null) {
+			if (!line.isEmpty()) line.append(" • ");
+			line.append("World name: ").append(screenshot.metadata().worldName());
+		}
+		if (screenshot.metadata().dimension() != null) {
+			if (!line.isEmpty()) line.append(" • ");
+			line.append("Dimension: ").append(screenshot.metadata().dimension());
+		}
+		graphics.centeredText(MINECRAFT.font, line.toString(), center, FULL_VIEW_PADDING + fullViewHeight + 20, Colors.WHITE);
 
 		matrices.popMatrix();
 	}
@@ -357,9 +367,17 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 	@Override
 	public boolean keyPressed(@NonNull KeyEvent input) {
-		if (selectedTexture != null && input.isEscape()) {
-			deselectScreenshot();
-			return true;
+		if (selectedScreenshot != null) {
+			if (input.isEscape()) {
+				deselectScreenshot();
+				return true;
+			} else if (input.isLeft()) {
+				selectPrevious();
+				return true;
+			} else if (input.isRight()) {
+				selectNext();
+				return true;
+			}
 		}
 		if (input.key() == InputConstants.KEY_F5 && gallery != null) {
 			gallery.refresh();
@@ -370,7 +388,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 	@Override
 	public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
-		if (selectedTexture != null) return false;
+		if (selectedScreenshot != null) return false;
 
 		return super.mouseScrolled(x, y, scrollX, scrollY);
 	}
@@ -386,8 +404,8 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 			gallery = null;
 		}
 
-		selectedTexture = null;
-		outgoingTexture = null;
+		selectedScreenshot = null;
+		outgoingScreenshot = null;
 
 		super.onClose();
 	}

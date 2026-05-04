@@ -45,7 +45,7 @@ import me.Azz_9.screenshot_utilities.client.gui.trackableChanges.TrackableChange
 
 @Environment(EnvType.CLIENT)
 public class ScreenshotNameWidget extends AbstractWidget implements TrackableChanges {
-	public static final int DEFAULT_EDITABLE_COLOR = -2039584;
+	public static final int DEFAULT_EDITABLE_COLOR = 0xffe0e0e0;
 	public static final Style PLACEHOLDER_STYLE = Style.EMPTY.withColor(ChatFormatting.DARK_GRAY);
 	private static final WidgetSprites SPRITES = new WidgetSprites(
 			Identifier.withDefaultNamespace("widget/text_field"), Identifier.withDefaultNamespace("widget/text_field_highlighted")
@@ -72,7 +72,7 @@ public class ScreenshotNameWidget extends AbstractWidget implements TrackableCha
 	private int selectionStart;
 	private int selectionEnd;
 	private int editableColor = DEFAULT_EDITABLE_COLOR;
-	private int uneditableColor = -9408400;
+	private int uneditableColor = 0xff707070;
 	@Nullable
 	private String suggestion;
 	@Nullable
