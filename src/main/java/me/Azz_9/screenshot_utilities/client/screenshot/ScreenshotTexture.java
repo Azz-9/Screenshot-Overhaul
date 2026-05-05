@@ -21,17 +21,16 @@ import java.util.function.Supplier;
 public final class ScreenshotTexture implements AutoCloseable {
 
 	private final @NonNull CompletableFuture<NativeImage> imageFuture;
-	private final int maxSize;
 
 	private @Nullable DynamicTexture texture;
 	private final Path file;
 	private volatile boolean closed = false;
 
 	private ScreenshotTexture(Path file, int maxSize) {
-		this(file, maxSize, () -> {
+		this(file, () -> {
 			try (InputStream in = Files.newInputStream(file)) {
 				NativeImage img = NativeImage.read(in);
-				return maxSize > 0 ? ImageScaler.downscale(img, maxSize) : img;
+				return ImageScaler.downscale(img, maxSize);
 			} catch (Exception e) {
 				return null;
 			}
@@ -39,11 +38,10 @@ public final class ScreenshotTexture implements AutoCloseable {
 	}
 
 	private ScreenshotTexture(Path file, NativeImage image, int maxSize) {
-		this(file, maxSize, () -> maxSize > 0 ? ImageScaler.downscale(image, maxSize) : image);
+		this(file, () -> ImageScaler.downscale(image, maxSize));
 	}
 
-	private ScreenshotTexture(Path file, int maxSize, Supplier<NativeImage> imageSupplier) {
-		this.maxSize = maxSize;
+	private ScreenshotTexture(Path file, Supplier<NativeImage> imageSupplier) {
 		this.file = file;
 
 		this.imageFuture = CompletableFuture.supplyAsync(

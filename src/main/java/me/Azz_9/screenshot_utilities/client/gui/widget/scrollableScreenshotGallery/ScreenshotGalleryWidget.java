@@ -221,7 +221,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 		for (File file : screenshots) {
 			ScreenshotMetadata metadata;
 			try {
-				metadata = ScreenshotMetadataUtils.readMetadata(file);
+				metadata = ScreenshotMetadataUtils.read(file);
 			} catch (Exception e) {
 				metadata = null;
 			}

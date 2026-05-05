@@ -51,7 +51,7 @@ public class ScreenshotGrabber {
 							}
 						}
 
-						ScreenshotMetadataUtils.addMetadata(file, ScreenshotMetadata.collectMetadata());
+						ScreenshotMetadataUtils.add(file, ScreenshotMetadataUtils.collect());
 
 						ScreenshotPreview.setScreenshot(file);
 						Component fileName = Component.literal(file.getName())

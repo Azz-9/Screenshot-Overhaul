@@ -316,24 +316,28 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 		}
 
 		// info
-		int center = fullViewWidth / 2;
+		int center = FULL_VIEW_PADDING + fullViewWidth / 2;
 
-		graphics.centeredText(MINECRAFT.font, screenshot.pathRelativeToScreenshotDir(), center, FULL_VIEW_PADDING + fullViewHeight + 10, Colors.WHITE);
+		graphics.centeredText(MINECRAFT.font, screenshot.pathRelativeToScreenshotDir(), center, FULL_VIEW_PADDING + fullViewHeight + 4, Colors.WHITE);
 		StringBuilder line = new StringBuilder();
 		if (screenshot.metadata().x() != null && screenshot.metadata().y() != null && screenshot.metadata().z() != null) {
-			line.append("XYZ: ").append(screenshot.metadata().x())
-					.append(" ").append(screenshot.metadata().y())
-					.append(" ").append(screenshot.metadata().z());
+			line.append("X: ").append(screenshot.metadata().x())
+					.append(" Y: ").append(screenshot.metadata().y())
+					.append(" Z: ").append(screenshot.metadata().z());
 		}
 		if (screenshot.metadata().worldName() != null) {
 			if (!line.isEmpty()) line.append(" • ");
-			line.append("World name: ").append(screenshot.metadata().worldName());
+			line.append(screenshot.metadata().worldName());
 		}
 		if (screenshot.metadata().dimension() != null) {
 			if (!line.isEmpty()) line.append(" • ");
-			line.append("Dimension: ").append(screenshot.metadata().dimension());
+			line.append(screenshot.metadata().dimension());
 		}
-		graphics.centeredText(MINECRAFT.font, line.toString(), center, FULL_VIEW_PADDING + fullViewHeight + 20, Colors.WHITE);
+		if (screenshot.metadata().biome() != null) {
+			if (!line.isEmpty()) line.append(" ● ");
+			line.append(screenshot.metadata().biome());
+		}
+		graphics.centeredText(MINECRAFT.font, line.toString(), center, FULL_VIEW_PADDING + fullViewHeight + 15, Colors.WHITE);
 
 		matrices.popMatrix();
 	}

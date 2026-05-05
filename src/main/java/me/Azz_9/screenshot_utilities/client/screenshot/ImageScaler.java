@@ -29,7 +29,6 @@ public final class ImageScaler {
 	 * @param maxSize the maximum allowed size for the largest side of the image
 	 * @return a new downscaled {@link NativeImage}
 	 */
-
 	public static @NonNull NativeImage downscale(@NonNull NativeImage src, int maxSize) {
 		int srcW = src.getWidth();
 		int srcH = src.getHeight();
