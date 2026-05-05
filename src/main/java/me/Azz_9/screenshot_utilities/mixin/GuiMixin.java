@@ -1,6 +1,7 @@
 package me.Azz_9.screenshot_utilities.mixin;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.hudRenderHook;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -17,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient;
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoModeHud;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotPreview;
@@ -24,21 +26,13 @@ import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotPreview;
 @Environment(EnvType.CLIENT)
 @Mixin(Gui.class)
 public abstract class GuiMixin {
+
+	// On hud render
 	@Inject(method = "extractRenderState", at = @At("HEAD"), cancellable = true)
 	private void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-		if (!(MINECRAFT.screen instanceof LevelLoadingScreen)) {
-			if (!MINECRAFT.options.hideGui) {
-				PhotoModeHud.render(graphics, deltaTracker);
-			}
-		}
-
-		if (PhotoMode.isEnabled()) {
+		if (Screenshot_utilitiesClient.hudRenderHook(graphics, deltaTracker)) {
 			ci.cancel();
 		}
-
-		// screenshot preview
-		if (MINECRAFT.screen == null)
-			ScreenshotPreview.render(graphics, 0, 0, deltaTracker.getGameTimeDeltaPartialTick(true));
 	}
 
 	// Makes HUD correspond to the player rather than the PhotoCamera.

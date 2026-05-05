@@ -9,12 +9,15 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.gui.screens.options.controls.KeyBindsScreen;
 import net.minecraft.client.input.KeyEvent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Util;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.awt.*;
 
 import me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient;
 import me.Azz_9.screenshot_utilities.client.config.Config;
@@ -31,8 +34,10 @@ public abstract class KeyboardMixin {
 						(keybindsScreen.lastKeySelection <= Util.getMillis() - 20L)) &&
 				Screenshot_utilitiesClient.getPanoramaScreenshotKeybind().matches(event)) {
 
-			MINECRAFT.player.sendSystemMessage(ScreenshotGrabber.grabPanoramixScreenshot(Config.getInstance().getScreenshotsDir().toFile()));
-
+			Component text = ScreenshotGrabber.grabPanoramixScreenshot(Config.getInstance().getScreenshotsDir().toFile());
+			if (Config.getInstance().showChatMessage.getValue()) {
+				MINECRAFT.player.sendSystemMessage(text);
+			}
 		}
 	}
 }

@@ -19,27 +19,10 @@ import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 @Mixin(MouseHandler.class)
 public abstract class MouseMixin {
 
-	@Unique
-	private static final float SCROLL_SPEED_WITH_CTRL = 0.01f;
-	@Unique
-	private static final float SCROLL_SPEED_WITHOUT_CTRL = 0.05f;
-
 	@Inject(method = "onScroll", at = @At("HEAD"), cancellable = true)
 	private void onScroll(long handle, double xoffset, double yoffset, CallbackInfo ci) {
-		if (!PhotoMode.isEnabled() || PhotoMode.getCamera() == null || handle != MINECRAFT.getWindow().handle() || MINECRAFT.screen != null) {
-			return;
+		if (PhotoMode.onMouseScroll(handle, xoffset, yoffset)) {
+			ci.cancel();
 		}
-
-		boolean discrete = MINECRAFT.options.discreteMouseScroll().get();
-		double sensitivity = MINECRAFT.options.mouseWheelSensitivity().get();
-
-		double scroll = (discrete ? Math.signum(yoffset) : yoffset) * sensitivity;
-
-		if (scroll != 0.0) {
-			float scrollSpeed = (MINECRAFT.hasControlDown() ? SCROLL_SPEED_WITH_CTRL : SCROLL_SPEED_WITHOUT_CTRL);
-			PhotoMode.getCamera().setVelocity(Mth.clamp(PhotoMode.getCamera().getVelocity() + scroll * scrollSpeed, 0, 5.0));
-		}
-
-		ci.cancel();
 	}
 }

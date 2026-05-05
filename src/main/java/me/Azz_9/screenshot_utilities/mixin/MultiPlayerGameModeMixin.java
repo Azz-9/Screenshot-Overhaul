@@ -25,6 +25,7 @@ import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 @Mixin(MultiPlayerGameMode.class)
 public abstract class MultiPlayerGameModeMixin {
 
+	// Disable using item in PhotoMode
 	@Inject(method = "useItemOn", at = @At("HEAD"), cancellable = true)
 	private void onUseItemOn(LocalPlayer player, InteractionHand hand, BlockHitResult blockHit, CallbackInfoReturnable<InteractionResult> cir) {
 		if (PhotoMode.isEnabled()) {
@@ -32,6 +33,7 @@ public abstract class MultiPlayerGameModeMixin {
 		}
 	}
 
+	// Disable interact in PhotoMode
 	@Inject(method = "interact", at = @At("HEAD"), cancellable = true)
 	private void onInteract(Player player, Entity entity, EntityHitResult hitResult, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
 		if (entity.equals(MINECRAFT.player) || PhotoMode.isEnabled()) {
@@ -39,6 +41,7 @@ public abstract class MultiPlayerGameModeMixin {
 		}
 	}
 
+	// Disable attacking self in PhotoMode
 	@Inject(method = "attack", at = @At("HEAD"), cancellable = true)
 	private void onAttack(Player player, Entity entity, CallbackInfo ci) {
 		if (entity.equals(MINECRAFT.player)) {

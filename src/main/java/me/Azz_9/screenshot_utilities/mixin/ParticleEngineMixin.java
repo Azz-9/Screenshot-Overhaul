@@ -24,6 +24,7 @@ public abstract class ParticleEngineMixin {
 		}
 	}
 
+	// disable adding particle when PhotoMode is enabled
 	@Inject(method = "add", at = @At("HEAD"), cancellable = true)
 	private void add(Particle p, CallbackInfo ci) {
 		if (PhotoMode.isEnabled()) {

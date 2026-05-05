@@ -16,10 +16,12 @@ import net.minecraft.client.player.KeyboardInput;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.ServerLinks;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.flag.FeatureFlagSet;
 
 import org.jspecify.annotations.Nullable;
+import org.spongepowered.asm.mixin.Unique;
 
 
 import java.util.Collections;
@@ -27,6 +29,9 @@ import java.util.UUID;
 
 @Environment(EnvType.CLIENT)
 public class PhotoMode {
+
+	private static final float SCROLL_SPEED_WITH_CTRL = 0.01f;
+	private static final float SCROLL_SPEED_WITHOUT_CTRL = 0.05f;
 
 	private static boolean enabled;
 	private static long frozenTime;
@@ -106,9 +111,9 @@ public class PhotoMode {
 			MINECRAFT.setCameraEntity(MINECRAFT.player);
 		}
 
-		/*if (prevCameraType != null) {
+		if (prevCameraType != null) {
 			MINECRAFT.options.setCameraType(prevCameraType);
-		}*/
+		}
 	}
 
 	public static void toggle() {
@@ -141,5 +146,24 @@ public class PhotoMode {
 				MINECRAFT.player.input = input;
 			}
 		}
+	}
+
+	// return whether the base onScroll method should be canceled
+	public static boolean onMouseScroll(long handle, double xoffset, double yoffset) {
+		if (!PhotoMode.isEnabled() || PhotoMode.getCamera() == null || handle != MINECRAFT.getWindow().handle() || MINECRAFT.screen != null) {
+			return false;
+		}
+
+		boolean discrete = MINECRAFT.options.discreteMouseScroll().get();
+		double sensitivity = MINECRAFT.options.mouseWheelSensitivity().get();
+
+		double scroll = (discrete ? Math.signum(yoffset) : yoffset) * sensitivity;
+
+		if (scroll != 0.0) {
+			float scrollSpeed = (MINECRAFT.hasControlDown() ? SCROLL_SPEED_WITH_CTRL : SCROLL_SPEED_WITHOUT_CTRL);
+			PhotoMode.getCamera().setVelocity(Mth.clamp(PhotoMode.getCamera().getVelocity() + scroll * scrollSpeed, 0, 5.0));
+		}
+		
+		return true;
 	}
 }

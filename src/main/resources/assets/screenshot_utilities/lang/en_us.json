@@ -21,8 +21,8 @@
 	"screenshot_utilities.gallery_widget.sort_mode.date_desc": "Newest first",
 	"screenshot_utilities.gallery_widget.open_screenshot_folder": "Open screenshot folder",
 
-	"screenshot_utilities.preview.delete": "Delete",
-	"screenshot_utilities.preview.copy": "Copy",
+	"screenshot_utilities.delete": "Delete",
+	"screenshot_utilities.copy": "Copy",
 
 	"screenshot_utilities.save_and_quit": "Save and quit",
 	"screenshot_utilities.cancel": "Cancel",

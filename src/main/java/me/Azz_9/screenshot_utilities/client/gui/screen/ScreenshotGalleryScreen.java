@@ -64,6 +64,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	private static final int NAV_BUTTON_SIZE = 20;
 	private static final int NAV_BUTTON_MARGIN = 30;
 	private NavigationButton backButton, nextButton;
+	private Button copyButton, deleteButton;
 	private @Nullable Screenshot selectedScreenshot = null;
 	private @Nullable Screenshot outgoingScreenshot = null;
 	// transition
@@ -113,10 +114,14 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 				width - NAV_BUTTON_MARGIN - NAV_BUTTON_SIZE, (height - NAV_BUTTON_SIZE) / 2,
 				NAV_BUTTON_SIZE, NAV_BUTTON_SIZE,
 				NavigationButton.NavigationTypes.NEXT, (btn) -> selectNext());
+		/*copyButton = Button.builder(Component.translatable("screenshot_utilities.copy"), (btn) -> {
+					if (selectedScreenshot != null) 
+						CopyScreenshot.copyToClipboard(selectedScreenshot.file());
+				})
+				.bounds()
+				.build();*/
 
-		backButton.active = false;
 		backButton.visible = false;
-		nextButton.active = false;
 		nextButton.visible = false;
 
 		addWidget(backButton);
@@ -185,9 +190,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 	public void deselectScreenshot() {
 		selectedScreenshot = null;
-		backButton.active = false;
 		backButton.visible = false;
-		nextButton.active = false;
 		nextButton.visible = false;
 
 		updateSaveAndQuit();

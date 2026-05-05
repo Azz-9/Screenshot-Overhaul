@@ -15,6 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.Util;
 
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.awt.image.BufferedImage;
@@ -22,6 +23,7 @@ import java.io.File;
 import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
+import me.Azz_9.screenshot_utilities.client.config.Config;
 
 @Environment(EnvType.CLIENT)
 public class ScreenshotGrabber {
@@ -57,7 +59,7 @@ public class ScreenshotGrabber {
 						Component fileName = Component.literal(file.getName())
 								.withStyle(ChatFormatting.UNDERLINE)
 								.withStyle((s) -> s.withClickEvent(new ClickEvent.OpenFile(file.getAbsoluteFile())));
-						callback.accept(Component.translatable("screenshot.success", fileName));
+						if (Config.getInstance().showChatMessage.getValue()) callback.accept(Component.translatable("screenshot.success", fileName));
 					} catch (Throwable throwable) {
 						try {
 							image.close();
@@ -71,15 +73,16 @@ public class ScreenshotGrabber {
 					image.close();
 				} catch (Exception e) {
 					ScreenshotLogger.warn("Couldn't save screenshot", e);
-					callback.accept(Component.translatable("screenshot.failure", e.getMessage()));
+					if (Config.getInstance().showChatMessage.getValue()) callback.accept(Component.translatable("screenshot.failure", e.getMessage()));
 				}
 
 			});
 		});
 	}
 
-	public static Component grabPanoramixScreenshot(final File folder) {
-		if (MINECRAFT.player == null) return null;
+	public static @NonNull Component grabPanoramixScreenshot(final File folder) {
+		if (MINECRAFT.player == null) 
+			throw new IllegalStateException("Minecraft player is null!");
 
 		File panoramaFolder = getPanoramaFolder(folder);
 

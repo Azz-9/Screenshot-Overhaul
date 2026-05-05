@@ -133,7 +133,7 @@ public class ScreenshotPreviewWidget extends AbstractWidget {
 			graphics.fill(getX(), getY(), getX() + halfW, getY() + height, ARGB.color(copyAlpha, Colors.WHITE));
 		}
 		renderIcon(graphics, ICON_COPY, getX(), getY(), halfW, height, hoverProgress);
-		renderLabel(graphics, getX(), getY(), halfW, height, Component.translatable("screenshot_utilities.preview.copy"), hoverProgress);
+		renderLabel(graphics, getX(), getY(), halfW, height, Component.translatable("screenshot_utilities.copy"), hoverProgress);
 
 		// Bouton Supprimer
 		int deleteX = getX() + halfW;
@@ -142,7 +142,7 @@ public class ScreenshotPreviewWidget extends AbstractWidget {
 			graphics.fill(deleteX, getY(), deleteX + halfW, getY() + height, ARGB.color(deleteAlpha, 0x00FF4444));
 		}
 		renderIcon(graphics, ICON_DELETE, deleteX, getY(), halfW, height, hoverProgress);
-		renderLabel(graphics, deleteX, getY(), halfW, height, Component.translatable("screenshot_utilities.preview.delete"), hoverProgress);
+		renderLabel(graphics, deleteX, getY(), halfW, height, Component.translatable("screenshot_utilities.delete"), hoverProgress);
 
 		if (copyHoverProgress > 0 || deleteHoverProgress > 0) {
 			graphics.requestCursor(CursorTypes.POINTING_HAND);

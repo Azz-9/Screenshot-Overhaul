@@ -21,8 +21,8 @@
 	"screenshot_utilities.gallery_widget.sort_mode.date_desc": "Les plus récents",
 	"screenshot_utilities.gallery_widget.open_screenshot_folder": "Ouvrir le dossier des captures d'écran",
 
-	"screenshot_utilities.preview.delete": "Supprimer",
-	"screenshot_utilities.preview.copy": "Copier",
+	"screenshot_utilities.delete": "Supprimer",
+	"screenshot_utilities.copy": "Copier",
 
 	"screenshot_utilities.save_and_quit": "Sauvegarder et quitter",
 	"screenshot_utilities.cancel": "Annulé",

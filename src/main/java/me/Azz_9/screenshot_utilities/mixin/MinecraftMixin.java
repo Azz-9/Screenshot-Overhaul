@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,6 +21,7 @@ import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
 
+	// Disable attack in PhotoMode
 	@Inject(method = "startAttack", at = @At("HEAD"), cancellable = true)
 	private void onStartAttack(CallbackInfoReturnable<Boolean> cir) {
 		if (PhotoMode.isEnabled()) {
@@ -27,6 +29,7 @@ public abstract class MinecraftMixin {
 		}
 	}
 
+	// Disable pick block or entity in PhotoMode
 	@Inject(method = "pickBlockOrEntity", at = @At("HEAD"), cancellable = true)
 	private void onPickBlockOrEntity(CallbackInfo ci) {
 		if (PhotoMode.isEnabled()) {
@@ -34,6 +37,7 @@ public abstract class MinecraftMixin {
 		}
 	}
 
+	// Disable block breaking in PhotoMode
 	@Inject(method = "continueAttack", at = @At("HEAD"), cancellable = true)
 	private void onHandleBlockBreaking(CallbackInfo ci) {
 		if (PhotoMode.isEnabled()) {
@@ -41,6 +45,7 @@ public abstract class MinecraftMixin {
 		}
 	}
 
+	// Disable PhotoMode on disconnect
 	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;ZZ)V", at = @At(value = "HEAD"))
 	private void onDisconnect(CallbackInfo ci) {
 		if (PhotoMode.isEnabled()) {
@@ -48,27 +53,16 @@ public abstract class MinecraftMixin {
 		}
 	}
 
-	@Inject(method = "handleKeybinds", at = @At("HEAD"))
-	private void onHandleKeybinds(CallbackInfo ci) {
-		while (Screenshot_utilitiesClient.getOpenPhotoModeKeybind().consumeClick()) {
-			PhotoMode.toggle();
-		}
-
-		if (PhotoMode.isEnabled() && PhotoMode.getCamera() != null) {
-			while (Screenshot_utilitiesClient.getRollLeftKeybind().consumeClick()) {
-				PhotoMode.getCamera().rollLeft();
-			}
-
-			while (Screenshot_utilitiesClient.getRollRightKeybind().consumeClick()) {
-				PhotoMode.getCamera().rollRight();
-			}
+	// Disable opening container screens in PhotoMode
+	@Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
+	private void onSetScreen(Screen screen, CallbackInfo ci) {
+		if (PhotoMode.isEnabled() && screen instanceof AbstractContainerScreen<?>) {
+			ci.cancel();
 		}
 	}
 
-	@Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
-	private void onSetScreen(Screen screen, CallbackInfo ci) {
-		if (PhotoMode.isEnabled() && !(screen instanceof PauseScreen) && !(screen instanceof ChatScreen) && screen != null) {
-			ci.cancel();
-		}
+	@Inject(method = "handleKeybinds", at = @At("HEAD"))
+	private void onHandleKeybinds(CallbackInfo ci) {
+		Screenshot_utilitiesClient.handleKeybindsHook();
 	}
 }

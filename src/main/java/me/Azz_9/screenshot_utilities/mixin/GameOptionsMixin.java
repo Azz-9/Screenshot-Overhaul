@@ -15,6 +15,7 @@ import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 @Mixin(Options.class)
 public abstract class GameOptionsMixin {
 
+	// Disable F5 in PhotoMode
 	@Inject(method = "setCameraType", at = @At("HEAD"), cancellable = true)
 	private void onSetCameraType(CallbackInfo ci) {
 		if (PhotoMode.isEnabled()) {

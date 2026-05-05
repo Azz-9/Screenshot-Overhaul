@@ -19,22 +19,23 @@ import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotPreviewWidget;
 @Mixin(Screen.class)
 public abstract class ScreenMixin {
 
+	// Add screenshot preview on init if 
 	@Inject(method = "init(II)V", at = @At("TAIL"))
 	private void onInit(CallbackInfo ci) {
 		Screen self = (Screen) (Object) this;
 
-		// Si déjà visible au moment d'ouvrir le chat
+		// Add preview if it's already visible
 		if (ScreenshotPreview.isVisible()) {
 			addPreviewWidget(self);
 		}
 
-		// Sinon on attend l'apparition
+		// set a listener to add the preview when a screenshot is taken
 		ScreenshotPreview.setOnScreenshotSet(() -> MINECRAFT.execute(() -> addPreviewWidget(self)));
 	}
 
 	@Inject(method = "onClose", at = @At("HEAD"))
 	private void onClose(CallbackInfo ci) {
-		// Nettoyage du listener quand le screen se ferme
+		// clean listener when the screen is closed
 		ScreenshotPreview.setOnScreenshotSet(null);
 
 		ScreenshotPreview.resume();

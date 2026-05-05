@@ -26,6 +26,7 @@ public abstract class TitleScreenMixin extends Screen {
 		super(title);
 	}
 
+	// add buttons on the title screen
 	@Inject(method = "init", at = @At("TAIL"))
 	public void init(CallbackInfo info) {
 		int realmsY = this.height / 4 + 48 + 24 * 2;
