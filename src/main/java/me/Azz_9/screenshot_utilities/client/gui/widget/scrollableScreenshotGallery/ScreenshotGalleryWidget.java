@@ -19,9 +19,6 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -30,8 +27,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.Colors;
@@ -43,16 +39,18 @@ import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.TexturedCyclingButtonWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent.ScreenshotEntryWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.headerWidget.SearchBar;
-import me.Azz_9.screenshot_utilities.client.screenshot.*;
+import me.Azz_9.screenshot_utilities.client.screenshot.FavoriteManager;
+import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotList;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
 
 @Environment(EnvType.CLIENT)
-public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoCloseable {
+public class ScreenshotGalleryWidget extends SimpleParentWidget {
 
 	// thumbnail
 	public static final int MIN_THUMB_WIDTH = 140;
 	public static final int MAX_THUMB_WIDTH = 260;
 	private static final double ASPECT_RATIO = 9.0 / 16.0;
-	private final @NonNull CompletableFuture<List<File>> screenshotFiles;
 	private final @NonNull File screenshotFolder;
 
 	// layout
@@ -95,9 +93,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 	private static final int PRELOAD_MARGIN = 200;
 	private static final int FULLVIEW_PRELOAD_RADIUS = 2;
 
-	private final Supplier<List<File>> screenshotFilesGetter;
-
-	private boolean refreshing = false;
+	private final AtomicBoolean refreshing = new AtomicBoolean(false);
 
 	public ScreenshotGalleryWidget(int x, int y, int width, int height, @NonNull File screenshotFolder) {
 		super(x, y, width, height);
@@ -112,29 +108,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 
 		this.screenshotFolder = screenshotFolder;
 
-		screenshotFilesGetter = () -> {
-			FavoriteManager.load();
-			try {
-				return Files.walk(screenshotFolder.toPath())
-						.filter(p -> {
-							String name = p.getFileName().toString();
-							return name.endsWith(".png")
-									|| name.endsWith(".jpg")
-									|| name.endsWith(".jpeg");
-						})
-						.map(Path::toFile)
-						.toList();
-			} catch (IOException e) {
-				return List.of();
-			}
-		};
-
-		this.screenshotFiles = CompletableFuture.supplyAsync(
-				screenshotFilesGetter,
-				Util.backgroundExecutor()
-		);
-
-		this.screenshotFiles.thenAcceptAsync(screenshots -> {
+		ScreenshotList.whenLoaded((screenshots -> {
 			// make sure the player didn't leave the screen before building entries
 			if (MINECRAFT.screen instanceof ScreenshotGalleryScreen) {
 				buildEntries(screenshots);
@@ -142,7 +116,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 				sortEntries(sortButton.getValue());
 				layoutEntries();
 			}
-		}, MINECRAFT);
+		}));
 	}
 
 	private SearchBar createSearchBar() {
@@ -221,35 +195,31 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 
 	/* ---------------- Layout ---------------- */
 
-	private void buildEntries(@NonNull List<File> screenshots) {
+	private void buildEntries(@NonNull List<Screenshot> screenshots) {
 		entries.forEach(ScreenshotEntryWidget::close);
 		entries.clear();
 
-		for (File file : screenshots) {
-			ScreenshotMetadata metadata;
-			try {
-				metadata = ScreenshotMetadataUtils.read(file);
-			} catch (Exception e) {
-				metadata = ScreenshotMetadata.empty();
-			}
-			addEntry(new ScreenshotEntryWidget(new Screenshot(file, metadata)));
+		for (Screenshot screenshot : screenshots) {
+			addEntry(new ScreenshotEntryWidget(screenshot));
 		}
 	}
 
 	public void refresh(boolean clearCache) {
-		if (refreshing) return;
-
-		refreshing = true;
+		if (!refreshing.compareAndSet(false, true)) return;
 
 		ScreenshotLogger.info("Refreshing screenshot gallery entries");
 		if (clearCache) ScreenshotTextureCache.clear();
 
-		buildEntries(screenshotFilesGetter.get());
-		searchAndFilter(searchBar.getValue(), filterButton.getValue());
-		sortEntries(sortButton.getValue());
-		layoutEntries();
+		ScreenshotList.reloadAsync();
 
-		refreshing = false;
+		ScreenshotList.whenLoaded(screenshots -> {
+			buildEntries(screenshots);
+			searchAndFilter(searchBar.getValue(), filterButton.getValue());
+			sortEntries(sortButton.getValue());
+			layoutEntries();
+
+			refreshing.set(false);
+		});
 	}
 
 	private void searchAndFilter(@NonNull String query, FilterMode mode) {
@@ -342,7 +312,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 
 		renderHeader(graphics, mouseX, mouseY, delta);
 
-		if (!screenshotFiles.isDone()) {
+		if (!ScreenshotList.isLoaded()) {
 			Loading.drawLoadingSpinner(
 					graphics,
 					getX() + getWidth() / 2,
@@ -445,11 +415,6 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 			currentScroll = this.getMaxScroll();
 			targetScroll = this.getMaxScroll();
 		}
-	}
-
-	@Override
-	public void close() {
-		screenshotFiles.cancel(true);
 	}
 
 	public void preloadAround(@NonNull Screenshot screenshot) {

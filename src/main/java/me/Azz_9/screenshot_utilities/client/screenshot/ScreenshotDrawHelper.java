@@ -95,6 +95,10 @@ public final class ScreenshotDrawHelper {
 		);
 	}
 
+	public static void drawContainCenter(@NonNull final GuiGraphicsExtractor graphics, @NonNull final ScreenshotTexture texture, int x, int y, int boxW, int boxH, int color) {
+		drawContain(graphics, texture, x - boxW / 2, y - boxH / 2, boxW, boxH, color);
+	}
+
 	// Draw en conservant le ratio exact de l'image
 	public static void drawFit(@NonNull final GuiGraphicsExtractor graphics, @NonNull final ScreenshotTexture texture, int x, int y, int w, int h) {
 		DynamicTexture backedTexture = texture.getTexture();
@@ -109,27 +113,6 @@ public final class ScreenshotDrawHelper {
 						0.0f, 1.0f,
 						0.0f, 1.0f,
 						Colors.WHITE,
-						graphics.scissorStack.peek()
-				)
-		);
-	}
-
-	public static void drawFitCentered(@NonNull final GuiGraphicsExtractor graphics, @NonNull final ScreenshotTexture texture, int x, int y, int w, int h, int color) {
-		DynamicTexture backedTexture = texture.getTexture();
-		if (backedTexture == null) return;
-
-		int halfW = w / 2;
-		int halfH = h / 2;
-
-		graphics.guiRenderState.addGuiElement(
-				new BlitRenderState(
-						RenderPipelines.GUI_TEXTURED,
-						TextureSetup.singleTexture(backedTexture.getTextureView(), backedTexture.getSampler()),
-						new Matrix3x2f(graphics.pose()),
-						x - halfW, y - halfH, x + halfW, y + halfH,
-						0.0f, 1.0f,
-						0.0f, 1.0f,
-						color,
 						graphics.scissorStack.peek()
 				)
 		);

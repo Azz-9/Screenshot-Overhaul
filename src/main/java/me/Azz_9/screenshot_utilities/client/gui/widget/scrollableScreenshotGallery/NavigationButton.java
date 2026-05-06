@@ -18,9 +18,9 @@ public class NavigationButton extends Button {
 	private static final @NonNull Identifier BACK_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/arrow_left");
 	private static final @NonNull Identifier NEXT_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/arrow_right");
 
-	private final @NonNull NavigationButton.NavigationType navigation;
+	private final NavigationButton.@NonNull NavigationType navigation;
 
-	public NavigationButton(int x, int y, int width, int height, @NonNull NavigationButton.NavigationType navigation, OnPress onPress) {
+	public NavigationButton(int x, int y, int width, int height, NavigationButton.@NonNull NavigationType navigation, OnPress onPress) {
 		super(x, y, width, height, navigation == NavigationType.BACK
 						? Component.translatable("screenshot_utilities.navigation.back")
 						: Component.translatable("screenshot_utilities.navigation.next"),

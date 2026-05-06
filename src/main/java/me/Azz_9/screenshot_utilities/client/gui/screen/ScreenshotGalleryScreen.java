@@ -20,7 +20,8 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
@@ -76,9 +77,6 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	private int transitionDirection = 0; // -1 = back, +1 = next
 	private boolean inTransition = false;
 
-	private @Nullable Thread watchThread;
-	private @Nullable WatchService watcher;
-
 	public ScreenshotGalleryScreen() {
 		super(Component.translatable("screenshot_utilities.narrator.screenshot_gallery"));
 	}
@@ -92,17 +90,17 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	protected void init() {
 		settingsButton = createSettingsButton();
 
-		gallery = createGallery();
-
 		saveAndQuitButton = Button.builder(
 						Component.translatable("screenshot_utilities.save_and_quit"),
-						(btn) -> saveAndQuit()
+						(_) -> saveAndQuit()
 				).bounds(width / 2 + 10, height - QUIT_BUTTONS_HEIGHT - 10, QUIT_BUTTONS_WIDTH, QUIT_BUTTONS_HEIGHT)
 				.build();
 
-		cancelButton = Button.builder(Component.translatable("screenshot_utilities.cancel"), (btn) -> this.onClose())
+		cancelButton = Button.builder(Component.translatable("screenshot_utilities.cancel"), (_) -> this.onClose())
 				.bounds(width / 2 - 10 - QUIT_BUTTONS_WIDTH, height - QUIT_BUTTONS_HEIGHT - 10, QUIT_BUTTONS_WIDTH, QUIT_BUTTONS_HEIGHT)
 				.build();
+
+		gallery = createGallery();
 
 		backButton = createNavigationButton(NavigationButton.NavigationType.BACK);
 		nextButton = createNavigationButton(NavigationButton.NavigationType.NEXT);
@@ -123,7 +121,30 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 		addRenderableWidget(cancelButton);
 		addRenderableWidget(settingsButton);
 
-		initWatchService(Config.getInstance().getScreenshotsDir());
+		ScreenshotList.setOnChangeListener(_ -> {
+			if (selectedScreenshot != null && !selectedScreenshot.file().exists()) {
+				boolean hasNextOrPrev = false;
+
+				if (gallery != null) {
+					Screenshot next = gallery.getNextVisibleScreenshot(selectedScreenshot);
+					if (next != null) {
+						selectScreenshot(next);
+						hasNextOrPrev = true;
+					} else {
+						Screenshot prev = gallery.getPreviousVisibleScreenshot(selectedScreenshot);
+						if (prev != null) {
+							selectScreenshot(prev);
+							hasNextOrPrev = true;
+						}
+					}
+				}
+				if (!hasNextOrPrev) deselectScreenshot();
+			}
+
+			if (gallery != null) gallery.refresh(false);
+
+			if (selectedScreenshot != null) updateNavButtons();
+		});
 	}
 
 	private Button createSettingsButton() {
@@ -149,7 +170,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 						: NAV_BUTTON_MARGIN,
 				(height - NAV_BUTTON_SIZE) / 2,
 				NAV_BUTTON_SIZE, NAV_BUTTON_SIZE,
-				type, (_) -> selectNext());
+				type, type == NavigationButton.NavigationType.NEXT ? (_) -> selectNext() : (_) -> selectPrevious());
 	}
 
 	private Button createCopyButton() {
@@ -178,60 +199,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 				.build();
 	}
 
-	// listener on the screenshot folder 
-	private void initWatchService(Path screenshotFolder) {
-		// TODO gérer le cas où on est en full view sur un screenshot qui est supprimé
-		try {
-			watcher = FileSystems.getDefault().newWatchService();
-			screenshotFolder.register(watcher,
-					StandardWatchEventKinds.ENTRY_CREATE,
-					StandardWatchEventKinds.ENTRY_DELETE
-			);
-
-			watchThread = new Thread(() -> {
-				try {
-					while (true) {
-						WatchKey key = watcher.take(); // wait for an event
-
-						MINECRAFT.execute(() -> {
-							if (selectedScreenshot != null && !selectedScreenshot.file().exists()) {
-								boolean hasNextOrPrev = false;
-
-								if (gallery != null) {
-									Screenshot next = gallery.getNextVisibleScreenshot(selectedScreenshot);
-									if (next != null) {
-										selectScreenshot(next);
-										hasNextOrPrev = true;
-									} else {
-										Screenshot prev = gallery.getPreviousVisibleScreenshot(selectedScreenshot);
-										if (prev != null) {
-											selectScreenshot(prev);
-											hasNextOrPrev = true;
-										}
-									}
-								}
-
-								if (!hasNextOrPrev) deselectScreenshot();
-							}
-
-							if (gallery != null) gallery.refresh(false);
-
-							if (selectedScreenshot != null) updateNavButtons();
-						});
-
-						key.reset();
-					}
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
-			}, "screenshot-watcher");
-			watchThread.setDaemon(true); // stop with the JVM
-			watchThread.start();
-
-		} catch (IOException e) {
-			ScreenshotLogger.warn("Could not initialize watch service {}", e.getMessage());
-		}
-	}
+	// TODO gérer le cas où on est en full view sur un screenshot qui est supprimé
 
 	// save and quit
 
@@ -513,17 +481,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	public void onClose() {
 		FavoriteManager.save();
 
-		if (watchThread != null) watchThread.interrupt();
-		try {
-			if (watcher != null) watcher.close();
-		} catch (IOException ignored) {
-		}
-
-		if (gallery != null) {
-			gallery.close();
-			gallery = null;
-		}
-
+		gallery = null;
 		selectedScreenshot = null;
 		outgoingScreenshot = null;
 

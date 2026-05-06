@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.compat.xaeroWorldmap.XaeroThumbnailRenderer;
 import xaero.map.gui.GuiMap;
 
@@ -21,19 +22,21 @@ public abstract class GuiMapMixin {
 			)
 	)
 	private void onAfterElementsRender(
-			GuiGraphicsExtractor graphics,
+			GuiGraphicsExtractor guiGraphics,
 			int scaledMouseX, int scaledMouseY,
 			float partialTicks,
 			CallbackInfo ci
 	) {
-		GuiMapAccessor self = (GuiMapAccessor) this;
-		XaeroThumbnailRenderer.render(
-				graphics,
-				(GuiMap) (Object) this,
-				self.getCameraX(),
-				self.getCameraZ(),
-				self.getScale(),
-				self.getScreenScale()
-		);
+		if (Config.getInstance().showScreenshotsOnXaerosWorldMap.getValue()) {
+			GuiMapAccessor self = (GuiMapAccessor) this;
+			XaeroThumbnailRenderer.render(
+					guiGraphics,
+					(GuiMap) (Object) this,
+					self.getCameraX(),
+					self.getCameraZ(),
+					self.getScale(),
+					self.getScreenScale()
+			);
+		}
 	}
 }

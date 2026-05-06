@@ -3,18 +3,14 @@ package me.Azz_9.screenshot_utilities.compat.xaeroWorldmap;
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.Level;
 
 import org.jspecify.annotations.NonNull;
 
 import java.util.List;
+import java.util.Objects;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
-import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
-import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotDrawHelper;
-import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotMetadata;
-import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
+import me.Azz_9.screenshot_utilities.client.screenshot.*;
 import xaero.map.gui.GuiMap;
 
 public class XaeroThumbnailRenderer {
@@ -24,14 +20,18 @@ public class XaeroThumbnailRenderer {
 
 	public static void render(@NonNull final GuiGraphicsExtractor graphics, @NonNull final GuiMap gui,
 	                          double cameraX, double cameraZ, double scale, double screenScale) {
+		if (!ScreenshotList.isLoaded()) return;
+
 		int screenW = MINECRAFT.getWindow().getWidth();
 		int screenH = MINECRAFT.getWindow().getHeight();
 
-		ResourceKey<Level> currentDim = gui.getMapProcessor().getMapWorld().getCurrentDimension().getDimId();
+		String currentDim = gui.getMapProcessor().getMapWorld().getCurrentDimension().getDimId().identifier().getPath();
 		String currentWorld = gui.getMapProcessor().getMapWorld().getMapProcessor().getCurrentWorldId();
 
-
-		List<Screenshot> screenshots = /* TODO get screenshots */;
+		List<Screenshot> screenshots;
+		screenshots = ScreenshotList.getScreenshots().stream()
+				.filter(s -> Objects.equals(s.metadata().worldName(), currentWorld) && Objects.equals(s.metadata().dimension(), currentDim))
+				.toList();
 
 		for (Screenshot screenshot : screenshots) {
 			ScreenshotMetadata metadata = screenshot.metadata();
@@ -44,10 +44,15 @@ public class XaeroThumbnailRenderer {
 			double guiX = screenX / screenScale;
 			double guiY = screenY / screenScale;
 
-			ScreenshotDrawHelper.drawFitCentered(
+			graphics.pose().pushMatrix();
+			graphics.pose().translate((float) guiX, (float) guiY);
+
+			ScreenshotDrawHelper.drawContainCenter(
 					graphics,
 					ScreenshotTextureCache.getSmallThumbnail(screenshot.file().toPath()),
-					(int) guiX, (int) guiY, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, Colors.WHITE);
+					0, 0, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, Colors.WHITE);
+
+			graphics.pose().popMatrix();
 		}
 	}
 }

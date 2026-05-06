@@ -19,7 +19,8 @@
 	},
 
 	"mixins": [
-		"screenshot_utilities.mixins.json"
+		"screenshot_utilities.mixins.json",
+		"screenshot_utilities.xaero.mixins.json"
 	],
 
 	"depends": {

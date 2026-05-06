@@ -13,10 +13,12 @@ import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGalle
 
 public class Config {
 	private static final @NonNull Config INSTANCE = new Config();
-	
+
 	public final @NonNull ConfigObject<Boolean> freezeInPhotoMode = new ConfigObject<>(true, "");
 	public final @NonNull ConfigObject<Boolean> showPlayer = new ConfigObject<>(true, "");
 	public final @NonNull ConfigObject<Boolean> showNametags = new ConfigObject<>(true, "");
+
+	public final @NonNull ConfigObject<Boolean> showScreenshotsOnXaerosWorldMap = new ConfigObject<>(true, "");
 
 	public final @NonNull ConfigObject<Path> screenshotsDir = new ConfigObject<>(MINECRAFT.gameDirectory.toPath().resolve("screenshots"), "");
 	public final @NonNull ConfigObject<Boolean> showChatMessage = new ConfigObject<>(true, "");
@@ -31,7 +33,7 @@ public class Config {
 			try {
 				Files.createDirectories(screenshotsDir.getValue());
 			} catch (IOException e) {
-				ScreenshotLogger.error("Could not create screenshotsDir: {}, error: {}", MINECRAFT.gameDirectory.toPath().relativize(screenshotsDir.getValue()), e);
+				ScreenshotLogger.error("Could not create screenshotsDir: {}, error: {}", MINECRAFT.gameDirectory.toPath().relativize(screenshotsDir.getValue()), e.getMessage());
 			}
 		}
 

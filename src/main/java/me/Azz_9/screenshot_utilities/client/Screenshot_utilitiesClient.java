@@ -14,11 +14,11 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.LevelLoadingScreen;
 import net.minecraft.resources.Identifier;
 
-import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.NonNull;
 
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoModeHud;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotList;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotPreview;
 
 @Environment(EnvType.CLIENT)
@@ -49,7 +49,10 @@ public class Screenshot_utilitiesClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		ClientTickEvents.START_CLIENT_TICK.register(minecraft -> {
+		// load screenshots
+		ScreenshotList.loadAsync();
+
+		ClientTickEvents.START_CLIENT_TICK.register(_ -> {
 			PhotoMode.startTick();
 		});
 
@@ -63,7 +66,7 @@ public class Screenshot_utilitiesClient implements ClientModInitializer {
 		// panorama screenshot
 		panoramaScreenshot = KeyMappingHelper.registerKeyMapping(new KeyMapping("screenshot_utilities.controls.panorama_screenshot", InputConstants.Type.KEYSYM, InputConstants.KEY_F9, keybind_category));
 	}
-	
+
 	public static void handleKeybindsHook() {
 		while (Screenshot_utilitiesClient.getOpenPhotoModeKeybind().consumeClick()) {
 			PhotoMode.toggle();
