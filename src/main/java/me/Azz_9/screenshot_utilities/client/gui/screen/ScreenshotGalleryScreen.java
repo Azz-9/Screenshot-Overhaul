@@ -64,6 +64,10 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	private static final int NAV_BUTTON_SIZE = 20;
 	private static final int NAV_BUTTON_MARGIN = 30;
 	private NavigationButton backButton, nextButton;
+	private static final int ACTION_BUTTON_HEIGHT = 20;
+	private static final int ACTION_BUTTON_WIDTH = 80;
+	private static final int ACTION_BUTTON_GAP = 10;
+	private static final int ACTION_BUTTON_MARGIN_BOTTOM = 10;
 	private Button copyButton, deleteButton;
 	private @Nullable Screenshot selectedScreenshot = null;
 	private @Nullable Screenshot outgoingScreenshot = null;
@@ -114,18 +118,48 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 				width - NAV_BUTTON_MARGIN - NAV_BUTTON_SIZE, (height - NAV_BUTTON_SIZE) / 2,
 				NAV_BUTTON_SIZE, NAV_BUTTON_SIZE,
 				NavigationButton.NavigationTypes.NEXT, (btn) -> selectNext());
-		/*copyButton = Button.builder(Component.translatable("screenshot_utilities.copy"), (btn) -> {
+		copyButton = Button.builder(Component.translatable("screenshot_utilities.copy"), (btn) -> {
 					if (selectedScreenshot != null) 
 						CopyScreenshot.copyToClipboard(selectedScreenshot.file());
 				})
-				.bounds()
-				.build();*/
+				.bounds(
+						(width + ACTION_BUTTON_GAP) / 2, height - ACTION_BUTTON_HEIGHT - ACTION_BUTTON_MARGIN_BOTTOM,
+						ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT
+				)
+				.build();
+		deleteButton = Button.builder(Component.translatable("screenshot_utilities.delete"), (btn) -> {
+					if (selectedScreenshot != null) {
+						if (!DeleteScreenshot.delete(selectedScreenshot))
+							ScreenshotLogger.error("Could not delete screenshot: " + selectedScreenshot.pathRelativeToScreenshotDir());
+
+						Screenshot next = gallery.getNextVisibleScreenshot(selectedScreenshot);
+						if (next != null) {
+							selectScreenshot(next);
+							return;
+						}
+						Screenshot prev = gallery.getPreviousVisibleScreenshot(selectedScreenshot);
+						if (prev != null) {
+							selectScreenshot(prev);
+							return;
+						}
+						deselectScreenshot();
+					}
+				})
+				.bounds(
+						(width - ACTION_BUTTON_GAP) / 2, height - ACTION_BUTTON_HEIGHT - ACTION_BUTTON_MARGIN_BOTTOM,
+						ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT
+				)
+				.build();
 
 		backButton.visible = false;
 		nextButton.visible = false;
+		copyButton.visible = false;
+		deleteButton.visible = false;
 
 		addWidget(backButton);
 		addWidget(nextButton);
+		addWidget(copyButton);
+		addWidget(deleteButton);
 		addRenderableWidget(gallery);
 		addRenderableWidget(saveAndQuitButton);
 		addRenderableWidget(cancelButton);
@@ -169,6 +203,8 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 		backButton.visible = true;
 		nextButton.visible = true;
+		copyButton.visible = true;
+		deleteButton.visible = true;
 
 		updateNavButtons();
 
@@ -192,6 +228,8 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 		selectedScreenshot = null;
 		backButton.visible = false;
 		nextButton.visible = false;
+		copyButton.visible = false;
+		deleteButton.visible = false;
 
 		updateSaveAndQuit();
 		cancelButton.active = true;
@@ -279,6 +317,8 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 			nextButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 			backButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
+			copyButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
+			deleteButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 		}
 	}
 

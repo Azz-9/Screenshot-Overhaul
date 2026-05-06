@@ -17,14 +17,15 @@ import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.config.Config;
 
 public class FavoriteManager {
-	private static final Path FAVORITES_FILE = Config.getInstance().getScreenshotsDir().resolve("favorites.json");
+	// TODO changer quand on change le screenshotdir dans la config
+	private static Path favoritesFile = Config.getInstance().getScreenshotsDir().resolve("favorites.json");
 
 	private static Set<String> favorites = new HashSet<>();
 
 	public static void load() {
-		if (!Files.exists(FAVORITES_FILE)) return;
+		if (!Files.exists(favoritesFile)) return;
 
-		try (Reader reader = Files.newBufferedReader(FAVORITES_FILE)) {
+		try (Reader reader = Files.newBufferedReader(favoritesFile)) {
 			Type type = new TypeToken<Set<String>>() {
 			}.getType();
 			Set<String> result = new Gson().fromJson(reader, type);
@@ -36,8 +37,8 @@ public class FavoriteManager {
 
 	public static void save() {
 		try {
-			Files.createDirectories(FAVORITES_FILE.getParent());
-			try (Writer writer = Files.newBufferedWriter(FAVORITES_FILE)) {
+			Files.createDirectories(favoritesFile.getParent());
+			try (Writer writer = Files.newBufferedWriter(favoritesFile)) {
 				new GsonBuilder().setPrettyPrinting().create().toJson(favorites, writer);
 			}
 		} catch (IOException e) {
@@ -72,5 +73,9 @@ public class FavoriteManager {
 				Config.getInstance().getScreenshotsDir().relativize(oldFilePath),
 				Config.getInstance().getScreenshotsDir().relativize(newFilePath)
 		);
+	}
+
+	public static void remove(String filePath) {
+		favorites.remove(filePath);
 	}
 }

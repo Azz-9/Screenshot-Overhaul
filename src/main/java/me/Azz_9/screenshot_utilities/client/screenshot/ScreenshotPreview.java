@@ -211,7 +211,7 @@ public class ScreenshotPreview {
 	}
 
 	public static void deleteCurrentScreenshot() {
-		if (!screenshotFile.delete()) {
+		if (!DeleteScreenshot.delete(screenshotFile)) {
 			ScreenshotLogger.error("Could not delete screenshot: " + Config.getInstance().getScreenshotsDir().relativize(screenshotFile.toPath()));
 		}
 	}
