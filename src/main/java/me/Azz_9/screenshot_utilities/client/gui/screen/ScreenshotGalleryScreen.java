@@ -20,8 +20,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.Optional;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
@@ -77,6 +76,9 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	private int transitionDirection = 0; // -1 = back, +1 = next
 	private boolean inTransition = false;
 
+	private @Nullable Thread watchThread;
+	private @Nullable WatchService watcher;
+
 	public ScreenshotGalleryScreen() {
 		super(Component.translatable("screenshot_utilities.narrator.screenshot_gallery"));
 	}
@@ -88,17 +90,9 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 	@Override
 	protected void init() {
-		settingsButton = Button.builder(Component.translatable("screenshot_utilities.settings"), (btn) -> {
-					MINECRAFT.setScreen(new SettingsScreen(this));
-				})
-				.bounds(width - SETTINGS_BUTTON_WIDTH - GLOBAL_PADDING, GLOBAL_PADDING, SETTINGS_BUTTON_WIDTH, SETTINGS_BUTTON_HEIGHT)
-				.build();
+		settingsButton = createSettingsButton();
 
-		gallery = new ScreenshotGalleryWidget(
-				GLOBAL_PADDING, GLOBAL_PADDING,
-				width - SETTINGS_BUTTON_WIDTH - GLOBAL_PADDING * 2 - 20, height - QUIT_BUTTONS_HEIGHT - GLOBAL_PADDING * 3,
-				Config.getInstance().getScreenshotsDir().toFile()
-		);
+		gallery = createGallery();
 
 		saveAndQuitButton = Button.builder(
 						Component.translatable("screenshot_utilities.save_and_quit"),
@@ -110,46 +104,10 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 				.bounds(width / 2 - 10 - QUIT_BUTTONS_WIDTH, height - QUIT_BUTTONS_HEIGHT - 10, QUIT_BUTTONS_WIDTH, QUIT_BUTTONS_HEIGHT)
 				.build();
 
-		backButton = new NavigationButton(
-				NAV_BUTTON_MARGIN, (height - NAV_BUTTON_SIZE) / 2,
-				NAV_BUTTON_SIZE, NAV_BUTTON_SIZE,
-				NavigationButton.NavigationTypes.BACK, (btn) -> selectPrevious());
-		nextButton = new NavigationButton(
-				width - NAV_BUTTON_MARGIN - NAV_BUTTON_SIZE, (height - NAV_BUTTON_SIZE) / 2,
-				NAV_BUTTON_SIZE, NAV_BUTTON_SIZE,
-				NavigationButton.NavigationTypes.NEXT, (btn) -> selectNext());
-		copyButton = Button.builder(Component.translatable("screenshot_utilities.copy"), (btn) -> {
-					if (selectedScreenshot != null) 
-						CopyScreenshot.copyToClipboard(selectedScreenshot.file());
-				})
-				.bounds(
-						(width + ACTION_BUTTON_GAP) / 2, height - ACTION_BUTTON_HEIGHT - ACTION_BUTTON_MARGIN_BOTTOM,
-						ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT
-				)
-				.build();
-		deleteButton = Button.builder(Component.translatable("screenshot_utilities.delete"), (btn) -> {
-					if (selectedScreenshot != null) {
-						if (!DeleteScreenshot.delete(selectedScreenshot))
-							ScreenshotLogger.error("Could not delete screenshot: " + selectedScreenshot.pathRelativeToScreenshotDir());
-
-						Screenshot next = gallery.getNextVisibleScreenshot(selectedScreenshot);
-						if (next != null) {
-							selectScreenshot(next);
-							return;
-						}
-						Screenshot prev = gallery.getPreviousVisibleScreenshot(selectedScreenshot);
-						if (prev != null) {
-							selectScreenshot(prev);
-							return;
-						}
-						deselectScreenshot();
-					}
-				})
-				.bounds(
-						(width - ACTION_BUTTON_GAP) / 2, height - ACTION_BUTTON_HEIGHT - ACTION_BUTTON_MARGIN_BOTTOM,
-						ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT
-				)
-				.build();
+		backButton = createNavigationButton(NavigationButton.NavigationType.BACK);
+		nextButton = createNavigationButton(NavigationButton.NavigationType.NEXT);
+		copyButton = createCopyButton();
+		deleteButton = createDeleteButton();
 
 		backButton.visible = false;
 		nextButton.visible = false;
@@ -164,6 +122,115 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 		addRenderableWidget(saveAndQuitButton);
 		addRenderableWidget(cancelButton);
 		addRenderableWidget(settingsButton);
+
+		initWatchService(Config.getInstance().getScreenshotsDir());
+	}
+
+	private Button createSettingsButton() {
+		return Button.builder(Component.translatable("screenshot_utilities.settings"), (_) -> {
+					MINECRAFT.setScreen(new SettingsScreen(this));
+				})
+				.bounds(width - SETTINGS_BUTTON_WIDTH - GLOBAL_PADDING, GLOBAL_PADDING, SETTINGS_BUTTON_WIDTH, SETTINGS_BUTTON_HEIGHT)
+				.build();
+	}
+
+	private ScreenshotGalleryWidget createGallery() {
+		return new ScreenshotGalleryWidget(
+				GLOBAL_PADDING, GLOBAL_PADDING,
+				width - SETTINGS_BUTTON_WIDTH - GLOBAL_PADDING * 2 - 20, height - QUIT_BUTTONS_HEIGHT - GLOBAL_PADDING * 3,
+				Config.getInstance().getScreenshotsDir().toFile()
+		);
+	}
+
+	private NavigationButton createNavigationButton(NavigationButton.NavigationType type) {
+		return new NavigationButton(
+				type == NavigationButton.NavigationType.NEXT
+						? width - NAV_BUTTON_MARGIN - NAV_BUTTON_SIZE
+						: NAV_BUTTON_MARGIN,
+				(height - NAV_BUTTON_SIZE) / 2,
+				NAV_BUTTON_SIZE, NAV_BUTTON_SIZE,
+				type, (_) -> selectNext());
+	}
+
+	private Button createCopyButton() {
+		return Button.builder(Component.translatable("screenshot_utilities.copy"), (_) -> {
+					if (selectedScreenshot != null)
+						CopyScreenshot.copyToClipboard(selectedScreenshot.file());
+				})
+				.bounds(
+						(width + ACTION_BUTTON_GAP) / 2, height - ACTION_BUTTON_HEIGHT - ACTION_BUTTON_MARGIN_BOTTOM,
+						ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT
+				)
+				.build();
+	}
+
+	private Button createDeleteButton() {
+		return Button.builder(Component.translatable("screenshot_utilities.delete"), (btn) -> {
+					if (selectedScreenshot != null) {
+						if (!DeleteScreenshot.delete(selectedScreenshot))
+							ScreenshotLogger.error("Could not delete screenshot: " + selectedScreenshot.pathRelativeToScreenshotDir());
+					}
+				})
+				.bounds(
+						(width - ACTION_BUTTON_GAP) / 2 - ACTION_BUTTON_WIDTH, height - ACTION_BUTTON_HEIGHT - ACTION_BUTTON_MARGIN_BOTTOM,
+						ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT
+				)
+				.build();
+	}
+
+	// listener on the screenshot folder 
+	private void initWatchService(Path screenshotFolder) {
+		// TODO gérer le cas où on est en full view sur un screenshot qui est supprimé
+		try {
+			watcher = FileSystems.getDefault().newWatchService();
+			screenshotFolder.register(watcher,
+					StandardWatchEventKinds.ENTRY_CREATE,
+					StandardWatchEventKinds.ENTRY_DELETE
+			);
+
+			watchThread = new Thread(() -> {
+				try {
+					while (true) {
+						WatchKey key = watcher.take(); // wait for an event
+
+						MINECRAFT.execute(() -> {
+							if (selectedScreenshot != null && !selectedScreenshot.file().exists()) {
+								boolean hasNextOrPrev = false;
+
+								if (gallery != null) {
+									Screenshot next = gallery.getNextVisibleScreenshot(selectedScreenshot);
+									if (next != null) {
+										selectScreenshot(next);
+										hasNextOrPrev = true;
+									} else {
+										Screenshot prev = gallery.getPreviousVisibleScreenshot(selectedScreenshot);
+										if (prev != null) {
+											selectScreenshot(prev);
+											hasNextOrPrev = true;
+										}
+									}
+								}
+
+								if (!hasNextOrPrev) deselectScreenshot();
+							}
+
+							if (gallery != null) gallery.refresh(false);
+
+							if (selectedScreenshot != null) updateNavButtons();
+						});
+
+						key.reset();
+					}
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}
+			}, "screenshot-watcher");
+			watchThread.setDaemon(true); // stop with the JVM
+			watchThread.start();
+
+		} catch (IOException e) {
+			ScreenshotLogger.warn("Could not initialize watch service {}", e.getMessage());
+		}
 	}
 
 	// save and quit
@@ -377,7 +444,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 			line.append(screenshot.metadata().dimension());
 		}
 		if (screenshot.metadata().biome() != null) {
-			if (!line.isEmpty()) line.append(" ● ");
+			if (!line.isEmpty()) line.append(" • ");
 			line.append(screenshot.metadata().biome());
 		}
 		graphics.centeredText(MINECRAFT.font, line.toString(), center, FULL_VIEW_PADDING + fullViewHeight + 15, Colors.WHITE);
@@ -427,7 +494,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 			}
 		}
 		if (input.key() == InputConstants.KEY_F5 && gallery != null) {
-			gallery.refresh();
+			gallery.refresh(true);
 			return true;
 		}
 		return super.keyPressed(input);
@@ -445,6 +512,12 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	@Override
 	public void onClose() {
 		FavoriteManager.save();
+
+		if (watchThread != null) watchThread.interrupt();
+		try {
+			if (watcher != null) watcher.close();
+		} catch (IOException ignored) {
+		}
 
 		if (gallery != null) {
 			gallery.close();

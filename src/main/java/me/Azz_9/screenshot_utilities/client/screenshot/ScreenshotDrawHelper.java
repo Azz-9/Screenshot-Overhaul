@@ -16,11 +16,11 @@ import me.Azz_9.screenshot_utilities.client.Colors;
 @Environment(EnvType.CLIENT)
 public final class ScreenshotDrawHelper {
 
-	public static void drawCover(@NonNull GuiGraphicsExtractor graphics, @NonNull ScreenshotTexture texture, int x, int y, int boxW, int boxH) {
+	public static void drawCover(@NonNull final GuiGraphicsExtractor graphics, @NonNull final ScreenshotTexture texture, int x, int y, int boxW, int boxH) {
 		drawCover(graphics, texture, x, y, boxW, boxH, Colors.WHITE);
 	}
 
-	public static void drawCover(@NonNull GuiGraphicsExtractor graphics, @NonNull ScreenshotTexture texture, int x, int y, int boxW, int boxH, int color) {
+	public static void drawCover(@NonNull final GuiGraphicsExtractor graphics, @NonNull final ScreenshotTexture texture, int x, int y, int boxW, int boxH, int color) {
 		float imgRatio = texture.width() / (float) texture.height();
 		float boxRatio = boxW / (float) boxH;
 
@@ -38,9 +38,7 @@ public final class ScreenshotDrawHelper {
 
 		DynamicTexture backedTexture = texture.getTexture();
 
-		if (backedTexture == null) {
-			return;
-		}
+		if (backedTexture == null) return;
 
 		graphics.guiRenderState.addGuiElement(
 				new BlitRenderState(
@@ -56,11 +54,11 @@ public final class ScreenshotDrawHelper {
 		);
 	}
 
-	public static void drawContain(@NonNull GuiGraphicsExtractor graphics, @NonNull ScreenshotTexture texture, int x, int y, int boxW, int boxH) {
+	public static void drawContain(@NonNull final GuiGraphicsExtractor graphics, @NonNull final ScreenshotTexture texture, int x, int y, int boxW, int boxH) {
 		drawContain(graphics, texture, x, y, boxW, boxH, Colors.WHITE);
 	}
 
-	public static void drawContain(@NonNull GuiGraphicsExtractor graphics, @NonNull ScreenshotTexture texture, int x, int y, int boxW, int boxH, int color) {
+	public static void drawContain(@NonNull final GuiGraphicsExtractor graphics, @NonNull final ScreenshotTexture texture, int x, int y, int boxW, int boxH, int color) {
 		float imgRatio = texture.width() / (float) texture.height();
 		float boxRatio = boxW / (float) boxH;
 
@@ -81,9 +79,7 @@ public final class ScreenshotDrawHelper {
 		int drawY = y + (boxH - drawH) / 2;
 
 		DynamicTexture backedTexture = texture.getTexture();
-		if (backedTexture == null) {
-			return;
-		}
+		if (backedTexture == null) return;
 
 		graphics.guiRenderState.addGuiElement(
 				new BlitRenderState(
@@ -99,8 +95,8 @@ public final class ScreenshotDrawHelper {
 		);
 	}
 
-	// Draw en conservant le ratio exact de l'image (pas de crop, pas de letterbox)
-	public static void drawFit(@NonNull GuiGraphicsExtractor graphics, @NonNull ScreenshotTexture texture, int x, int y, int w, int h) {
+	// Draw en conservant le ratio exact de l'image
+	public static void drawFit(@NonNull final GuiGraphicsExtractor graphics, @NonNull final ScreenshotTexture texture, int x, int y, int w, int h) {
 		DynamicTexture backedTexture = texture.getTexture();
 		if (backedTexture == null) return;
 
@@ -113,6 +109,27 @@ public final class ScreenshotDrawHelper {
 						0.0f, 1.0f,
 						0.0f, 1.0f,
 						Colors.WHITE,
+						graphics.scissorStack.peek()
+				)
+		);
+	}
+
+	public static void drawFitCentered(@NonNull final GuiGraphicsExtractor graphics, @NonNull final ScreenshotTexture texture, int x, int y, int w, int h, int color) {
+		DynamicTexture backedTexture = texture.getTexture();
+		if (backedTexture == null) return;
+
+		int halfW = w / 2;
+		int halfH = h / 2;
+
+		graphics.guiRenderState.addGuiElement(
+				new BlitRenderState(
+						RenderPipelines.GUI_TEXTURED,
+						TextureSetup.singleTexture(backedTexture.getTextureView(), backedTexture.getSampler()),
+						new Matrix3x2f(graphics.pose()),
+						x - halfW, y - halfH, x + halfW, y + halfH,
+						0.0f, 1.0f,
+						0.0f, 1.0f,
+						color,
 						graphics.scissorStack.peek()
 				)
 		);

@@ -18,10 +18,10 @@ public class NavigationButton extends Button {
 	private static final @NonNull Identifier BACK_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/arrow_left");
 	private static final @NonNull Identifier NEXT_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/arrow_right");
 
-	private final @NonNull NavigationTypes navigation;
+	private final @NonNull NavigationButton.NavigationType navigation;
 
-	public NavigationButton(int x, int y, int width, int height, @NonNull NavigationTypes navigation, OnPress onPress) {
-		super(x, y, width, height, navigation == NavigationTypes.BACK
+	public NavigationButton(int x, int y, int width, int height, @NonNull NavigationButton.NavigationType navigation, OnPress onPress) {
+		super(x, y, width, height, navigation == NavigationType.BACK
 						? Component.translatable("screenshot_utilities.navigation.back")
 						: Component.translatable("screenshot_utilities.navigation.next"),
 				onPress, DEFAULT_NARRATION);
@@ -32,7 +32,7 @@ public class NavigationButton extends Button {
 	protected void extractContents(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 		this.extractDefaultSprite(graphics);
 
-		if (navigation == NavigationTypes.BACK) {
+		if (navigation == NavigationType.BACK) {
 			graphics.blitSprite(
 					RenderPipelines.GUI_TEXTURED,
 					BACK_TEXTURE,
@@ -49,7 +49,7 @@ public class NavigationButton extends Button {
 		}
 	}
 
-	public enum NavigationTypes {
+	public enum NavigationType {
 		BACK,
 		NEXT,
 	}

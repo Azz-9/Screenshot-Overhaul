@@ -137,9 +137,9 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 		this.screenshotFiles.thenAcceptAsync(screenshots -> {
 			// make sure the player didn't leave the screen before building entries
 			if (MINECRAFT.screen instanceof ScreenshotGalleryScreen) {
-				buildEntries(screenshots, false);
-				searchAndFilter(searchBar.getValue(), filterButton.getValue(), false);
-				sortEntries(sortButton.getValue(), false);
+				buildEntries(screenshots);
+				searchAndFilter(searchBar.getValue(), filterButton.getValue());
+				sortEntries(sortButton.getValue());
 				layoutEntries();
 			}
 		}, MINECRAFT);
@@ -151,7 +151,10 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 				getX() + PADDING, getY() + PADDING,
 				SEARCH_BAR_WIDTH, SEARCH_BAR_HEIGHT
 		);
-		searchBar.setResponder((text) -> searchAndFilter(text, filterButton.getValue(), true));
+		searchBar.setResponder((text) -> {
+			searchAndFilter(text, filterButton.getValue());
+			layoutEntries();
+		});
 
 		return searchBar;
 	}
@@ -166,7 +169,8 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 							if (MINECRAFT.screen instanceof FocusableScreen focusableScreen)
 								focusableScreen.requestFocus(btn);
 
-							searchAndFilter(searchBar.getValue(), val, true);
+							searchAndFilter(searchBar.getValue(), val);
+							layoutEntries();
 						}
 				);
 	}
@@ -176,7 +180,10 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 				getX() + SEARCH_BAR_WIDTH + FILTER_BUTTON_WIDTH + PADDING * 3, getY() + PADDING,
 				SORT_BUTTON_SIZE, SORT_BUTTON_SIZE,
 				Config.getInstance().sortOrder.getValue().ordinal(),
-				(btn, sortMode) -> sortEntries(sortMode, true),
+				(btn, sortMode) -> {
+					sortEntries(sortMode);
+					layoutEntries();
+				},
 				SortMode.values(),
 				SortMode::getIcon
 		);
@@ -214,7 +221,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 
 	/* ---------------- Layout ---------------- */
 
-	private void buildEntries(@NonNull List<File> screenshots, boolean reloadLayout) {
+	private void buildEntries(@NonNull List<File> screenshots) {
 		entries.forEach(ScreenshotEntryWidget::close);
 		entries.clear();
 
@@ -223,33 +230,29 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 			try {
 				metadata = ScreenshotMetadataUtils.read(file);
 			} catch (Exception e) {
-				metadata = null;
+				metadata = ScreenshotMetadata.empty();
 			}
 			addEntry(new ScreenshotEntryWidget(new Screenshot(file, metadata)));
 		}
-
-		if (reloadLayout) layoutEntries();
 	}
 
-	public void refresh() {
+	public void refresh(boolean clearCache) {
 		if (refreshing) return;
 
 		refreshing = true;
 
 		ScreenshotLogger.info("Refreshing screenshot gallery entries");
-		ScreenshotTextureCache.clear();
+		if (clearCache) ScreenshotTextureCache.clear();
 
-		buildEntries(
-				screenshotFilesGetter.get(),
-				true
-		);
-		searchAndFilter(searchBar.getValue(), filterButton.getValue(), false);
-		sortEntries(sortButton.getValue(), true);
+		buildEntries(screenshotFilesGetter.get());
+		searchAndFilter(searchBar.getValue(), filterButton.getValue());
+		sortEntries(sortButton.getValue());
+		layoutEntries();
 
 		refreshing = false;
 	}
 
-	private void searchAndFilter(@NonNull String query, FilterMode mode, boolean reloadLayout) {
+	private void searchAndFilter(@NonNull String query, FilterMode mode) {
 		String q = query.trim().toLowerCase(Locale.ROOT);
 
 		for (ScreenshotEntryWidget entry : entries) {
@@ -259,17 +262,13 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget implements AutoC
 			entry.setVisible(visible);
 			entry.setActive(visible);
 		}
-
-		if (reloadLayout) layoutEntries();
 	}
 
-	private void sortEntries(SortMode mode, boolean reloadLayout) {
+	private void sortEntries(SortMode mode) {
 		entries.sort(switch (mode) {
 			case DATE_ASC -> Comparator.comparingLong(e -> e.getScreenshotFile().lastModified());
 			case DATE_DESC -> Comparator.comparingLong(e -> -e.getScreenshotFile().lastModified());
 		});
-
-		if (reloadLayout) layoutEntries();
 	}
 
 	private void layoutEntries() {
