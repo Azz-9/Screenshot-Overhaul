@@ -157,7 +157,7 @@ public class ScreenshotMetadataUtils {
 		String biome = null;
 		ResourceKey<Biome> biomeKey = MINECRAFT.level.getBiome(MINECRAFT.player.getOnPos()).unwrapKey().orElse(null);
 		if (biomeKey != null) {
-			biome = biomeKey.identifier().getPath();
+			biome = biomeKey.toString();
 		}
 
 		return new ScreenshotMetadata(

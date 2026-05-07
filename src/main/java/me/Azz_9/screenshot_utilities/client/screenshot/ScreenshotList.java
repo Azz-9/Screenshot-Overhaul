@@ -78,15 +78,15 @@ public class ScreenshotList {
 		thread.start();
 	}
 
-	public static void whenLoaded(Consumer<List<Screenshot>> consumer) {
+	public static void whenLoaded(Consumer<List<Screenshot>> onLoaded) {
 		synchronized (lock) {
 			if (loaded) {
-				consumer.accept(Collections.unmodifiableList(screenshots));
+				onLoaded.accept(Collections.unmodifiableList(screenshots));
 			} else {
 				// exécuté à la fin du chargement via notifyChange, on enregistre temporairement
 				Consumer<List<Screenshot>> previous = onChangeListener;
 				onChangeListener = list -> {
-					consumer.accept(list);
+					onLoaded.accept(list);
 					onChangeListener = previous;
 				};
 			}

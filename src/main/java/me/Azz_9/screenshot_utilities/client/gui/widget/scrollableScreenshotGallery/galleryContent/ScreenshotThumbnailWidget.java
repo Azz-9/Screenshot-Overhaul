@@ -19,6 +19,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 
+import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
@@ -102,7 +103,7 @@ public class ScreenshotThumbnailWidget extends AbstractWidget implements AutoClo
 				texture,
 				getX(), getY(),
 				getWidth(), getHeight(),
-				ARGB.color(appearProgress, 0xffffff)
+				ARGB.color(appearProgress, Colors.WHITE)
 		);
 
 		if (active) {

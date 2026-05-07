@@ -4,10 +4,9 @@
 	"package": "me.Azz_9.screenshot_utilities.compat.xaeroWorldmap.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
+		"MapElementRenderHandlerBuilderMixin"
 	],
 	"client": [
-		"GuiMapAccessor",
-		"GuiMapMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -9,6 +9,7 @@ public final class Colors {
 	public static final int BLACK_SEMI_TRANSPARENT = ARGB.color(0x7F, BLACK);
 	public static final int BLACK_TRANSPARENT = ARGB.color(0xA0, BLACK);
 	public static final int GRAY = 0xFF9C9C9C;
+	public static final int DARK_GRAY = 0xFF333333;
 
 	private Colors() {
 	}
