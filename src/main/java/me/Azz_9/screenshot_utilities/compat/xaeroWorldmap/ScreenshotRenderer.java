@@ -23,8 +23,8 @@ import xaero.map.gui.GuiMap;
 public class ScreenshotRenderer extends ElementRenderer<Screenshot, ScreenshotRenderContext, ScreenshotRenderer> {
 
 	private static final double THUMBNAIL_ZOOM_THRESHOLD = 1.5;
-	public static final int THUMB_W = 48;
-	public static final int THUMB_H = 27;
+	public static final int THUMB_W = 128;
+	public static final int THUMB_H = 72;
 
 	public ScreenshotRenderer() {
 		super(new ScreenshotRenderContext(), new ScreenshotRenderProvider(), new ScreenshotReader());

@@ -5,7 +5,7 @@ import java.io.File;
 public class DeleteScreenshot {
 	public static boolean delete(Screenshot screenshot) {
 		if (screenshot.file().delete()) {
-			FavoriteManager.remove(screenshot.pathRelativeToScreenshotDir());
+			ScreenshotManager.remove(screenshot.pathRelativeToScreenshotDir());
 			return true;
 		}
 		return false;

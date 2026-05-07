@@ -141,9 +141,9 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 				if (!hasNextOrPrev) deselectScreenshot();
 			}
 
-			if (gallery != null) gallery.refresh(false);
-
-			if (selectedScreenshot != null) updateNavButtons();
+			if (gallery != null) gallery.refresh(false, () -> {
+				if (selectedScreenshot != null) updateNavButtons();
+			});
 		});
 	}
 
@@ -212,7 +212,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 				Path newPath = entry.getScreenshotFile().toPath().resolveSibling(entry.getName());
 				try {
 					Files.move(oldPath, newPath);
-					FavoriteManager.changeAbsoluteFilePath(oldPath, newPath);
+					ScreenshotManager.changeAbsoluteFilePath(oldPath, newPath);
 				} catch (IOException e) {
 					ScreenshotLogger.error("Failed to rename screenshot file : {}", e.getMessage());
 				}
@@ -479,7 +479,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 	@Override
 	public void onClose() {
-		FavoriteManager.save();
+		ScreenshotManager.save();
 
 		gallery = null;
 		selectedScreenshot = null;

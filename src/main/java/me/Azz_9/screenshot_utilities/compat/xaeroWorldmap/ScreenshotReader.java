@@ -1,11 +1,19 @@
 package me.Azz_9.screenshot_utilities.compat.xaeroWorldmap;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+
+import java.util.ArrayList;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
+import me.Azz_9.screenshot_utilities.client.screenshot.CopyScreenshot;
 import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotManager;
 import xaero.map.element.render.ElementReader;
 import xaero.map.element.render.ElementRenderLocation;
+import xaero.map.gui.IRightClickableElement;
+import xaero.map.gui.dropdown.rightclick.RightClickOption;
 
 public class ScreenshotReader extends ElementReader<Screenshot, ScreenshotRenderContext, ScreenshotRenderer> {
 
@@ -24,7 +32,7 @@ public class ScreenshotReader extends ElementReader<Screenshot, ScreenshotRender
 
 	@Override
 	public boolean isHidden(Screenshot screenshot, ScreenshotRenderContext ctx) {
-		return false;
+		return ScreenshotManager.isHiddenFromMap(screenshot.pathRelativeToScreenshotDir());
 	}
 
 	@Override
@@ -100,6 +108,32 @@ public class ScreenshotReader extends ElementReader<Screenshot, ScreenshotRender
 
 	@Override
 	public boolean isInteractable(ElementRenderLocation location, Screenshot screenshot) {
+		return true;
+	}
+
+	@Override
+	public ArrayList<RightClickOption> getRightClickOptions(Screenshot screenshot, IRightClickableElement target) {
+		ArrayList<RightClickOption> options = new ArrayList<>();
+
+		options.add(new RightClickOption(Component.translatable("screenshot_utilities.copy").getString(), 0, target) {
+			@Override
+			public void onAction(Screen screen) {
+				CopyScreenshot.copyToClipboard(screenshot.file());
+			}
+		});
+
+		options.add(new RightClickOption(Component.translatable("screenshot_utilities.hide_from_worldmap").getString(), 1, target) {
+			@Override
+			public void onAction(Screen screen) {
+				ScreenshotManager.setHiddenFromMap(screenshot.pathRelativeToScreenshotDir(), true);
+			}
+		});
+
+		return options;
+	}
+
+	@Override
+	public boolean isRightClickValid(Screenshot element) {
 		return true;
 	}
 }

@@ -19,6 +19,7 @@ import org.jspecify.annotations.NonNull;
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoModeHud;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotList;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotManager;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotPreview;
 
 @Environment(EnvType.CLIENT)
@@ -51,6 +52,7 @@ public class Screenshot_utilitiesClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		// load screenshots
 		ScreenshotList.loadAsync();
+		ScreenshotManager.load();
 
 		ClientTickEvents.START_CLIENT_TICK.register(_ -> {
 			PhotoMode.startTick();

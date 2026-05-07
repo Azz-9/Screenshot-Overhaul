@@ -4,13 +4,14 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotList;
 import xaero.map.WorldMapSession;
 import xaero.map.element.render.ElementRenderLocation;
 import xaero.map.element.render.ElementRenderProvider;
-import xaero.map.world.MapDimension;
+import xaero.map.world.MapWorld;
 
 public class ScreenshotRenderProvider extends ElementRenderProvider<Screenshot, ScreenshotRenderContext> {
 
@@ -18,13 +19,13 @@ public class ScreenshotRenderProvider extends ElementRenderProvider<Screenshot, 
 
 	@Override
 	public void begin(ElementRenderLocation location, ScreenshotRenderContext ctx) {
-		MapDimension dim = WorldMapSession.getCurrentSession().getMapProcessor().getMapWorld().getCurrentDimension();
-		ResourceKey<Level> currentDimId = dim.getDimId();
-		String currentMultiworld = dim.getCurrentMultiworld();
+		MapWorld mapWorld = WorldMapSession.getCurrentSession().getMapProcessor().getMapWorld();
+		ResourceKey<Level> currentDimId = mapWorld.getCurrentDimension().getDimId();
+		String currentMultiworld = mapWorld.getMapProcessor().getCurrentWorldId();
 
 		iterator = ScreenshotList.getScreenshots().stream()
-				.filter(s -> s.metadata().dimension().equals(currentDimId.toString()) &&
-						s.metadata().worldName().equals(currentMultiworld))
+				.filter(s -> Objects.equals(s.metadata().dimension(), currentDimId.toString()) &&
+						Objects.equals(s.metadata().worldName(), currentMultiworld))
 				.iterator();
 	}
 

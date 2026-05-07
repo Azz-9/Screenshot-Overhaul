@@ -10,6 +10,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.SpriteIconButton;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -39,9 +40,9 @@ import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.TexturedCyclingButtonWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent.ScreenshotEntryWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.headerWidget.SearchBar;
-import me.Azz_9.screenshot_utilities.client.screenshot.FavoriteManager;
 import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotList;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotManager;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
 
 @Environment(EnvType.CLIENT)
@@ -196,7 +197,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 	/* ---------------- Layout ---------------- */
 
 	private void buildEntries(@NonNull List<Screenshot> screenshots) {
-		entries.forEach(ScreenshotEntryWidget::close);
+		children().removeAll(entries);
 		entries.clear();
 
 		for (Screenshot screenshot : screenshots) {
@@ -204,7 +205,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 		}
 	}
 
-	public void refresh(boolean clearCache) {
+	public void refresh(final boolean clearCache, final @Nullable Runnable onRefreshComplete) {
 		if (!refreshing.compareAndSet(false, true)) return;
 
 		ScreenshotLogger.info("Refreshing screenshot gallery entries");
@@ -218,15 +219,21 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 			sortEntries(sortButton.getValue());
 			layoutEntries();
 
+			if (onRefreshComplete != null) onRefreshComplete.run();
+
 			refreshing.set(false);
 		});
+	}
+
+	public void refresh(final boolean clearCache) {
+		refresh(clearCache, null);
 	}
 
 	private void searchAndFilter(@NonNull String query, FilterMode mode) {
 		String q = query.trim().toLowerCase(Locale.ROOT);
 
 		for (ScreenshotEntryWidget entry : entries) {
-			boolean visible = (mode == FilterMode.ALL || mode == FilterMode.FAVORITES && FavoriteManager.isFavorite(entry.getPathRelativeToScreenshotDir())) &&
+			boolean visible = (mode == FilterMode.ALL || mode == FilterMode.FAVORITES && ScreenshotManager.isFavorite(entry.getPathRelativeToScreenshotDir())) &&
 					(q.isEmpty() || entry.getName().toLowerCase(Locale.ROOT).contains(q));
 
 			entry.setVisible(visible);
@@ -236,8 +243,8 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 
 	private void sortEntries(SortMode mode) {
 		entries.sort(switch (mode) {
-			case DATE_ASC -> Comparator.comparingLong(e -> e.getScreenshotFile().lastModified());
-			case DATE_DESC -> Comparator.comparingLong(e -> -e.getScreenshotFile().lastModified());
+			case DATE_ASC -> Comparator.comparingLong(e -> e.getTimestampOrLastModified());
+			case DATE_DESC -> Comparator.comparingLong(e -> -e.getTimestampOrLastModified());
 		});
 	}
 
@@ -434,11 +441,17 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 
 	private void addEntry(@NonNull ScreenshotEntryWidget entry) {
 		entries.add(entry);
-		addChild(entry);
 	}
 
 	public @NonNull List<ScreenshotEntryWidget> getEntries() {
 		return entries;
+	}
+
+	@Override
+	public @NonNull List<GuiEventListener> children() {
+		List<GuiEventListener> children = super.children();
+		children.addAll(entries);
+		return children;
 	}
 
 	public int indexOf(@NonNull Screenshot screenshot) {

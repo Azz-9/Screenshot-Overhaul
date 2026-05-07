@@ -65,7 +65,7 @@ public abstract class SimpleParentWidget extends AbstractContainerEventHandler i
 	}
 
 	public void setActive(boolean active) {
-		for (GuiEventListener child : children) {
+		for (GuiEventListener child : children()) {
 			if (child instanceof SimpleParentWidget simpleParentWidget) {
 				simpleParentWidget.setActive(active);
 			} else if (child instanceof AbstractWidget clickableWidget) {
@@ -169,7 +169,7 @@ public abstract class SimpleParentWidget extends AbstractContainerEventHandler i
 
 	@Override
 	public void visitWidgets(@NonNull Consumer<AbstractWidget> widgetVisitor) {
-		for (GuiEventListener child : children) {
+		for (GuiEventListener child : children()) {
 			if (child instanceof AbstractWidget clickableWidget) {
 				widgetVisitor.accept(clickableWidget);
 			}

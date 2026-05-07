@@ -1,42 +1,36 @@
 package me.Azz_9.screenshot_utilities.compat.xaeroWorldmap.mixin;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import me.Azz_9.screenshot_utilities.client.config.Config;
-import me.Azz_9.screenshot_utilities.compat.xaeroWorldmap.XaeroThumbnailRenderer;
+import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
+import xaero.map.element.HoveredMapElementHolder;
 import xaero.map.gui.GuiMap;
 
 @Mixin(value = GuiMap.class, remap = false)
 public abstract class GuiMapMixin {
-	@Inject(
-			method = "extractRenderState",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endBatch()V",
-					ordinal = 0  // le premier endBatch après mapElementRenderHandler
-			)
-	)
-	private void onAfterElementsRender(
-			GuiGraphicsExtractor guiGraphics,
-			int scaledMouseX, int scaledMouseY,
-			float partialTicks,
-			CallbackInfo ci
-	) {
-		if (Config.getInstance().showScreenshotsOnXaerosWorldMap.getValue()) {
-			GuiMapAccessor self = (GuiMapAccessor) this;
-			XaeroThumbnailRenderer.render(
-					guiGraphics,
-					(GuiMap) (Object) this,
-					self.getCameraX(),
-					self.getCameraZ(),
-					self.getScale(),
-					self.getScreenScale()
-			);
-		}
+
+	@Inject(method = "mouseReleased", at = @At("HEAD"), cancellable = true)
+	private void onMouseReleased(MouseButtonEvent event, CallbackInfoReturnable<Boolean> cir) {
+		if (event.button() != 0) return;
+
+		GuiMap self = (GuiMap) (Object) this;
+		HoveredMapElementHolder<?, ?> viewed = ((GuiMapAccessor) self).getViewed();
+		if (viewed == null) return;
+
+		Object element = viewed.getElement();
+		if (!(element instanceof Screenshot screenshot)) return;
+
+		// Vérifier que c'était bien un clic et pas un drag
+		// (GuiMap le vérifie déjà avec Math.abs(pressedAt - mousePos) < 5)
+		/*MINECRAFT.setScreen(
+				new ScreenshotViewerScreen(self, screenshot.meta())
+		);*/
+		System.out.println("screenshot clicked " + screenshot.pathRelativeToScreenshotDir());
+		cir.setReturnValue(false);
 	}
 }

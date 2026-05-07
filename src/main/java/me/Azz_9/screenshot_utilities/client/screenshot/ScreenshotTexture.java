@@ -56,7 +56,7 @@ public final class ScreenshotTexture implements AutoCloseable {
 
 	@NonNull
 	public static ScreenshotTexture loadSmallThumbnail(Path file) {
-		return new ScreenshotTexture(file, 192);
+		return new ScreenshotTexture(file, 128);
 	}
 
 	@NonNull

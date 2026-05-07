@@ -24,6 +24,8 @@
 	"screenshot_utilities.delete": "Delete",
 	"screenshot_utilities.copy": "Copy",
 
+	"screenshot_utilities.hide_from_worldmap": "Hide from worldmap",
+
 	"screenshot_utilities.save_and_quit": "Save and quit",
 	"screenshot_utilities.cancel": "Cancel",
 

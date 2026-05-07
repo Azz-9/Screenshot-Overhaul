@@ -13,8 +13,8 @@ import java.io.File;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
-import me.Azz_9.screenshot_utilities.client.screenshot.FavoriteManager;
 import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotManager;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotMetadata;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
 
@@ -55,8 +55,8 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 				getRight() - FAVORITE_BUTTON_SIZE,
 				getY(),
 				FAVORITE_BUTTON_SIZE, FAVORITE_BUTTON_SIZE,
-				(btn) -> FavoriteManager.setFavorite(screenshot.pathRelativeToScreenshotDir(), ((FavoriteButton) btn).isFilled()),
-				FavoriteManager.isFavorite(screenshot.pathRelativeToScreenshotDir()));
+				(btn) -> ScreenshotManager.setFavorite(screenshot.pathRelativeToScreenshotDir(), ((FavoriteButton) btn).isFilled()),
+				ScreenshotManager.isFavorite(screenshot.pathRelativeToScreenshotDir()));
 
 		addAllChildren(favoriteButton, thumbnailWidget, nameWidget);
 	}
@@ -128,10 +128,6 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 		nameWidget.setRectangle(getWidth(), NAME_HEIGHT, getX(), thumbnailWidget.getBottom());
 	}
 
-	public void close() {
-		thumbnailWidget.close();
-	}
-
 	public @NonNull Screenshot getScreenshot() {
 		return screenshot;
 	}
@@ -161,15 +157,14 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 		return screenshot.pathRelativeToScreenshotDir();
 	}
 
+	public long getTimestampOrLastModified() {
+		if (screenshot.metadata().timestamp() != null) {
+			return screenshot.metadata().timestamp();
+		}
+		return screenshot.file().lastModified();
+	}
+
 	@Override
 	public void updateNarration(@NonNull NarrationElementOutput output) {
-	}
-
-	public @NonNull ScreenshotThumbnailWidget getThumbnailWidget() {
-		return thumbnailWidget;
-	}
-
-	public @NonNull ScreenshotNameWidget getNameWidget() {
-		return nameWidget;
 	}
 }

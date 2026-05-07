@@ -29,7 +29,7 @@ import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
 
 @Environment(EnvType.CLIENT)
-public class ScreenshotThumbnailWidget extends AbstractWidget implements AutoCloseable {
+public class ScreenshotThumbnailWidget extends AbstractWidget {
 
 	private static final float HOVER_SCALE = 1.04f;
 	private static final float HOVER_SPEED = 10f;
@@ -158,10 +158,5 @@ public class ScreenshotThumbnailWidget extends AbstractWidget implements AutoClo
 
 	@Override
 	protected void updateWidgetNarration(@NonNull NarrationElementOutput output) {
-	}
-
-	@Override
-	public void close() {
-		if (texture != null) texture.close();
 	}
 }
