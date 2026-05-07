@@ -164,7 +164,7 @@ public class ScreenshotMetadataUtils {
 				Mth.floor(MINECRAFT.player.getX()),
 				Mth.floor(MINECRAFT.player.getY()),
 				Mth.floor(MINECRAFT.player.getZ()),
-				MINECRAFT.level.dimension().identifier().getPath(),
+				MINECRAFT.level.dimension().toString(),
 				biome,
 				worldName,
 				server,
