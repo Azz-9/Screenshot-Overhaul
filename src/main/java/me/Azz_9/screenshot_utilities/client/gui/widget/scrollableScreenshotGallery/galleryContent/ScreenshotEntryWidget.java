@@ -23,10 +23,11 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 
 	public static final int NAME_HEIGHT = 30;
 
-	private static final int FAVORITE_BUTTON_SIZE = 10;
+	private static final int BUTTON_SIZE = 10;
 
 	private final @NonNull ScreenshotThumbnailWidget thumbnailWidget;
 	private final @NonNull ScreenshotNameWidget nameWidget;
+	private final @NonNull HideFromMapButton hideFromMapButton;
 	private final @NonNull FavoriteButton favoriteButton;
 
 	private final @NonNull Screenshot screenshot;
@@ -51,14 +52,21 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 				screenshot.file()
 		);
 
-		this.favoriteButton = new FavoriteButton(
-				getRight() - FAVORITE_BUTTON_SIZE,
-				getY(),
-				FAVORITE_BUTTON_SIZE, FAVORITE_BUTTON_SIZE,
-				(btn) -> ScreenshotManager.setFavorite(screenshot.pathRelativeToScreenshotDir(), ((FavoriteButton) btn).isFilled()),
-				ScreenshotManager.isFavorite(screenshot.pathRelativeToScreenshotDir()));
+		this.hideFromMapButton = new HideFromMapButton(
+				getX(), getY(), BUTTON_SIZE, BUTTON_SIZE,
+				(btn) -> ScreenshotManager.setHiddenFromMap(screenshot.pathRelativeToScreenshotDir(), ((HideFromMapButton) btn).isCrossed()),
+				ScreenshotManager.isHiddenFromMap(screenshot.pathRelativeToScreenshotDir())
+		);
 
-		addAllChildren(favoriteButton, thumbnailWidget, nameWidget);
+		this.favoriteButton = new FavoriteButton(
+				getRight() - BUTTON_SIZE,
+				getY(),
+				BUTTON_SIZE, BUTTON_SIZE,
+				(btn) -> ScreenshotManager.setFavorite(screenshot.pathRelativeToScreenshotDir(), ((FavoriteButton) btn).isFilled()),
+				ScreenshotManager.isFavorite(screenshot.pathRelativeToScreenshotDir())
+		);
+
+		addAllChildren(hideFromMapButton, favoriteButton, thumbnailWidget, nameWidget);
 	}
 
 	public ScreenshotEntryWidget(@NonNull Screenshot screenshot) {
@@ -83,6 +91,9 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 
 		if (isHovered() && favoriteButton.active || favoriteButton.isFilled()) {
 			favoriteButton.extractRenderState(graphics, mouseX, mouseY, delta);
+		}
+		if (isHovered() && hideFromMapButton.active || hideFromMapButton.isCrossed()) {
+			hideFromMapButton.extractRenderState(graphics, mouseX, mouseY, delta);
 		}
 	}
 
@@ -124,7 +135,8 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 
 	private void updateChildrenPos() {
 		thumbnailWidget.setRectangle(getWidth(), getHeight() - NAME_HEIGHT, getX(), getY());
-		favoriteButton.setPosition(thumbnailWidget.getRight() - FAVORITE_BUTTON_SIZE, thumbnailWidget.getY());
+		hideFromMapButton.setPosition(thumbnailWidget.getX(), thumbnailWidget.getY());
+		favoriteButton.setPosition(thumbnailWidget.getRight() - BUTTON_SIZE, thumbnailWidget.getY());
 		nameWidget.setRectangle(getWidth(), NAME_HEIGHT, getX(), thumbnailWidget.getBottom());
 	}
 
@@ -158,8 +170,8 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 	}
 
 	public long getTimestampOrLastModified() {
-		if (screenshot.metadata().timestamp() != null) {
-			return screenshot.metadata().timestamp();
+		if (screenshot.metadata().getTimestamp() != null) {
+			return screenshot.metadata().getTimestamp();
 		}
 		return screenshot.file().lastModified();
 	}

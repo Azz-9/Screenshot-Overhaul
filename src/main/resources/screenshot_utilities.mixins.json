@@ -19,6 +19,7 @@
 		"MinecraftMixin",
 		"MouseMixin",
 		"MultiPlayerGameModeMixin",
+		"NativeImageAccessor",
 		"ParticleEngineMixin",
 		"ScreenAccessor",
 		"ScreenMixin",

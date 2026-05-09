@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 public abstract class SimpleParentWidget extends AbstractContainerEventHandler implements LayoutElement, Renderable, GuiEventListener, NarratableEntry {
 
 	private final @NonNull List<@NonNull GuiEventListener> children = new ArrayList<>();
+	private final @NonNull List<@NonNull Renderable> renderables = new ArrayList<>();
 	private boolean visible = true;
 	private int width;
 	private int height;
@@ -45,7 +46,11 @@ public abstract class SimpleParentWidget extends AbstractContainerEventHandler i
 		}
 	}
 
-	protected abstract void renderWidget(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks);
+	protected void renderWidget(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
+		for (Renderable renderable : renderables) {
+			renderable.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
+		}
+	}
 
 	private boolean isInBounds(double x, double y) {
 		return x >= this.getX() && y >= this.getY() && x < this.getRight() && y < this.getBottom();
@@ -91,6 +96,11 @@ public abstract class SimpleParentWidget extends AbstractContainerEventHandler i
 		}
 	}
 
+	public <T extends GuiEventListener & Renderable> void addRenderableChild(T child) {
+		renderables.add(child);
+		addChild(child);
+	}
+
 	public void addChild(@NonNull GuiEventListener child) {
 		children.add(child);
 	}
@@ -104,6 +114,11 @@ public abstract class SimpleParentWidget extends AbstractContainerEventHandler i
 	@Override
 	public @NonNull List<GuiEventListener> children() {
 		return children;
+	}
+
+	public void clearChildren() {
+		children.clear();
+		renderables.clear();
 	}
 
 	@Override

@@ -139,7 +139,7 @@ public class ScreenshotPreviewWidget extends AbstractWidget {
 		int deleteX = getX() + halfW;
 		if (deleteHoverProgress > 0) {
 			int deleteAlpha = (int) (0x44 * deleteHoverProgress * hoverProgress);
-			graphics.fill(deleteX, getY(), deleteX + halfW, getY() + height, ARGB.color(deleteAlpha, 0x00FF4444));
+			graphics.fill(deleteX, getY(), deleteX + halfW, getY() + height, ARGB.color(deleteAlpha, Colors.RED));
 		}
 		renderIcon(graphics, ICON_DELETE, deleteX, getY(), halfW, height, hoverProgress);
 		renderLabel(graphics, deleteX, getY(), halfW, height, Component.translatable("screenshot_utilities.delete"), hoverProgress);

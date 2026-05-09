@@ -20,12 +20,12 @@ public class ScreenshotRenderProvider extends ElementRenderProvider<Screenshot, 
 	@Override
 	public void begin(ElementRenderLocation location, ScreenshotRenderContext ctx) {
 		MapWorld mapWorld = WorldMapSession.getCurrentSession().getMapProcessor().getMapWorld();
-		ResourceKey<Level> currentDimId = mapWorld.getCurrentDimension().getDimId();
-		String currentMultiworld = mapWorld.getMapProcessor().getCurrentWorldId();
+		ResourceKey<Level> currentDim = mapWorld.getCurrentDimension().getDimId();
+		String currentWorld = mapWorld.getMapProcessor().getCurrentWorldId();
 
 		iterator = ScreenshotList.getScreenshots().stream()
-				.filter(s -> Objects.equals(s.metadata().dimension(), currentDimId.toString()) &&
-						Objects.equals(s.metadata().worldName(), currentMultiworld))
+				.filter(s -> Objects.equals(s.metadata().getWorldName(), currentWorld) &&
+						Objects.equals(s.metadata().getDimension(), currentDim.identifier()))
 				.iterator();
 	}
 

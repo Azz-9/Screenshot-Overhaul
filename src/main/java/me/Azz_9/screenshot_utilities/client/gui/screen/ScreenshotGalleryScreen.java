@@ -1,6 +1,7 @@
 package me.Azz_9.screenshot_utilities.client.gui.screen;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+import static me.Azz_9.screenshot_utilities.client.StringUtil.pretty;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.cursor.CursorType;
@@ -14,6 +15,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Ease;
 
 import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.NonNull;
@@ -30,6 +32,7 @@ import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
+import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.MetadataEditorPanel;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.NavigationButton;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.ScreenshotGalleryWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent.ScreenshotEntryWidget;
@@ -68,9 +71,13 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	private static final int ACTION_BUTTON_WIDTH = 80;
 	private static final int ACTION_BUTTON_GAP = 10;
 	private static final int ACTION_BUTTON_MARGIN_BOTTOM = 10;
-	private Button copyButton, deleteButton;
+	private Button copyButton, deleteButton, editMetadataButton;
+	private static final int COPY_MESSAGE_RESET_TIMER = 5000;
+	private long copyResetAt = -1;
 	private @Nullable Screenshot selectedScreenshot = null;
 	private @Nullable Screenshot outgoingScreenshot = null;
+	private static final int METADATA_EDITOR_PANEL_WIDTH = 200;
+	private MetadataEditorPanel metadataEditorPanel;
 	// transition
 	private static final float TRANSITION_DURATION = 0.2f; // secondes
 	private float transitionTime = 0f;
@@ -104,18 +111,24 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 		backButton = createNavigationButton(NavigationButton.NavigationType.BACK);
 		nextButton = createNavigationButton(NavigationButton.NavigationType.NEXT);
-		copyButton = createCopyButton();
 		deleteButton = createDeleteButton();
+		copyButton = createCopyButton();
+		editMetadataButton = createEditMetadataButton();
+		metadataEditorPanel = createMetadataEditorPanel();
 
 		backButton.visible = false;
 		nextButton.visible = false;
-		copyButton.visible = false;
 		deleteButton.visible = false;
+		copyButton.visible = false;
+		editMetadataButton.visible = false;
+		metadataEditorPanel.setVisible(false);
 
+		addWidget(metadataEditorPanel);
 		addWidget(backButton);
 		addWidget(nextButton);
-		addWidget(copyButton);
 		addWidget(deleteButton);
+		addWidget(copyButton);
+		addWidget(editMetadataButton);
 		addRenderableWidget(gallery);
 		addRenderableWidget(saveAndQuitButton);
 		addRenderableWidget(cancelButton);
@@ -173,18 +186,6 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 				type, type == NavigationButton.NavigationType.NEXT ? (_) -> selectNext() : (_) -> selectPrevious());
 	}
 
-	private Button createCopyButton() {
-		return Button.builder(Component.translatable("screenshot_utilities.copy"), (_) -> {
-					if (selectedScreenshot != null)
-						CopyScreenshot.copyToClipboard(selectedScreenshot.file());
-				})
-				.bounds(
-						(width + ACTION_BUTTON_GAP) / 2, height - ACTION_BUTTON_HEIGHT - ACTION_BUTTON_MARGIN_BOTTOM,
-						ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT
-				)
-				.build();
-	}
-
 	private Button createDeleteButton() {
 		return Button.builder(Component.translatable("screenshot_utilities.delete"), (btn) -> {
 					if (selectedScreenshot != null) {
@@ -193,13 +194,49 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 					}
 				})
 				.bounds(
-						(width - ACTION_BUTTON_GAP) / 2 - ACTION_BUTTON_WIDTH, height - ACTION_BUTTON_HEIGHT - ACTION_BUTTON_MARGIN_BOTTOM,
+						(width - ACTION_BUTTON_WIDTH) / 2 - ACTION_BUTTON_GAP - ACTION_BUTTON_WIDTH, height - ACTION_BUTTON_HEIGHT - ACTION_BUTTON_MARGIN_BOTTOM,
 						ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT
 				)
 				.build();
 	}
 
-	// TODO gérer le cas où on est en full view sur un screenshot qui est supprimé
+	private Button createCopyButton() {
+		return Button.builder(Component.translatable("screenshot_utilities.copy"), (btn) -> {
+					if (selectedScreenshot != null)
+						CopyScreenshot.copyToClipboard(selectedScreenshot.file(), () -> {
+							btn.setMessage(Component.translatable("screenshot_utilities.copied"));
+							copyResetAt = System.currentTimeMillis() + COPY_MESSAGE_RESET_TIMER;
+						});
+				})
+				.bounds(
+						(width - ACTION_BUTTON_WIDTH) / 2, height - ACTION_BUTTON_HEIGHT - ACTION_BUTTON_MARGIN_BOTTOM,
+						ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT
+				)
+				.build();
+	}
+
+	private Button createEditMetadataButton() {
+		return Button.builder(Component.translatable("screenshot_utilities.edit_metadata"), (btn) -> {
+					if (selectedScreenshot != null) {
+						metadataEditorPanel.setVisible(!metadataEditorPanel.isVisible());
+						if (metadataEditorPanel.isVisible()) {
+							nextButton.setClickable(false);
+							metadataEditorPanel.init(selectedScreenshot);
+						} else {
+							nextButton.setClickable(true);
+						}
+					}
+				})
+				.bounds(
+						(width + ACTION_BUTTON_WIDTH) / 2 + ACTION_BUTTON_GAP, height - ACTION_BUTTON_HEIGHT - ACTION_BUTTON_MARGIN_BOTTOM,
+						ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT
+				)
+				.build();
+	}
+
+	private MetadataEditorPanel createMetadataEditorPanel() {
+		return new MetadataEditorPanel(METADATA_EDITOR_PANEL_WIDTH, height);
+	}
 
 	// save and quit
 
@@ -238,8 +275,9 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 		backButton.visible = true;
 		nextButton.visible = true;
-		copyButton.visible = true;
 		deleteButton.visible = true;
+		copyButton.visible = true;
+		editMetadataButton.visible = true;
 
 		updateNavButtons();
 
@@ -263,8 +301,10 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 		selectedScreenshot = null;
 		backButton.visible = false;
 		nextButton.visible = false;
-		copyButton.visible = false;
 		deleteButton.visible = false;
+		copyButton.visible = false;
+		editMetadataButton.visible = false;
+		metadataEditorPanel.setVisible(false);
 
 		updateSaveAndQuit();
 		cancelButton.active = true;
@@ -317,8 +357,17 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 	@Override
 	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
+		if (copyResetAt != -1 && System.currentTimeMillis() >= copyResetAt) {
+			copyButton.setMessage(Component.translatable("screenshot_utilities.copy"));
+			copyResetAt = -1;
+		}
+
 		super.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 
+		extractFullViewRenderState(graphics, mouseX, mouseY, deltaTicks);
+	}
+
+	private void extractFullViewRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
 		float dt = deltaTicks / 20f;
 
 		if (inTransition) {
@@ -339,12 +388,12 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 				drawScreenshotWithInfo(graphics, selectedScreenshot, 0);
 			} else {
 				float t = transitionTime / TRANSITION_DURATION;
-				t = t * t * (3f - 2f * t); // smoothstep
+				t = Ease.outQuad(t);
 
 				int slide = (int) (width * t);
 
 				// ancien screenshot (sortant)
-				drawScreenshotWithInfo(graphics, selectedScreenshot, -slide * transitionDirection);
+				drawScreenshotWithInfo(graphics, outgoingScreenshot, -slide * transitionDirection);
 
 				// nouveau screenshot (entrant)
 				drawScreenshotWithInfo(graphics, selectedScreenshot, (width - slide) * transitionDirection);
@@ -352,8 +401,10 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 			nextButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 			backButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
-			copyButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 			deleteButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
+			copyButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
+			editMetadataButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
+			metadataEditorPanel.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 		}
 	}
 
@@ -398,22 +449,22 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 		graphics.centeredText(MINECRAFT.font, screenshot.pathRelativeToScreenshotDir(), center, FULL_VIEW_PADDING + fullViewHeight + 4, Colors.WHITE);
 		StringBuilder line = new StringBuilder();
-		if (screenshot.metadata().x() != null && screenshot.metadata().y() != null && screenshot.metadata().z() != null) {
-			line.append("X: ").append(screenshot.metadata().x())
-					.append(" Y: ").append(screenshot.metadata().y())
-					.append(" Z: ").append(screenshot.metadata().z());
+		if (screenshot.metadata().getX() != null && screenshot.metadata().getY() != null && screenshot.metadata().getZ() != null) {
+			line.append("X: ").append(screenshot.metadata().getX())
+					.append(" Y: ").append(screenshot.metadata().getY())
+					.append(" Z: ").append(screenshot.metadata().getZ());
 		}
-		if (screenshot.metadata().worldName() != null) {
+		if (screenshot.metadata().getWorldName() != null) {
 			if (!line.isEmpty()) line.append(" • ");
-			line.append(screenshot.metadata().worldName());
+			line.append(screenshot.metadata().getWorldName());
 		}
-		if (screenshot.metadata().dimension() != null) {
+		if (screenshot.metadata().getDimension() != null) {
 			if (!line.isEmpty()) line.append(" • ");
-			line.append(screenshot.metadata().dimension());
+			line.append(pretty(screenshot.metadata().getDimension().getPath()));
 		}
-		if (screenshot.metadata().biome() != null) {
+		if (screenshot.metadata().getBiome() != null) {
 			if (!line.isEmpty()) line.append(" • ");
-			line.append(screenshot.metadata().biome());
+			line.append(pretty(screenshot.metadata().getBiome().getPath()));
 		}
 		graphics.centeredText(MINECRAFT.font, line.toString(), center, FULL_VIEW_PADDING + fullViewHeight + 15, Colors.WHITE);
 
@@ -449,17 +500,13 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 	@Override
 	public boolean keyPressed(@NonNull KeyEvent input) {
-		if (selectedScreenshot != null) {
-			if (input.isEscape()) {
-				deselectScreenshot();
-				return true;
-			} else if (input.isLeft()) {
-				selectPrevious();
-				return true;
-			} else if (input.isRight()) {
-				selectNext();
+		if (selectedScreenshot != null && input.isEscape()) {
+			if (metadataEditorPanel.isVisible()) {
+				metadataEditorPanel.setVisible(false);
 				return true;
 			}
+			deselectScreenshot();
+			return true;
 		}
 		if (input.key() == InputConstants.KEY_F5 && gallery != null) {
 			gallery.refresh(true);
@@ -479,6 +526,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 	@Override
 	public void onClose() {
+		ScreenshotMetadataUtils.saveAllDirty(ScreenshotList.getScreenshots());
 		ScreenshotManager.save();
 
 		gallery = null;

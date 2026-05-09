@@ -94,7 +94,7 @@ public class Screenshot_utilitiesClient implements ClientModInitializer {
 		}
 
 		// screenshot preview
-		if (MINECRAFT.screen == null)
+		if (MINECRAFT.screen == null && !MINECRAFT.options.hideGui)
 			ScreenshotPreview.render(graphics, 0, 0, deltaTracker.getGameTimeDeltaPartialTick(true));
 
 		// hide hud in PhotoMode

@@ -21,8 +21,27 @@
 	"screenshot_utilities.gallery_widget.sort_mode.date_desc": "Les plus récents",
 	"screenshot_utilities.gallery_widget.open_screenshot_folder": "Ouvrir le dossier des captures d'écran",
 
+	"screenshot_utilities.int_field.increment": "Incrémenter",
+	"screenshot_utilities.int_field.decrement": "Décrémenter",
+
+	"screenshot_utilities.close": "Fermer",
 	"screenshot_utilities.delete": "Supprimer",
 	"screenshot_utilities.copy": "Copier",
+	"screenshot_utilities.copied": "Copié !",
+	"screenshot_utilities.reset": "Réinitialiser",
+	"screenshot_utilities.edit_metadata": "Modifier les metadonnées",
+	"screenshot_utilities.metadata.x": "X",
+	"screenshot_utilities.metadata.y": "Y",
+	"screenshot_utilities.metadata.z": "Z",
+	"screenshot_utilities.metadata.dimension": "Dimension",
+	"screenshot_utilities.metadata.biome": "Biome",
+	"screenshot_utilities.metadata.world_name": "Nom du monde",
+	"screenshot_utilities.metadata.server": "IP du serveur",
+	"screenshot_utilities.metadata.timestamp": "Horodotage",
+	"screenshot_utilities.metadata.tags": "Étiquette",
+	"screenshot_utilities.metadata.tags.placeholder": "étiquette1, étiquette2...",
+
+	"screenshot_utilities.hide_from_worldmap": "Cacher de la carte",
 
 	"screenshot_utilities.save_and_quit": "Sauvegarder et quitter",
 	"screenshot_utilities.cancel": "Annulé",

@@ -10,13 +10,13 @@ import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 
 @Environment(EnvType.CLIENT)
-public class PlaceholderTextFieldWidget extends EditBox {
+public class PlaceholderEditBox extends EditBox {
 
 	private final Font FONT;
 	private int placeholderColor = 0xffa0a0a0;
 	private Component placeholderText;
 
-	public PlaceholderTextFieldWidget(Font font, int x, int y, int width, int height, Component text) {
+	public PlaceholderEditBox(Font font, int x, int y, int width, int height, Component text) {
 		super(font, x, y, width, height, text);
 		this.FONT = font;
 	}

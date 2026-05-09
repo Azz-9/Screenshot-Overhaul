@@ -3,6 +3,7 @@ package me.Azz_9.screenshot_utilities.client.screenshot;
 import net.minecraft.util.Util;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
@@ -17,11 +18,16 @@ import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 
 public class CopyScreenshot {
 	public static void copyToClipboard(@NonNull File imageFile) {
+		copyToClipboard(imageFile, null);
+	}
+
+	public static void copyToClipboard(@NonNull File imageFile, @Nullable Runnable onCopy) {
 		Util.ioPool().execute(() -> {
 			try {
 				BufferedImage image = ImageIO.read(imageFile);
 				Toolkit toolkit = Toolkit.getDefaultToolkit();
 				toolkit.getSystemClipboard().setContents(new TransferableImage(image), null);
+				if (onCopy != null) onCopy.run();
 			} catch (Exception e) {
 				ScreenshotLogger.warn("Failed to copy screenshot : {}", e.getMessage());
 			}

@@ -14,6 +14,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 
 import org.jspecify.annotations.NonNull;
@@ -60,10 +61,11 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 	private int contentHeight;
 
 	// smooth scroll
+	private static final double SCROLL_SNAP_DISTANCE = 0.5;
 	private static final double SCROLL_SPEED = 40.0;
 	private static final double SMOOTHING = 25.0;
-	private int currentScroll;
-	private int targetScroll;
+	private double currentScroll;
+	private double targetScroll;
 	private long lastUpdateTime = System.nanoTime();
 
 	// separator
@@ -350,7 +352,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 
 	private void renderSeparators(@NonNull GuiGraphicsExtractor graphics) {
 		for (DateSeparator sep : separators) {
-			int y = sep.y() - currentScroll;
+			int y = sep.y() - (int) currentScroll;
 
 			if (y < getY() || y > getBottom()) continue;
 
@@ -377,7 +379,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 		for (ScreenshotEntryWidget entry : entries) {
 			if (!entry.isVisible()) continue;
 
-			int yRender = entry.getBaseY() - currentScroll;
+			int yRender = entry.getBaseY() - (int) currentScroll;
 			entry.setY(yRender);
 
 			int entryBottom = yRender + entry.getHeight();
@@ -414,7 +416,12 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 
 		double alpha = 1.0 - Math.exp(-SMOOTHING * deltaSeconds);
 
-		currentScroll += (int) ((targetScroll - currentScroll) * alpha);
+		currentScroll += (targetScroll - currentScroll) * alpha;
+		if (Math.abs(targetScroll - currentScroll) < SCROLL_SNAP_DISTANCE) {
+			currentScroll = targetScroll;
+		}
+
+		currentScroll = Mth.clamp(currentScroll, 0.0, getMaxScroll());
 	}
 
 	private void checkScroll() {

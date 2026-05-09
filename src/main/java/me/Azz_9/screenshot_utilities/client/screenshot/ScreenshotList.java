@@ -2,6 +2,8 @@ package me.Azz_9.screenshot_utilities.client.screenshot;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
@@ -16,6 +18,8 @@ import me.Azz_9.screenshot_utilities.client.config.Config;
 
 public class ScreenshotList {
 	private static final List<String> ACCEPTED_SCREENSHOT_FILE_EXTENSIONS = List.of(".png");
+	private static final int MAX_READ_ATTEMPTS = 10;
+	private static final int READ_DELAY_MS = 50;
 
 	private static final List<Screenshot> screenshots = new ArrayList<>();
 	private static final Object lock = new Object();
@@ -93,7 +97,7 @@ public class ScreenshotList {
 		}
 	}
 
-	public static List<Screenshot> getScreenshots() {
+	public static @NonNull List<Screenshot> getScreenshots() {
 		synchronized (lock) {
 			if (!loaded) return Collections.emptyList();
 			return List.copyOf(screenshots);
@@ -122,6 +126,7 @@ public class ScreenshotList {
 		}
 	}
 
+	// TODO check si ça marche avec les sous dossiers
 	private static void startWatchService() {
 		try {
 			WatchService watcher = FileSystems.getDefault().newWatchService();
@@ -143,12 +148,7 @@ public class ScreenshotList {
 
 							if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
 								File file = fullPath.toFile();
-								ScreenshotMetadata metadata;
-								try {
-									metadata = ScreenshotMetadataUtils.read(file);
-								} catch (Exception e) {
-									metadata = ScreenshotMetadata.empty();
-								}
+								ScreenshotMetadata metadata = readMetadataWithRetry(file);
 								Screenshot screenshot = new Screenshot(file, metadata);
 								synchronized (lock) {
 									screenshots.add(screenshot);
@@ -179,6 +179,28 @@ public class ScreenshotList {
 		} catch (IOException e) {
 			ScreenshotLogger.warn("Could not initialize watch service: {}", e.getMessage());
 		}
+	}
+
+	private static ScreenshotMetadata readMetadataWithRetry(File file) {
+		for (int i = 0; i < MAX_READ_ATTEMPTS; i++) {
+			try {
+				// Check if the file is fully written by comparing its size on two read
+				long sizeBefore = file.length();
+				Thread.sleep(READ_DELAY_MS);
+				long sizeAfter = file.length();
+
+				if (sizeAfter == 0 || sizeBefore != sizeAfter) continue;
+
+				return ScreenshotMetadataUtils.read(file);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				break;
+			} catch (Exception e) {
+				// File not readable yet, retry
+			}
+		}
+
+		return ScreenshotMetadata.empty();
 	}
 
 	private static boolean isScreenshot(Path path) {

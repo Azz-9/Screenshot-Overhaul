@@ -2,8 +2,8 @@ package me.Azz_9.screenshot_utilities.client.screenshot;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.biome.Biome;
 
 import org.jspecify.annotations.NonNull;
@@ -14,8 +14,11 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.zip.CRC32;
 
+import me.Azz_9.screenshot_utilities.ScreenshotLogger;
+import me.Azz_9.screenshot_utilities.client.config.Config;
+
 public class ScreenshotMetadataUtils {
-	
+
 	private static final @NonNull String KEY_X = "X";
 	private static final @NonNull String KEY_Y = "Y";
 	private static final @NonNull String KEY_Z = "Z";
@@ -28,29 +31,12 @@ public class ScreenshotMetadataUtils {
 
 	public static void add(File imageFile, ScreenshotMetadata meta) {
 		try {
-			if (meta == null) return;
-
-			// Lire l'image originale en bytes bruts
 			byte[] originalBytes = Files.readAllBytes(imageFile.toPath());
-
-			// Construire les chunks tEXt à injecter
-			List<byte[]> textChunks = new ArrayList<>();
-			textChunks.add(buildTextChunk(KEY_X, String.valueOf(meta.x())));
-			textChunks.add(buildTextChunk(KEY_Y, String.valueOf(meta.y())));
-			textChunks.add(buildTextChunk(KEY_Z, String.valueOf(meta.z())));
-			textChunks.add(buildTextChunk(KEY_DIMENSION, meta.dimension()));
-			textChunks.add(buildTextChunk(KEY_BIOME, meta.biome()));
-			textChunks.add(buildTextChunk(KEY_WORLD, meta.worldName() != null ? meta.worldName() : ""));
-			textChunks.add(buildTextChunk(KEY_SERVER, meta.server() != null ? meta.server() : "singleplayer"));
-			textChunks.add(buildTextChunk(KEY_TIMESTAMP, String.valueOf(meta.timestamp())));
-			textChunks.add(buildTextChunk(KEY_TAGS, String.valueOf(meta.timestamp())));
-
-			// Insérer les chunks juste après le chunk IHDR (offset 33)
-			byte[] newBytes = injectChunks(originalBytes, textChunks);
+			byte[] newBytes = injectIntoBytes(originalBytes, meta);
 			Files.write(imageFile.toPath(), newBytes);
-
 		} catch (Exception e) {
-			e.printStackTrace();
+			ScreenshotLogger.error("Could not save screenshot metadata to {} : {}",
+					Config.getInstance().getScreenshotsDir().relativize(imageFile.toPath()), e.getMessage());
 		}
 	}
 
@@ -96,6 +82,25 @@ public class ScreenshotMetadataUtils {
 		return out.toByteArray();
 	}
 
+	public static byte[] injectIntoBytes(byte[] originalBytes, ScreenshotMetadata meta) throws Exception {
+		if (meta == null) return originalBytes;
+
+		List<byte[]> textChunks = new ArrayList<>();
+		if (meta.getX() != null) textChunks.add(buildTextChunk(KEY_X, String.valueOf(meta.getX())));
+		if (meta.getY() != null) textChunks.add(buildTextChunk(KEY_Y, String.valueOf(meta.getY())));
+		if (meta.getZ() != null) textChunks.add(buildTextChunk(KEY_Z, String.valueOf(meta.getZ())));
+		if (meta.getDimension() != null)
+			textChunks.add(buildTextChunk(KEY_DIMENSION, meta.getDimension().toString()));
+		if (meta.getBiome() != null) textChunks.add(buildTextChunk(KEY_BIOME, meta.getBiome().toString()));
+		if (meta.getWorldName() != null) textChunks.add(buildTextChunk(KEY_WORLD, meta.getWorldName()));
+		if (meta.getServerIp() != null) textChunks.add(buildTextChunk(KEY_SERVER, meta.getServerIp()));
+		if (meta.getTimestamp() != null)
+			textChunks.add(buildTextChunk(KEY_TIMESTAMP, String.valueOf(meta.getTimestamp())));
+		if (!meta.getTags().isEmpty()) textChunks.add(buildTextChunk(KEY_TAGS, String.join(",", meta.getTags())));
+
+		return injectChunks(originalBytes, textChunks);
+	}
+
 	public static ScreenshotMetadata read(File imageFile) throws Exception {
 		Map<String, String> meta = new LinkedHashMap<>();
 		DataInputStream dis = new DataInputStream(new FileInputStream(imageFile));
@@ -125,11 +130,11 @@ public class ScreenshotMetadataUtils {
 		dis.close();
 
 		return new ScreenshotMetadata(
-				meta.containsKey(KEY_X) ? Integer.parseInt(meta.get("X")) : null,
-				meta.containsKey(KEY_Y) ? Integer.parseInt(meta.get("Y")) : null,
-				meta.containsKey(KEY_Z) ? Integer.parseInt(meta.get("Z")) : null,
-				meta.get(KEY_DIMENSION),
-				meta.get(KEY_BIOME),
+				meta.containsKey(KEY_X) ? Long.parseLong(meta.get("X")) : null,
+				meta.containsKey(KEY_Y) ? Long.parseLong(meta.get("Y")) : null,
+				meta.containsKey(KEY_Z) ? Long.parseLong(meta.get("Z")) : null,
+				Identifier.tryParse(meta.get(KEY_DIMENSION)),
+				Identifier.tryParse(meta.get(KEY_BIOME)),
 				meta.get(KEY_WORLD),
 				meta.get(KEY_SERVER),
 				meta.containsKey(KEY_TIMESTAMP) ? Long.parseLong(meta.get("Timestamp")) : null,
@@ -140,36 +145,97 @@ public class ScreenshotMetadataUtils {
 	public static ScreenshotMetadata collect() {
 		if (MINECRAFT.player == null || MINECRAFT.level == null)
 			return new ScreenshotMetadata(
-				null, null, null, 
-				null, null, null, null,
-				System.currentTimeMillis(), new ArrayList<>()
-		);
+					null, null, null,
+					null, null, null, null,
+					System.currentTimeMillis(), new ArrayList<>()
+			);
 
-		String server = null;
+		String serverIp = null;
 		String worldName = null;
 
 		if (MINECRAFT.getCurrentServer() != null) {
-			server = MINECRAFT.getCurrentServer().ip;
+			serverIp = MINECRAFT.getCurrentServer().ip;
 		} else if (MINECRAFT.getSingleplayerServer() != null) {
 			worldName = MINECRAFT.getSingleplayerServer().getWorldData().getLevelName();
 		}
-		
-		String biome = null;
+
 		ResourceKey<Biome> biomeKey = MINECRAFT.level.getBiome(MINECRAFT.player.getOnPos()).unwrapKey().orElse(null);
-		if (biomeKey != null) {
-			biome = biomeKey.toString();
-		}
+		Identifier biomeId = biomeKey == null ? null : biomeKey.identifier();
 
 		return new ScreenshotMetadata(
-				Mth.floor(MINECRAFT.player.getX()),
-				Mth.floor(MINECRAFT.player.getY()),
-				Mth.floor(MINECRAFT.player.getZ()),
-				MINECRAFT.level.dimension().toString(),
-				biome,
+				(long) Math.floor(MINECRAFT.player.getX()),
+				(long) Math.floor(MINECRAFT.player.getY()),
+				(long) Math.floor(MINECRAFT.player.getZ()),
+				MINECRAFT.level.dimension().identifier(),
+				biomeId,
 				worldName,
-				server,
+				serverIp,
 				System.currentTimeMillis(),
 				new ArrayList<>()
 		);
+	}
+
+	public static void update(File imageFile, ScreenshotMetadata meta) {
+		try {
+			byte[] originalBytes = Files.readAllBytes(imageFile.toPath());
+			byte[] stripped = stripTextChunks(originalBytes);
+			byte[] newBytes = injectIntoBytes(stripped, meta);
+			Files.write(imageFile.toPath(), newBytes);
+		} catch (Exception e) {
+			ScreenshotLogger.error("Could not update screenshot metadata for {} : {}",
+					Config.getInstance().getScreenshotsDir().relativize(imageFile.toPath()), e.getMessage());
+		}
+	}
+
+	/**
+	 * Retourne les bytes PNG sans aucun chunk tEXt
+	 */
+	private static byte[] stripTextChunks(byte[] original) throws Exception {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		DataInputStream dis = new DataInputStream(new ByteArrayInputStream(original));
+
+		// Signature PNG
+		byte[] signature = new byte[8];
+		dis.readFully(signature);
+		out.write(signature);
+
+		while (dis.available() > 0) {
+			int length = dis.readInt();
+			byte[] typeBytes = new byte[4];
+			dis.readFully(typeBytes);
+			String type = new String(typeBytes, StandardCharsets.US_ASCII);
+
+			byte[] data = new byte[length];
+			dis.readFully(data);
+			byte[] crc = new byte[4];
+			dis.readFully(crc);
+
+			if (type.equals("tEXt")) continue; // On saute les chunks existants
+
+			// On réécrit les autres chunks intacts
+			DataOutputStream dos = new DataOutputStream(out);
+			dos.writeInt(length);
+			out.write(typeBytes);
+			out.write(data);
+			out.write(crc);
+		}
+
+		return out.toByteArray();
+	}
+
+	public static void saveIfDirty(Screenshot screenshot) {
+		if (!screenshot.isDirty()) return;
+		try {
+			ScreenshotMetadataUtils.update(screenshot.file(), screenshot.metadata());
+			screenshot.markSaved();
+		} catch (Exception e) {
+			ScreenshotLogger.error("Could not save metadata for {}", screenshot.file().getName());
+		}
+	}
+
+	public static void saveAllDirty(List<Screenshot> screenshots) {
+		screenshots.stream()
+				.filter(Screenshot::isDirty)
+				.forEach(ScreenshotMetadataUtils::saveIfDirty);
 	}
 }

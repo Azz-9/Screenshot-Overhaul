@@ -6,6 +6,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -19,6 +20,9 @@ public class NavigationButton extends Button {
 	private static final @NonNull Identifier NEXT_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/arrow_right");
 
 	private final NavigationButton.@NonNull NavigationType navigation;
+
+	// same as active but without the texture change
+	private boolean clickable = true;
 
 	public NavigationButton(int x, int y, int width, int height, NavigationButton.@NonNull NavigationType navigation, OnPress onPress) {
 		super(x, y, width, height, navigation == NavigationType.BACK
@@ -47,6 +51,23 @@ public class NavigationButton extends Button {
 					getWidth(), getHeight()
 			);
 		}
+	}
+
+	@Override
+	public boolean isHoveredOrFocused() {
+		return super.isHoveredOrFocused() && clickable;
+	}
+
+	@Override
+	public boolean mouseClicked(@NonNull MouseButtonEvent event, boolean doubleClick) {
+		if (!clickable) {
+			return false;
+		}
+		return super.mouseClicked(event, doubleClick);
+	}
+
+	public void setClickable(boolean clickable) {
+		this.clickable = clickable;
 	}
 
 	public enum NavigationType {

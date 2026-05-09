@@ -21,10 +21,28 @@
 	"screenshot_utilities.gallery_widget.sort_mode.date_desc": "Newest first",
 	"screenshot_utilities.gallery_widget.open_screenshot_folder": "Open screenshot folder",
 
+	"screenshot_utilities.int_field.increment": "Increment",
+	"screenshot_utilities.int_field.decrement": "Decrement",
+
+	"screenshot_utilities.close": "Close",
 	"screenshot_utilities.delete": "Delete",
 	"screenshot_utilities.copy": "Copy",
+	"screenshot_utilities.copied": "Copied!",
+	"screenshot_utilities.reset": "Reset",
+	"screenshot_utilities.edit_metadata": "Edit metadata",
+	"screenshot_utilities.metadata.x": "X",
+	"screenshot_utilities.metadata.y": "Y",
+	"screenshot_utilities.metadata.z": "Z",
+	"screenshot_utilities.metadata.dimension": "Dimension",
+	"screenshot_utilities.metadata.biome": "Biome",
+	"screenshot_utilities.metadata.world_name": "World name",
+	"screenshot_utilities.metadata.server": "Server IP",
+	"screenshot_utilities.metadata.timestamp": "Timestamp",
+	"screenshot_utilities.metadata.tags": "Tags",
+	"screenshot_utilities.metadata.tags.placeholder": "tag1, tag2...",
 
 	"screenshot_utilities.hide_from_worldmap": "Hide from worldmap",
+	"screenshot_utilities.hidden_from_worldmap": "Hidden from worldmap",
 
 	"screenshot_utilities.save_and_quit": "Save and quit",
 	"screenshot_utilities.cancel": "Cancel",
