@@ -52,13 +52,13 @@ public abstract class SimpleParentWidget extends AbstractContainerEventHandler i
 		}
 	}
 
-	private boolean isInBounds(double x, double y) {
+	protected boolean isInBounds(double x, double y) {
 		return x >= this.getX() && y >= this.getY() && x < this.getRight() && y < this.getBottom();
 	}
 
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) {
-		return visible && isInBounds(mouseX, mouseY);
+		return isVisible() && isInBounds(mouseX, mouseY);
 	}
 
 	public boolean isHovered() {

@@ -1,0 +1,175 @@
+package me.Azz_9.screenshot_utilities.client.config.widget.concreteoptionwidgets;
+
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+
+import org.jspecify.annotations.NonNull;
+
+import java.nio.file.Path;
+
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import me.Azz_9.screenshot_utilities.client.Colors;
+import me.Azz_9.screenshot_utilities.client.config.option.ConfigOptionWidget;
+import me.Azz_9.screenshot_utilities.client.config.option.options.PathConfigOption;
+
+/**
+ * Row widget for {@link PathConfigOption}.
+ *
+ * <p>Shows a read-only {@link EditBox} with the path string and a "…" button
+ * that opens a {@link JFileChooser} on the AWT Event Dispatch Thread.</p>
+ */
+@Environment(EnvType.CLIENT)
+public final class PathConfigOptionWidget extends ConfigOptionWidget<Path> {
+
+	private static final int BROWSE_BUTTON_WIDTH = 24;
+	private static final int INNER_GAP = 4;
+
+	private final @NonNull PathConfigOption pathOption;
+	private EditBox pathField;
+
+	public PathConfigOptionWidget(int x, int y, int width, @NonNull PathConfigOption option) {
+		super(x, y, width, option);
+		this.pathOption = option;
+	}
+
+	@Override
+	protected @NonNull AbstractWidget createControlWidget(int x, int y, int width) {
+		int fieldWidth = width - BROWSE_BUTTON_WIDTH - INNER_GAP;
+
+		pathField = new EditBox(MINECRAFT.font, x, y, fieldWidth, ROW_HEIGHT, Component.empty());
+		pathField.setEditable(false);
+		pathField.setValue(option.getWorkingValue().toString());
+		pathField.setTextColor(Colors.LIGHT_GRAY);
+
+		// The browse button is rendered/handled manually in renderWidget/mouseClicked
+		// because createControlWidget returns a single widget. We wrap both in a
+		// composite container widget.
+		return new CompositeControlWidget(x, y, width, pathField,
+				Button.builder(Component.literal("…"), btn -> openFileChooser())
+						.pos(x + fieldWidth + INNER_GAP, y)
+						.size(BROWSE_BUTTON_WIDTH, ROW_HEIGHT)
+						.build());
+	}
+
+	@Override
+	protected void onValueReset() {
+		pathField.setValue(option.getWorkingValue().toString());
+	}
+
+	private void openFileChooser() {
+		// Run on the AWT EDT to avoid Minecraft thread conflicts
+		SwingUtilities.invokeLater(() -> {
+			JFileChooser chooser = new JFileChooser();
+			chooser.setCurrentDirectory(option.getWorkingValue().toFile());
+
+			// Selection mode
+			chooser.setFileSelectionMode(switch (pathOption.getSelectionMode()) {
+				case FILES_ONLY -> JFileChooser.FILES_ONLY;
+				case DIRECTORIES_ONLY -> JFileChooser.DIRECTORIES_ONLY;
+				case FILES_AND_DIRECTORIES -> JFileChooser.FILES_AND_DIRECTORIES;
+			});
+
+			// Extension filter
+			if (pathOption.getFileExtensionFilter() != null) {
+				String ext = pathOption.getFileExtensionFilter();
+				String desc = pathOption.getFileExtensionDescription() != null
+						? pathOption.getFileExtensionDescription() : ext;
+				chooser.setFileFilter(new FileNameExtensionFilter(desc, ext));
+			}
+
+			int result = chooser.showOpenDialog(null);
+			if (result == JFileChooser.APPROVE_OPTION) {
+				Path selected = chooser.getSelectedFile().toPath();
+				MINECRAFT.execute(() -> {
+					option.setWorkingValue(selected);
+					pathField.setValue(selected.toString());
+					refreshValidation();
+				});
+			}
+		});
+	}
+
+	// -------------------------------------------------------------------------
+	// Composite helper — wraps two widgets as one for the parent contract
+	// -------------------------------------------------------------------------
+
+	private static final class CompositeControlWidget extends AbstractWidget {
+
+		private final @NonNull AbstractWidget first;
+		private final @NonNull AbstractWidget second;
+
+		CompositeControlWidget(int x, int y, int width, @NonNull AbstractWidget first, @NonNull AbstractWidget second) {
+			super(x, y, width, ROW_HEIGHT, Component.empty());
+			this.first = first;
+			this.second = second;
+		}
+
+		@Override
+		protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTick) {
+			first.extractRenderState(graphics, mouseX, mouseY, deltaTick);
+			second.extractRenderState(graphics, mouseX, mouseY, deltaTick);
+		}
+
+		@Override
+		public boolean mouseClicked(@NonNull MouseButtonEvent event, boolean doubleClick) {
+			return first.mouseClicked(event, doubleClick) || second.mouseClicked(event, doubleClick);
+		}
+
+		@Override
+		public boolean mouseReleased(@NonNull MouseButtonEvent event) {
+			return first.mouseReleased(event) || second.mouseReleased(event);
+		}
+
+		@Override
+		public boolean keyPressed(@NonNull KeyEvent event) {
+			return first.keyPressed(event) || second.keyPressed(event);
+		}
+
+		@Override
+		public boolean charTyped(@NonNull CharacterEvent event) {
+			return first.charTyped(event) || second.charTyped(event);
+		}
+
+		@Override
+		public void setX(int x) {
+			int delta = x - getX();
+			super.setX(x);
+			first.setX(first.getX() + delta);
+			second.setX(second.getX() + delta);
+		}
+
+		@Override
+		public void setY(int y) {
+			super.setY(y);
+			first.setY(y);
+			second.setY(y);
+		}
+
+		@Override
+		public void setWidth(int width) {
+			int browseW = second.getWidth();
+			int fieldW = width - browseW - 4;
+			super.setWidth(width);
+			first.setWidth(fieldW);
+			second.setX(getX() + fieldW + 4);
+		}
+
+		@Override
+		public void updateWidgetNarration(@NonNull NarrationElementOutput output) {
+			//first.updateWidgetNarration(output);
+		}
+	}
+}

@@ -230,6 +230,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 	private MetadataEditorPanel createMetadataEditorPanel() {
 		MetadataEditorPanel panel = new MetadataEditorPanel(METADATA_EDITOR_PANEL_WIDTH, height);
+		panel.setVisible(false);
 		panel.setOnVisibilityChange((visible) -> nextButton.setClickable(!visible));
 		return panel;
 	}
@@ -361,6 +362,12 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 		}
 
 		super.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
+
+		Optional<GuiEventListener> element = getChildAt(mouseX, mouseY);
+		if (element.isPresent() && element.get() instanceof MetadataEditorPanel panel) {
+			graphics.text(MINECRAFT.font, "panel", mouseX, mouseY, Colors.WHITE);
+			graphics.text(MINECRAFT.font, panel.isMouseOver(mouseX, mouseY) + " " + panel.isVisible(), mouseX, mouseY + 10, Colors.WHITE);
+		}
 
 		extractFullViewRenderState(graphics, mouseX, mouseY, deltaTicks);
 	}

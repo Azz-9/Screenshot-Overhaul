@@ -49,5 +49,16 @@
 
 	"screenshot_utilities.favorite": "Favorite",
 
-	"screenshot_utilities.settings": "Settings"
+	"screenshot_utilities.settings": "Settings",
+	"screenshot_utilities.settings.cancel": "Cancel",
+	"screenshot_utilities.settings.save": "Save and quit",
+	"screenshot_utilities.settings.reset_to_default": "Reset to default",
+	"screenshot_utilities.settings.on": "ON",
+	"screenshot_utilities.settings.off": "OFF",
+	"screenshot_utilities.settings.validation.invalid": "Invalid value",
+	"screenshot_utilities.settings.validation.out_of_range": "Value must be between %s and %s",
+	"screenshot_utilities.settings.unsaved.title": "Unsaved changes",
+	"screenshot_utilities.settings.unsaved.body": "You have unsaved changes. Are you sure you want to quit without saving?",
+	"screenshot_utilities.settings.unsaved.cancel": "Cancel",
+	"screenshot_utilities.settings.unsaved.discard": "Quit and discard"
 }

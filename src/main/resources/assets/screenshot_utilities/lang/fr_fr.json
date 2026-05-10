@@ -42,11 +42,23 @@
 	"screenshot_utilities.metadata.tags.placeholder": "étiquette1, étiquette2...",
 
 	"screenshot_utilities.hide_from_worldmap": "Cacher de la carte",
+	"screenshot_utilities.hidden_from_worldmap": "Caché de la carte",
 
 	"screenshot_utilities.save_and_quit": "Sauvegarder et quitter",
 	"screenshot_utilities.cancel": "Annulé",
 
 	"screenshot_utilities.favorite": "Favoris",
 
-	"screenshot_utilities.settings": "Paramètres"
+	"screenshot_utilities.settings": "Paramètres",
+	"screenshot_utilities.settings.cancel": "Annuler",
+	"screenshot_utilities.settings.save": "Sauvegarder et quitter",
+	"screenshot_utilities.settings.reset_to_default": "Reset to default",
+	"screenshot_utilities.settings.on": "ON",
+	"screenshot_utilities.settings.off": "OFF",
+	"screenshot_utilities.settings.validation.invalid": "Invalid value",
+	"screenshot_utilities.settings.validation.out_of_range": "Value must be between %s and %s",
+	"screenshot_utilities.settings.unsaved.title": "Unsaved changes",
+	"screenshot_utilities.settings.unsaved.body": "You have unsaved changes. Are you sure you want to quit without saving?",
+	"screenshot_utilities.settings.unsaved.cancel": "Cancel",
+	"screenshot_utilities.settings.unsaved.discard": "Quit and discard"
 }
