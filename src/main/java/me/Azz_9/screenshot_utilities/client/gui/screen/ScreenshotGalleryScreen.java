@@ -219,12 +219,6 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 		return Button.builder(Component.translatable("screenshot_utilities.edit_metadata"), (btn) -> {
 					if (selectedScreenshot != null) {
 						metadataEditorPanel.setVisible(!metadataEditorPanel.isVisible());
-						if (metadataEditorPanel.isVisible()) {
-							nextButton.setClickable(false);
-							metadataEditorPanel.init(selectedScreenshot);
-						} else {
-							nextButton.setClickable(true);
-						}
 					}
 				})
 				.bounds(
@@ -235,7 +229,9 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	}
 
 	private MetadataEditorPanel createMetadataEditorPanel() {
-		return new MetadataEditorPanel(METADATA_EDITOR_PANEL_WIDTH, height);
+		MetadataEditorPanel panel = new MetadataEditorPanel(METADATA_EDITOR_PANEL_WIDTH, height);
+		panel.setOnVisibilityChange((visible) -> nextButton.setClickable(!visible));
+		return panel;
 	}
 
 	// save and quit
@@ -272,6 +268,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 	public void selectScreenshot(@NonNull Screenshot screenshot) {
 		selectedScreenshot = screenshot;
+		metadataEditorPanel.init(selectedScreenshot);
 
 		backButton.visible = true;
 		nextButton.visible = true;
@@ -337,6 +334,7 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	private void startTransition(Screenshot next, int direction) {
 		this.outgoingScreenshot = this.selectedScreenshot;
 		this.selectedScreenshot = next;
+		metadataEditorPanel.init(selectedScreenshot);
 
 		this.transitionDirection = direction;
 		this.transitionTime = 0f;

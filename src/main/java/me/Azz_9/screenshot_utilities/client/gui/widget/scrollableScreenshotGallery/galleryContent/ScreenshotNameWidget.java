@@ -395,8 +395,9 @@ public class ScreenshotNameWidget extends AbstractWidget implements TrackableCha
 		}
 	}
 
+	@Override
 	public boolean isActive() {
-		return this.shouldTakeFocusAfterInteraction() && this.isEditable();
+		return this.shouldTakeFocusAfterInteraction() && this.isEditable() && active;
 	}
 
 	@Override

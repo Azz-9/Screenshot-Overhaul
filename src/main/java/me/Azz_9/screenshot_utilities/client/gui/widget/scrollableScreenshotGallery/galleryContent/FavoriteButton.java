@@ -27,6 +27,7 @@ public class FavoriteButton extends Button {
 	private static final @NonNull Identifier FILLED_HOVERED_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/favorite_filled_hovered");
 
 	private boolean filled;
+	private float progress;
 
 	protected FavoriteButton(int x, int y, int width, int height, OnPress onPress, boolean filled) {
 		super(x, y, width, height, Component.translatable("screenshot_utilities.favorite"), onPress, DEFAULT_NARRATION);
@@ -45,11 +46,15 @@ public class FavoriteButton extends Button {
 		this.filled = !this.filled;
 	}
 
+	public void setProgress(float progress) {
+		this.progress = progress;
+	}
+
 	@Override
 	protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
 		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, getTexture(),
 				getX() + PADDING, getY() + PADDING,
-				getWidth() - PADDING * 2, getHeight() - PADDING * 2);
+				getWidth() - PADDING * 2, getHeight() - PADDING * 2, progress);
 	}
 
 	private @NonNull Identifier getTexture() {

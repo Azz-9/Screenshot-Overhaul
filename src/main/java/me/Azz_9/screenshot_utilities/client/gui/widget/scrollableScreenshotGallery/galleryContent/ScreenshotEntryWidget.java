@@ -5,6 +5,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.util.Ease;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -24,6 +25,10 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 	public static final int NAME_HEIGHT = 30;
 
 	private static final int BUTTON_SIZE = 10;
+	private static final int BUTTON_FADE_DURATION = 250;
+	private long startTime;
+	private boolean wasHovered;
+	private float progress;
 
 	private final @NonNull ScreenshotThumbnailWidget thumbnailWidget;
 	private final @NonNull ScreenshotNameWidget nameWidget;
@@ -89,12 +94,28 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 		thumbnailWidget.extractRenderState(graphics, mouseX, mouseY, delta);
 		nameWidget.extractRenderState(graphics, mouseX, mouseY, delta);
 
+		if (wasHovered != isHovered()) {
+			startTime = System.currentTimeMillis();
+		}
+
+		updateAnimation();
+
 		if (isHovered() && favoriteButton.active || favoriteButton.isFilled()) {
+			favoriteButton.setProgress(favoriteButton.isFilled() ? 1 : progress);
 			favoriteButton.extractRenderState(graphics, mouseX, mouseY, delta);
 		}
 		if (isHovered() && hideFromMapButton.active || hideFromMapButton.isCrossed()) {
+			hideFromMapButton.setProgress(hideFromMapButton.isCrossed() ? 1 : progress);
 			hideFromMapButton.extractRenderState(graphics, mouseX, mouseY, delta);
 		}
+
+		wasHovered = isHovered();
+	}
+
+	private void updateAnimation() {
+		progress = Ease.outQuad(Math.clamp((float) (System.currentTimeMillis() - startTime) / BUTTON_FADE_DURATION, 0, 1));
+		if (!isHovered())
+			progress = 1.0f - progress;
 	}
 
 	public void triggerLoad() {
@@ -170,8 +191,9 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 	}
 
 	public long getTimestampOrLastModified() {
-		if (screenshot.metadata().getTimestamp() != null) {
-			return screenshot.metadata().getTimestamp();
+		Long timestamp = screenshot.metadata().getTimestamp();
+		if (timestamp != null) {
+			return timestamp;
 		}
 		return screenshot.file().lastModified();
 	}

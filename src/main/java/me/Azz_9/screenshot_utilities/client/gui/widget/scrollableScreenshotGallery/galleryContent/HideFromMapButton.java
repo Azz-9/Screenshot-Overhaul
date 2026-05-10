@@ -27,6 +27,7 @@ public class HideFromMapButton extends Button {
 	private static final @NonNull Identifier CROSSED_HOVERED_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/hide_from_map_crossed_hovered");
 
 	private boolean crossed;
+	private float progress;
 
 	protected HideFromMapButton(int x, int y, int width, int height, OnPress onPress, boolean crossed) {
 		super(x, y, width, height, Component.translatable("screenshot_utilities.hide_from_worldmap"), onPress, DEFAULT_NARRATION);
@@ -50,11 +51,15 @@ public class HideFromMapButton extends Button {
 		setCrossed(!isCrossed());
 	}
 
+	public void setProgress(float progress) {
+		this.progress = progress;
+	}
+
 	@Override
 	protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
 		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, getTexture(),
 				getX() + PADDING, getY() + PADDING,
-				getWidth() - PADDING * 2, getHeight() - PADDING * 2);
+				getWidth() - PADDING * 2, getHeight() - PADDING * 2, progress);
 	}
 
 	private @NonNull Identifier getTexture() {

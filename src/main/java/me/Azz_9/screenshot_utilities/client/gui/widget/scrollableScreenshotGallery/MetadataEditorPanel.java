@@ -40,6 +40,8 @@ public class MetadataEditorPanel extends SimpleParentWidget {
 	private static final int BUTTON_WIDTH = 20;
 	private static final Component FIELD_PLACEHOLDER = Component.literal("null");
 
+	private @Nullable Consumer<Boolean> onVisibilityChange;
+
 	// animation
 	private static final int ANIMATION_DURATION = 400;
 	private long animationStart;
@@ -131,10 +133,15 @@ public class MetadataEditorPanel extends SimpleParentWidget {
 		}
 	}
 
+	public void setOnVisibilityChange(@Nullable Consumer<Boolean> onVisibilityChange) {
+		this.onVisibilityChange = onVisibilityChange;
+	}
+
 	@Override
 	public void setVisible(boolean visible) {
 		slidingIn = visible;
 		animationStart = System.currentTimeMillis();
+		if (onVisibilityChange != null) onVisibilityChange.accept(visible);
 		if (visible) {
 			super.setVisible(true);
 		}

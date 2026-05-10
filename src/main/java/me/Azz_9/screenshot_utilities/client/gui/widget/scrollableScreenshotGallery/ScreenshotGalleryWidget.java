@@ -190,12 +190,6 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 		return openFolderButton;
 	}
 
-	private static LocalDate getScreenshotDate(File file) {
-		return Instant.ofEpochMilli(file.lastModified())
-				.atZone(ZoneId.systemDefault())
-				.toLocalDate();
-	}
-
 	/* ---------------- Layout ---------------- */
 
 	private void buildEntries(@NonNull List<Screenshot> screenshots) {
@@ -271,7 +265,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 				continue;
 			}
 
-			LocalDate entryDate = getScreenshotDate(entry.getScreenshotFile());
+			LocalDate entryDate = Instant.ofEpochMilli(entry.getTimestampOrLastModified()).atZone(ZoneId.systemDefault()).toLocalDate();
 
 			// separator
 			if (!entryDate.equals(lastDate)) {
