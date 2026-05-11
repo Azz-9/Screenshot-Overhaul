@@ -41,9 +41,9 @@ public class SettingsScreen extends TabsScreen implements FocusableScreen {
 	// -------------------------------------------------------------------------
 
 	private static final int BOTTOM_BAR_HEIGHT = 36;
-	private static final int BUTTON_WIDTH = 120;
+	private static final int BUTTON_WIDTH = 200;
 	private static final int BUTTON_HEIGHT = 20;
-	private static final int BUTTON_GAP = 8;
+	private static final int BUTTON_GAP = 10;
 	private static final int LIST_TOP_PADDING = 8;
 
 	// -------------------------------------------------------------------------
@@ -156,14 +156,14 @@ public class SettingsScreen extends TabsScreen implements FocusableScreen {
 		int startX = (width - totalW) / 2;
 
 		cancelButton = Button.builder(
-						Component.translatable("screenshot_utilities.settings.cancel"),
+						Component.translatable("screenshot_utilities.cancel"),
 						btn -> onCancelPressed())
 				.pos(startX, buttonsY)
 				.size(BUTTON_WIDTH, BUTTON_HEIGHT)
 				.build();
 
 		saveButton = Button.builder(
-						Component.translatable("screenshot_utilities.settings.save"),
+						Component.translatable("screenshot_utilities.save_and_quit"),
 						btn -> onSavePressed())
 				.pos(startX + BUTTON_WIDTH + BUTTON_GAP, buttonsY)
 				.size(BUTTON_WIDTH, BUTTON_HEIGHT)

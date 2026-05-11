@@ -50,8 +50,6 @@
 	"screenshot_utilities.favorite": "Favoris",
 
 	"screenshot_utilities.settings": "Paramètres",
-	"screenshot_utilities.settings.cancel": "Annuler",
-	"screenshot_utilities.settings.save": "Sauvegarder et quitter",
 	"screenshot_utilities.settings.reset_to_default": "Réinitialiser à la valeur par défaut",
 	"screenshot_utilities.settings.on": "Activé",
 	"screenshot_utilities.settings.off": "Désactivé",
