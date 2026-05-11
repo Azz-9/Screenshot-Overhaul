@@ -53,6 +53,7 @@ public class TabsScreen extends AbstractBackNavigableScreen {
 	// -------------------------------------------------------------------------
 
 	public @NonNull Tab addTab(@NonNull Tab tab) {
+		tab.setPosition(getNextTabX(), TABS_Y);
 		tabs.add(tab);
 		addRenderableWidget(tab);
 		return tab;
@@ -108,9 +109,7 @@ public class TabsScreen extends AbstractBackNavigableScreen {
 		}
 
 		@Override
-		protected void extractContents(
-				GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks
-		) {
+		protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
 			int color = selected || isHovered() ? Colors.WHITE : Colors.GRAY;
 
 			graphics.text(MINECRAFT.font, getMessage(),

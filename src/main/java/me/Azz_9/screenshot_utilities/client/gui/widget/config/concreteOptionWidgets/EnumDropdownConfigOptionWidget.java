@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_utilities.client.config.widget.concreteoptionwidgets;
+package me.Azz_9.screenshot_utilities.client.gui.widget.config.concreteOptionWidgets;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 

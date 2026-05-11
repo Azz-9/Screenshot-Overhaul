@@ -14,16 +14,16 @@ import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGalle
 public class Config {
 	private static final @NonNull Config INSTANCE = new Config();
 
-	public final @NonNull ConfigObject<Boolean> enableWholeMod = new ConfigObject<>(true, "");
+	public final @NonNull ConfigObject<Boolean> enableWholeMod = new ConfigObject<>(true, "screenshot_utilities.config.enable_whole_mod");
 
-	public final @NonNull ConfigObject<Boolean> freezeInPhotoMode = new ConfigObject<>(true, "");
-	public final @NonNull ConfigObject<Boolean> showPlayer = new ConfigObject<>(true, "");
-	public final @NonNull ConfigObject<Boolean> showNametags = new ConfigObject<>(true, "");
+	public final @NonNull ConfigObject<Boolean> freezeInPhotoMode = new ConfigObject<>(true, "screenshot_utilities.config.freeze_in_photo_mode");
+	public final @NonNull ConfigObject<Boolean> showPlayer = new ConfigObject<>(true, "screenshot_utilities.config.show_player");
+	public final @NonNull ConfigObject<Boolean> showNametags = new ConfigObject<>(true, "screenshot_utilities.config.show_nametags");
 
-	public final @NonNull ConfigObject<Boolean> showScreenshotsOnXaerosWorldMap = new ConfigObject<>(true, "");
+	public final @NonNull ConfigObject<Boolean> showScreenshotsOnXaerosWorldMap = new ConfigObject<>(true, "screenshot_utilities.config.show_screenshots_on_xaeros_world_map");
 
-	public final @NonNull ConfigObject<Path> screenshotsDir = new ConfigObject<>(MINECRAFT.gameDirectory.toPath().resolve("screenshots"), "");
-	public final @NonNull ConfigObject<Boolean> showChatMessage = new ConfigObject<>(true, "");
+	public final @NonNull ConfigObject<Path> screenshotsDir = new ConfigObject<>(MINECRAFT.gameDirectory.toPath().resolve("screenshots"), "screenshot_utilities.config.screenshots_dir");
+	public final @NonNull ConfigObject<Boolean> showChatMessage = new ConfigObject<>(true, "screenshot_utilities.config.show_chat_message");
 	public final @NonNull SavableObject<ScreenshotGalleryWidget.SortMode> sortOrder = new SavableObject<>(ScreenshotGalleryWidget.SortMode.DATE_DESC);
 
 	public static @NonNull Config getInstance() {

@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_utilities.client.config.widget;
+package me.Azz_9.screenshot_utilities.client.gui.widget.config;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -8,7 +8,7 @@ import org.jspecify.annotations.NonNull;
 import me.Azz_9.screenshot_utilities.client.config.option.ConfigOption;
 import me.Azz_9.screenshot_utilities.client.config.option.ConfigOptionWidget;
 import me.Azz_9.screenshot_utilities.client.config.option.options.*;
-import me.Azz_9.screenshot_utilities.client.config.widget.concreteoptionwidgets.*;
+import me.Azz_9.screenshot_utilities.client.gui.widget.config.concreteOptionWidgets.*;
 
 /**
  * Creates the appropriate {@link ConfigOptionWidget} for a given {@link ConfigOption}.

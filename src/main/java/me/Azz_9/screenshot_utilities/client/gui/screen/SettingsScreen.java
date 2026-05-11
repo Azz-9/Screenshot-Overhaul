@@ -23,30 +23,15 @@ import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.config.option.ConfigOption;
 import me.Azz_9.screenshot_utilities.client.config.option.options.BooleanConfigOption;
 import me.Azz_9.screenshot_utilities.client.config.option.options.PathConfigOption;
-import me.Azz_9.screenshot_utilities.client.config.widget.ConfigOptionListWidget;
-import me.Azz_9.screenshot_utilities.client.config.widget.ConfigTabContent;
-import me.Azz_9.screenshot_utilities.client.config.widget.UnsavedChangesOverlay;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
+import me.Azz_9.screenshot_utilities.client.gui.widget.config.ConfigOptionListWidget;
+import me.Azz_9.screenshot_utilities.client.gui.widget.config.ConfigTabContent;
+import me.Azz_9.screenshot_utilities.client.gui.widget.config.UnsavedChangesOverlay;
 
 /**
  * Settings screen with tabs, scrollable option lists, validation, and an
  * "unsaved changes" overlay.
- *
- * <h3>Usage</h3>
- * <pre>{@code
- * SettingsScreen screen = new SettingsScreen(currentScreen);
- *
- * ConfigTabContent general = ConfigTabContent.builder()
- *     .section(Component.literal("Appearance"))
- *     .option(BooleanConfigOption.builder(myToggle).build())
- *     .section(Component.literal("Paths"))
- *     .option(PathConfigOption.builder(myPath).selectionMode(DIRECTORIES_ONLY).build())
- *     .build();
- *
- * screen.addConfigTab(Component.literal("General"), general);
- * Minecraft.getInstance().setScreen(screen);
- * }</pre>
  */
 @Environment(EnvType.CLIENT)
 public class SettingsScreen extends TabsScreen implements FocusableScreen {
@@ -94,29 +79,6 @@ public class SettingsScreen extends TabsScreen implements FocusableScreen {
 
 	public SettingsScreen(@Nullable Screen parent) {
 		super(Component.translatable("screenshot_utilities.settings"), parent);
-	}
-
-	// -------------------------------------------------------------------------
-	// Tab registration (call before the screen is opened)
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Registers a tab with its content. Tabs are displayed in registration order.
-	 *
-	 * @param tabLabel human-readable tab title
-	 * @param content  the option layout for this tab
-	 */
-	public void addConfigTab(@NonNull Component tabLabel, @NonNull ConfigTabContent content) {
-		Tab tab = new SettingsScreen.ConfigTab(tabLabel, content);
-		tabContents.put(tab, content);
-	}
-
-	// -------------------------------------------------------------------------
-	// Screen lifecycle
-	// -------------------------------------------------------------------------
-
-	@Override
-	protected void init() {
 
 		// General
 		BooleanConfigOption enableWholeMod = BooleanConfigOption.builder(Config.getInstance().enableWholeMod).build();
@@ -152,7 +114,29 @@ public class SettingsScreen extends TabsScreen implements FocusableScreen {
 				.build();
 
 		addConfigTab(Component.literal("Photo mode"), photoModeContent);
+	}
 
+	// -------------------------------------------------------------------------
+	// Tab registration (call before the screen is opened)
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Registers a tab with its content. Tabs are displayed in registration order.
+	 *
+	 * @param tabLabel human-readable tab title
+	 * @param content  the option layout for this tab
+	 */
+	public void addConfigTab(@NonNull Component tabLabel, @NonNull ConfigTabContent content) {
+		Tab tab = new SettingsScreen.ConfigTab(tabLabel, content);
+		tabContents.put(tab, content);
+	}
+
+	// -------------------------------------------------------------------------
+	// Screen lifecycle
+	// -------------------------------------------------------------------------
+
+	@Override
+	protected void init() {
 		super.init();
 
 		// Register tabs

@@ -9,8 +9,8 @@ import java.nio.file.Path;
 
 import me.Azz_9.screenshot_utilities.client.config.ConfigObject;
 import me.Azz_9.screenshot_utilities.client.config.option.options.*;
-import me.Azz_9.screenshot_utilities.client.config.widget.ConfigTabContent;
 import me.Azz_9.screenshot_utilities.client.gui.screen.SettingsScreen;
+import me.Azz_9.screenshot_utilities.client.gui.widget.config.ConfigTabContent;
 
 /**
  * Example showing how to build and open a SettingsScreen.
@@ -83,6 +83,7 @@ public final class SettingsScreenExample {
 
 		PathConfigOption screenshotDir = PathConfigOption.builder(SCREENSHOT_DIR)
 				.selectionMode(PathConfigOption.SelectionMode.DIRECTORIES_ONLY)
+				.fileDialogTitle(Component.translatable("screenshot_utilities.config.screenshots_dir.file_dialog_title").getString())
 				.tooltip(Component.literal("Directory where screenshots are saved"))
 				.build();
 

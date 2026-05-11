@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_utilities.client.config.widget;
+package me.Azz_9.screenshot_utilities.client.gui.widget.config;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 

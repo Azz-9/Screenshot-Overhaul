@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_utilities.client.config.widget.concreteoptionwidgets;
+package me.Azz_9.screenshot_utilities.client.gui.widget.config.concreteOptionWidgets;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 
@@ -15,11 +15,13 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.NonNull;
+import org.lwjgl.PointerBuffer;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 import java.nio.file.Path;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.config.option.ConfigOptionWidget;
@@ -50,6 +52,7 @@ public final class PathConfigOptionWidget extends ConfigOptionWidget<Path> {
 		int fieldWidth = width - BROWSE_BUTTON_WIDTH - INNER_GAP;
 
 		pathField = new EditBox(MINECRAFT.font, x, y, fieldWidth, ROW_HEIGHT, Component.empty());
+		pathField.setMaxLength(256);
 		pathField.setEditable(false);
 		pathField.setValue(option.getWorkingValue().toString());
 		pathField.setTextColor(Colors.LIGHT_GRAY);
@@ -70,36 +73,51 @@ public final class PathConfigOptionWidget extends ConfigOptionWidget<Path> {
 	}
 
 	private void openFileChooser() {
-		// Run on the AWT EDT to avoid Minecraft thread conflicts
-		SwingUtilities.invokeLater(() -> {
-			JFileChooser chooser = new JFileChooser();
-			chooser.setCurrentDirectory(option.getWorkingValue().toFile());
+		Path currentPath = option.getWorkingValue();
 
-			// Selection mode
-			chooser.setFileSelectionMode(switch (pathOption.getSelectionMode()) {
-				case FILES_ONLY -> JFileChooser.FILES_ONLY;
-				case DIRECTORIES_ONLY -> JFileChooser.DIRECTORIES_ONLY;
-				case FILES_AND_DIRECTORIES -> JFileChooser.FILES_AND_DIRECTORIES;
-			});
+		String selectedPath = switch (pathOption.getSelectionMode()) {
+			case FILES_ONLY -> {
+				try (MemoryStack stack = MemoryStack.stackPush()) {
 
-			// Extension filter
-			if (pathOption.getFileExtensionFilter() != null) {
-				String ext = pathOption.getFileExtensionFilter();
-				String desc = pathOption.getFileExtensionDescription() != null
-						? pathOption.getFileExtensionDescription() : ext;
-				chooser.setFileFilter(new FileNameExtensionFilter(desc, ext));
+					PointerBuffer filters = null;
+
+					// Extension filter
+					if (pathOption.getFileExtensionFilter() != null) {
+						String ext = pathOption.getFileExtensionFilter();
+
+						// TinyFD expects patterns like "*.json"
+						filters = stack.mallocPointer(1);
+						filters.put(stack.UTF8("*." + ext));
+						filters.flip();
+					}
+
+					String description = pathOption.getFileExtensionDescription() != null
+							? pathOption.getFileExtensionDescription()
+							: pathOption.getFileExtensionFilter();
+
+					yield TinyFileDialogs.tinyfd_openFileDialog(
+							pathOption.getDialogTitle(),
+							currentPath.toString(),
+							filters,
+							description,
+							false
+					);
+				}
 			}
 
-			int result = chooser.showOpenDialog(null);
-			if (result == JFileChooser.APPROVE_OPTION) {
-				Path selected = chooser.getSelectedFile().toPath();
-				MINECRAFT.execute(() -> {
-					option.setWorkingValue(selected);
-					pathField.setValue(selected.toString());
-					refreshValidation();
-				});
-			}
-		});
+			case DIRECTORIES_ONLY -> TinyFileDialogs.tinyfd_selectFolderDialog(
+					pathOption.getDialogTitle(),
+					currentPath.toString()
+			);
+		};
+		if (selectedPath == null) return;
+
+		Path selected = Path.of(selectedPath);
+
+		option.setWorkingValue(selected);
+		pathField.setValue(selected.toString());
+
+		refreshValidation();
 	}
 
 	// -------------------------------------------------------------------------

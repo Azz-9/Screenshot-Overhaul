@@ -45,20 +45,31 @@
 	"screenshot_utilities.hidden_from_worldmap": "Caché de la carte",
 
 	"screenshot_utilities.save_and_quit": "Sauvegarder et quitter",
-	"screenshot_utilities.cancel": "Annulé",
+	"screenshot_utilities.cancel": "Annuler",
 
 	"screenshot_utilities.favorite": "Favoris",
 
 	"screenshot_utilities.settings": "Paramètres",
 	"screenshot_utilities.settings.cancel": "Annuler",
 	"screenshot_utilities.settings.save": "Sauvegarder et quitter",
-	"screenshot_utilities.settings.reset_to_default": "Reset to default",
-	"screenshot_utilities.settings.on": "ON",
-	"screenshot_utilities.settings.off": "OFF",
-	"screenshot_utilities.settings.validation.invalid": "Invalid value",
-	"screenshot_utilities.settings.validation.out_of_range": "Value must be between %s and %s",
-	"screenshot_utilities.settings.unsaved.title": "Unsaved changes",
-	"screenshot_utilities.settings.unsaved.body": "You have unsaved changes. Are you sure you want to quit without saving?",
-	"screenshot_utilities.settings.unsaved.cancel": "Cancel",
-	"screenshot_utilities.settings.unsaved.discard": "Quit and discard"
+	"screenshot_utilities.settings.reset_to_default": "Réinitialiser à la valeur par défaut",
+	"screenshot_utilities.settings.on": "Activé",
+	"screenshot_utilities.settings.off": "Désactivé",
+	"screenshot_utilities.settings.validation.invalid": "Valeur invalide",
+	"screenshot_utilities.settings.validation.out_of_range": "La valeur doit être comprise entre %s et %s",
+	"screenshot_utilities.settings.unsaved.title": "Changements non sauvegardés",
+	"screenshot_utilities.settings.unsaved.body": "Vous avez des changements non sauvegardés. Êtes vous sûr de vouloir quitter sans sauvegarder ?",
+	"screenshot_utilities.settings.unsaved.cancel": "Annuler",
+	"screenshot_utilities.settings.unsaved.discard": "Quitter et annuler les modifications",
+	"screenshot_utilities.settings.default_file_dialog_title.files_only": "Choisir un fichier",
+	"screenshot_utilities.settings.default_file_dialog_title.directories_only": "Choisir un dossier",
+
+	"screenshot_utilities.config.enable_whole_mod": "Activer le mod",
+	"screenshot_utilities.config.freeze_in_photo_mode": "Figer le monde en mode photo",
+	"screenshot_utilities.config.show_player": "Afficher le joueur",
+	"screenshot_utilities.config.show_nametags": "Afficher les noms",
+	"screenshot_utilities.config.show_screenshots_on_xaeros_world_map": "Afficher les captures d'écran sur la Xaero's World Map",
+	"screenshot_utilities.config.screenshots_dir": "Dossier des captures d'écran",
+	"screenshot_utilities.config.screenshots_dir.file_dialog_title": "Sélectionner le dossier des captures d'écran",
+	"screenshot_utilities.config.show_chat_message": "Afficher le message dans le tchat"
 }

@@ -1,19 +1,21 @@
 package me.Azz_9.screenshot_utilities.client.config.option;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MOD_ID;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.SpriteIconButton;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
 import org.jspecify.annotations.NonNull;
 
@@ -40,6 +42,8 @@ import me.Azz_9.screenshot_utilities.client.Colors;
  */
 @Environment(EnvType.CLIENT)
 public abstract class ConfigOptionWidget<T> extends AbstractWidget {
+
+	private static final Identifier RESET_BUTTON_SPRITE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/reset");
 
 	// -------------------------------------------------------------------------
 	// Layout constants
@@ -245,15 +249,17 @@ public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 	// -------------------------------------------------------------------------
 
 	private @NonNull Button createResetButton(int x, int y) {
-		return Button.builder(Component.literal("↺"), btn -> {
+		Button button = SpriteIconButton.CenteredIcon.builder(Component.translatable("screenshot_utilities.settings.reset_to_default"), btn -> {
 					option.resetToDefault();
 					onValueReset();
 					refreshValidation();
-				})
-				.pos(x, y)
+				}, true)
+				.withTootip()
+				.sprite(RESET_BUTTON_SPRITE, 15, 15)
 				.size(RESET_BUTTON_WIDTH, ROW_HEIGHT)
-				.tooltip(Tooltip.create(Component.translatable("screenshot_utilities.settings.reset_to_default")))
 				.build();
+		button.setPosition(x, y);
+		return button;
 	}
 
 	/**

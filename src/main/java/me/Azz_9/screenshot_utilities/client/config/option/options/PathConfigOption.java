@@ -1,5 +1,7 @@
 package me.Azz_9.screenshot_utilities.client.config.option.options;
 
+import net.minecraft.network.chat.Component;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -21,12 +23,22 @@ public final class PathConfigOption extends AbstractConfigOption<Path> {
 	 * Controls what the file-chooser allows the user to select.
 	 */
 	public enum SelectionMode {
-		FILES_ONLY,
-		DIRECTORIES_ONLY,
-		FILES_AND_DIRECTORIES
+		FILES_ONLY("screenshot_utilities.settings.default_file_dialog_title.files_only"),
+		DIRECTORIES_ONLY("screenshot_utilities.settings.default_file_dialog_title.directories_only");
+
+		private final @NonNull String defaultDialogTitleTranslationKey;
+
+		SelectionMode(@NonNull String defaultDialogTitleTranslationKey) {
+			this.defaultDialogTitleTranslationKey = defaultDialogTitleTranslationKey;
+		}
+
+		public @NonNull String getDefaultDialogTitle() {
+			return Component.translatable(defaultDialogTitleTranslationKey).getString();
+		}
 	}
 
 	private final @NonNull SelectionMode selectionMode;
+	private final @NonNull String dialogTitle;
 	private final @Nullable String fileExtensionFilter;
 	private final @Nullable String fileExtensionDescription;
 
@@ -40,12 +52,17 @@ public final class PathConfigOption extends AbstractConfigOption<Path> {
 				builder.dependencies
 		);
 		this.selectionMode = builder.selectionMode;
+		this.dialogTitle = builder.dialogTitle == null ? selectionMode.getDefaultDialogTitle() : builder.dialogTitle;
 		this.fileExtensionFilter = builder.fileExtensionFilter;
 		this.fileExtensionDescription = builder.fileExtensionDescription;
 	}
 
 	public @NonNull SelectionMode getSelectionMode() {
 		return selectionMode;
+	}
+
+	public @NonNull String getDialogTitle() {
+		return dialogTitle;
 	}
 
 	public @Nullable String getFileExtensionFilter() {
@@ -66,7 +83,8 @@ public final class PathConfigOption extends AbstractConfigOption<Path> {
 
 	public static final class Builder extends AbstractConfigOption.Builder<Path, PathConfigOption, Builder> {
 
-		private @NonNull SelectionMode selectionMode = SelectionMode.FILES_AND_DIRECTORIES;
+		private @NonNull SelectionMode selectionMode = SelectionMode.FILES_ONLY;
+		private @Nullable String dialogTitle;
 		private @Nullable String fileExtensionFilter;
 		private @Nullable String fileExtensionDescription;
 
@@ -76,6 +94,11 @@ public final class PathConfigOption extends AbstractConfigOption<Path> {
 
 		public @NonNull Builder selectionMode(@NonNull SelectionMode mode) {
 			this.selectionMode = mode;
+			return this;
+		}
+
+		public @NonNull Builder fileDialogTitle(@NonNull String title) {
+			this.dialogTitle = title;
 			return this;
 		}
 
