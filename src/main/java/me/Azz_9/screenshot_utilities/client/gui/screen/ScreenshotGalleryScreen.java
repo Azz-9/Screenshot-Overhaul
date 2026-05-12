@@ -1,34 +1,24 @@
 package me.Azz_9.screenshot_utilities.client.gui.screen;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
-import static me.Azz_9.screenshot_utilities.client.StringUtil.pretty;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.platform.cursor.CursorType;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Ease;
 
-import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Optional;
-
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
-import me.Azz_9.screenshot_utilities.client.Colors;
-import me.Azz_9.screenshot_utilities.client.gui.Loading;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
-import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.MetadataEditorPanel;
-import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.NavigationButton;
+import me.Azz_9.screenshot_utilities.client.gui.widget.FullViewWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.ScreenshotGalleryWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.*;
 
@@ -40,37 +30,13 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 
 	// layout
 	private static final int GLOBAL_PADDING = 10;
-	private static final int FULL_VIEW_PADDING = 40;
-	private static final int BOTTOM_PADDING = 60;
-
-	// settings
 	private static final int SETTINGS_BUTTON_WIDTH = 120;
 	private static final int SETTINGS_BUTTON_HEIGHT = 20;
-	private Button settingsButton;
 
-	// gallery
+	// widgets
 	private @Nullable ScreenshotGalleryWidget gallery;
-
-	// full view
-	private static final int NAV_BUTTON_SIZE = 20;
-	private static final int NAV_BUTTON_MARGIN = 30;
-	private NavigationButton backButton, nextButton;
-	private static final int ACTION_BUTTON_HEIGHT = 20;
-	private static final int ACTION_BUTTON_WIDTH = 80;
-	private static final int ACTION_BUTTON_GAP = 10;
-	private static final int ACTION_BUTTON_MARGIN_BOTTOM = 10;
-	private Button copyButton, deleteButton, editMetadataButton;
-	private static final int COPY_MESSAGE_RESET_TIMER = 5000;
-	private long copyResetAt = -1;
-	private @Nullable Screenshot selectedScreenshot = null;
-	private @Nullable Screenshot outgoingScreenshot = null;
-	private static final int METADATA_EDITOR_PANEL_WIDTH = 200;
-	private MetadataEditorPanel metadataEditorPanel;
-	// transition
-	private static final float TRANSITION_DURATION = 0.2f; // secondes
-	private float transitionTime = 0f;
-	private int transitionDirection = 0; // -1 = back, +1 = next
-	private boolean inTransition = false;
+	private @Nullable FullViewWidget fullView;
+	private @Nullable Button settingsButton;
 
 	public ScreenshotGalleryScreen() {
 		super(Component.translatable("screenshot_utilities.narrator.screenshot_gallery"));
@@ -84,54 +50,31 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 	@Override
 	protected void initContent() {
 		settingsButton = createSettingsButton();
-
 		gallery = createGallery();
+		fullView = createFullView();
 
-		backButton = createNavigationButton(NavigationButton.NavigationType.BACK);
-		nextButton = createNavigationButton(NavigationButton.NavigationType.NEXT);
-		deleteButton = createDeleteButton();
-		copyButton = createCopyButton();
-		editMetadataButton = createEditMetadataButton();
-		metadataEditorPanel = createMetadataEditorPanel();
-
-		backButton.visible = false;
-		nextButton.visible = false;
-		deleteButton.visible = false;
-		copyButton.visible = false;
-		editMetadataButton.visible = false;
-		metadataEditorPanel.setVisible(false);
-
-		addWidget(metadataEditorPanel);
-		addWidget(backButton);
-		addWidget(nextButton);
-		addWidget(deleteButton);
-		addWidget(copyButton);
-		addWidget(editMetadataButton);
 		addRenderableWidget(gallery);
 		addRenderableWidget(settingsButton);
+		// fullView is added last so it renders on top of everything, including the bottom bar
+		addRenderableWidget(fullView);
 
 		ScreenshotList.setOnChangeListener(_ -> {
-			if (selectedScreenshot != null && !selectedScreenshot.file().exists()) {
-				boolean hasNextOrPrev = false;
+			if (fullView == null || gallery == null) return;
 
-				if (gallery != null) {
-					Screenshot next = gallery.getNextVisibleScreenshot(selectedScreenshot);
-					if (next != null) {
-						selectScreenshot(next);
-						hasNextOrPrev = true;
-					} else {
-						Screenshot prev = gallery.getPreviousVisibleScreenshot(selectedScreenshot);
-						if (prev != null) {
-							selectScreenshot(prev);
-							hasNextOrPrev = true;
-						}
-					}
+			Screenshot current = fullView.getCurrentScreenshot();
+			if (current != null && !current.file().exists()) {
+				Screenshot next = gallery.getNextVisibleScreenshot(current);
+				if (next != null) {
+					fullView.show(next);
+				} else {
+					Screenshot prev = gallery.getPreviousVisibleScreenshot(current);
+					if (prev != null) fullView.show(prev);
+					else closeFullView();
 				}
-				if (!hasNextOrPrev) deselectScreenshot();
 			}
 
-			if (gallery != null) gallery.refresh(false, () -> {
-				if (selectedScreenshot != null) updateNavButtons();
+			gallery.refresh(false, () -> {
+				if (fullView.isVisible()) fullView.refreshNavButtons();
 			});
 		});
 	}
@@ -148,295 +91,78 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 		return new ScreenshotGalleryWidget(
 				GLOBAL_PADDING, GLOBAL_PADDING,
 				width - SETTINGS_BUTTON_WIDTH - GLOBAL_PADDING * 2 - 20, getBottomBarTop() - GLOBAL_PADDING,
-				this::setTrackedItems);
+				this::setTrackedItems, this::openFullView);
 	}
 
-	private NavigationButton createNavigationButton(NavigationButton.NavigationType type) {
-		return new NavigationButton(
-				type == NavigationButton.NavigationType.NEXT
-						? width - NAV_BUTTON_MARGIN - NAV_BUTTON_SIZE
-						: NAV_BUTTON_MARGIN,
-				(height - NAV_BUTTON_SIZE) / 2,
-				NAV_BUTTON_SIZE, NAV_BUTTON_SIZE,
-				type, type == NavigationButton.NavigationType.NEXT ? (_) -> selectNext() : (_) -> selectPrevious());
+	private FullViewWidget createFullView() {
+		FullViewWidget fullView = new FullViewWidget(
+				width, height,
+				this::onFullViewScreenshotChanged,
+				this::onDeleteRequested,
+				this::closeFullView,
+				s -> gallery != null ? gallery.getNextVisibleScreenshot(s) : null,
+				s -> gallery != null ? gallery.getPreviousVisibleScreenshot(s) : null);
+
+		fullView.hide(); // starts hidden
+		return fullView;
 	}
 
-	private Button createDeleteButton() {
-		return Button.builder(Component.translatable("screenshot_utilities.delete"), (btn) -> {
-					if (selectedScreenshot != null) {
-						if (!DeleteScreenshot.delete(selectedScreenshot))
-							ScreenshotLogger.error("Could not delete screenshot: " + selectedScreenshot.pathRelativeToScreenshotDir());
-					}
-				})
-				.bounds(
-						(width - ACTION_BUTTON_WIDTH) / 2 - ACTION_BUTTON_GAP - ACTION_BUTTON_WIDTH, height - ACTION_BUTTON_HEIGHT - ACTION_BUTTON_MARGIN_BOTTOM,
-						ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT
-				)
-				.build();
-	}
+	// -------------------------------------------------------------------------
+	// Fullview open / close
+	// -------------------------------------------------------------------------
 
-	private Button createCopyButton() {
-		return Button.builder(Component.translatable("screenshot_utilities.copy"), (btn) -> {
-					if (selectedScreenshot != null)
-						CopyScreenshot.copyToClipboard(selectedScreenshot.file(), () -> {
-							btn.setMessage(Component.translatable("screenshot_utilities.copied"));
-							copyResetAt = System.currentTimeMillis() + COPY_MESSAGE_RESET_TIMER;
-						});
-				})
-				.bounds(
-						(width - ACTION_BUTTON_WIDTH) / 2, height - ACTION_BUTTON_HEIGHT - ACTION_BUTTON_MARGIN_BOTTOM,
-						ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT
-				)
-				.build();
-	}
+	public void openFullView(@NonNull Screenshot screenshot) {
+		if (fullView == null) return;
+		fullView.show(screenshot);
 
-	private Button createEditMetadataButton() {
-		return Button.builder(Component.translatable("screenshot_utilities.edit_metadata"), (btn) -> {
-					if (selectedScreenshot != null) {
-						metadataEditorPanel.setVisible(!metadataEditorPanel.isVisible());
-					}
-				})
-				.bounds(
-						(width + ACTION_BUTTON_WIDTH) / 2 + ACTION_BUTTON_GAP, height - ACTION_BUTTON_HEIGHT - ACTION_BUTTON_MARGIN_BOTTOM,
-						ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT
-				)
-				.build();
-	}
-
-	private MetadataEditorPanel createMetadataEditorPanel() {
-		MetadataEditorPanel panel = new MetadataEditorPanel(METADATA_EDITOR_PANEL_WIDTH, height);
-		panel.setVisible(false);
-		panel.setOnVisibilityChange((visible) -> nextButton.setClickable(!visible));
-		return panel;
-	}
-
-	// Full view
-
-	public void selectScreenshot(@NonNull Screenshot screenshot) {
-		selectedScreenshot = screenshot;
-		metadataEditorPanel.init(selectedScreenshot);
-
-		backButton.visible = true;
-		nextButton.visible = true;
-		deleteButton.visible = true;
-		copyButton.visible = true;
-		editMetadataButton.visible = true;
-
-		updateNavButtons();
-
-		settingsButton.active = false;
+		// Freeze the gallery layer and the settings button
 		if (gallery != null) {
-			gallery.setActive(false);
-
-			// pre-load the next et previous screenshots
-			Screenshot next = gallery.getNextVisibleScreenshot(selectedScreenshot);
-			Screenshot prev = gallery.getPreviousVisibleScreenshot(selectedScreenshot);
-			if (next != null) ScreenshotTextureCache.getFullView(next.file().toPath());
-			if (prev != null) ScreenshotTextureCache.getFullView(prev.file().toPath());
-
-			gallery.preloadAround(selectedScreenshot);
+			gallery.preloadAround(screenshot);
 		}
 	}
 
-	public void deselectScreenshot() {
-		selectedScreenshot = null;
-		backButton.visible = false;
-		nextButton.visible = false;
-		deleteButton.visible = false;
-		copyButton.visible = false;
-		editMetadataButton.visible = false;
-		metadataEditorPanel.setVisible(false);
-
-		settingsButton.active = true;
-		if (gallery != null) {
-			gallery.setActive(true);
-		}
+	private void closeFullView() {
+		if (fullView != null)
+			fullView.hide();
 	}
 
-	private void selectPrevious() {
-		if (selectedScreenshot == null || inTransition || gallery == null) return;
-
-		Screenshot prev = gallery.getPreviousVisibleScreenshot(selectedScreenshot);
-		if (prev != null) {
-			gallery.preloadAround(prev);
-			startTransition(prev, -1);
-		}
+	private void onFullViewScreenshotChanged(@NonNull Screenshot screenshot) {
+		if (gallery != null) gallery.preloadAround(screenshot);
 	}
 
-	private void selectNext() {
-		if (selectedScreenshot == null || inTransition || gallery == null) return;
-
-		Screenshot next = gallery.getNextVisibleScreenshot(selectedScreenshot);
-		if (next != null) {
-			gallery.preloadAround(next);
-			startTransition(next, +1);
-		}
-	}
-
-	private void startTransition(Screenshot next, int direction) {
-		this.outgoingScreenshot = this.selectedScreenshot;
-		this.selectedScreenshot = next;
-		metadataEditorPanel.init(selectedScreenshot);
-
-		this.transitionDirection = direction;
-		this.transitionTime = 0f;
-		this.inTransition = true;
-
-		updateNavButtons();
-	}
-
-
-	private void updateNavButtons() {
-		if (gallery == null || selectedScreenshot == null) return;
-
-		backButton.active = gallery.getPreviousVisibleScreenshot(selectedScreenshot) != null;
-		nextButton.active = gallery.getNextVisibleScreenshot(selectedScreenshot) != null;
+	private void onDeleteRequested(@NonNull Screenshot screenshot) {
+		if (!DeleteScreenshot.delete(screenshot))
+			ScreenshotLogger.error("Could not delete screenshot: " + screenshot.pathRelativeToScreenshotDir());
 	}
 
 	// render
 
 	@Override
 	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
-		if (copyResetAt != -1 && System.currentTimeMillis() >= copyResetAt) {
-			copyButton.setMessage(Component.translatable("screenshot_utilities.copy"));
-			copyResetAt = -1;
-		}
+		boolean fullViewActive = fullView != null && fullView.isVisible();
+
+		// Pass (-1,-1) to every widget except fullView while the overlay is up,
+		// so no thumbnail, no settings button, and no bottom-bar button shows hover.
+		int bgMouseX = fullViewActive ? -1 : mouseX;
+		int bgMouseY = fullViewActive ? -1 : mouseY;
+
+		if (gallery != null) gallery.extractRenderState(graphics, bgMouseX, bgMouseY, deltaTicks);
+		if (settingsButton != null) settingsButton.extractRenderState(graphics, bgMouseX, bgMouseY, deltaTicks);
 
 		super.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 
-		Optional<GuiEventListener> element = getChildAt(mouseX, mouseY);
-		if (element.isPresent() && element.get() instanceof MetadataEditorPanel panel) {
-			graphics.text(MINECRAFT.font, "panel", mouseX, mouseY, Colors.WHITE);
-			graphics.text(MINECRAFT.font, panel.isMouseOver(mouseX, mouseY) + " " + panel.isVisible(), mouseX, mouseY + 10, Colors.WHITE);
-		}
-
-		extractFullViewRenderState(graphics, mouseX, mouseY, deltaTicks);
-	}
-
-	private void extractFullViewRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
-		float dt = deltaTicks / 20f;
-
-		if (inTransition) {
-			transitionTime += dt;
-			if (transitionTime >= TRANSITION_DURATION) {
-				transitionTime = TRANSITION_DURATION;
-				inTransition = false;
-				outgoingScreenshot = null;
-			}
-		}
-
-		if (selectedScreenshot != null) {
-			graphics.requestCursor(CursorType.DEFAULT);
-
-			graphics.fill(0, 0, width, height, Colors.BLACK_TRANSPARENT);
-
-			if (!inTransition || outgoingScreenshot == null) {
-				drawScreenshotWithInfo(graphics, selectedScreenshot, 0);
-			} else {
-				float t = transitionTime / TRANSITION_DURATION;
-				t = Ease.outQuad(t);
-
-				int slide = (int) (width * t);
-
-				// ancien screenshot (sortant)
-				drawScreenshotWithInfo(graphics, outgoingScreenshot, -slide * transitionDirection);
-
-				// nouveau screenshot (entrant)
-				drawScreenshotWithInfo(graphics, selectedScreenshot, (width - slide) * transitionDirection);
-			}
-
-			nextButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
-			backButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
-			deleteButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
-			copyButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
-			editMetadataButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
-			metadataEditorPanel.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
-		}
-	}
-
-	private void drawScreenshotWithInfo(@NonNull GuiGraphicsExtractor graphics, Screenshot screenshot, int offsetX) {
-		ScreenshotTexture texture = ScreenshotTextureCache.getFullView(screenshot.file().toPath());
-
-		Matrix3x2fStack matrices = graphics.pose();
-		matrices.pushMatrix();
-
-		matrices.translate(offsetX, 0);
-
-		// screenshot
-		int fullViewWidth = width - FULL_VIEW_PADDING * 2;
-		int fullViewHeight = height - FULL_VIEW_PADDING - BOTTOM_PADDING;
-
-		if (texture == null) {
-			graphics.fill(
-					FULL_VIEW_PADDING, FULL_VIEW_PADDING,
-					FULL_VIEW_PADDING + fullViewWidth, FULL_VIEW_PADDING + fullViewHeight,
-					Colors.BLACK_TRANSPARENT
-			);
-
-			Loading.drawLoadingSpinner(
-					graphics,
-					FULL_VIEW_PADDING + fullViewWidth / 2,
-					FULL_VIEW_PADDING + fullViewHeight / 2,
-					fullViewHeight / 20, fullViewHeight / 10
-			);
-		} else {
-			ScreenshotDrawHelper.drawContain(
-					graphics,
-					texture,
-					FULL_VIEW_PADDING,
-					FULL_VIEW_PADDING,
-					fullViewWidth,
-					fullViewHeight
-			);
-		}
-
-		// info
-		int center = FULL_VIEW_PADDING + fullViewWidth / 2;
-
-		graphics.centeredText(MINECRAFT.font, screenshot.pathRelativeToScreenshotDir(), center, FULL_VIEW_PADDING + fullViewHeight + 4, Colors.WHITE);
-		StringBuilder line = new StringBuilder();
-		if (screenshot.metadata().getX() != null && screenshot.metadata().getY() != null && screenshot.metadata().getZ() != null) {
-			line.append("X: ").append(screenshot.metadata().getX())
-					.append(" Y: ").append(screenshot.metadata().getY())
-					.append(" Z: ").append(screenshot.metadata().getZ());
-		}
-		if (screenshot.metadata().getWorldName() != null) {
-			if (!line.isEmpty()) line.append(" • ");
-			line.append(screenshot.metadata().getWorldName());
-		}
-		if (screenshot.metadata().getDimension() != null) {
-			if (!line.isEmpty()) line.append(" • ");
-			line.append(pretty(screenshot.metadata().getDimension().getPath()));
-		}
-		if (screenshot.metadata().getBiome() != null) {
-			if (!line.isEmpty()) line.append(" • ");
-			line.append(pretty(screenshot.metadata().getBiome().getPath()));
-		}
-		graphics.centeredText(MINECRAFT.font, line.toString(), center, FULL_VIEW_PADDING + fullViewHeight + 15, Colors.WHITE);
-
-		matrices.popMatrix();
+		// FullView renders on top with real coords
+		if (fullView != null) fullView.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 	}
 
 	/* ---------------- Inputs ---------------- */
 
 	@Override
-	public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
-		boolean handled = false;
-
-		Optional<GuiEventListener> optional = this.getChildAt(click.x(), click.y());
-		if (optional.isPresent()) {
-			GuiEventListener element = optional.get();
-			if (element.mouseClicked(click, doubled) && element.shouldTakeFocusAfterInteraction()) {
-				this.setFocused(element);
-				if (click.button() == 0) {
-					this.setDragging(true);
-				}
-
-				handled = true;
-			}
-
-		}
-
+	public boolean mouseClicked(@NonNull MouseButtonEvent event, boolean doubleClick) {
+		// FullView intercepts everything when active
+		if (fullView != null && fullView.isVisible())
+			return fullView.mouseClicked(event, doubleClick);
+		boolean handled = super.mouseClicked(event, doubleClick);
 		if (!handled) {
 			focusManager.clearFocus();
 		}
@@ -445,30 +171,45 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 	}
 
 	@Override
-	public boolean keyPressed(@NonNull KeyEvent input) {
-		if (selectedScreenshot != null && input.isEscape()) {
-			if (metadataEditorPanel.isVisible()) {
-				metadataEditorPanel.setVisible(false);
-				return true;
-			}
-			deselectScreenshot();
-			return true;
-		}
-		if (input.key() == InputConstants.KEY_F5 && gallery != null) {
-			gallery.refresh(true);
-			return true;
-		}
-		return super.keyPressed(input);
+	public boolean mouseReleased(@NonNull MouseButtonEvent event) {
+		if (fullView != null && fullView.isVisible())
+			return fullView.mouseReleased(event);
+		return super.mouseReleased(event);
+	}
+
+	@Override
+	public boolean mouseDragged(@NonNull MouseButtonEvent event, double dx, double dy) {
+		if (fullView != null && fullView.isVisible())
+			return fullView.mouseDragged(event, dx, dy);
+		return super.mouseDragged(event, dx, dy);
 	}
 
 	@Override
 	public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
-		if (selectedScreenshot != null) return false;
-
+		if (fullView != null && fullView.isVisible())
+			return fullView.mouseScrolled(x, y, scrollX, scrollY);
 		return super.mouseScrolled(x, y, scrollX, scrollY);
 	}
 
+	@Override
+	public boolean keyPressed(@NonNull KeyEvent event) {
+		if (fullView != null && fullView.isVisible())
+			return fullView.keyPressed(event);
+
+		if (event.key() == InputConstants.KEY_F5 && gallery != null) {
+			gallery.refresh(true);
+			return true;
+		}
+		return super.keyPressed(event);
+	}
+
 	/* ---------------- Cleanup ---------------- */
+
+	@Override
+	protected void onSave() {
+		// TrackedItems (screenshot title edits) are committed by super
+		super.onSave();
+	}
 
 	@Override
 	public void onClose() {
@@ -476,9 +217,7 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 		ScreenshotManager.save();
 
 		gallery = null;
-		selectedScreenshot = null;
-		outgoingScreenshot = null;
-
+		fullView = null;
 		super.onClose();
 	}
 }

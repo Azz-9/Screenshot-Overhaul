@@ -308,4 +308,45 @@ public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen 
 	protected int getBottomBarTop() {
 		return height - BOTTOM_BAR_HEIGHT;
 	}
+
+	/**
+	 * Activates or deactivates the Save button independently of the normal
+	 * dirty/valid computation. Use this when the screen has a secondary overlay
+	 * (e.g. a full-view widget) that should temporarily lock the bottom bar.
+	 * <p>
+	 * Note: even when forced active here, the save button will still be
+	 * deactivated by the dirty/valid check on the next render frame unless
+	 * there are pending changes. Prefer {@link #setSaveAndCancelActive(boolean)}
+	 * to act on both buttons at once.
+	 */
+	protected void setSaveButtonActive(boolean active) {
+		if (saveButton != null) saveButton.active = active;
+	}
+
+	/**
+	 * Activates or deactivates the Cancel button.
+	 */
+	protected void setCancelButtonActive(boolean active) {
+		if (cancelButton != null) cancelButton.active = active;
+	}
+
+	/**
+	 * Convenience: activates or deactivates both bottom-bar buttons at once.
+	 * Useful when entering / leaving a full-screen overlay state.
+	 */
+	protected void setSaveAndCancelActive(boolean active) {
+		setSaveButtonActive(active);
+		setCancelButtonActive(active);
+	}
+
+	/**
+	 * Renders only the Cancel and Save buttons with the provided mouse coordinates.
+	 * Useful for subclasses that override {@link #extractRenderState(GuiGraphicsExtractor, int, int, float)} and need fine-grained
+	 * control over which coord pair reaches the bottom bar (e.g. to suppress hover
+	 * while a foreground overlay is active).
+	 */
+	protected void renderBottomBarButtons(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
+		if (cancelButton != null) cancelButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
+		if (saveButton != null) saveButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
+	}
 }

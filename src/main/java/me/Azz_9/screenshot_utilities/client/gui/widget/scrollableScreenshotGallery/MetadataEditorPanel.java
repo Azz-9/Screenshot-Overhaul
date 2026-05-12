@@ -5,12 +5,15 @@ import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MO
 
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.SpriteIconButton;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Ease;
@@ -32,6 +35,7 @@ import me.Azz_9.screenshot_utilities.client.gui.widget.PlaceholderEditBox;
 import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
 
+@Environment(EnvType.CLIENT)
 public class MetadataEditorPanel extends SimpleParentWidget {
 	private static final int PANEL_PADDING = 10;
 	private static final int FIELD_HEIGHT = 20;
@@ -150,6 +154,12 @@ public class MetadataEditorPanel extends SimpleParentWidget {
 	@Override
 	public boolean isVisible() {
 		return slidingIn;
+	}
+
+	@Override
+	public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
+		super.mouseClicked(click, doubled);
+		return isMouseOver(click.x(), click.y());
 	}
 
 	@Override

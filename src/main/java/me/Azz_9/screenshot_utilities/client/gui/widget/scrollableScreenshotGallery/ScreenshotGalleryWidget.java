@@ -92,18 +92,22 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 	// gallery content
 	private final @NonNull List<ScreenshotEntryWidget> entries = new ArrayList<>();
 	private final @Nullable Consumer<List<ScreenshotEntryWidget>> onEntriesChanged;
+	private final @Nullable Consumer<Screenshot> onThumbnailClicked;
 	// Marge de préchargement en pixels au-delà de la zone visible
 	private static final int PRELOAD_MARGIN = 200;
 	private static final int FULLVIEW_PRELOAD_RADIUS = 2;
 
 	private final AtomicBoolean refreshing = new AtomicBoolean(false);
 
-	public ScreenshotGalleryWidget(int x, int y, int width, int height, @Nullable Consumer<List<ScreenshotEntryWidget>> onEntriesChanged) {
+	public ScreenshotGalleryWidget(int x, int y, int width, int height,
+	                               @Nullable Consumer<List<ScreenshotEntryWidget>> onEntriesChanged,
+	                               @Nullable Consumer<Screenshot> onThumbnailClicked) {
 		super(x, y, width, height);
 		this.targetScroll = 0;
 		this.currentScroll = 0;
 
 		this.onEntriesChanged = onEntriesChanged;
+		this.onThumbnailClicked = onThumbnailClicked;
 
 		this.searchBar = createSearchBar();
 		this.filterButton = createFilterButton();
@@ -197,7 +201,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 		entries.clear();
 
 		for (Screenshot screenshot : screenshots) {
-			addEntry(new ScreenshotEntryWidget(screenshot));
+			addEntry(new ScreenshotEntryWidget(screenshot, onThumbnailClicked));
 		}
 		if (onEntriesChanged != null) onEntriesChanged.accept(entries);
 	}

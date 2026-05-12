@@ -18,11 +18,11 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
+import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
-import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
 import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotDrawHelper;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
@@ -36,18 +36,21 @@ public class ScreenshotThumbnailWidget extends AbstractWidget {
 	private static final float APPEAR_SPEED = 8f;
 
 	private @Nullable ScreenshotTexture texture;
-	private @NonNull Screenshot screenshot;
+	private final @NonNull Screenshot screenshot;
 	private final @NonNull File screenshotFile;
 	private boolean loaded = false;
+	private @Nullable Consumer<Screenshot> onClick;
 
 	private float currentScale = 1.0f;
 	private float appearProgress = 0f; // 0 → 1
 	private boolean appeared = false;
 
-	public ScreenshotThumbnailWidget(int x, int y, int width, int height, @NonNull Screenshot screenshot) {
+	public ScreenshotThumbnailWidget(int x, int y, int width, int height, @NonNull Screenshot screenshot,
+	                                 @Nullable Consumer<Screenshot> onClick) {
 		super(x, y, width, height, Component.literal(screenshot.file().getName()));
 		this.screenshotFile = screenshot.file();
 		this.screenshot = screenshot;
+		this.onClick = onClick;
 	}
 
 	/**
@@ -144,9 +147,7 @@ public class ScreenshotThumbnailWidget extends AbstractWidget {
 		if (MINECRAFT.screen instanceof FocusableScreen screen) {
 			screen.clearFocus();
 		}
-		if (MINECRAFT.screen instanceof ScreenshotGalleryScreen screen && texture != null) {
-			screen.selectScreenshot(screenshot);
-		}
+		if (onClick != null) onClick.accept(screenshot);
 	}
 
 	@NonNull

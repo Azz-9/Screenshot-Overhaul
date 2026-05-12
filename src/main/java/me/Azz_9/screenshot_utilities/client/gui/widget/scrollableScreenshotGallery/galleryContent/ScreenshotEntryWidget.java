@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.Colors;
@@ -47,7 +48,8 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 
 	private int baseY;
 
-	public ScreenshotEntryWidget(int x, int y, int thumbnailWidth, int thumbnailHeight, @NonNull Screenshot screenshot) {
+	public ScreenshotEntryWidget(int x, int y, int thumbnailWidth, int thumbnailHeight, @NonNull Screenshot screenshot,
+	                             @Nullable Consumer<Screenshot> onThumbnailClicked) {
 		super(x, y, thumbnailWidth, thumbnailHeight + NAME_HEIGHT);
 
 		this.INITIAL_NAME = screenshot.file().getName();
@@ -57,7 +59,8 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 		this.thumbnailWidget = new ScreenshotThumbnailWidget(
 				x, y,
 				thumbnailWidth, thumbnailHeight,
-				screenshot
+				screenshot,
+				onThumbnailClicked
 		);
 
 		this.nameWidget = new ScreenshotNameWidget(
@@ -85,8 +88,12 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 		addAllChildren(hideFromMapButton, favoriteButton, thumbnailWidget, nameWidget);
 	}
 
+	public ScreenshotEntryWidget(@NonNull Screenshot screenshot, @Nullable Consumer<Screenshot> onThumbnailClicked) {
+		this(0, 0, 0, 0, screenshot, onThumbnailClicked);
+	}
+
 	public ScreenshotEntryWidget(@NonNull Screenshot screenshot) {
-		this(0, 0, 0, 0, screenshot);
+		this(0, 0, 0, 0, screenshot, null);
 	}
 
 	public int getBaseY() {
