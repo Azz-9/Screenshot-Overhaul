@@ -8,15 +8,13 @@ import me.Azz_9.screenshot_utilities.client.config.Config;
 
 public class Screenshot {
 	private final @NonNull File file;
-	private final @NonNull ScreenshotMetadata metadata;
 	private final @NonNull String pathRelativeToScreenshotDir;
-	private boolean dirty;
+	private @NonNull ScreenshotMetadata metadata;
 
 	public Screenshot(@NonNull File file, @NonNull ScreenshotMetadata metadata, @NonNull String pathRelativeToScreenshotDir) {
 		this.file = file;
-		this.metadata = metadata;
 		this.pathRelativeToScreenshotDir = pathRelativeToScreenshotDir;
-		this.metadata.setOnUpdate(() -> dirty = true);
+		this.metadata = metadata;
 	}
 
 	public Screenshot(@NonNull File file, @NonNull ScreenshotMetadata metadata) {
@@ -27,19 +25,15 @@ public class Screenshot {
 		return file;
 	}
 
-	public @NonNull ScreenshotMetadata metadata() {
+	public @NonNull ScreenshotMetadata getMetadata() {
 		return metadata;
+	}
+
+	public void setMetadata(@NonNull ScreenshotMetadata metadata) {
+		this.metadata = metadata;
 	}
 
 	public @NonNull String pathRelativeToScreenshotDir() {
 		return pathRelativeToScreenshotDir;
-	}
-
-	public boolean isDirty() {
-		return dirty;
-	}
-
-	public void markSaved() {
-		dirty = false;
 	}
 }

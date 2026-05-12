@@ -20,6 +20,7 @@ import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.config.ConfigOptionListWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.config.ConfigTabContent;
+import me.Azz_9.screenshot_utilities.compat.CompatManager;
 
 /**
  * Settings screen with tabs, scrollable option lists, validation, and an
@@ -59,7 +60,9 @@ public class SettingsScreen extends TabsScreen implements FocusableScreen {
 
 		// General
 		BooleanConfigOption enableWholeMod = BooleanConfigOption.builder(Config.getInstance().enableWholeMod).build();
-		BooleanConfigOption showScreenshotsOnXaerosWorldMap = BooleanConfigOption.builder(Config.getInstance().showScreenshotsOnXaerosWorldMap).build();
+		BooleanConfigOption showScreenshotsOnXaerosWorldMap = BooleanConfigOption.builder(Config.getInstance().showScreenshotsOnXaerosWorldMap)
+				.dependsOn(CompatManager::xaerosWorldMapPresent)
+				.build();
 
 		ConfigTabContent generalContent = ConfigTabContent.builder()
 				.option(enableWholeMod)

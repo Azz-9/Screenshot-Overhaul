@@ -20,7 +20,10 @@ import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.FullViewWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.ScreenshotGalleryWidget;
-import me.Azz_9.screenshot_utilities.client.screenshot.*;
+import me.Azz_9.screenshot_utilities.client.screenshot.DeleteScreenshot;
+import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotList;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotManager;
 
 @Environment(EnvType.CLIENT)
 public class ScreenshotGalleryScreen extends AbstractSavableScreen implements FocusableScreen {
@@ -149,7 +152,7 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 		if (gallery != null) gallery.extractRenderState(graphics, bgMouseX, bgMouseY, deltaTicks);
 		if (settingsButton != null) settingsButton.extractRenderState(graphics, bgMouseX, bgMouseY, deltaTicks);
 
-		super.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
+		super.extractRenderState(graphics, bgMouseX, bgMouseY, deltaTicks);
 
 		// FullView renders on top with real coords
 		if (fullView != null) fullView.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
@@ -213,7 +216,6 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 
 	@Override
 	public void onClose() {
-		ScreenshotMetadataUtils.saveAllDirty(ScreenshotList.getScreenshots());
 		ScreenshotManager.save();
 
 		gallery = null;

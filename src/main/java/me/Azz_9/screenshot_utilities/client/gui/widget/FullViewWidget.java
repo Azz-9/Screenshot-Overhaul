@@ -204,7 +204,7 @@ public class FullViewWidget extends AbstractWidget {
 
 	/**
 	 * Opens the full view for the given screenshot.
-	 * Preloads neighbours for smooth navigation.
+	 * Preloads neighbors for smooth navigation.
 	 */
 	public void show(@NonNull Screenshot screenshot) {
 		currentScreenshot = screenshot;
@@ -331,7 +331,8 @@ public class FullViewWidget extends AbstractWidget {
 		deleteButton.extractRenderState(graphics, mxNext, myNext, deltaTicks);
 		copyButton.extractRenderState(graphics, mxNext, myNext, deltaTicks);
 		editMetadataButton.extractRenderState(graphics, mxNext, myNext, deltaTicks);
-		metadataPanel.extractRenderState(graphics, mxNext, myNext, deltaTicks);
+
+		metadataPanel.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 	}
 
 	private void drawScreenshotWithInfo(@NonNull GuiGraphicsExtractor graphics, @NonNull Screenshot screenshot, int offsetX) {
@@ -368,7 +369,7 @@ public class FullViewWidget extends AbstractWidget {
 				center, FULL_VIEW_PADDING + fullViewHeight + 4, Colors.WHITE);
 
 		StringBuilder line = new StringBuilder();
-		ScreenshotMetadata meta = screenshot.metadata();
+		ScreenshotMetadata meta = screenshot.getMetadata();
 		if (meta.getX() != null && meta.getY() != null && meta.getZ() != null)
 			line.append("X: ").append(meta.getX())
 					.append(" Y: ").append(meta.getY())

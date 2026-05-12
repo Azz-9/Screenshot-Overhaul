@@ -22,14 +22,14 @@ public class ScreenshotReader extends ElementReader<Screenshot, ScreenshotRender
 
 	@Override
 	public double getRenderX(Screenshot screenshot, ScreenshotRenderContext ctx, float pt) {
-		if (screenshot.metadata().getX() == null) return 0;
-		return screenshot.metadata().getX() + 0.5;
+		if (screenshot.getMetadata().getX() == null) return 0;
+		return screenshot.getMetadata().getX() + 0.5;
 	}
 
 	@Override
 	public double getRenderZ(Screenshot screenshot, ScreenshotRenderContext ctx, float pt) {
-		if (screenshot.metadata().getZ() == null) return 0;
-		return screenshot.metadata().getZ() + 0.5;
+		if (screenshot.getMetadata().getZ() == null) return 0;
+		return screenshot.getMetadata().getZ() + 0.5;
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ScreenshotMetadata {
 	private @Nullable Long x;
@@ -17,15 +18,14 @@ public class ScreenshotMetadata {
 	private @Nullable String worldName;
 	private @Nullable String serverIp;
 	private @Nullable String version;
+	private @NonNull List<String> resourcePacks;
 	private @Nullable Long timestamp;
 	private @NonNull List<String> tags;
-
-	private @Nullable Runnable onUpdate;
 
 	public ScreenshotMetadata(@Nullable Long x, @Nullable Long y, @Nullable Long z,
 	                          @Nullable Identifier dimension, @Nullable Identifier biome,
 	                          @Nullable String worldName, @Nullable String serverIp,
-	                          @Nullable String version,
+	                          @Nullable String version, @NonNull List<String> resourcePacks,
 	                          @Nullable Long timestamp, @NonNull List<String> tags) {
 		this.x = x;
 		this.y = y;
@@ -35,12 +35,18 @@ public class ScreenshotMetadata {
 		this.worldName = worldName;
 		this.serverIp = serverIp;
 		this.version = version;
+		this.resourcePacks = resourcePacks;
 		this.timestamp = timestamp;
 		this.tags = tags;
 	}
 
 	public static ScreenshotMetadata empty() {
-		return new ScreenshotMetadata(null, null, null, null, null, null, null, null, null, new ArrayList<>());
+		return new ScreenshotMetadata(null, null, null, null, null, null, null, null, new ArrayList<>(), null, new ArrayList<>());
+	}
+
+	public static ScreenshotMetadata copyOf(@NonNull ScreenshotMetadata from) {
+		return new ScreenshotMetadata(from.x, from.y, from.z, from.dimension, from.biome, from.worldName, from.serverIp,
+				from.version, from.resourcePacks, from.timestamp, from.tags);
 	}
 
 	public @Nullable Long getX() {
@@ -57,7 +63,6 @@ public class ScreenshotMetadata {
 
 	public void setY(@Nullable Long y) {
 		this.y = y;
-		if (onUpdate != null) onUpdate.run();
 	}
 
 	public @Nullable Long getZ() {
@@ -66,7 +71,6 @@ public class ScreenshotMetadata {
 
 	public void setZ(@Nullable Long z) {
 		this.z = z;
-		if (onUpdate != null) onUpdate.run();
 	}
 
 	public @Nullable Identifier getDimension() {
@@ -75,7 +79,6 @@ public class ScreenshotMetadata {
 
 	public void setDimension(@Nullable Identifier dimension) {
 		this.dimension = dimension;
-		if (onUpdate != null) onUpdate.run();
 	}
 
 	public @Nullable Identifier getBiome() {
@@ -84,7 +87,6 @@ public class ScreenshotMetadata {
 
 	public void setBiome(@Nullable Identifier biome) {
 		this.biome = biome;
-		if (onUpdate != null) onUpdate.run();
 	}
 
 	public @Nullable String getWorldName() {
@@ -93,7 +95,6 @@ public class ScreenshotMetadata {
 
 	public void setWorldName(@Nullable String worldName) {
 		this.worldName = worldName;
-		if (onUpdate != null) onUpdate.run();
 	}
 
 	public @Nullable String getServerIp() {
@@ -102,7 +103,6 @@ public class ScreenshotMetadata {
 
 	public void setServerIp(@Nullable String serverIp) {
 		this.serverIp = serverIp;
-		if (onUpdate != null) onUpdate.run();
 	}
 
 	public @Nullable String getVersion() {
@@ -111,7 +111,14 @@ public class ScreenshotMetadata {
 
 	public void setVersion(@Nullable String version) {
 		this.version = version;
-		if (onUpdate != null) onUpdate.run();
+	}
+
+	public @NonNull List<String> getResourcePacks() {
+		return resourcePacks;
+	}
+
+	public void setResourcePacks(@NonNull List<String> resourcePacks) {
+		this.resourcePacks = resourcePacks;
 	}
 
 	public @Nullable Long getTimestamp() {
@@ -120,7 +127,6 @@ public class ScreenshotMetadata {
 
 	public void setTimestamp(@Nullable Long timestamp) {
 		this.timestamp = timestamp;
-		if (onUpdate != null) onUpdate.run();
 	}
 
 	public @NonNull List<String> getTags() {
@@ -129,11 +135,28 @@ public class ScreenshotMetadata {
 
 	public void setTags(@NonNull List<String> tags) {
 		this.tags = tags;
-		if (onUpdate != null) onUpdate.run();
 	}
 
-	void setOnUpdate(@Nullable Runnable onUpdate) {
-		this.onUpdate = onUpdate;
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || getClass() != o.getClass()) return false;
+		ScreenshotMetadata that = (ScreenshotMetadata) o;
+		return Objects.equals(getX(), that.getX()) &&
+				Objects.equals(getY(), that.getY()) &&
+				Objects.equals(getZ(), that.getZ()) &&
+				Objects.equals(getDimension(), that.getDimension()) &&
+				Objects.equals(getBiome(), that.getBiome()) &&
+				Objects.equals(getWorldName(), that.getWorldName()) &&
+				Objects.equals(getServerIp(), that.getServerIp()) &&
+				Objects.equals(getVersion(), that.getVersion()) &&
+				Objects.equals(getResourcePacks(), that.getResourcePacks()) &&
+				Objects.equals(getTimestamp(), that.getTimestamp()) &&
+				Objects.equals(getTags(), that.getTags());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getX(), getY(), getZ(), getDimension(), getBiome(), getWorldName(), getServerIp(), getVersion(), getResourcePacks(), getTimestamp(), getTags());
 	}
 
 	@Override
@@ -146,6 +169,8 @@ public class ScreenshotMetadata {
 				", biome=" + biome +
 				", worldName='" + worldName + '\'' +
 				", server='" + serverIp + '\'' +
+				", version='" + version + '\'' +
+				", resourcePacks='" + resourcePacks + '\'' +
 				", timestamp=" + timestamp +
 				", tags=" + tags +
 				'}';

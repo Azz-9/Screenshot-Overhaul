@@ -116,6 +116,7 @@ public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen 
 				.pos(startX + BUTTON_WIDTH + BUTTON_GAP, buttonsY)
 				.size(BUTTON_WIDTH, BUTTON_HEIGHT)
 				.build();
+		saveButton.active = canSave();
 
 		addRenderableWidget(cancelButton);
 		addRenderableWidget(saveButton);

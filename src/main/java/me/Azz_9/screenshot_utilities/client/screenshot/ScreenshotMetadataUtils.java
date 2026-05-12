@@ -5,6 +5,7 @@ import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MI
 import net.minecraft.SharedConstants;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.packs.PackResources;
 import net.minecraft.world.level.biome.Biome;
 
 import org.jspecify.annotations.NonNull;
@@ -28,6 +29,7 @@ public class ScreenshotMetadataUtils {
 	private static final @NonNull String KEY_WORLD = "World";
 	private static final @NonNull String KEY_SERVER = "Server";
 	private static final @NonNull String KEY_VERSION = "Version";
+	private static final @NonNull String KEY_RESOURCE_PACKS = "ResourcePacks";
 	private static final @NonNull String KEY_TIMESTAMP = "Timestamp";
 	private static final @NonNull String KEY_TAGS = "Tags";
 
@@ -97,6 +99,8 @@ public class ScreenshotMetadataUtils {
 		if (meta.getWorldName() != null) textChunks.add(buildTextChunk(KEY_WORLD, meta.getWorldName()));
 		if (meta.getServerIp() != null) textChunks.add(buildTextChunk(KEY_SERVER, meta.getServerIp()));
 		if (meta.getServerIp() != null) textChunks.add(buildTextChunk(KEY_VERSION, meta.getVersion()));
+		if (meta.getResourcePacks().isEmpty())
+			textChunks.add(buildTextChunk(KEY_RESOURCE_PACKS, String.join(",", meta.getResourcePacks())));
 		if (meta.getTimestamp() != null)
 			textChunks.add(buildTextChunk(KEY_TIMESTAMP, String.valueOf(meta.getTimestamp())));
 		if (!meta.getTags().isEmpty()) textChunks.add(buildTextChunk(KEY_TAGS, String.join(",", meta.getTags())));
@@ -141,6 +145,7 @@ public class ScreenshotMetadataUtils {
 				meta.get(KEY_WORLD),
 				meta.get(KEY_SERVER),
 				meta.get(KEY_VERSION),
+				meta.containsKey(KEY_RESOURCE_PACKS) ? Arrays.asList(meta.get(KEY_RESOURCE_PACKS).split(",")) : List.of(),
 				meta.containsKey(KEY_TIMESTAMP) ? Long.parseLong(meta.get(KEY_TIMESTAMP)) : null,
 				meta.containsKey(KEY_TAGS) ? Arrays.asList(meta.get(KEY_TAGS).split(",")) : List.of()
 		);
@@ -151,7 +156,9 @@ public class ScreenshotMetadataUtils {
 			return new ScreenshotMetadata(
 					null, null, null,
 					null, null, null, null,
-					SharedConstants.getCurrentVersion().name(), System.currentTimeMillis(), new ArrayList<>()
+					SharedConstants.getCurrentVersion().name(),
+					MINECRAFT.getResourceManager().listPacks().map(PackResources::packId).toList(),
+					System.currentTimeMillis(), new ArrayList<>()
 			);
 
 		String serverIp = null;
@@ -175,6 +182,7 @@ public class ScreenshotMetadataUtils {
 				worldName,
 				serverIp,
 				SharedConstants.getCurrentVersion().name(),
+				MINECRAFT.getResourceManager().listPacks().map(PackResources::packId).toList(),
 				System.currentTimeMillis(),
 				new ArrayList<>()
 		);
@@ -226,21 +234,5 @@ public class ScreenshotMetadataUtils {
 		}
 
 		return out.toByteArray();
-	}
-
-	public static void saveIfDirty(Screenshot screenshot) {
-		if (!screenshot.isDirty()) return;
-		try {
-			ScreenshotMetadataUtils.update(screenshot.file(), screenshot.metadata());
-			screenshot.markSaved();
-		} catch (Exception e) {
-			ScreenshotLogger.error("Could not save metadata for {}", screenshot.file().getName());
-		}
-	}
-
-	public static void saveAllDirty(List<Screenshot> screenshots) {
-		screenshots.stream()
-				.filter(Screenshot::isDirty)
-				.forEach(ScreenshotMetadataUtils::saveIfDirty);
 	}
 }

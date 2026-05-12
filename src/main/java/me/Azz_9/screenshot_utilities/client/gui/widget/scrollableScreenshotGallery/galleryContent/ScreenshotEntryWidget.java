@@ -4,7 +4,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.util.Ease;
 
@@ -21,13 +20,10 @@ import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.gui.trackableChanges.TrackableChanges;
 import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
-import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
-import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotManager;
-import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotMetadata;
-import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
+import me.Azz_9.screenshot_utilities.client.screenshot.*;
 
 @Environment(EnvType.CLIENT)
-public class ScreenshotEntryWidget extends SimpleParentWidget implements ContainerEventHandler, TrackableChanges {
+public class ScreenshotEntryWidget extends SimpleParentWidget implements TrackableChanges {
 
 	public static final int NAME_HEIGHT = 30;
 
@@ -38,6 +34,7 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 	private float progress;
 
 	private final @NonNull String INITIAL_NAME;
+	private final @NonNull ScreenshotMetadata INITIAL_METADATA;
 
 	private final @NonNull ScreenshotThumbnailWidget thumbnailWidget;
 	private final @NonNull ScreenshotNameWidget nameWidget;
@@ -51,8 +48,9 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 	public ScreenshotEntryWidget(int x, int y, int thumbnailWidth, int thumbnailHeight, @NonNull Screenshot screenshot,
 	                             @Nullable Consumer<Screenshot> onThumbnailClicked) {
 		super(x, y, thumbnailWidth, thumbnailHeight + NAME_HEIGHT);
-
 		this.INITIAL_NAME = screenshot.file().getName();
+		this.INITIAL_METADATA = ScreenshotMetadata.copyOf(screenshot.getMetadata());
+
 		this.baseY = y;
 		this.screenshot = screenshot;
 
@@ -193,7 +191,7 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 	}
 
 	public ScreenshotMetadata getMetadata() {
-		return screenshot.metadata();
+		return screenshot.getMetadata();
 	}
 
 	public String getName() {
@@ -205,7 +203,7 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 	}
 
 	public long getTimestampOrLastModified() {
-		Long timestamp = screenshot.metadata().getTimestamp();
+		Long timestamp = screenshot.getMetadata().getTimestamp();
 		if (timestamp != null) {
 			return timestamp;
 		}
@@ -218,17 +216,34 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 
 	@Override
 	public boolean hasChanged() {
+		return hasNameChanged() || hasMetadataChanged();
+	}
+
+	public boolean hasNameChanged() {
 		return !INITIAL_NAME.equals(getName());
+	}
+
+	public boolean hasMetadataChanged() {
+		return !INITIAL_METADATA.equals(getMetadata());
 	}
 
 	@Override
 	public void revertChanges() {
 		nameWidget.setText(INITIAL_NAME);
+		screenshot.setMetadata(INITIAL_METADATA);
 	}
 
 	@Override
 	public void commitChanges() {
-		if (hasChanged()) {
+		//TODO qu'est ce qu'il se passe si on renomme un fichier par le même nom qu'un autre et que l'autre on le renomme par le même nom que le premier ?
+		if (hasMetadataChanged()) {
+			try {
+				ScreenshotMetadataUtils.update(screenshot.file(), screenshot.getMetadata());
+			} catch (Exception e) {
+				ScreenshotLogger.error("Could not save metadata for {}", screenshot.file().getName());
+			}
+		}
+		if (hasNameChanged()) {
 			Path oldPath = screenshot.file().toPath();
 			Path newPath = screenshot.file().toPath().resolveSibling(getName());
 			try {

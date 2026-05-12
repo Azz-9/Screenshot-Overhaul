@@ -24,8 +24,8 @@ public class ScreenshotRenderProvider extends ElementRenderProvider<Screenshot, 
 		String currentWorld = mapWorld.getMapProcessor().getCurrentWorldId();
 
 		iterator = ScreenshotList.getScreenshots().stream()
-				.filter(s -> Objects.equals(s.metadata().getWorldName(), currentWorld) &&
-						Objects.equals(s.metadata().getDimension(), currentDim.identifier()))
+				.filter(s -> Objects.equals(s.getMetadata().getWorldName(), currentWorld) &&
+						Objects.equals(s.getMetadata().getDimension(), currentDim.identifier()))
 				.iterator();
 	}
 
