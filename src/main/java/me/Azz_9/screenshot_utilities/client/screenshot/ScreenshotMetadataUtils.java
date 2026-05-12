@@ -2,6 +2,7 @@ package me.Azz_9.screenshot_utilities.client.screenshot;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 
+import net.minecraft.SharedConstants;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.Biome;
@@ -26,6 +27,7 @@ public class ScreenshotMetadataUtils {
 	private static final @NonNull String KEY_BIOME = "Biome";
 	private static final @NonNull String KEY_WORLD = "World";
 	private static final @NonNull String KEY_SERVER = "Server";
+	private static final @NonNull String KEY_VERSION = "Version";
 	private static final @NonNull String KEY_TIMESTAMP = "Timestamp";
 	private static final @NonNull String KEY_TAGS = "Tags";
 
@@ -94,6 +96,7 @@ public class ScreenshotMetadataUtils {
 		if (meta.getBiome() != null) textChunks.add(buildTextChunk(KEY_BIOME, meta.getBiome().toString()));
 		if (meta.getWorldName() != null) textChunks.add(buildTextChunk(KEY_WORLD, meta.getWorldName()));
 		if (meta.getServerIp() != null) textChunks.add(buildTextChunk(KEY_SERVER, meta.getServerIp()));
+		if (meta.getServerIp() != null) textChunks.add(buildTextChunk(KEY_VERSION, meta.getVersion()));
 		if (meta.getTimestamp() != null)
 			textChunks.add(buildTextChunk(KEY_TIMESTAMP, String.valueOf(meta.getTimestamp())));
 		if (!meta.getTags().isEmpty()) textChunks.add(buildTextChunk(KEY_TAGS, String.join(",", meta.getTags())));
@@ -137,8 +140,9 @@ public class ScreenshotMetadataUtils {
 				Identifier.tryParse(meta.get(KEY_BIOME)),
 				meta.get(KEY_WORLD),
 				meta.get(KEY_SERVER),
-				meta.containsKey(KEY_TIMESTAMP) ? Long.parseLong(meta.get("Timestamp")) : null,
-				meta.containsKey(KEY_TAGS) ? Arrays.asList(meta.get("Tags").split(",")) : List.of()
+				meta.get(KEY_VERSION),
+				meta.containsKey(KEY_TIMESTAMP) ? Long.parseLong(meta.get(KEY_TIMESTAMP)) : null,
+				meta.containsKey(KEY_TAGS) ? Arrays.asList(meta.get(KEY_TAGS).split(",")) : List.of()
 		);
 	}
 
@@ -147,7 +151,7 @@ public class ScreenshotMetadataUtils {
 			return new ScreenshotMetadata(
 					null, null, null,
 					null, null, null, null,
-					System.currentTimeMillis(), new ArrayList<>()
+					SharedConstants.getCurrentVersion().name(), System.currentTimeMillis(), new ArrayList<>()
 			);
 
 		String serverIp = null;
@@ -170,6 +174,7 @@ public class ScreenshotMetadataUtils {
 				biomeId,
 				worldName,
 				serverIp,
+				SharedConstants.getCurrentVersion().name(),
 				System.currentTimeMillis(),
 				new ArrayList<>()
 		);

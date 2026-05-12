@@ -16,6 +16,7 @@ public class ScreenshotMetadata {
 	private @Nullable Identifier biome;
 	private @Nullable String worldName;
 	private @Nullable String serverIp;
+	private @Nullable String version;
 	private @Nullable Long timestamp;
 	private @NonNull List<String> tags;
 
@@ -24,6 +25,7 @@ public class ScreenshotMetadata {
 	public ScreenshotMetadata(@Nullable Long x, @Nullable Long y, @Nullable Long z,
 	                          @Nullable Identifier dimension, @Nullable Identifier biome,
 	                          @Nullable String worldName, @Nullable String serverIp,
+	                          @Nullable String version,
 	                          @Nullable Long timestamp, @NonNull List<String> tags) {
 		this.x = x;
 		this.y = y;
@@ -32,12 +34,13 @@ public class ScreenshotMetadata {
 		this.biome = biome;
 		this.worldName = worldName;
 		this.serverIp = serverIp;
+		this.version = version;
 		this.timestamp = timestamp;
 		this.tags = tags;
 	}
 
 	public static ScreenshotMetadata empty() {
-		return new ScreenshotMetadata(null, null, null, null, null, null, null, null, new ArrayList<>());
+		return new ScreenshotMetadata(null, null, null, null, null, null, null, null, null, new ArrayList<>());
 	}
 
 	public @Nullable Long getX() {
@@ -99,6 +102,15 @@ public class ScreenshotMetadata {
 
 	public void setServerIp(@Nullable String serverIp) {
 		this.serverIp = serverIp;
+		if (onUpdate != null) onUpdate.run();
+	}
+
+	public @Nullable String getVersion() {
+		return version;
+	}
+
+	public void setVersion(@Nullable String version) {
+		this.version = version;
 		if (onUpdate != null) onUpdate.run();
 	}
 

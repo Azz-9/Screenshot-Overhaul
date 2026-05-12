@@ -37,6 +37,7 @@
 	"screenshot_utilities.metadata.biome": "Biome",
 	"screenshot_utilities.metadata.world_name": "Nom du monde",
 	"screenshot_utilities.metadata.server": "IP du serveur",
+	"screenshot_utilities.metadata.version": "Version",
 	"screenshot_utilities.metadata.timestamp": "Horodotage",
 	"screenshot_utilities.metadata.tags": "Étiquette",
 	"screenshot_utilities.metadata.tags.placeholder": "étiquette1, étiquette2...",

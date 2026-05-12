@@ -99,6 +99,9 @@ public class MetadataEditorPanel extends SimpleParentWidget {
 		addRenderableChild(stringField(getX() + PANEL_PADDING, getY() + y, getWidth() - PANEL_PADDING * 2,
 				screenshot.metadata().getServerIp(), val -> screenshot.metadata().setServerIp(val), Component.translatable("screenshot_utilities.metadata.server")));
 		y += LABEL_HEIGHT + FIELD_HEIGHT + BUTTON_GAP;
+		addRenderableChild(stringField(getX() + PANEL_PADDING, getY() + y, getWidth() - PANEL_PADDING * 2,
+				screenshot.metadata().getVersion(), val -> screenshot.metadata().setVersion(val), Component.translatable("screenshot_utilities.metadata.version")));
+		y += LABEL_HEIGHT + FIELD_HEIGHT + BUTTON_GAP;
 		addRenderableChild(positiveLongField(getX() + PANEL_PADDING, getY() + y, getWidth() - PANEL_PADDING * 2,
 				screenshot.metadata().getTimestamp(), val -> screenshot.metadata().setTimestamp(val), Component.translatable("screenshot_utilities.metadata.timestamp")));
 		y += LABEL_HEIGHT + FIELD_HEIGHT + BUTTON_GAP;
