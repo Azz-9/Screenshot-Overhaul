@@ -2,6 +2,7 @@ package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGall
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -11,8 +12,13 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
+import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.Colors;
+import me.Azz_9.screenshot_utilities.client.gui.trackableChanges.TrackableChanges;
 import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotManager;
@@ -20,7 +26,7 @@ import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotMetadata;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
 
 @Environment(EnvType.CLIENT)
-public class ScreenshotEntryWidget extends SimpleParentWidget implements ContainerEventHandler {
+public class ScreenshotEntryWidget extends SimpleParentWidget implements ContainerEventHandler, TrackableChanges {
 
 	public static final int NAME_HEIGHT = 30;
 
@@ -29,6 +35,8 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 	private long startTime;
 	private boolean wasHovered;
 	private float progress;
+
+	private final @NonNull String INITIAL_NAME;
 
 	private final @NonNull ScreenshotThumbnailWidget thumbnailWidget;
 	private final @NonNull ScreenshotNameWidget nameWidget;
@@ -42,6 +50,7 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 	public ScreenshotEntryWidget(int x, int y, int thumbnailWidth, int thumbnailHeight, @NonNull Screenshot screenshot) {
 		super(x, y, thumbnailWidth, thumbnailHeight + NAME_HEIGHT);
 
+		this.INITIAL_NAME = screenshot.file().getName();
 		this.baseY = y;
 		this.screenshot = screenshot;
 
@@ -54,8 +63,10 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 		this.nameWidget = new ScreenshotNameWidget(
 				x, y + thumbnailHeight,
 				thumbnailWidth, NAME_HEIGHT,
-				screenshot.file()
+				INITIAL_NAME
 		);
+		nameWidget.setChangedListener(s ->
+				nameWidget.setChatFormatting(hasChanged() ? ChatFormatting.ITALIC : ChatFormatting.RESET));
 
 		this.hideFromMapButton = new HideFromMapButton(
 				getX(), getY(), BUTTON_SIZE, BUTTON_SIZE,
@@ -182,10 +193,6 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 		return nameWidget.getText();
 	}
 
-	public boolean hasNameChanged() {
-		return nameWidget.hasChanged();
-	}
-
 	public String getPathRelativeToScreenshotDir() {
 		return screenshot.pathRelativeToScreenshotDir();
 	}
@@ -200,5 +207,29 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Contain
 
 	@Override
 	public void updateNarration(@NonNull NarrationElementOutput output) {
+	}
+
+	@Override
+	public boolean hasChanged() {
+		return !INITIAL_NAME.equals(getName());
+	}
+
+	@Override
+	public void revertChanges() {
+		nameWidget.setText(INITIAL_NAME);
+	}
+
+	@Override
+	public void commitChanges() {
+		if (hasChanged()) {
+			Path oldPath = screenshot.file().toPath();
+			Path newPath = screenshot.file().toPath().resolveSibling(getName());
+			try {
+				Files.move(oldPath, newPath);
+				ScreenshotManager.changeAbsoluteFilePath(oldPath, newPath);
+			} catch (IOException e) {
+				ScreenshotLogger.error("Failed to rename screenshot file : {}", e.getMessage());
+			}
+		}
 	}
 }

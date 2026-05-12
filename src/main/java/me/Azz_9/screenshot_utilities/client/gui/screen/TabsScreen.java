@@ -22,6 +22,7 @@ import java.util.List;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.gui.renderState.HorizontalGradientRenderState;
+import me.Azz_9.screenshot_utilities.client.gui.trackableChanges.TrackableChanges;
 
 /**
  * Generic screen with a horizontal row of tabs at the top.
@@ -30,7 +31,7 @@ import me.Azz_9.screenshot_utilities.client.gui.renderState.HorizontalGradientRe
  * can be reused for other tabbed screens in the mod.</p>
  */
 @Environment(EnvType.CLIENT)
-public class TabsScreen extends AbstractBackNavigableScreen {
+public class TabsScreen extends AbstractSavableScreen {
 
 	// Package-accessible so SettingsScreen can compute layout without hard-coding
 	static final int TABS_X = 10;
@@ -43,15 +44,39 @@ public class TabsScreen extends AbstractBackNavigableScreen {
 		super(title, parent);
 	}
 
+	// -------------------------------------------------------------------------
+	// AbstractSavableScreen — default no-op so non-saving subclasses compile
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Called by {@link AbstractSavableScreen#init()} before the bottom bar is added.
+	 * <p>
+	 * Default implementation is empty. Subclasses that only use tabs without any
+	 * savable content can override this to add their tabs and widgets. Subclasses
+	 * that do have savable content (e.g. {@link SettingsScreen}) override it to
+	 * register tabs, list widgets, and {@link TrackableChanges} items.
+	 */
 	@Override
-	protected void init() {
-		tabs.clear();
+	protected void initContent() {
+		clearTabs();
 	}
 
 	// -------------------------------------------------------------------------
 	// Tab management
 	// -------------------------------------------------------------------------
 
+	/**
+	 * Clears the tab list without touching the widget list.
+	 * Call this at the top of your {@link #initContent()} override so that
+	 * re-init on window resize does not accumulate duplicate tabs.
+	 */
+	protected final void clearTabs() {
+		tabs.clear();
+	}
+
+	/**
+	 * Adds a pre-built {@link Tab} instance and registers it as a widget.
+	 */
 	public @NonNull Tab addTab(@NonNull Tab tab) {
 		tab.setPosition(getNextTabX(), TABS_Y);
 		tabs.add(tab);
@@ -59,6 +84,9 @@ public class TabsScreen extends AbstractBackNavigableScreen {
 		return tab;
 	}
 
+	/**
+	 * Convenience: creates a default {@link Tab} from a label and adds it.
+	 */
 	public @NonNull Tab addTab(@NonNull Component tabText) {
 		return addTab(new Tab(getNextTabX(), TABS_Y, tabText, this));
 	}
@@ -75,6 +103,13 @@ public class TabsScreen extends AbstractBackNavigableScreen {
 	public void selectTab(@NonNull Tab tab) {
 		tabs.forEach(t -> t.selected = false);
 		tab.selected = true;
+	}
+
+	/**
+	 * Returns the Y coordinate of the bottom edge of the tab row.
+	 */
+	protected int getTabsBottom() {
+		return TABS_Y + MINECRAFT.font.lineHeight + Tab.PADDING_VERTICAL * 2;
 	}
 
 	// -------------------------------------------------------------------------
@@ -96,11 +131,6 @@ public class TabsScreen extends AbstractBackNavigableScreen {
 					message, btn -> {
 					}, DEFAULT_NARRATION);
 			this.parent = parent;
-		}
-
-		// Allow SettingsScreen.addConfigTab to reposition after the x is known
-		void repositionX(int x) {
-			this.setX(x);
 		}
 
 		@Override

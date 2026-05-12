@@ -102,6 +102,7 @@ public interface ConfigOption<T> extends TrackableChanges {
 	 * Commits the working value back to the backing {@link ConfigObject}.
 	 * Call this when the user confirms they want to save.
 	 */
+	@Override
 	void commitChanges();
 
 	// -------------------------------------------------------------------------

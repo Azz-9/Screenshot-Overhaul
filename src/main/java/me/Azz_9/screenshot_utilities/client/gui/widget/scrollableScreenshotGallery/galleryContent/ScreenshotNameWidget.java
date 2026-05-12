@@ -31,7 +31,6 @@ import net.minecraft.util.Util;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -40,11 +39,9 @@ import java.util.function.Predicate;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
-import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
-import me.Azz_9.screenshot_utilities.client.gui.trackableChanges.TrackableChanges;
 
 @Environment(EnvType.CLIENT)
-public class ScreenshotNameWidget extends AbstractWidget implements TrackableChanges {
+public class ScreenshotNameWidget extends AbstractWidget {
 	public static final int DEFAULT_EDITABLE_COLOR = 0xffe0e0e0;
 	public static final Style PLACEHOLDER_STYLE = Style.EMPTY.withColor(ChatFormatting.DARK_GRAY);
 	private static final WidgetSprites SPRITES = new WidgetSprites(
@@ -54,11 +51,9 @@ public class ScreenshotNameWidget extends AbstractWidget implements TrackableCha
 	private final Font font;
 	private final List<EditBox.TextFormatter> formatters = new ArrayList<>();
 	// screenshot
-	private final @NonNull File screenshot;
 	private final @NonNull String extension;
 	private final @NonNull String baseName;
 	private String text = "";
-	private final String INITIAL_TEXT;
 	private int maxLength = 32;
 	private boolean drawsBackground = true;
 	private boolean focusUnlocked = true;
@@ -87,38 +82,27 @@ public class ScreenshotNameWidget extends AbstractWidget implements TrackableCha
 	private int fullTextWidth = 0;
 	// underline
 	private float underlineProgress = 0.0f;
+	private @NonNull ChatFormatting chatFormatting = ChatFormatting.RESET;
 
-	public ScreenshotNameWidget(int width, int height, File screenshotFile) {
-		this(0, 0, width, height, screenshotFile);
+	public ScreenshotNameWidget(int width, int height, @NonNull String initialText) {
+		this(0, 0, width, height, initialText);
 	}
 
-	public ScreenshotNameWidget(int x, int y, int width, int height, File screenshotFile) {
-		this(x, y, width, height, null, screenshotFile);
-	}
-
-	public ScreenshotNameWidget(int x, int y, int width, int height, @Nullable EditBox copyFrom, @NonNull File screenshotFile) {
+	public ScreenshotNameWidget(int x, int y, int width, int height, @NonNull String initialText) {
 		super(x, y, width, height, Component.empty());
 		this.font = MINECRAFT.font;
-		if (copyFrom != null) {
-			this.setText(copyFrom.getValue());
-		}
 
-		setText(screenshotFile.getName());
+		setText(initialText);
 		setDrawsBackground(false);
 
-		this.screenshot = screenshotFile;
-
-		String name = screenshot.getName();
-		int dot = name.lastIndexOf('.');
-		this.baseName = dot == -1 ? name : name.substring(0, dot);
-		this.extension = dot == -1 ? "" : name.substring(dot);
+		int dot = initialText.lastIndexOf('.');
+		this.baseName = dot == -1 ? initialText : initialText.substring(0, dot);
+		this.extension = dot == -1 ? "" : initialText.substring(dot);
 
 		setTextPredicate((text) -> text.endsWith(extension));
 		setMaxLength(50);
 
 		this.updateTextPosition();
-
-		INITIAL_TEXT = getText();
 	}
 
 	public void setChangedListener(@Nullable Consumer<String> changedListener) {
@@ -175,6 +159,10 @@ public class ScreenshotNameWidget extends AbstractWidget implements TrackableCha
 		this.textPredicate = textPredicate;
 	}
 
+	public void setChatFormatting(@NonNull ChatFormatting chatFormatting) {
+		this.chatFormatting = chatFormatting;
+	}
+
 	public void write(String input) {
 		int start = Math.min(this.selectionStart, this.selectionEnd);
 		int end = Math.max(this.selectionStart, this.selectionEnd);
@@ -205,9 +193,6 @@ public class ScreenshotNameWidget extends AbstractWidget implements TrackableCha
 		if (this.changedListener != null) {
 			this.changedListener.accept(newText);
 		}
-
-		if (MINECRAFT.screen instanceof ScreenshotGalleryScreen screen)
-			screen.updateSaveAndQuit();
 
 		this.updateTextPosition();
 	}
@@ -500,7 +485,7 @@ public class ScreenshotNameWidget extends AbstractWidget implements TrackableCha
 		if (!this.text.isEmpty()) {
 			graphics.text(
 					this.font,
-					Component.literal(this.text).withStyle(hasChanged() ? ChatFormatting.ITALIC : ChatFormatting.RESET),
+					Component.literal(this.text).withStyle(chatFormatting),
 					drawX,
 					textY,
 					textColor,
@@ -780,16 +765,6 @@ public class ScreenshotNameWidget extends AbstractWidget implements TrackableCha
 		else {
 			renderOffsetX = idealCenterOffset;
 		}
-	}
-
-	@Override
-	public boolean hasChanged() {
-		return !INITIAL_TEXT.equals(getText());
-	}
-
-	@Override
-	public void revertChanges() {
-		setText(INITIAL_TEXT);
 	}
 
 	@FunctionalInterface

@@ -20,7 +20,6 @@ import net.minecraft.util.Util;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.io.File;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -30,6 +29,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.Colors;
@@ -53,7 +53,6 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 	public static final int MIN_THUMB_WIDTH = 140;
 	public static final int MAX_THUMB_WIDTH = 260;
 	private static final double ASPECT_RATIO = 9.0 / 16.0;
-	private final @NonNull File screenshotFolder;
 
 	// layout
 	private static final int PADDING = 10;
@@ -92,24 +91,25 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 
 	// gallery content
 	private final @NonNull List<ScreenshotEntryWidget> entries = new ArrayList<>();
+	private final @Nullable Consumer<List<ScreenshotEntryWidget>> onEntriesChanged;
 	// Marge de préchargement en pixels au-delà de la zone visible
 	private static final int PRELOAD_MARGIN = 200;
 	private static final int FULLVIEW_PRELOAD_RADIUS = 2;
 
 	private final AtomicBoolean refreshing = new AtomicBoolean(false);
 
-	public ScreenshotGalleryWidget(int x, int y, int width, int height, @NonNull File screenshotFolder) {
+	public ScreenshotGalleryWidget(int x, int y, int width, int height, @Nullable Consumer<List<ScreenshotEntryWidget>> onEntriesChanged) {
 		super(x, y, width, height);
 		this.targetScroll = 0;
 		this.currentScroll = 0;
+
+		this.onEntriesChanged = onEntriesChanged;
 
 		this.searchBar = createSearchBar();
 		this.filterButton = createFilterButton();
 		this.sortButton = createSortButton();
 		this.openFolderButton = createOpenFolderButton();
 		addAllChildren(searchBar, filterButton, sortButton, openFolderButton);
-
-		this.screenshotFolder = screenshotFolder;
 
 		ScreenshotList.whenLoaded((screenshots -> {
 			// make sure the player didn't leave the screen before building entries
@@ -199,6 +199,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 		for (Screenshot screenshot : screenshots) {
 			addEntry(new ScreenshotEntryWidget(screenshot));
 		}
+		if (onEntriesChanged != null) onEntriesChanged.accept(entries);
 	}
 
 	public void refresh(final boolean clearCache, final @Nullable Runnable onRefreshComplete) {

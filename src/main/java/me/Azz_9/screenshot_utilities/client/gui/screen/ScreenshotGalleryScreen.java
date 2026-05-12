@@ -11,7 +11,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -21,25 +20,20 @@ import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Optional;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.Colors;
-import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.MetadataEditorPanel;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.NavigationButton;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.ScreenshotGalleryWidget;
-import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent.ScreenshotEntryWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.*;
 
 @Environment(EnvType.CLIENT)
-public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
+public class ScreenshotGalleryScreen extends AbstractSavableScreen implements FocusableScreen {
 
 	// focus manager
 	private final @NonNull FocusManager focusManager = new FocusManager();
@@ -56,12 +50,6 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 	// gallery
 	private @Nullable ScreenshotGalleryWidget gallery;
-
-	// quit buttons
-	private static final int QUIT_BUTTONS_WIDTH = 200;
-	private static final int QUIT_BUTTONS_HEIGHT = 20;
-	private Button saveAndQuitButton;
-	private Button cancelButton;
 
 	// full view
 	private static final int NAV_BUTTON_SIZE = 20;
@@ -94,18 +82,8 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	}
 
 	@Override
-	protected void init() {
+	protected void initContent() {
 		settingsButton = createSettingsButton();
-
-		saveAndQuitButton = Button.builder(
-						Component.translatable("screenshot_utilities.save_and_quit"),
-						(_) -> saveAndQuit()
-				).bounds(width / 2 + 10, height - QUIT_BUTTONS_HEIGHT - 10, QUIT_BUTTONS_WIDTH, QUIT_BUTTONS_HEIGHT)
-				.build();
-
-		cancelButton = Button.builder(Component.translatable("screenshot_utilities.cancel"), (_) -> this.onClose())
-				.bounds(width / 2 - 10 - QUIT_BUTTONS_WIDTH, height - QUIT_BUTTONS_HEIGHT - 10, QUIT_BUTTONS_WIDTH, QUIT_BUTTONS_HEIGHT)
-				.build();
 
 		gallery = createGallery();
 
@@ -130,8 +108,6 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 		addWidget(copyButton);
 		addWidget(editMetadataButton);
 		addRenderableWidget(gallery);
-		addRenderableWidget(saveAndQuitButton);
-		addRenderableWidget(cancelButton);
 		addRenderableWidget(settingsButton);
 
 		ScreenshotList.setOnChangeListener(_ -> {
@@ -171,9 +147,8 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 	private ScreenshotGalleryWidget createGallery() {
 		return new ScreenshotGalleryWidget(
 				GLOBAL_PADDING, GLOBAL_PADDING,
-				width - SETTINGS_BUTTON_WIDTH - GLOBAL_PADDING * 2 - 20, height - QUIT_BUTTONS_HEIGHT - GLOBAL_PADDING * 3,
-				Config.getInstance().getScreenshotsDir().toFile()
-		);
+				width - SETTINGS_BUTTON_WIDTH - GLOBAL_PADDING * 2 - 20, getBottomBarTop() - GLOBAL_PADDING,
+				this::setTrackedItems);
 	}
 
 	private NavigationButton createNavigationButton(NavigationButton.NavigationType type) {
@@ -235,36 +210,6 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 		return panel;
 	}
 
-	// save and quit
-
-	private void saveAndQuit() {
-		if (gallery == null) return;
-
-		for (ScreenshotEntryWidget entry : gallery.getEntries()) {
-			if (entry.hasNameChanged()) {
-				Path oldPath = entry.getScreenshotFile().toPath();
-				Path newPath = entry.getScreenshotFile().toPath().resolveSibling(entry.getName());
-				try {
-					Files.move(oldPath, newPath);
-					ScreenshotManager.changeAbsoluteFilePath(oldPath, newPath);
-				} catch (IOException e) {
-					ScreenshotLogger.error("Failed to rename screenshot file : {}", e.getMessage());
-				}
-			}
-		}
-		this.onClose();
-	}
-
-	public void updateSaveAndQuit() {
-		saveAndQuitButton.active = anyChanges();
-	}
-
-	private boolean anyChanges() {
-		if (gallery == null) return false;
-
-		return gallery.getEntries().stream().anyMatch(ScreenshotEntryWidget::hasNameChanged);
-	}
-
 	// Full view
 
 	public void selectScreenshot(@NonNull Screenshot screenshot) {
@@ -279,8 +224,6 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 
 		updateNavButtons();
 
-		saveAndQuitButton.active = false;
-		cancelButton.active = false;
 		settingsButton.active = false;
 		if (gallery != null) {
 			gallery.setActive(false);
@@ -304,8 +247,6 @@ public class ScreenshotGalleryScreen extends Screen implements FocusableScreen {
 		editMetadataButton.visible = false;
 		metadataEditorPanel.setVisible(false);
 
-		updateSaveAndQuit();
-		cancelButton.active = true;
 		settingsButton.active = true;
 		if (gallery != null) {
 			gallery.setActive(true);

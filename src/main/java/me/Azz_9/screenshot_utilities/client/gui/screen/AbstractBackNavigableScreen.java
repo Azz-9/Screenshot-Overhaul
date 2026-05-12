@@ -15,6 +15,10 @@ public abstract class AbstractBackNavigableScreen extends Screen {
 		this.PARENT = parent;
 	}
 
+	public AbstractBackNavigableScreen(Component title) {
+		this(title, null);
+	}
+
 	@Override
 	public void onClose() {
 		if (PARENT != null) {
