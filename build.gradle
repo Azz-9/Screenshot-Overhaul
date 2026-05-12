@@ -3,6 +3,9 @@ plugins {
 	id 'maven-publish'
 }
 
+def includeModMenu = project.hasProperty("launch_with_modmenu") && project.launch_with_modmenu.toBoolean()
+def includeXaero = project.hasProperty("launch_with_xaero_worldmap") && project.launch_with_xaero_worldmap.toBoolean()
+
 version = project.mod_version
 group = project.maven_group
 
@@ -18,6 +21,10 @@ repositories {
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
 	maven {
+		name = "Terraformers"
+		url = "https://maven.terraformersmc.com/"
+	}
+	maven {
 		url "https://chocolateminecraft.com/maven"
 		name "Xaero's Maven"
 	}
@@ -30,7 +37,17 @@ dependencies {
 
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	implementation "xaero.map:xaeroworldmap-fabric-${project.minecraft_version}:${project.xaero_worldmap_version}"
+	if (includeModMenu) {
+		implementation("com.terraformersmc:modmenu:${project.modmenu_version}")
+	} else {
+		compileOnly("com.terraformersmc:modmenu:${project.modmenu_version}")
+	}
+
+	if (includeXaero) {
+		implementation "xaero.map:xaeroworldmap-fabric-${project.minecraft_version}:${project.xaero_worldmap_version}"
+	} else {
+		compileOnly "xaero.map:xaeroworldmap-fabric-${project.minecraft_version}:${project.xaero_worldmap_version}"
+	}
 }
 
 processResources {

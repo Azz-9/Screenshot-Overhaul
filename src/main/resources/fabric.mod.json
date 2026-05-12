@@ -15,6 +15,9 @@
 	"entrypoints": {
 		"client": [
 			"me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient"
+		],
+		"modmenu": [
+			"me.Azz_9.screenshot_utilities.compat.ModMenuCompat"
 		]
 	},
 
