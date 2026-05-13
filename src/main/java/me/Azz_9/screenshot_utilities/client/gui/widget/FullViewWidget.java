@@ -436,7 +436,9 @@ public class FullViewWidget extends AbstractWidget {
 
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double hAmount, double vAmount) {
-		return visible; // consume, do not scroll gallery beneath
+		if (!visible) return false;
+		metadataPanel.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
+		return true; // consume, do not scroll gallery beneath
 	}
 
 	@Override

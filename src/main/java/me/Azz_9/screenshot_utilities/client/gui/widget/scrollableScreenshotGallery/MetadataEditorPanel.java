@@ -115,42 +115,6 @@ public class MetadataEditorPanel extends SimpleParentWidget {
 						"screenshot_utilities.metadata.tags",
 						Component.translatable("screenshot_utilities.metadata.tags.placeholder"))
 				.build();
-
-		/*int y = PANEL_PADDING + LABEL_HEIGHT + PANEL_PADDING;
-
-		addRenderableChild(longField(getX() + PANEL_PADDING, getY() + y, getWidth() - PANEL_PADDING * 2,
-				screenshot.getMetadata().getX(), val -> screenshot.getMetadata().setX(val), Component.translatable("screenshot_utilities.metadata.x")));
-		y += LABEL_HEIGHT + FIELD_HEIGHT + FIELD_GAP;
-		addRenderableChild(longField(getX() + PANEL_PADDING, getY() + y, getWidth() - PANEL_PADDING * 2,
-				screenshot.getMetadata().getY(), val -> screenshot.getMetadata().setY(val), Component.translatable("screenshot_utilities.metadata.y")));
-		y += LABEL_HEIGHT + FIELD_HEIGHT + FIELD_GAP;
-		addRenderableChild(longField(getX() + PANEL_PADDING, getY() + y, getWidth() - PANEL_PADDING * 2,
-				screenshot.getMetadata().getZ(), val -> screenshot.getMetadata().setZ(val), Component.translatable("screenshot_utilities.metadata.z")));
-		y += LABEL_HEIGHT + FIELD_HEIGHT + FIELD_GAP;
-		addRenderableChild(stringField(getX() + PANEL_PADDING, getY() + y, getWidth() - PANEL_PADDING * 2,
-				screenshot.getMetadata().getDimension() == null ? null : screenshot.getMetadata().getDimension().toString(),
-				val -> screenshot.getMetadata().setDimension(val == null ? null : Identifier.tryParse(val)), Component.translatable("screenshot_utilities.metadata.dimension")));
-		y += LABEL_HEIGHT + FIELD_HEIGHT + FIELD_GAP;
-		addRenderableChild(stringField(getX() + PANEL_PADDING, getY() + y, getWidth() - PANEL_PADDING * 2,
-				screenshot.getMetadata().getBiome() == null ? null : screenshot.getMetadata().getBiome().toString(),
-				val -> screenshot.getMetadata().setBiome(val == null ? null : Identifier.tryParse(val)), Component.translatable("screenshot_utilities.metadata.biome")));
-		y += LABEL_HEIGHT + FIELD_HEIGHT + FIELD_GAP;
-		addRenderableChild(stringField(getX() + PANEL_PADDING, getY() + y, getWidth() - PANEL_PADDING * 2,
-				screenshot.getMetadata().getWorldName(), val -> screenshot.getMetadata().setWorldName(val), Component.translatable("screenshot_utilities.metadata.world_name")));
-		y += LABEL_HEIGHT + FIELD_HEIGHT + FIELD_GAP;
-		addRenderableChild(stringField(getX() + PANEL_PADDING, getY() + y, getWidth() - PANEL_PADDING * 2,
-				screenshot.getMetadata().getServerIp(), val -> screenshot.getMetadata().setServerIp(val), Component.translatable("screenshot_utilities.metadata.server")));
-		y += LABEL_HEIGHT + FIELD_HEIGHT + FIELD_GAP;
-		addRenderableChild(stringField(getX() + PANEL_PADDING, getY() + y, getWidth() - PANEL_PADDING * 2,
-				screenshot.getMetadata().getVersion(), val -> screenshot.getMetadata().setVersion(val), Component.translatable("screenshot_utilities.metadata.version")));
-		y += LABEL_HEIGHT + FIELD_HEIGHT + FIELD_GAP;
-		addRenderableChild(positiveLongField(getX() + PANEL_PADDING, getY() + y, getWidth() - PANEL_PADDING * 2,
-				screenshot.getMetadata().getTimestamp(), val -> screenshot.getMetadata().setTimestamp(val), Component.translatable("screenshot_utilities.metadata.timestamp")));
-		y += LABEL_HEIGHT + FIELD_HEIGHT + FIELD_GAP;
-		addRenderableChild(stringField(getX() + PANEL_PADDING, getY() + y, getWidth() - PANEL_PADDING * 2,
-				String.join(", ", screenshot.getMetadata().getTags()),
-				val -> screenshot.getMetadata().setTags(val == null ? new ArrayList<>() : Arrays.stream(val.split(",")).map(String::trim).toList()),
-				Component.translatable("screenshot_utilities.metadata.tags"), Component.translatable("screenshot_utilities.metadata.tags.placeholder")));*/
 	}
 
 	private Button createCloseButton() {
