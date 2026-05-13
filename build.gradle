@@ -48,6 +48,8 @@ dependencies {
 	} else {
 		compileOnly "xaero.map:xaeroworldmap-fabric-${project.minecraft_version}:${project.xaero_worldmap_version}"
 	}
+
+	implementation files("libs/iris-fabric-1.10.9+mc26.1.1.jar")
 }
 
 processResources {

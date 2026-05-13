@@ -20,6 +20,8 @@ import java.util.zip.CRC32;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.config.Config;
+import me.Azz_9.screenshot_utilities.compat.CompatManager;
+import me.Azz_9.screenshot_utilities.compat.IrisCompat;
 
 public class ScreenshotMetadataUtils {
 
@@ -33,6 +35,7 @@ public class ScreenshotMetadataUtils {
 	private static final @NonNull String KEY_SERVER = "Server";
 	private static final @NonNull String KEY_VERSION = "Version";
 	private static final @NonNull String KEY_RESOURCE_PACKS = "ResourcePacks";
+	private static final @NonNull String KEY_SHADER = "Shader";
 	private static final @NonNull String KEY_TIMESTAMP = "Timestamp";
 	private static final @NonNull String KEY_TAGS = "Tags";
 
@@ -105,6 +108,7 @@ public class ScreenshotMetadataUtils {
 		if (meta.getServerIp() != null) textChunks.add(buildTextChunk(KEY_VERSION, meta.getVersion()));
 		if (meta.getResourcePacks().isEmpty())
 			textChunks.add(buildTextChunk(KEY_RESOURCE_PACKS, String.join(",", meta.getResourcePacks())));
+		if (meta.getShader() != null) textChunks.add(buildTextChunk(KEY_SHADER, meta.getShader()));
 		if (meta.getTimestamp() != null)
 			textChunks.add(buildTextChunk(KEY_TIMESTAMP, String.valueOf(meta.getTimestamp())));
 		if (!meta.getTags().isEmpty()) textChunks.add(buildTextChunk(KEY_TAGS, String.join(",", meta.getTags())));
@@ -151,6 +155,7 @@ public class ScreenshotMetadataUtils {
 				meta.get(KEY_SERVER),
 				meta.get(KEY_VERSION),
 				meta.containsKey(KEY_RESOURCE_PACKS) ? Arrays.asList(meta.get(KEY_RESOURCE_PACKS).split(",")) : List.of(),
+				meta.get(KEY_SHADER),
 				meta.containsKey(KEY_TIMESTAMP) ? Long.parseLong(meta.get(KEY_TIMESTAMP)) : null,
 				meta.containsKey(KEY_TAGS) ? Arrays.asList(meta.get(KEY_TAGS).split(",")) : List.of()
 		);
@@ -163,7 +168,7 @@ public class ScreenshotMetadataUtils {
 					null, null, null, null, null,
 					SharedConstants.getCurrentVersion().name(),
 					MINECRAFT.getResourceManager().listPacks().map(PackResources::packId).toList(),
-					System.currentTimeMillis(), new ArrayList<>()
+					null, System.currentTimeMillis(), new ArrayList<>()
 			);
 
 		IntegratedServer singleplayerServer = MINECRAFT.getSingleplayerServer();
@@ -188,6 +193,11 @@ public class ScreenshotMetadataUtils {
 			}
 		}
 
+		String shader = null;
+		if (CompatManager.irisPresent()) {
+			shader = IrisCompat.getShaderName();
+		}
+
 		return new ScreenshotMetadata(
 				(long) Math.floor(MINECRAFT.player.getX()),
 				(long) Math.floor(MINECRAFT.player.getY()),
@@ -199,6 +209,7 @@ public class ScreenshotMetadataUtils {
 				serverIp,
 				SharedConstants.getCurrentVersion().name(),
 				MINECRAFT.getResourceManager().listPacks().map(PackResources::packId).toList(),
+				shader,
 				System.currentTimeMillis(),
 				new ArrayList<>()
 		);

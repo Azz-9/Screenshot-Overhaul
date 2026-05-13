@@ -20,14 +20,15 @@ public class ScreenshotMetadata {
 	private @Nullable String serverIp;
 	private @Nullable String version;
 	private @NonNull List<String> resourcePacks;
+	private @Nullable String shader;
 	private @Nullable Long timestamp;
 	private @NonNull List<String> tags;
 
 	public ScreenshotMetadata(@Nullable Long x, @Nullable Long y, @Nullable Long z,
 	                          @Nullable Identifier dimension, @Nullable Identifier biome,
-	                          @Nullable Long seed,
-	                          @Nullable String worldName, @Nullable String serverIp,
-	                          @Nullable String version, @NonNull List<String> resourcePacks,
+	                          @Nullable Long seed, @Nullable String worldName,
+	                          @Nullable String serverIp, @Nullable String version,
+	                          @NonNull List<String> resourcePacks, @Nullable String shader,
 	                          @Nullable Long timestamp, @NonNull List<String> tags) {
 		this.x = x;
 		this.y = y;
@@ -39,18 +40,19 @@ public class ScreenshotMetadata {
 		this.serverIp = serverIp;
 		this.version = version;
 		this.resourcePacks = resourcePacks;
+		this.shader = shader;
 		this.timestamp = timestamp;
 		this.tags = tags;
 	}
 
 	public static ScreenshotMetadata empty() {
 		return new ScreenshotMetadata(null, null, null, null, null, null,
-				null, null, null, new ArrayList<>(), null, new ArrayList<>());
+				null, null, null, new ArrayList<>(), null, null, new ArrayList<>());
 	}
 
 	public static ScreenshotMetadata copyOf(@NonNull ScreenshotMetadata from) {
 		return new ScreenshotMetadata(from.x, from.y, from.z, from.dimension, from.biome, from.seed, from.worldName,
-				from.serverIp, from.version, from.resourcePacks, from.timestamp, from.tags);
+				from.serverIp, from.version, from.resourcePacks, from.shader, from.timestamp, from.tags);
 	}
 
 	public @Nullable Long getX() {
@@ -133,6 +135,14 @@ public class ScreenshotMetadata {
 		this.resourcePacks = resourcePacks;
 	}
 
+	public @Nullable String getShader() {
+		return shader;
+	}
+
+	public void setShader(@Nullable String shader) {
+		this.shader = shader;
+	}
+
 	public @Nullable Long getTimestamp() {
 		return timestamp;
 	}
@@ -163,6 +173,7 @@ public class ScreenshotMetadata {
 				Objects.equals(getServerIp(), that.getServerIp()) &&
 				Objects.equals(getVersion(), that.getVersion()) &&
 				Objects.equals(getResourcePacks(), that.getResourcePacks()) &&
+				Objects.equals(getShader(), that.getShader()) &&
 				Objects.equals(getTimestamp(), that.getTimestamp()) &&
 				Objects.equals(getTags(), that.getTags());
 	}
@@ -170,7 +181,7 @@ public class ScreenshotMetadata {
 	@Override
 	public int hashCode() {
 		return Objects.hash(getX(), getY(), getZ(), getDimension(), getBiome(), getSeed(), getWorldName(),
-				getServerIp(), getVersion(), getResourcePacks(), getTimestamp(), getTags());
+				getServerIp(), getVersion(), getResourcePacks(), getShader(), getTimestamp(), getTags());
 	}
 
 	@Override
@@ -186,6 +197,7 @@ public class ScreenshotMetadata {
 				", server='" + serverIp + '\'' +
 				", version='" + version + '\'' +
 				", resourcePacks='" + resourcePacks + '\'' +
+				", shader='" + shader + '\'' +
 				", timestamp=" + timestamp +
 				", tags=" + tags +
 				'}';
