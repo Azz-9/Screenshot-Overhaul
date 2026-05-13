@@ -15,6 +15,7 @@ public class ScreenshotMetadata {
 	private @Nullable Long z;
 	private @Nullable Identifier dimension;
 	private @Nullable Identifier biome;
+	private @Nullable Long seed;
 	private @Nullable String worldName;
 	private @Nullable String serverIp;
 	private @Nullable String version;
@@ -24,6 +25,7 @@ public class ScreenshotMetadata {
 
 	public ScreenshotMetadata(@Nullable Long x, @Nullable Long y, @Nullable Long z,
 	                          @Nullable Identifier dimension, @Nullable Identifier biome,
+	                          @Nullable Long seed,
 	                          @Nullable String worldName, @Nullable String serverIp,
 	                          @Nullable String version, @NonNull List<String> resourcePacks,
 	                          @Nullable Long timestamp, @NonNull List<String> tags) {
@@ -31,6 +33,7 @@ public class ScreenshotMetadata {
 		this.y = y;
 		this.z = z;
 		this.dimension = dimension;
+		this.seed = seed;
 		this.biome = biome;
 		this.worldName = worldName;
 		this.serverIp = serverIp;
@@ -41,12 +44,13 @@ public class ScreenshotMetadata {
 	}
 
 	public static ScreenshotMetadata empty() {
-		return new ScreenshotMetadata(null, null, null, null, null, null, null, null, new ArrayList<>(), null, new ArrayList<>());
+		return new ScreenshotMetadata(null, null, null, null, null, null,
+				null, null, null, new ArrayList<>(), null, new ArrayList<>());
 	}
 
 	public static ScreenshotMetadata copyOf(@NonNull ScreenshotMetadata from) {
-		return new ScreenshotMetadata(from.x, from.y, from.z, from.dimension, from.biome, from.worldName, from.serverIp,
-				from.version, from.resourcePacks, from.timestamp, from.tags);
+		return new ScreenshotMetadata(from.x, from.y, from.z, from.dimension, from.biome, from.seed, from.worldName,
+				from.serverIp, from.version, from.resourcePacks, from.timestamp, from.tags);
 	}
 
 	public @Nullable Long getX() {
@@ -87,6 +91,14 @@ public class ScreenshotMetadata {
 
 	public void setBiome(@Nullable Identifier biome) {
 		this.biome = biome;
+	}
+
+	public @Nullable Long getSeed() {
+		return seed;
+	}
+
+	public void setSeed(@Nullable Long seed) {
+		this.seed = seed;
 	}
 
 	public @Nullable String getWorldName() {
@@ -146,6 +158,7 @@ public class ScreenshotMetadata {
 				Objects.equals(getZ(), that.getZ()) &&
 				Objects.equals(getDimension(), that.getDimension()) &&
 				Objects.equals(getBiome(), that.getBiome()) &&
+				Objects.equals(getSeed(), that.getSeed()) &&
 				Objects.equals(getWorldName(), that.getWorldName()) &&
 				Objects.equals(getServerIp(), that.getServerIp()) &&
 				Objects.equals(getVersion(), that.getVersion()) &&
@@ -156,7 +169,8 @@ public class ScreenshotMetadata {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getX(), getY(), getZ(), getDimension(), getBiome(), getWorldName(), getServerIp(), getVersion(), getResourcePacks(), getTimestamp(), getTags());
+		return Objects.hash(getX(), getY(), getZ(), getDimension(), getBiome(), getSeed(), getWorldName(),
+				getServerIp(), getVersion(), getResourcePacks(), getTimestamp(), getTags());
 	}
 
 	@Override
@@ -167,6 +181,7 @@ public class ScreenshotMetadata {
 				", z=" + z +
 				", dimension=" + dimension +
 				", biome=" + biome +
+				", seed=" + seed +
 				", worldName='" + worldName + '\'' +
 				", server='" + serverIp + '\'' +
 				", version='" + version + '\'' +

@@ -35,6 +35,7 @@
 	"screenshot_utilities.metadata.z": "Z",
 	"screenshot_utilities.metadata.dimension": "Dimension",
 	"screenshot_utilities.metadata.biome": "Biome",
+	"screenshot_utilities.metadata.seed": "Graine",
 	"screenshot_utilities.metadata.world_name": "Nom du monde",
 	"screenshot_utilities.metadata.server": "IP du serveur",
 	"screenshot_utilities.metadata.version": "Version",

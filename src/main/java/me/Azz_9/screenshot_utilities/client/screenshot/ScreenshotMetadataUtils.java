@@ -3,8 +3,10 @@ package me.Azz_9.screenshot_utilities.client.screenshot;
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 
 import net.minecraft.SharedConstants;
+import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.world.level.biome.Biome;
 
@@ -26,6 +28,7 @@ public class ScreenshotMetadataUtils {
 	private static final @NonNull String KEY_Z = "Z";
 	private static final @NonNull String KEY_DIMENSION = "Dimension";
 	private static final @NonNull String KEY_BIOME = "Biome";
+	private static final @NonNull String KEY_SEED = "Seed";
 	private static final @NonNull String KEY_WORLD = "World";
 	private static final @NonNull String KEY_SERVER = "Server";
 	private static final @NonNull String KEY_VERSION = "Version";
@@ -96,6 +99,7 @@ public class ScreenshotMetadataUtils {
 		if (meta.getDimension() != null)
 			textChunks.add(buildTextChunk(KEY_DIMENSION, meta.getDimension().toString()));
 		if (meta.getBiome() != null) textChunks.add(buildTextChunk(KEY_BIOME, meta.getBiome().toString()));
+		if (meta.getSeed() != null) textChunks.add(buildTextChunk(KEY_SEED, String.valueOf(meta.getSeed())));
 		if (meta.getWorldName() != null) textChunks.add(buildTextChunk(KEY_WORLD, meta.getWorldName()));
 		if (meta.getServerIp() != null) textChunks.add(buildTextChunk(KEY_SERVER, meta.getServerIp()));
 		if (meta.getServerIp() != null) textChunks.add(buildTextChunk(KEY_VERSION, meta.getVersion()));
@@ -137,11 +141,12 @@ public class ScreenshotMetadataUtils {
 		dis.close();
 
 		return new ScreenshotMetadata(
-				meta.containsKey(KEY_X) ? Long.parseLong(meta.get("X")) : null,
-				meta.containsKey(KEY_Y) ? Long.parseLong(meta.get("Y")) : null,
-				meta.containsKey(KEY_Z) ? Long.parseLong(meta.get("Z")) : null,
+				meta.containsKey(KEY_X) ? Long.parseLong(meta.get(KEY_X)) : null,
+				meta.containsKey(KEY_Y) ? Long.parseLong(meta.get(KEY_Y)) : null,
+				meta.containsKey(KEY_Z) ? Long.parseLong(meta.get(KEY_Z)) : null,
 				Identifier.tryParse(meta.get(KEY_DIMENSION)),
 				Identifier.tryParse(meta.get(KEY_BIOME)),
+				meta.containsKey(KEY_SEED) ? Long.parseLong(meta.get(KEY_SEED)) : null,
 				meta.get(KEY_WORLD),
 				meta.get(KEY_SERVER),
 				meta.get(KEY_VERSION),
@@ -155,23 +160,33 @@ public class ScreenshotMetadataUtils {
 		if (MINECRAFT.player == null || MINECRAFT.level == null)
 			return new ScreenshotMetadata(
 					null, null, null,
-					null, null, null, null,
+					null, null, null, null, null,
 					SharedConstants.getCurrentVersion().name(),
 					MINECRAFT.getResourceManager().listPacks().map(PackResources::packId).toList(),
 					System.currentTimeMillis(), new ArrayList<>()
 			);
+
+		IntegratedServer singleplayerServer = MINECRAFT.getSingleplayerServer();
 
 		String serverIp = null;
 		String worldName = null;
 
 		if (MINECRAFT.getCurrentServer() != null) {
 			serverIp = MINECRAFT.getCurrentServer().ip;
-		} else if (MINECRAFT.getSingleplayerServer() != null) {
-			worldName = MINECRAFT.getSingleplayerServer().getWorldData().getLevelName();
+		} else if (singleplayerServer != null) {
+			worldName = singleplayerServer.getWorldData().getLevelName();
 		}
 
 		ResourceKey<Biome> biomeKey = MINECRAFT.level.getBiome(MINECRAFT.player.getOnPos()).unwrapKey().orElse(null);
 		Identifier biomeId = biomeKey == null ? null : biomeKey.identifier();
+
+		Long seed = null;
+		if (singleplayerServer != null && singleplayerServer.getAllLevels().iterator().hasNext()) {
+			try (ServerLevel serverLevel = singleplayerServer.getAllLevels().iterator().next()) {
+				seed = serverLevel.getSeed();
+			} catch (Exception ignored) {
+			}
+		}
 
 		return new ScreenshotMetadata(
 				(long) Math.floor(MINECRAFT.player.getX()),
@@ -179,6 +194,7 @@ public class ScreenshotMetadataUtils {
 				(long) Math.floor(MINECRAFT.player.getZ()),
 				MINECRAFT.level.dimension().identifier(),
 				biomeId,
+				seed,
 				worldName,
 				serverIp,
 				SharedConstants.getCurrentVersion().name(),
