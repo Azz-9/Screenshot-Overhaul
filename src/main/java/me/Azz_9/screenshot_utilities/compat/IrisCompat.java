@@ -9,7 +9,7 @@ public class IrisCompat {
 	public static @NonNull String getShaderName() {
 		if (CompatManager.irisPresent()) {
 			int lastDotIndex = Iris.getCurrentPackName().lastIndexOf('.');
-			return Iris.getCurrentPackName().substring(lastDotIndex + 1);
+			return Iris.getCurrentPackName().substring(0, lastDotIndex);
 		}
 		return "";
 	}

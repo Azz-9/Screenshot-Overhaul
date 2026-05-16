@@ -103,12 +103,12 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Trackab
 	}
 
 	@Override
-	public void renderWidget(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+	protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
 		// fond global
 		graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), Colors.BLACK_TRANSPARENT);
 
-		thumbnailWidget.extractRenderState(graphics, mouseX, mouseY, delta);
-		nameWidget.extractRenderState(graphics, mouseX, mouseY, delta);
+		thumbnailWidget.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
+		nameWidget.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 
 		if (wasHovered != isHovered()) {
 			startTime = System.currentTimeMillis();
@@ -118,11 +118,11 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Trackab
 
 		if (isHovered() && favoriteButton.active || favoriteButton.isFilled()) {
 			favoriteButton.setProgress(favoriteButton.isFilled() ? 1 : progress);
-			favoriteButton.extractRenderState(graphics, mouseX, mouseY, delta);
+			favoriteButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 		}
 		if (isHovered() && hideFromMapButton.active || hideFromMapButton.isCrossed()) {
 			hideFromMapButton.setProgress(hideFromMapButton.isCrossed() ? 1 : progress);
-			hideFromMapButton.extractRenderState(graphics, mouseX, mouseY, delta);
+			hideFromMapButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 		}
 
 		wasHovered = isHovered();
@@ -138,21 +138,6 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Trackab
 		thumbnailWidget.load();
 	}
 
-	@Override
-	public void setX(int x) {
-		if (getX() != x) {
-			super.setX(x);
-			updateChildrenPos();
-		}
-	}
-
-	@Override
-	public void setY(int y) {
-		if (getY() != y) {
-			super.setY(y);
-			updateChildrenPos();
-		}
-	}
 
 	@Override
 	public void setWidth(int width) {
@@ -211,7 +196,7 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Trackab
 	}
 
 	@Override
-	public void updateNarration(@NonNull NarrationElementOutput output) {
+	public void updateWidgetNarration(@NonNull NarrationElementOutput output) {
 	}
 
 	@Override

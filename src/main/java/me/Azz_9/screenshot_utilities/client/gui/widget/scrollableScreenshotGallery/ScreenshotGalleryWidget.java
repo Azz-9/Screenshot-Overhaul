@@ -7,14 +7,13 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.SpriteIconButton;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 
 import org.jspecify.annotations.NonNull;
@@ -24,10 +23,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -37,7 +33,7 @@ import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
-import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
+import me.Azz_9.screenshot_utilities.client.gui.widget.SmoothScrollableWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.TexturedCyclingButtonWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent.ScreenshotEntryWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.headerWidget.SearchBar;
@@ -47,7 +43,7 @@ import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotManager;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
 
 @Environment(EnvType.CLIENT)
-public class ScreenshotGalleryWidget extends SimpleParentWidget {
+public class ScreenshotGalleryWidget extends SmoothScrollableWidget {
 
 	// thumbnail
 	public static final int MIN_THUMB_WIDTH = 140;
@@ -57,19 +53,6 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 	// layout
 	private static final int PADDING = 10;
 	private static final int ROW_SPACING = 14;
-	private int contentHeight;
-
-	// smooth scroll
-	private static final double SCROLL_SNAP_DISTANCE = 0.5;
-	private static final double SCROLL_SPEED = 40.0;
-	private static final double SMOOTHING = 25.0;
-	private double currentScroll;
-	private double targetScroll;
-	private long lastUpdateTime = System.nanoTime();
-
-	// separator
-	private static final int SEPARATOR_HEIGHT = MINECRAFT.font.lineHeight;
-	private final @NonNull List<DateSeparator> separators = new ArrayList<>();
 
 	// header
 	// search bar
@@ -89,6 +72,13 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 
 	private static final int HEADER_HEIGHT = SEARCH_BAR_HEIGHT + PADDING * 2;
 
+	// separator
+	private static final int SEPARATOR_HEIGHT = MINECRAFT.font.lineHeight;
+	private final @NonNull List<DateSeparator> separators = new ArrayList<>();
+
+	private record DateSeparator(int contentY, LocalDate date) {
+	}
+
 	// gallery content
 	private final @NonNull List<ScreenshotEntryWidget> entries = new ArrayList<>();
 	private final @Nullable Consumer<List<ScreenshotEntryWidget>> onEntriesChanged;
@@ -97,15 +87,14 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 	private static final int PRELOAD_MARGIN = 200;
 	private static final int FULLVIEW_PRELOAD_RADIUS = 2;
 
+	private int totalContentHeight = 0;
+
 	private final AtomicBoolean refreshing = new AtomicBoolean(false);
 
 	public ScreenshotGalleryWidget(int x, int y, int width, int height,
 	                               @Nullable Consumer<List<ScreenshotEntryWidget>> onEntriesChanged,
 	                               @Nullable Consumer<Screenshot> onThumbnailClicked) {
 		super(x, y, width, height);
-		this.targetScroll = 0;
-		this.currentScroll = 0;
-
 		this.onEntriesChanged = onEntriesChanged;
 		this.onThumbnailClicked = onThumbnailClicked;
 
@@ -113,7 +102,10 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 		this.filterButton = createFilterButton();
 		this.sortButton = createSortButton();
 		this.openFolderButton = createOpenFolderButton();
-		addAllChildren(searchBar, filterButton, sortButton, openFolderButton);
+		addFixedChild(searchBar);
+		addFixedChild(filterButton);
+		addFixedChild(sortButton);
+		addFixedChild(openFolderButton);
 
 		ScreenshotList.whenLoaded((screenshots -> {
 			// make sure the player didn't leave the screen before building entries
@@ -125,6 +117,8 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 			}
 		}));
 	}
+
+	// header widget factories
 
 	private SearchBar createSearchBar() {
 		SearchBar searchBar = new SearchBar(
@@ -194,17 +188,173 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 		return openFolderButton;
 	}
 
+	// SmoothScrollableWidget contract
+
+	@Override
+	protected int getTotalScrollableHeight() {
+		return totalContentHeight;
+	}
+
+	@Override
+	protected @NonNull ScrollArea getScrollArea() {
+		return new ScrollArea(getX(), getY() + HEADER_HEIGHT, getRight(), getBottom());
+	}
+
+	// rendering
+
+	@Override
+	protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
+		// background
+		graphics.fill(getX(), getY(), getRight(), getBottom(), Colors.BLACK_TRANSPARENT);
+
+		if (!ScreenshotList.isLoaded()) {
+			super.extractWidgetRenderState(graphics, mouseX, mouseY, deltaTicks);
+			Loading.drawLoadingSpinner(
+					graphics,
+					getX() + getWidth() / 2,
+					getY() + getHeight() / 2,
+					getWidth() / 50, getWidth() / 20
+			);
+			return;
+		} else if (entries.isEmpty()) {
+			super.extractWidgetRenderState(graphics, mouseX, mouseY, deltaTicks);
+			graphics.centeredText(MINECRAFT.font, Component.translatable("screenshot_utilities.gallery_widget.no_screenshot").withStyle(ChatFormatting.ITALIC),
+					getX() + getWidth() / 2, getY() + getHeight() / 5, Colors.GRAY);
+			return;
+		}
+
+		super.extractWidgetRenderState(graphics, mouseX, mouseY, deltaTicks);
+
+		renderSeparators(graphics);
+	}
+
+	@Override
+	protected void onBeforeRenderScrollableChild(@NonNull GuiGraphicsExtractor graphics, @NonNull AbstractWidget widget, int screenY, int mouseX, int mouseY, float deltaTicks) {
+		if (!(widget instanceof ScreenshotEntryWidget entry)) return;
+
+		ScrollArea area = getScrollArea();
+		int entryBottom = screenY + entry.getHeight();
+
+		// Preload if near the visible area
+		if (entryBottom >= area.top() - PRELOAD_MARGIN && screenY <= area.bottom() + PRELOAD_MARGIN) {
+			entry.triggerLoad();
+		}
+	}
+
+	private void renderSeparators(@NonNull GuiGraphicsExtractor graphics) {
+		ScrollArea area = getScrollArea();
+		int baseY = area.top() - (int) getScrollOffset();
+
+		graphics.enableScissor(area.left(), area.top(), area.right(), area.bottom());
+
+		for (DateSeparator sep : separators) {
+			int y = baseY + sep.contentY();
+			if (y + SEPARATOR_HEIGHT < area.top() || y > area.bottom()) continue;
+
+			String text = sep.date().format(DateTimeFormatter.ofPattern("dd LLLL yyyy"));
+			int textWidth = MINECRAFT.font.width(text);
+			int textLeft = getX() + (getWidth() - textWidth) / 2;
+			int textRight = textLeft + textWidth;
+			int textPad = 5;
+			int lineY = y + MINECRAFT.font.lineHeight / 2;
+
+			graphics.text(MINECRAFT.font, text, textLeft, y, Colors.GRAY, false);
+			graphics.fill(getX() + PADDING, lineY, textLeft - textPad, lineY + 1, Colors.GRAY);
+			graphics.fill(textRight + textPad, lineY, getRight() - PADDING, lineY + 1, Colors.GRAY);
+		}
+
+		graphics.disableScissor();
+	}
+
 	/* ---------------- Layout ---------------- */
 
 	private void buildEntries(@NonNull List<Screenshot> screenshots) {
-		children().removeAll(entries);
+		clearScrollableChildren();
 		entries.clear();
 
 		for (Screenshot screenshot : screenshots) {
-			addEntry(new ScreenshotEntryWidget(screenshot, onThumbnailClicked));
+			ScreenshotEntryWidget entry = new ScreenshotEntryWidget(screenshot, onThumbnailClicked);
+			entries.add(entry);
+			addScrollableChild(entry);
 		}
 		if (onEntriesChanged != null) onEntriesChanged.accept(entries);
 	}
+
+	private void layoutEntries() {
+		separators.clear();
+
+		int availableWidth = getWidth() - PADDING;
+		int columns = Math.max(1, availableWidth / (MIN_THUMB_WIDTH + PADDING));
+		int thumbWidth = Math.min(MAX_THUMB_WIDTH, availableWidth / columns - PADDING);
+		int thumbHeight = (int) (thumbWidth * ASPECT_RATIO);
+		int entryHeight = thumbHeight + ScreenshotEntryWidget.NAME_HEIGHT;
+
+		int xCursor = getX() + PADDING;
+		int yCursor = PADDING;
+		int col = 0;
+		LocalDate lastDate = null;
+
+		for (ScreenshotEntryWidget entry : entries) {
+			if (!entry.isVisible()) continue;
+
+			LocalDate entryDate = Instant.ofEpochMilli(entry.getTimestampOrLastModified()).atZone(ZoneId.systemDefault()).toLocalDate();
+
+			// separator
+			if (!entryDate.equals(lastDate)) {
+
+				if (col != 0) {
+					col = 0;
+					xCursor = getX() + PADDING;
+					yCursor += entryHeight + ROW_SPACING;
+				}
+
+				separators.add(new DateSeparator(yCursor, entryDate));
+				yCursor += SEPARATOR_HEIGHT + ROW_SPACING;
+			}
+
+			lastDate = entryDate;
+
+			entry.setX(xCursor);
+			entry.setY(yCursor);
+			entry.setWidth(thumbWidth);
+			entry.setHeight(entryHeight);
+
+			col++;
+			xCursor += thumbWidth + PADDING;
+
+			if (col >= columns) {
+				col = 0;
+				xCursor = getX() + PADDING;
+				yCursor += entryHeight + ROW_SPACING;
+			}
+		}
+
+		if (col == 0 && !entries.isEmpty()) yCursor -= entryHeight + ROW_SPACING;
+		totalContentHeight = yCursor + entryHeight + PADDING;
+
+		clampScroll();
+	}
+
+	private void searchAndFilter(@NonNull String query, FilterMode mode) {
+		String q = query.trim().toLowerCase(Locale.ROOT);
+
+		for (ScreenshotEntryWidget entry : entries) {
+			boolean visible = (mode == FilterMode.ALL || mode == FilterMode.FAVORITES && ScreenshotManager.isFavorite(entry.getPathRelativeToScreenshotDir()))
+					&& (q.isEmpty() || entry.getName().toLowerCase(Locale.ROOT).contains(q));
+
+			entry.setVisible(visible);
+			entry.setActive(visible);
+		}
+	}
+
+	private void sortEntries(SortMode mode) {
+		entries.sort(switch (mode) {
+			case DATE_ASC -> Comparator.comparingLong(e -> e.getTimestampOrLastModified());
+			case DATE_DESC -> Comparator.comparingLong(e -> -e.getTimestampOrLastModified());
+		});
+	}
+
+	// refresh
 
 	public void refresh(final boolean clearCache, final @Nullable Runnable onRefreshComplete) {
 		if (!refreshing.compareAndSet(false, true)) return;
@@ -230,205 +380,7 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 		refresh(clearCache, null);
 	}
 
-	private void searchAndFilter(@NonNull String query, FilterMode mode) {
-		String q = query.trim().toLowerCase(Locale.ROOT);
-
-		for (ScreenshotEntryWidget entry : entries) {
-			boolean visible = (mode == FilterMode.ALL || mode == FilterMode.FAVORITES && ScreenshotManager.isFavorite(entry.getPathRelativeToScreenshotDir())) &&
-					(q.isEmpty() || entry.getName().toLowerCase(Locale.ROOT).contains(q));
-
-			entry.setVisible(visible);
-			entry.setActive(visible);
-		}
-	}
-
-	private void sortEntries(SortMode mode) {
-		entries.sort(switch (mode) {
-			case DATE_ASC -> Comparator.comparingLong(e -> e.getTimestampOrLastModified());
-			case DATE_DESC -> Comparator.comparingLong(e -> -e.getTimestampOrLastModified());
-		});
-	}
-
-	private void layoutEntries() {
-		separators.clear();
-
-		int availableWidth = getWidth() - PADDING;
-
-		int columns = Math.max(1, availableWidth / (MIN_THUMB_WIDTH + PADDING));
-		int thumbWidth = Math.min(MAX_THUMB_WIDTH, availableWidth / columns - PADDING);
-		int thumbHeight = (int) (thumbWidth * ASPECT_RATIO);
-
-		int xCursor = getX() + PADDING;
-		int yCursor = getY() + HEADER_HEIGHT + PADDING;
-
-		int col = 0;
-		LocalDate lastDate = null;
-
-		for (ScreenshotEntryWidget entry : entries) {
-
-			if (!entry.isVisible()) {
-				continue;
-			}
-
-			LocalDate entryDate = Instant.ofEpochMilli(entry.getTimestampOrLastModified()).atZone(ZoneId.systemDefault()).toLocalDate();
-
-			// separator
-			if (!entryDate.equals(lastDate)) {
-
-				if (col != 0) {
-					col = 0;
-					xCursor = getX() + PADDING;
-					yCursor += thumbHeight + ScreenshotEntryWidget.NAME_HEIGHT + ROW_SPACING;
-				}
-
-				separators.add(new DateSeparator(yCursor, entryDate));
-				yCursor += SEPARATOR_HEIGHT + ROW_SPACING;
-			}
-
-			lastDate = entryDate;
-
-			entry.setX(xCursor);
-			entry.setBaseY(yCursor);
-			entry.setWidth(thumbWidth);
-			entry.setHeight(thumbHeight + ScreenshotEntryWidget.NAME_HEIGHT);
-
-			col++;
-			xCursor += thumbWidth + PADDING;
-
-			if (col >= columns) {
-				col = 0;
-				xCursor = getX() + PADDING;
-				yCursor += thumbHeight + ScreenshotEntryWidget.NAME_HEIGHT + ROW_SPACING;
-			}
-		}
-
-		if (col == 0) yCursor -= thumbHeight + ScreenshotEntryWidget.NAME_HEIGHT + ROW_SPACING;
-		contentHeight = yCursor - getY() + thumbHeight + ScreenshotEntryWidget.NAME_HEIGHT + PADDING;
-
-		checkScroll();
-	}
-
-
-	/* ---------------- Rendering ---------------- */
-
-	@Override
-	public void renderWidget(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
-		updateScroll();
-
-		// background
-		graphics.fill(getX(), getY(), getRight(), getBottom(), Colors.BLACK_TRANSPARENT);
-
-		renderHeader(graphics, mouseX, mouseY, delta);
-
-		if (!ScreenshotList.isLoaded()) {
-			Loading.drawLoadingSpinner(
-					graphics,
-					getX() + getWidth() / 2,
-					getY() + getHeight() / 2,
-					getWidth() / 50, getWidth() / 20
-			);
-			return;
-		} else if (entries.isEmpty()) {
-			graphics.centeredText(MINECRAFT.font, Component.translatable("screenshot_utilities.gallery_widget.no_screenshot").withStyle(ChatFormatting.ITALIC),
-					getX() + getWidth() / 2, getY() + getHeight() / 5, Colors.GRAY);
-			return;
-		}
-
-		graphics.enableScissor(getX(), getY() + HEADER_HEIGHT, getX() + getWidth(), getY() + getHeight());
-
-		renderSeparators(graphics);
-		renderEntries(graphics, mouseX, mouseY, delta);
-
-		graphics.disableScissor();
-	}
-
-	private void renderHeader(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
-		this.searchBar.extractRenderState(graphics, mouseX, mouseY, delta);
-		this.filterButton.extractRenderState(graphics, mouseX, mouseY, delta);
-		this.sortButton.extractRenderState(graphics, mouseX, mouseY, delta);
-		this.openFolderButton.extractRenderState(graphics, mouseX, mouseY, delta);
-	}
-
-	private void renderSeparators(@NonNull GuiGraphicsExtractor graphics) {
-		for (DateSeparator sep : separators) {
-			int y = sep.y() - (int) currentScroll;
-
-			if (y < getY() || y > getBottom()) continue;
-
-			String text = sep.date().format(DateTimeFormatter.ofPattern("dd LLLL yyyy"));
-
-			int textWidth = MINECRAFT.font.width(text);
-			int textLeft = getX() + (getWidth() - textWidth) / 2;
-			int textRight = textLeft + textWidth;
-			int textPadding = 5;
-
-			graphics.text(MINECRAFT.font, text, textLeft, y, Colors.GRAY, false);
-
-			int lineY = y + MINECRAFT.font.lineHeight / 2;
-
-			graphics.fill(getX() + PADDING, lineY, textLeft - textPadding, lineY + 1, Colors.GRAY);
-			graphics.fill(textRight + textPadding, lineY, getRight() - PADDING, lineY + 1, Colors.GRAY);
-		}
-	}
-
-	private void renderEntries(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
-		int visibleTop = getY() + HEADER_HEIGHT;
-		int visibleBottom = getY() + getHeight();
-
-		for (ScreenshotEntryWidget entry : entries) {
-			if (!entry.isVisible()) continue;
-
-			int yRender = entry.getBaseY() - (int) currentScroll;
-			entry.setY(yRender);
-
-			int entryBottom = yRender + entry.getHeight();
-
-			// Préchargement si l'entrée approche de la zone visible
-			if (entryBottom >= visibleTop - PRELOAD_MARGIN && yRender <= visibleBottom + PRELOAD_MARGIN) {
-				entry.triggerLoad();
-			}
-
-			// Rendu uniquement si réellement visible
-			if (entryBottom >= visibleTop && yRender <= visibleBottom) {
-				entry.extractRenderState(graphics, mouseX, mouseY, delta);
-			}
-		}
-	}
-
-	/* ---------------- Scroll ---------------- */
-
-	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-		targetScroll -= (int) (verticalAmount * SCROLL_SPEED);
-		targetScroll = Math.clamp(targetScroll, 0, getMaxScroll());
-		return true;
-	}
-
-	private int getMaxScroll() {
-		return Math.max(0, contentHeight - getHeight());
-	}
-
-	private void updateScroll() {
-		long currentTime = System.nanoTime();
-		double deltaSeconds = (currentTime - lastUpdateTime) / 1_000_000_000.0;
-		lastUpdateTime = currentTime;
-
-		double alpha = 1.0 - Math.exp(-SMOOTHING * deltaSeconds);
-
-		currentScroll += (targetScroll - currentScroll) * alpha;
-		if (Math.abs(targetScroll - currentScroll) < SCROLL_SNAP_DISTANCE) {
-			currentScroll = targetScroll;
-		}
-
-		currentScroll = Mth.clamp(currentScroll, 0.0, getMaxScroll());
-	}
-
-	private void checkScroll() {
-		if (currentScroll > this.getMaxScroll()) {
-			currentScroll = this.getMaxScroll();
-			targetScroll = this.getMaxScroll();
-		}
-	}
+	// navigation helpers
 
 	public void preloadAround(@NonNull Screenshot screenshot) {
 		int index = indexOf(screenshot);
@@ -441,29 +393,9 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 		}
 	}
 
-	@Override
-	public void updateNarration(@NonNull NarrationElementOutput output) {
-	}
-
-	private void addEntry(@NonNull ScreenshotEntryWidget entry) {
-		entries.add(entry);
-	}
-
-	public @NonNull List<ScreenshotEntryWidget> getEntries() {
-		return entries;
-	}
-
-	@Override
-	public @NonNull List<GuiEventListener> children() {
-		List<GuiEventListener> children = super.children();
-		children.addAll(entries);
-		return children;
-	}
-
 	public int indexOf(@NonNull Screenshot screenshot) {
 		for (int i = 0; i < entries.size(); i++) {
-			ScreenshotEntryWidget entry = entries.get(i);
-			if (entry.getScreenshot() == screenshot) {
+			if (entries.get(i).getScreenshot() == screenshot) {
 				return i;
 			}
 		}
@@ -494,7 +426,13 @@ public class ScreenshotGalleryWidget extends SimpleParentWidget {
 		return null;
 	}
 
-	private record DateSeparator(int y, LocalDate date) {
+	public @NonNull List<ScreenshotEntryWidget> getEntries() {
+		return Collections.unmodifiableList(entries);
+	}
+
+
+	@Override
+	public void updateWidgetNarration(@NonNull NarrationElementOutput output) {
 	}
 
 	public enum SortMode {

@@ -5,14 +5,14 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
-import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
+import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.LayoutElement;
-import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,33 +20,20 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
-public abstract class SimpleParentWidget extends AbstractContainerEventHandler implements LayoutElement, Renderable, GuiEventListener, NarratableEntry {
+public abstract class SimpleParentWidget extends AbstractWidget implements ContainerEventHandler {
 
 	private final @NonNull List<@NonNull GuiEventListener> children = new ArrayList<>();
 	private final @NonNull List<@NonNull Renderable> renderables = new ArrayList<>();
-	private boolean visible = true;
-	private int width;
-	private int height;
-	private int x;
-	private int y;
-	private boolean hovered;
+
+	private @Nullable GuiEventListener focused;
+	private boolean isDragging;
 
 	public SimpleParentWidget(int x, int y, int width, int height) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
+		super(x, y, width, height, Component.empty());
 	}
 
 	@Override
-	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
-		if (this.visible) {
-			this.hovered = graphics.containsPointInScissor(mouseX, mouseY) && this.isInBounds(mouseX, mouseY);
-			this.renderWidget(graphics, mouseX, mouseY, deltaTicks);
-		}
-	}
-
-	protected void renderWidget(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
+	protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
 		for (Renderable renderable : renderables) {
 			renderable.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 		}
@@ -61,12 +48,8 @@ public abstract class SimpleParentWidget extends AbstractContainerEventHandler i
 		return isVisible() && isInBounds(mouseX, mouseY);
 	}
 
-	public boolean isHovered() {
-		return hovered;
-	}
-
 	public void setHovered(boolean hovered) {
-		this.hovered = hovered;
+		this.isHovered = hovered;
 	}
 
 	public void setActive(boolean active) {
@@ -80,7 +63,7 @@ public abstract class SimpleParentWidget extends AbstractContainerEventHandler i
 	}
 
 	public boolean isVisible() {
-		return visible;
+		return this.visible;
 	}
 
 	public void setVisible(boolean visible) {
@@ -88,11 +71,48 @@ public abstract class SimpleParentWidget extends AbstractContainerEventHandler i
 	}
 
 	@Override
+	public final boolean isDragging() {
+		return this.isDragging;
+	}
+
+	@Override
+	public final void setDragging(final boolean dragging) {
+		this.isDragging = dragging;
+	}
+
+	@Override
+	public @Nullable GuiEventListener getFocused() {
+		/*if (MINECRAFT.screen instanceof FocusableScreen screen) {
+			return screen.getFocused();
+		}*/
+		return focused;
+	}
+
+	@Override
+	public void setFocused(final @Nullable GuiEventListener focused) {
+		/*if (MINECRAFT.screen instanceof FocusableScreen screen) {
+			screen.requestFocus(focused);
+			return;
+		}*/
+		if (this.focused != focused) {
+			if (this.focused != null) {
+				this.focused.setFocused(false);
+			}
+
+			if (focused != null) {
+				focused.setFocused(true);
+			}
+
+			this.focused = focused;
+		}
+	}
+
+	@Override
 	public @NonNull NarrationPriority narrationPriority() {
 		if (this.isFocused()) {
 			return NarrationPriority.FOCUSED;
 		} else {
-			return this.hovered ? NarrationPriority.HOVERED : NarrationPriority.NONE;
+			return this.isHovered ? NarrationPriority.HOVERED : NarrationPriority.NONE;
 		}
 	}
 
@@ -122,64 +142,32 @@ public abstract class SimpleParentWidget extends AbstractContainerEventHandler i
 	}
 
 	@Override
-	public @NonNull ScreenRectangle getRectangle() {
-		return LayoutElement.super.getRectangle();
-	}
-
-	@Override
-	public int getX() {
-		return x;
-	}
-
-	@Override
 	public void setX(int x) {
-		this.x = x;
-	}
-
-	@Override
-	public int getY() {
-		return y;
+		for (GuiEventListener child : children()) {
+			if (child instanceof LayoutElement layoutElement) {
+				layoutElement.setX(x + layoutElement.getX() - getX());
+			} else if (child instanceof SimpleParentWidget parent) {
+				parent.setX(x + parent.getX() - getX());
+			}
+		}
+		super.setX(x);
 	}
 
 	@Override
 	public void setY(int y) {
-		this.y = y;
-	}
-
-	@Override
-	public int getWidth() {
-		return width;
-	}
-
-	public void setWidth(int width) {
-		this.width = width;
-	}
-
-	@Override
-	public int getHeight() {
-		return height;
-	}
-
-	public void setHeight(int height) {
-		this.height = height;
-	}
-
-	public int getRight() {
-		return getX() + getWidth();
-	}
-
-	public int getBottom() {
-		return getY() + getHeight();
+		for (GuiEventListener child : children()) {
+			if (child instanceof LayoutElement layoutElement) {
+				layoutElement.setY(y + layoutElement.getY() - getY());
+			} else if (child instanceof SimpleParentWidget parent) {
+				parent.setY(y + parent.getY() - getY());
+			}
+		}
+		super.setY(y);
 	}
 
 	public void setDimension(int width, int height) {
 		setWidth(width);
 		setHeight(height);
-	}
-
-	public void setPosition(int x, int y) {
-		setX(x);
-		setY(y);
 	}
 
 	@Override

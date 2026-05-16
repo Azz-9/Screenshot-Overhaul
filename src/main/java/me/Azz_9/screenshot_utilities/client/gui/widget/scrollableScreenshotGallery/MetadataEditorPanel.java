@@ -8,13 +8,14 @@ import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.*;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.SpriteIconButton;
+import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Ease;
-import net.minecraft.util.Mth;
 
 import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.NonNull;
@@ -22,18 +23,18 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.*;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.gui.widget.PlaceholderEditBox;
 import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
+import me.Azz_9.screenshot_utilities.client.gui.widget.SmoothScrollableWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotMetadata;
 
 @Environment(EnvType.CLIENT)
-public class MetadataEditorPanel extends SimpleParentWidget {
+public class MetadataEditorPanel extends SmoothScrollableWidget {
 
 	// layout
 	private static final int PANEL_PADDING = 10;
@@ -52,17 +53,9 @@ public class MetadataEditorPanel extends SimpleParentWidget {
 	private boolean slidingIn = false;
 
 	// scroll
-	private static final double SCROLL_STEP = 20.0;
-	private static final double SCROLL_SMOOTHING = 0.12;
-
-	private double scrollOffset = 0.0;
-	private double targetScrollOffset = 0.0;
 	private int totalFieldsHeight = 0;
 
-	// children
-	private final List<AbstractWidget> headerWidgets = new ArrayList<>();
-	private final List<SimpleParentWidget> fieldWidgets = new ArrayList<>();
-
+	// callback
 	private @Nullable Consumer<Boolean> onVisibilityChange;
 
 	public MetadataEditorPanel(int width, int height) {
@@ -73,10 +66,7 @@ public class MetadataEditorPanel extends SimpleParentWidget {
 
 	public void init(@NonNull Screenshot screenshot) {
 		clearChildren();
-		headerWidgets.clear();
-		fieldWidgets.clear();
-		scrollOffset = 0;
-		targetScrollOffset = 0;
+		clearScrollableChildren();
 
 		// fixed header
 
@@ -85,9 +75,9 @@ public class MetadataEditorPanel extends SimpleParentWidget {
 				getWidth() - PANEL_PADDING * 2, LABEL_HEIGHT,
 				Component.translatable("screenshot_utilities.edit_metadata"), MINECRAFT.font
 		);
-		addHeaderWidget(title);
+		addFixedChild(title);
 
-		addHeaderWidget(createCloseButton());
+		addFixedChild(createCloseButton());
 
 		// scrollable fields
 
@@ -107,8 +97,15 @@ public class MetadataEditorPanel extends SimpleParentWidget {
 				.stringField(meta::getWorldName, meta::setWorldName, "screenshot_utilities.metadata.world_name")
 				.stringField(meta::getServerIp, meta::setServerIp, "screenshot_utilities.metadata.server")
 				.stringField(meta::getVersion, meta::setVersion, "screenshot_utilities.metadata.version")
+				.stringField(() -> String.join(", ", meta.getResourcePacks()),
+						v -> meta.setResourcePacks(v == null
+								? new ArrayList<>()
+								: Arrays.stream(v.split(",")).map(String::trim).toList()),
+						"screenshot_utilities.metadata.resource_packs",
+						Component.translatable("screenshot_utilities.metadata.resource_packs.placeholder"))
+				.stringField(meta::getShader, meta::setShader, "screenshot_utilities.metadata.shader")
 				.positiveLongField(meta::getTimestamp, meta::setTimestamp, "screenshot_utilities.metadata.timestamp")
-				.tagsField(() -> String.join(", ", meta.getTags()),
+				.stringField(() -> String.join(", ", meta.getTags()),
 						v -> meta.setTags(v == null
 								? new ArrayList<>()
 								: Arrays.stream(v.split(",")).map(String::trim).toList()),
@@ -131,29 +128,22 @@ public class MetadataEditorPanel extends SimpleParentWidget {
 		return closeButton;
 	}
 
-	// child registration
+	// SmoothScrollableWidget contract
 
-	private void addHeaderWidget(@NonNull AbstractWidget widget) {
-		headerWidgets.add(widget);
-		addRenderableChild(widget);
+	@Override
+	protected int getTotalScrollableHeight() {
+		return totalFieldsHeight;
 	}
 
-	void addFieldWidget(@NonNull SimpleParentWidget widget) {
-		fieldWidgets.add(widget);
-		addRenderableChild(widget);
-	}
-
-	void setTotalFieldsHeight(int height) {
-		this.totalFieldsHeight = height;
+	@Override
+	protected @NonNull ScrollArea getScrollArea() {
+		return new ScrollArea(getX(), getY() + HEADER_HEIGHT, getRight(), getBottom());
 	}
 
 	// render
-
 	@Override
-	protected void renderWidget(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
+	protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
 		updateAnimationProgress();
-
-		scrollOffset += (targetScrollOffset - scrollOffset) * SCROLL_SMOOTHING;
 
 		Matrix3x2fStack matrices = graphics.pose();
 		matrices.pushMatrix();
@@ -163,100 +153,18 @@ public class MetadataEditorPanel extends SimpleParentWidget {
 
 		if (isMouseOver(mouseX, mouseY)) graphics.requestCursor(CursorTypes.ARROW);
 
-		// Fixed header — no scroll, no scissor
-		for (AbstractWidget w : headerWidgets) {
-			w.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
-		}
-
-		// Scrollable fields — scissored to [HEADER_HEIGHT, bottom]
-		int scissorTop = getY() + HEADER_HEIGHT;
-		int scissorBottom = getBottom();
-
-		graphics.enableScissor(getX(), scissorTop, getRight(), scissorBottom);
-
-		int baseY = scissorTop - (int) scrollOffset;
-
-		for (SimpleParentWidget widget : fieldWidgets) {
-			int contentOffsetY = widget.getY(); // content-space offset stored by builder
-			int screenY = baseY + contentOffsetY;
-			int screenBottom = screenY + widget.getHeight();
-
-			if (screenBottom < scissorTop || screenY > scissorBottom) continue;
-
-			widget.setY(screenY);
-			widget.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
-
-			// Restore content-space Y so hit-testing below stays consistent
-			widget.setY(contentOffsetY);
-		}
-
-		graphics.disableScissor();
-
-		renderScrollbar(graphics);
+		super.extractWidgetRenderState(graphics, mouseX, mouseY, deltaTicks);
 
 		matrices.popMatrix();
-	}
-
-	private void renderScrollbar(@NonNull GuiGraphicsExtractor graphics) {
-		int visibleHeight = getBottom() - (getY() + HEADER_HEIGHT);
-		if (totalFieldsHeight <= visibleHeight) return;
-
-		int trackX = getRight() - 3;
-		int trackTop = getY() + HEADER_HEIGHT;
-
-		double ratio = (double) visibleHeight / totalFieldsHeight;
-		int thumbH = Math.max(16, (int) (visibleHeight * ratio));
-		int thumbTop = trackTop + (int) ((visibleHeight - thumbH) * (scrollOffset / maxScroll()));
-
-		graphics.fill(trackX, trackTop, trackX + 2, trackTop + visibleHeight, Colors.DARK_GRAY);
-		graphics.fill(trackX, thumbTop, trackX + 2, thumbTop + thumbH, Colors.GRAY);
-	}
-
-	// input
-
-	@Override
-	public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
-		// Always consume if inside panel bounds — nothing behind should receive the click
-		if (!isMouseOver(click.x(), click.y())) return false;
-
-		/*for (AbstractWidget w : headerWidgets) {
-			if (w.mouseClicked(click, doubled)) return true;
-		}*/
-
-		// Fields: only forward if click is inside the scissored area
-		int scissorTop = getY() + HEADER_HEIGHT;
-		int scissorBottom = getBottom();
-		if (click.y() < scissorTop || click.y() > scissorBottom) return true;
-
-		int baseY = scissorTop - (int) scrollOffset;
-		for (SimpleParentWidget widget : fieldWidgets) {
-			int contentOffsetY = widget.getY();
-			widget.setY(baseY + contentOffsetY);
-			boolean handled = widget.mouseClicked(click, doubled);
-			widget.setY(contentOffsetY);
-			if (handled) return true;
-		}
-
-		return true;
-	}
-
-	@Override
-	public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
-		if (!isMouseOver(x, y)) return false;
-		targetScrollOffset = Mth.clamp(targetScrollOffset - scrollY * SCROLL_STEP, 0, maxScroll());
-		return true;
 	}
 
 	// animation
 
 	private void updateAnimationProgress() {
-		float t = Math.min(1.0f, (float) (System.currentTimeMillis() - animationStart) / ANIMATION_DURATION);
-		float eased = Ease.outQuad(t);
-		progress = slidingIn ? eased : 1.0f - eased;
-
-		if (!slidingIn && t >= 1.0f) {
-			super.setVisible(false);
-		}
+		float t = Math.min(1.0f,
+				(float) (System.currentTimeMillis() - animationStart) / ANIMATION_DURATION);
+		progress = slidingIn ? Ease.outQuad(t) : 1.0f - Ease.outQuad(t);
+		if (!slidingIn && t >= 1.0f) super.setVisible(false);
 	}
 
 	@Override
@@ -264,9 +172,7 @@ public class MetadataEditorPanel extends SimpleParentWidget {
 		slidingIn = visible;
 		animationStart = System.currentTimeMillis();
 		if (onVisibilityChange != null) onVisibilityChange.accept(visible);
-		if (visible) {
-			super.setVisible(true);
-		}
+		if (visible) super.setVisible(true);
 	}
 
 	@Override
@@ -274,19 +180,21 @@ public class MetadataEditorPanel extends SimpleParentWidget {
 		return slidingIn;
 	}
 
-	public void setOnVisibilityChange(@Nullable Consumer<Boolean> onVisibilityChange) {
-		this.onVisibilityChange = onVisibilityChange;
+	public void setOnVisibilityChange(@Nullable Consumer<Boolean> cb) {
+		this.onVisibilityChange = cb;
 	}
 
-	// scroll
 
-	private double maxScroll() {
-		int visibleHeight = getBottom() - (getY() + HEADER_HEIGHT);
-		return Math.max(0, totalFieldsHeight - visibleHeight);
+	void registerField(@NonNull SimpleParentWidget widget) {
+		addScrollableChild(widget);
+	}
+
+	void setTotalFieldsHeight(int height) {
+		this.totalFieldsHeight = height;
 	}
 
 	@Override
-	public void updateNarration(@NonNull NarrationElementOutput output) {
+	protected void updateWidgetNarration(@NonNull NarrationElementOutput output) {
 	}
 
 	/**
@@ -356,15 +264,6 @@ public class MetadataEditorPanel extends SimpleParentWidget {
 					placeholder != null ? placeholder : FIELD_PLACEHOLDER));
 		}
 
-		@NonNull FieldListBuilder tagsField(
-				@NonNull Supplier<@Nullable String> getter,
-				@NonNull Consumer<@Nullable String> setter,
-				@NonNull String translationKey,
-				@NonNull Component placeholder
-		) {
-			return stringField(getter, setter, translationKey, placeholder);
-		}
-
 		void build() {
 			panel.setTotalFieldsHeight(cursorY);
 		}
@@ -373,7 +272,7 @@ public class MetadataEditorPanel extends SimpleParentWidget {
 			// Store content-space Y inside widget.y — the render loop uses and
 			// restores this value so hit-testing stays consistent between frames.
 			widget.setY(cursorY);
-			panel.addFieldWidget(widget);
+			panel.registerField(widget);
 			cursorY += widget.getHeight() + FIELD_GAP;
 			return this;
 		}
@@ -492,7 +391,7 @@ public class MetadataEditorPanel extends SimpleParentWidget {
 		}
 
 		@Override
-		public void updateNarration(@NonNull NarrationElementOutput output) {
+		public void updateWidgetNarration(@NonNull NarrationElementOutput output) {
 		}
 	}
 
@@ -552,7 +451,7 @@ public class MetadataEditorPanel extends SimpleParentWidget {
 		}
 
 		@Override
-		public void updateNarration(@NonNull NarrationElementOutput output) {
+		public void updateWidgetNarration(@NonNull NarrationElementOutput output) {
 		}
 	}
 }

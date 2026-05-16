@@ -18,5 +18,9 @@ public interface FocusableScreen {
 		getFocusManager().clearFocus();
 	}
 
+	default GuiEventListener getFocused() {
+		return getFocusManager().getFocused();
+	}
+
 	@NonNull FocusManager getFocusManager();
 }
