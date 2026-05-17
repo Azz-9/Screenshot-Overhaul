@@ -10,7 +10,6 @@ import net.minecraft.util.Ease;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,7 +19,10 @@ import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.gui.trackableChanges.TrackableChanges;
 import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
-import me.Azz_9.screenshot_utilities.client.screenshot.*;
+import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotManager;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotMetadata;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotMetadataUtils;
 
 @Environment(EnvType.CLIENT)
 public class ScreenshotEntryWidget extends SimpleParentWidget implements TrackableChanges {
@@ -164,15 +166,6 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Trackab
 
 	public @NonNull Screenshot getScreenshot() {
 		return screenshot;
-	}
-
-	@Nullable
-	public ScreenshotTexture getTextureOrNull() {
-		return thumbnailWidget.isLoaded() ? thumbnailWidget.getTexture() : null;
-	}
-
-	public @NonNull File getScreenshotFile() {
-		return screenshot.file();
 	}
 
 	public ScreenshotMetadata getMetadata() {

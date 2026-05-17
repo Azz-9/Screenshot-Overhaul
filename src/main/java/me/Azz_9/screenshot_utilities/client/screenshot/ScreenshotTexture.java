@@ -108,6 +108,10 @@ public final class ScreenshotTexture implements AutoCloseable {
 		return imageFuture.isDone();
 	}
 
+	public boolean isClosed() {
+		return closed;
+	}
+
 	public void whenReady(BiConsumer<NativeImage, Throwable> consumer) {
 		imageFuture.whenComplete(consumer);
 	}

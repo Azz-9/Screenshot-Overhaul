@@ -6,7 +6,6 @@ import net.minecraft.SharedConstants;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.world.level.biome.Biome;
 
@@ -105,8 +104,8 @@ public class ScreenshotMetadataUtils {
 		if (meta.getSeed() != null) textChunks.add(buildTextChunk(KEY_SEED, String.valueOf(meta.getSeed())));
 		if (meta.getWorldName() != null) textChunks.add(buildTextChunk(KEY_WORLD, meta.getWorldName()));
 		if (meta.getServerIp() != null) textChunks.add(buildTextChunk(KEY_SERVER, meta.getServerIp()));
-		if (meta.getServerIp() != null) textChunks.add(buildTextChunk(KEY_VERSION, meta.getVersion()));
-		if (meta.getResourcePacks().isEmpty())
+		if (meta.getVersion() != null) textChunks.add(buildTextChunk(KEY_VERSION, meta.getVersion()));
+		if (!meta.getResourcePacks().isEmpty())
 			textChunks.add(buildTextChunk(KEY_RESOURCE_PACKS, String.join(",", meta.getResourcePacks())));
 		if (meta.getShader() != null) textChunks.add(buildTextChunk(KEY_SHADER, meta.getShader()));
 		if (meta.getTimestamp() != null)
@@ -187,10 +186,7 @@ public class ScreenshotMetadataUtils {
 
 		Long seed = null;
 		if (singleplayerServer != null && singleplayerServer.getAllLevels().iterator().hasNext()) {
-			try (ServerLevel serverLevel = singleplayerServer.getAllLevels().iterator().next()) {
-				seed = serverLevel.getSeed();
-			} catch (Exception ignored) {
-			}
+			seed = singleplayerServer.getAllLevels().iterator().next().getSeed();
 		}
 
 		String shader = null;
@@ -207,7 +203,7 @@ public class ScreenshotMetadataUtils {
 				seed,
 				worldName,
 				serverIp,
-				SharedConstants.getCurrentVersion().name(),
+				SharedConstants.getCurrentVersion().id(),
 				MINECRAFT.getResourceManager().listPacks().map(PackResources::packId).toList(),
 				shader,
 				System.currentTimeMillis(),

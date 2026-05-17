@@ -39,7 +39,7 @@ public class ScreenshotThumbnailWidget extends AbstractWidget {
 	private final @NonNull Screenshot screenshot;
 	private final @NonNull File screenshotFile;
 	private boolean loaded = false;
-	private @Nullable Consumer<Screenshot> onClick;
+	private final @Nullable Consumer<Screenshot> onClick;
 
 	private float currentScale = 1.0f;
 	private float appearProgress = 0f; // 0 → 1
@@ -63,14 +63,14 @@ public class ScreenshotThumbnailWidget extends AbstractWidget {
 		}
 	}
 
-	public boolean isLoaded() {
-		return loaded;
-	}
-
 	// rendering
 
 	@Override
 	public void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+		if (texture != null && texture.isClosed()) {
+			loaded = false;
+			texture = null;
+		}
 		if (texture == null || !texture.isReady()) {
 			Loading.drawLoadingSpinner(
 					graphics,

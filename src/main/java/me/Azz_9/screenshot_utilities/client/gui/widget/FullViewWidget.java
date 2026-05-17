@@ -52,10 +52,7 @@ import me.Azz_9.screenshot_utilities.client.screenshot.*;
 @Environment(EnvType.CLIENT)
 public class FullViewWidget extends AbstractWidget {
 
-	// -------------------------------------------------------------------------
 	// Layout
-	// -------------------------------------------------------------------------
-
 	private static final int FULL_VIEW_PADDING = 40;
 	private static final int BOTTOM_PADDING = 60;
 	private static final int NAV_BUTTON_SIZE = 20;
@@ -67,10 +64,7 @@ public class FullViewWidget extends AbstractWidget {
 	private static final int METADATA_PANEL_WIDTH = 200;
 	private static final int COPY_RESET_TIMER_MS = 5000;
 
-	// -------------------------------------------------------------------------
 	// Transition
-	// -------------------------------------------------------------------------
-
 	private static final float TRANSITION_DURATION = 0.2f; // seconds
 
 	private float transitionTime = 0f;
@@ -80,10 +74,7 @@ public class FullViewWidget extends AbstractWidget {
 	private @Nullable Screenshot currentScreenshot;
 	private @Nullable Screenshot outgoingScreenshot;
 
-	// -------------------------------------------------------------------------
 	// Child widgets
-	// -------------------------------------------------------------------------
-
 	private final @NonNull NavigationButton backButton;
 	private final @NonNull NavigationButton nextButton;
 	private final @NonNull Button copyButton;
@@ -93,10 +84,7 @@ public class FullViewWidget extends AbstractWidget {
 
 	private long copyResetAt = -1;
 
-	// -------------------------------------------------------------------------
 	// Callbacks supplied by the parent screen
-	// -------------------------------------------------------------------------
-
 	/**
 	 * Called when the user navigates to a different screenshot.
 	 */
@@ -198,9 +186,7 @@ public class FullViewWidget extends AbstractWidget {
 				.build();
 	}
 
-	// -------------------------------------------------------------------------
 	// Screenshot selection
-	// -------------------------------------------------------------------------
 
 	/**
 	 * Opens the full view for the given screenshot.
@@ -236,10 +222,7 @@ public class FullViewWidget extends AbstractWidget {
 		return currentScreenshot;
 	}
 
-	// -------------------------------------------------------------------------
 	// Navigation
-	// -------------------------------------------------------------------------
-
 	private void navigateNext() {
 		if (currentScreenshot == null || inTransition) return;
 		Screenshot next = nextSupplier.apply(currentScreenshot);
@@ -282,11 +265,7 @@ public class FullViewWidget extends AbstractWidget {
 		if (prev != null) ScreenshotTextureCache.getFullView(prev.file().toPath());
 	}
 
-	// -------------------------------------------------------------------------
 	// Rendering
-	// -------------------------------------------------------------------------
-
-
 	@Override
 	protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
 		if (currentScreenshot == null) return;
@@ -345,7 +324,7 @@ public class FullViewWidget extends AbstractWidget {
 		int fullViewWidth = width - FULL_VIEW_PADDING * 2;
 		int fullViewHeight = height - FULL_VIEW_PADDING - BOTTOM_PADDING;
 
-		if (texture == null) {
+		if (texture == null || !texture.isReady()) {
 			graphics.fill(
 					FULL_VIEW_PADDING, FULL_VIEW_PADDING,
 					FULL_VIEW_PADDING + fullViewWidth,
@@ -392,12 +371,8 @@ public class FullViewWidget extends AbstractWidget {
 		matrices.popMatrix();
 	}
 
-	// -------------------------------------------------------------------------
 	// Input — all events are consumed while the fullview is visible so nothing
 	// beneath it receives clicks, scrolls, or key presses.
-	// -------------------------------------------------------------------------
-
-
 	@Override
 	public boolean mouseClicked(@NonNull MouseButtonEvent event, boolean doubleClick) {
 		if (!visible) return false;
