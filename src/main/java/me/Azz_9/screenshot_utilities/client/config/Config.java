@@ -23,6 +23,7 @@ public class Config {
 	public final @NonNull ConfigObject<Boolean> showScreenshotsOnXaerosWorldMap = new ConfigObject<>(true, "screenshot_utilities.config.show_screenshots_on_xaeros_world_map");
 
 	public final @NonNull ConfigObject<Path> screenshotsDir = new ConfigObject<>(MINECRAFT.gameDirectory.toPath().resolve("screenshots"), "screenshot_utilities.config.screenshots_dir");
+	public final @NonNull ConfigObject<String> screenshotsFileName = new ConfigObject<>("<datetime>", "screenshot_utilities.config.screenshots_file_name");
 	public final @NonNull ConfigObject<Boolean> showChatMessage = new ConfigObject<>(true, "screenshot_utilities.config.show_chat_message");
 	public final @NonNull SavableObject<ScreenshotGalleryWidget.SortMode> sortOrder = new SavableObject<>(ScreenshotGalleryWidget.SortMode.DATE_DESC);
 

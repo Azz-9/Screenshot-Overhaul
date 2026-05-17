@@ -16,10 +16,12 @@ import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.config.option.ConfigOption;
 import me.Azz_9.screenshot_utilities.client.config.option.options.BooleanConfigOption;
 import me.Azz_9.screenshot_utilities.client.config.option.options.PathConfigOption;
+import me.Azz_9.screenshot_utilities.client.config.option.options.StringConfigOption;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.config.ConfigOptionListWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.config.ConfigTabContent;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotFileNameParser;
 import me.Azz_9.screenshot_utilities.compat.CompatManager;
 
 /**
@@ -73,13 +75,19 @@ public class SettingsScreen extends TabsScreen implements FocusableScreen {
 
 		// Screenshot
 		PathConfigOption screenshotsDir = PathConfigOption.builder(Config.getInstance().screenshotsDir).build();
+		StringConfigOption screenshotsFileName = StringConfigOption.builder(Config.getInstance().screenshotsFileName) //TODO fix cette option throw une exception quand on ouvre la tab screenshot
+				.maxLength(64)
+				.validate(ScreenshotFileNameParser::validate, Component.translatable("screenshot_utilities.config.screenshots_file_name.invalid"))
+				.build();
 		BooleanConfigOption showChatMessage = BooleanConfigOption.builder(Config.getInstance().showChatMessage).build();
 
 		ConfigTabContent screenshotContent = ConfigTabContent.builder()
 				.option(screenshotsDir)
+				.option(screenshotsFileName)
 				.option(showChatMessage)
 				.build();
 
+		//TODO trad
 		addConfigTab(Component.literal("Screenshot"), screenshotContent);
 
 		// Photo mode

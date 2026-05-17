@@ -121,7 +121,6 @@ public class ScreenshotRenderer extends ElementRenderer<Screenshot, ScreenshotRe
 				float alpha = 0.85f + 0.15f * hoverProgress;
 				float scale = 1.0f + 0.05f * hoverProgress;
 
-				matrixStack.translate(0f, 0f, 0f);
 				matrixStack.scale(scale, scale, 1.0f);
 
 				GpuTextureView textureView = dynamicTexture.getTextureView();

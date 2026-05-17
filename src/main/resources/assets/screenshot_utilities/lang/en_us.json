@@ -74,5 +74,7 @@
 	"screenshot_utilities.config.show_screenshots_on_xaeros_world_map": "Show screenshots on Xaero's World Map",
 	"screenshot_utilities.config.screenshots_dir": "Screenshots directory",
 	"screenshot_utilities.config.screenshots_dir.file_dialog_title": "Select the screenshot directory",
+	"screenshot_utilities.config.screenshots_file_name": "Screenshots file name",
+	"screenshot_utilities.config.screenshots_file_name.invalid": "Invalid file name",
 	"screenshot_utilities.config.show_chat_message": "Show chat message"
 }

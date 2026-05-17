@@ -23,6 +23,7 @@ import java.io.File;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
@@ -36,7 +37,7 @@ public class ScreenshotGrabber {
 			picDir.mkdir();
 			File file;
 			if (forceName == null) {
-				file = getFile(picDir);
+				file = getFile(picDir.toPath());
 			} else {
 				file = new File(picDir, forceName);
 			}
@@ -55,6 +56,7 @@ public class ScreenshotGrabber {
 								ScreenshotMetadataUtils.collect()
 						);
 
+						Files.createDirectories(file.toPath().getParent());
 						Files.write(file.toPath(), pngWithMeta);
 
 						// preview
@@ -177,18 +179,9 @@ public class ScreenshotGrabber {
 		return text;
 	}
 
-	private static File getFile(final File folder) {
-		String name = Util.getFilenameFormattedDateTime();
-		int count = 1;
-
-		while (true) {
-			File file = new File(folder, name + (count == 1 ? "" : "_" + count) + ".png");
-			if (!file.exists()) {
-				return file;
-			}
-
-			++count;
-		}
+	private static File getFile(final Path folder) {
+		String pattern = Config.getInstance().screenshotsFileName.getValue();
+		return ScreenshotFileNameParser.resolve(folder, pattern).toFile();
 	}
 
 	private static File getPanoramaFolder(final File folder) {
