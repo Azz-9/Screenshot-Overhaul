@@ -174,7 +174,7 @@ public class ScreenshotGalleryWidget extends SmoothScrollableWidget {
 							if (MINECRAFT.screen instanceof FocusableScreen focusableScreen)
 								focusableScreen.requestFocus(btn);
 
-							Util.getPlatform().openPath(Config.getInstance().getScreenshotsDir());
+							Util.getPlatform().openPath(Config.getInstance().getAbsoluteScreenshotsDir());
 						},
 						true
 				)

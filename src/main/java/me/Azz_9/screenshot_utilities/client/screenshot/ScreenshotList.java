@@ -52,7 +52,7 @@ public class ScreenshotList {
 		Thread thread = new Thread(() -> {
 			List<Screenshot> result;
 			try {
-				result = Files.walk(Config.getInstance().getScreenshotsDir())
+				result = Files.walk(Config.getInstance().getAbsoluteScreenshotsDir())
 						.filter(ScreenshotList::isScreenshot)
 						.map(path -> {
 							File file = path.toFile();
@@ -130,7 +130,7 @@ public class ScreenshotList {
 	private static void startWatchService() {
 		try {
 			WatchService watcher = FileSystems.getDefault().newWatchService();
-			Config.getInstance().getScreenshotsDir().register(watcher,
+			Config.getInstance().getAbsoluteScreenshotsDir().register(watcher,
 					StandardWatchEventKinds.ENTRY_CREATE,
 					StandardWatchEventKinds.ENTRY_DELETE
 			);
@@ -142,7 +142,7 @@ public class ScreenshotList {
 
 						for (WatchEvent<?> event : key.pollEvents()) {
 							Path changed = (Path) event.context();
-							Path fullPath = Config.getInstance().getScreenshotsDir().resolve(changed);
+							Path fullPath = Config.getInstance().getAbsoluteScreenshotsDir().resolve(changed);
 
 							if (!isScreenshot(fullPath)) continue;
 

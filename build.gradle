@@ -3,8 +3,8 @@ plugins {
 	id 'maven-publish'
 }
 
-def includeModMenu = project.hasProperty("launch_with_modmenu") && project.launch_with_modmenu.toBoolean()
-def includeXaero = project.hasProperty("launch_with_xaero_worldmap") && project.launch_with_xaero_worldmap.toBoolean()
+final def includeModMenu = project.hasProperty("launch_with_modmenu") && project.launch_with_modmenu.toBoolean()
+final def includeXaero = project.hasProperty("launch_with_xaero_worldmap") && project.launch_with_xaero_worldmap.toBoolean()
 
 version = project.mod_version
 group = project.maven_group

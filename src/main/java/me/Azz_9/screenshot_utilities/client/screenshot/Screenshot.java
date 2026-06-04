@@ -18,7 +18,7 @@ public class Screenshot {
 	}
 
 	public Screenshot(@NonNull File file, @NonNull ScreenshotMetadata metadata) {
-		this(file, metadata, Config.getInstance().getScreenshotsDir().relativize(file.toPath()).toString());
+		this(file, metadata, Config.getInstance().getAbsoluteScreenshotsDir().relativize(file.toPath()).toString());
 	}
 
 	public @NonNull File file() {

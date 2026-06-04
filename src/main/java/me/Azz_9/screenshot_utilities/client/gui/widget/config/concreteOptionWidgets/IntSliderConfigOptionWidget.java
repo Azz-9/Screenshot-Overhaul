@@ -4,11 +4,14 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.NonNull;
+
+import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_utilities.client.config.option.ConfigOptionWidget;
 import me.Azz_9.screenshot_utilities.client.config.option.options.IntSliderConfigOption;
@@ -22,8 +25,8 @@ public final class IntSliderConfigOptionWidget extends ConfigOptionWidget<Intege
 	private final @NonNull IntSliderConfigOption sliderOption;
 	private SliderButton slider;
 
-	public IntSliderConfigOptionWidget(int x, int y, int width, @NonNull IntSliderConfigOption option) {
-		super(x, y, width, option);
+	public IntSliderConfigOptionWidget(int x, int y, int width, @NonNull IntSliderConfigOption option, @NonNull Consumer<GuiEventListener> onFocusRequested) {
+		super(x, y, width, option, onFocusRequested);
 		this.sliderOption = option;
 	}
 

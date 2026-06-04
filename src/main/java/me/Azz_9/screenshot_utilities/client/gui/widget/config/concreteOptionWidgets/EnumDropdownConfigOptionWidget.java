@@ -7,11 +7,14 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ARGB;
 
 import org.jspecify.annotations.NonNull;
+
+import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.config.option.ConfigOptionWidget;
@@ -35,8 +38,8 @@ public final class EnumDropdownConfigOptionWidget<E extends Enum<E>> extends Con
 	private Button mainButton;
 	private boolean expanded = false;
 
-	public EnumDropdownConfigOptionWidget(int x, int y, int width, @NonNull EnumConfigOption<E> option) {
-		super(x, y, width, option);
+	public EnumDropdownConfigOptionWidget(int x, int y, int width, @NonNull EnumConfigOption<E> option, @NonNull Consumer<GuiEventListener> onFocusRequested) {
+		super(x, y, width, option, onFocusRequested);
 		this.enumOption = option;
 	}
 

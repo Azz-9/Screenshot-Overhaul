@@ -4,9 +4,12 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.NonNull;
+
+import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_utilities.client.config.option.ConfigOptionWidget;
 import me.Azz_9.screenshot_utilities.client.config.option.options.EnumConfigOption;
@@ -20,8 +23,8 @@ public final class EnumCyclicConfigOptionWidget<E extends Enum<E>> extends Confi
 	private final @NonNull EnumConfigOption<E> enumOption;
 	private Button cycleButton;
 
-	public EnumCyclicConfigOptionWidget(int x, int y, int width, @NonNull EnumConfigOption<E> option) {
-		super(x, y, width, option);
+	public EnumCyclicConfigOptionWidget(int x, int y, int width, @NonNull EnumConfigOption<E> option, @NonNull Consumer<GuiEventListener> onFocusRequested) {
+		super(x, y, width, option, onFocusRequested);
 		this.enumOption = option;
 	}
 

@@ -10,6 +10,7 @@ import net.minecraft.server.packs.PackResources;
 import net.minecraft.world.level.biome.Biome;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -37,6 +38,8 @@ public class ScreenshotMetadataUtils {
 	private static final @NonNull String KEY_SHADER = "Shader";
 	private static final @NonNull String KEY_TIMESTAMP = "Timestamp";
 	private static final @NonNull String KEY_TAGS = "Tags";
+	private static final @NonNull String KEY_PANORAMA_ID = "PanoramaId";
+	private static final @NonNull String KEY_PANORAMA_FACE = "PanoramaFace";
 
 	public static void add(File imageFile, ScreenshotMetadata meta) {
 		try {
@@ -45,7 +48,7 @@ public class ScreenshotMetadataUtils {
 			Files.write(imageFile.toPath(), newBytes);
 		} catch (Exception e) {
 			ScreenshotLogger.error("Could not save screenshot metadata to {} : {}",
-					Config.getInstance().getScreenshotsDir().relativize(imageFile.toPath()), e.getMessage());
+					Config.getInstance().getAbsoluteScreenshotsDir().relativize(imageFile.toPath()), e.getMessage());
 		}
 	}
 
@@ -156,18 +159,20 @@ public class ScreenshotMetadataUtils {
 				meta.containsKey(KEY_RESOURCE_PACKS) ? Arrays.asList(meta.get(KEY_RESOURCE_PACKS).split(",")) : List.of(),
 				meta.get(KEY_SHADER),
 				meta.containsKey(KEY_TIMESTAMP) ? Long.parseLong(meta.get(KEY_TIMESTAMP)) : null,
-				meta.containsKey(KEY_TAGS) ? Arrays.asList(meta.get(KEY_TAGS).split(",")) : List.of()
+				meta.containsKey(KEY_TAGS) ? Arrays.asList(meta.get(KEY_TAGS).split(",")) : List.of(),
+				meta.get(KEY_PANORAMA_ID),
+				meta.containsKey(KEY_PANORAMA_FACE) ? Integer.parseInt(meta.get(KEY_PANORAMA_FACE)) : null
 		);
 	}
 
-	public static ScreenshotMetadata collect() {
+	public static ScreenshotMetadata collect(@Nullable String panoramaId, @Nullable Integer faceIndex) {
 		if (MINECRAFT.player == null || MINECRAFT.level == null)
 			return new ScreenshotMetadata(
 					null, null, null,
 					null, null, null, null, null,
 					SharedConstants.getCurrentVersion().name(),
 					MINECRAFT.getResourceManager().listPacks().map(PackResources::packId).toList(),
-					null, System.currentTimeMillis(), new ArrayList<>()
+					null, System.currentTimeMillis(), new ArrayList<>(), panoramaId, faceIndex
 			);
 
 		IntegratedServer singleplayerServer = MINECRAFT.getSingleplayerServer();
@@ -207,8 +212,14 @@ public class ScreenshotMetadataUtils {
 				MINECRAFT.getResourceManager().listPacks().map(PackResources::packId).toList(),
 				shader,
 				System.currentTimeMillis(),
-				new ArrayList<>()
+				new ArrayList<>(),
+				panoramaId,
+				faceIndex
 		);
+	}
+
+	public static ScreenshotMetadata collect() {
+		return collect(null, null);
 	}
 
 	public static void update(File imageFile, ScreenshotMetadata meta) {
@@ -219,7 +230,7 @@ public class ScreenshotMetadataUtils {
 			Files.write(imageFile.toPath(), newBytes);
 		} catch (Exception e) {
 			ScreenshotLogger.error("Could not update screenshot metadata for {} : {}",
-					Config.getInstance().getScreenshotsDir().relativize(imageFile.toPath()), e.getMessage());
+					Config.getInstance().getAbsoluteScreenshotsDir().relativize(imageFile.toPath()), e.getMessage());
 		}
 	}
 

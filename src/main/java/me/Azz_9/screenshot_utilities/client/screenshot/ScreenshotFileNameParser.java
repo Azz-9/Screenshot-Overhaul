@@ -186,11 +186,7 @@ public final class ScreenshotFileNameParser {
 		}
 
 		// 4. Profondeur raisonnable
-		if (segments.length > 8) {
-			return false;
-		}
-
-		return true; // valide
+		return segments.length <= 8;
 	}
 
 	/**

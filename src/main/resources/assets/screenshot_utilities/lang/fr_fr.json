@@ -76,5 +76,6 @@
 	"screenshot_utilities.config.screenshots_dir.file_dialog_title": "Sélectionner le dossier des captures d'écran",
 	"screenshot_utilities.config.screenshots_file_name": "Nom de fichier des captures d'écran",
 	"screenshot_utilities.config.screenshots_file_name.invalid": "Nom de fichier invalide",
+	"screenshot_utilities.config.screenshots_file_name.tooltip": "<datetime>, <year>, <month>, <day>, <hour>, <minute>, <second>",
 	"screenshot_utilities.config.show_chat_message": "Afficher le message dans le tchat"
 }

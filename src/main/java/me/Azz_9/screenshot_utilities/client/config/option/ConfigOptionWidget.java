@@ -9,6 +9,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.SpriteIconButton;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.CharacterEvent;
@@ -18,6 +19,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
 import org.jspecify.annotations.NonNull;
+
+import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
 
@@ -64,32 +67,35 @@ public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 
 	protected final @NonNull ConfigOption<T> option;
 
-	private final @NonNull AbstractWidget controlWidget;
-	private final @NonNull Button resetButton;
+	private AbstractWidget controlWidget;
+	private Button resetButton;
 
 	/**
 	 * Cached last-known validation result so we don't validate every frame.
 	 */
 	private ConfigOption.@NonNull ValidationResult lastValidation = ConfigOption.ValidationResult.valid();
 
+	private final @NonNull Consumer<GuiEventListener> onFocusRequested;
+
 	// -------------------------------------------------------------------------
 	// Constructor
 	// -------------------------------------------------------------------------
 
-	protected ConfigOptionWidget(int x, int y, int width, @NonNull ConfigOption<T> option) {
+	protected ConfigOptionWidget(int x, int y, int width, @NonNull ConfigOption<T> option, @NonNull Consumer<GuiEventListener> onFocusRequested) {
 		super(x, y, width, FULL_ROW_HEIGHT, Component.empty());
 		this.option = option;
+		this.onFocusRequested = onFocusRequested;
+	}
 
+	public final void init() {
 		int labelWidth = (int) (width * LABEL_WIDTH_FRACTION);
-		int resetX = x + width - RESET_BUTTON_WIDTH;
+		int resetX = getX() + width - RESET_BUTTON_WIDTH;
 		int controlWidth = width - labelWidth - LABEL_CONTROL_GAP - RESET_BUTTON_WIDTH - CONTROL_RESET_GAP;
-		int controlX = x + labelWidth + LABEL_CONTROL_GAP;
-		int widgetY = y + ROW_PADDING_V;
+		int controlX = getX() + labelWidth + LABEL_CONTROL_GAP;
+		int widgetY = getY() + ROW_PADDING_V;
 
 		this.controlWidget = createControlWidget(controlX, widgetY, controlWidth);
 		this.resetButton = createResetButton(resetX, widgetY);
-
-		// Initial validation
 		refreshValidation();
 	}
 
@@ -165,8 +171,11 @@ public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 	@Override
 	public boolean mouseClicked(@NonNull MouseButtonEvent event, boolean doubleClick) {
 		if (!option.isDependencySatisfied()) return false;
-		return controlWidget.mouseClicked(event, doubleClick)
-				|| resetButton.mouseClicked(event, doubleClick);
+		if (controlWidget.mouseClicked(event, doubleClick)) {
+			onFocusRequested.accept(controlWidget);
+			return true;
+		}
+		return resetButton.mouseClicked(event, doubleClick);
 	}
 
 	@Override
@@ -264,7 +273,7 @@ public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 
 	/**
 	 * Called after the reset button has been pressed and the working value
-	 * has been reset. Subclasses should synchronise their control widget's
+	 * has been reset. Subclasses should synchronize their control widget's
 	 * visual state here.
 	 */
 	protected abstract void onValueReset();

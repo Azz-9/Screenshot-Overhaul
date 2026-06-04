@@ -12,17 +12,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.config.option.ConfigOption;
-import me.Azz_9.screenshot_utilities.client.config.option.options.BooleanConfigOption;
-import me.Azz_9.screenshot_utilities.client.config.option.options.PathConfigOption;
-import me.Azz_9.screenshot_utilities.client.config.option.options.StringConfigOption;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.config.ConfigOptionListWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.config.ConfigTabContent;
-import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotFileNameParser;
-import me.Azz_9.screenshot_utilities.compat.CompatManager;
 
 /**
  * Settings screen with tabs, scrollable option lists, validation, and an
@@ -59,49 +53,6 @@ public class SettingsScreen extends TabsScreen implements FocusableScreen {
 
 	public SettingsScreen(@Nullable Screen parent) {
 		super(Component.translatable("screenshot_utilities.settings"), parent);
-
-		// General
-		BooleanConfigOption enableWholeMod = BooleanConfigOption.builder(Config.getInstance().enableWholeMod).build();
-		BooleanConfigOption showScreenshotsOnXaerosWorldMap = BooleanConfigOption.builder(Config.getInstance().showScreenshotsOnXaerosWorldMap)
-				.dependsOn(CompatManager::xaerosWorldMapPresent)
-				.build();
-
-		ConfigTabContent generalContent = ConfigTabContent.builder()
-				.option(enableWholeMod)
-				.option(showScreenshotsOnXaerosWorldMap)
-				.build();
-
-		addConfigTab(Component.literal("General"), generalContent);
-
-		// Screenshot
-		PathConfigOption screenshotsDir = PathConfigOption.builder(Config.getInstance().screenshotsDir).build();
-		StringConfigOption screenshotsFileName = StringConfigOption.builder(Config.getInstance().screenshotsFileName) //TODO fix cette option throw une exception quand on ouvre la tab screenshot
-				.maxLength(64)
-				.validate(ScreenshotFileNameParser::validate, Component.translatable("screenshot_utilities.config.screenshots_file_name.invalid"))
-				.build();
-		BooleanConfigOption showChatMessage = BooleanConfigOption.builder(Config.getInstance().showChatMessage).build();
-
-		ConfigTabContent screenshotContent = ConfigTabContent.builder()
-				.option(screenshotsDir)
-				.option(screenshotsFileName)
-				.option(showChatMessage)
-				.build();
-
-		//TODO trad
-		addConfigTab(Component.literal("Screenshot"), screenshotContent);
-
-		// Photo mode
-		BooleanConfigOption freezeInPhotoMode = BooleanConfigOption.builder(Config.getInstance().freezeInPhotoMode).build();
-		BooleanConfigOption showPlayer = BooleanConfigOption.builder(Config.getInstance().showPlayer).build();
-		BooleanConfigOption showNametags = BooleanConfigOption.builder(Config.getInstance().showNametags).build();
-
-		ConfigTabContent photoModeContent = ConfigTabContent.builder()
-				.option(freezeInPhotoMode)
-				.option(showPlayer)
-				.option(showNametags)
-				.build();
-
-		addConfigTab(Component.literal("Photo mode"), photoModeContent);
 	}
 
 	// -------------------------------------------------------------------------

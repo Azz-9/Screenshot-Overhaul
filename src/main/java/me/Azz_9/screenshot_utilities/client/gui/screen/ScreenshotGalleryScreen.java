@@ -16,6 +16,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
+import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.FullViewWidget;
@@ -83,9 +84,8 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 	}
 
 	private Button createSettingsButton() {
-		return Button.builder(Component.translatable("screenshot_utilities.settings"), (_) -> {
-					MINECRAFT.setScreen(new SettingsScreen(this));
-				})
+		return Button.builder(Component.translatable("screenshot_utilities.settings"), (_) ->
+						MINECRAFT.setScreen(Config.getInstance().getSettingsScreen(this)))
 				.bounds(width - SETTINGS_BUTTON_WIDTH - GLOBAL_PADDING, GLOBAL_PADDING, SETTINGS_BUTTON_WIDTH, SETTINGS_BUTTON_HEIGHT)
 				.build();
 	}

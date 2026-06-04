@@ -24,6 +24,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
@@ -51,10 +52,8 @@ public class ScreenshotGrabber {
 							((NativeImageAccessor) (Object) image).invokeWriteToChannel(channel);
 						}
 
-						byte[] pngWithMeta = ScreenshotMetadataUtils.injectIntoBytes(
-								baos.toByteArray(),
-								ScreenshotMetadataUtils.collect()
-						);
+						ScreenshotMetadata metadata = ScreenshotMetadataUtils.collect();
+						byte[] pngWithMeta = ScreenshotMetadataUtils.injectIntoBytes(baos.toByteArray(), metadata);
 
 						Files.createDirectories(file.toPath().getParent());
 						Files.write(file.toPath(), pngWithMeta);
@@ -108,6 +107,8 @@ public class ScreenshotGrabber {
 		MINECRAFT.gameRenderer.setRenderBlockOutline(false);
 		Camera camera = MINECRAFT.gameRenderer.getMainCamera();
 
+		String panoramaId = UUID.randomUUID().toString();
+
 		MutableComponent text;
 		try {
 			camera.enablePanoramicMode();
@@ -154,8 +155,7 @@ public class ScreenshotGrabber {
 				} catch (InterruptedException _) {
 				}
 
-				grab(panoramaFolder, "panorama_" + i + ".png", target, downscaleFactor, (_) -> {
-				});
+				grabPanoramaFace(panoramaFolder, "panorama_" + i + ".png", target, downscaleFactor, panoramaId, i);
 			}
 
 			Component name = Component.literal(panoramaFolder.getName()).withStyle(ChatFormatting.UNDERLINE).withStyle((s) -> s.withClickEvent(new ClickEvent.OpenFile(panoramaFolder.getAbsoluteFile())));
@@ -177,6 +177,40 @@ public class ScreenshotGrabber {
 		}
 
 		return text;
+	}
+
+	private static void grabPanoramaFace(File picDir, String name, RenderTarget target, int downscaleFactor, String panoramaId, int faceIndex) {
+		Screenshot.takeScreenshot(target, downscaleFactor, (image) -> {
+			picDir.mkdir();
+			File file = new File(picDir, name);
+
+			Util.ioPool().execute(() -> {
+				try {
+					try {
+						ByteArrayOutputStream baos = new ByteArrayOutputStream();
+						try (WritableByteChannel channel = Channels.newChannel(baos)) {
+							((NativeImageAccessor) (Object) image).invokeWriteToChannel(channel);
+						}
+
+						byte[] pngWithMeta = ScreenshotMetadataUtils.injectIntoBytes(
+								baos.toByteArray(),
+								ScreenshotMetadataUtils.collect(panoramaId, faceIndex)
+						);
+
+						Files.createDirectories(file.toPath().getParent());
+						Files.write(file.toPath(), pngWithMeta);
+
+						ScreenshotPreview.setScreenshot(file);
+					} catch (Throwable t) {
+						try { image.close(); } catch (Throwable x) { t.addSuppressed(x); }
+						throw t;
+					}
+					image.close();
+				} catch (Exception e) {
+					ScreenshotLogger.warn("Couldn't save panorama face {}: {}", faceIndex, e.getMessage());
+				}
+			});
+		});
 	}
 
 	private static File getFile(final Path folder) {

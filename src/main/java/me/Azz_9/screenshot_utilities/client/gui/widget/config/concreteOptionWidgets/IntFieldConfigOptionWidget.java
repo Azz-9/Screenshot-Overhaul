@@ -6,9 +6,12 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.NonNull;
+
+import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.config.option.ConfigOptionWidget;
@@ -22,8 +25,8 @@ public final class IntFieldConfigOptionWidget extends ConfigOptionWidget<Integer
 
 	private EditBox editBox;
 
-	public IntFieldConfigOptionWidget(int x, int y, int width, @NonNull IntFieldConfigOption option) {
-		super(x, y, width, option);
+	public IntFieldConfigOptionWidget(int x, int y, int width, @NonNull IntFieldConfigOption option, @NonNull Consumer<GuiEventListener> onFocusRequested) {
+		super(x, y, width, option, onFocusRequested);
 	}
 
 	@Override

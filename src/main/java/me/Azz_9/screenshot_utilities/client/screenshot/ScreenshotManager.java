@@ -19,7 +19,7 @@ import me.Azz_9.screenshot_utilities.client.config.Config;
 
 public class ScreenshotManager {
 	// TODO changer quand on change le screenshotdir dans la config
-	private static @NonNull Path statesFile = Config.getInstance().getScreenshotsDir().resolve("screenshot-states.json");
+	private static @NonNull Path statesFile = Config.getInstance().getAbsoluteScreenshotsDir().resolve("screenshot-states.json");
 
 	private static @NonNull HashMap<String, ScreenshotState> states = new HashMap<>();
 
@@ -86,8 +86,8 @@ public class ScreenshotManager {
 
 	public static void changeAbsoluteFilePath(Path oldAbsoluteFilePath, Path newAbsoluteFilePath) {
 		changeFilePath(
-				Config.getInstance().getScreenshotsDir().relativize(oldAbsoluteFilePath),
-				Config.getInstance().getScreenshotsDir().relativize(newAbsoluteFilePath)
+				Config.getInstance().getAbsoluteScreenshotsDir().relativize(oldAbsoluteFilePath),
+				Config.getInstance().getAbsoluteScreenshotsDir().relativize(newAbsoluteFilePath)
 		);
 	}
 

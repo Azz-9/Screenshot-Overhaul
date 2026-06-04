@@ -76,5 +76,6 @@
 	"screenshot_utilities.config.screenshots_dir.file_dialog_title": "Select the screenshot directory",
 	"screenshot_utilities.config.screenshots_file_name": "Screenshots file name",
 	"screenshot_utilities.config.screenshots_file_name.invalid": "Invalid file name",
+	"screenshot_utilities.config.screenshots_file_name.tooltip": "<datetime>, <year>, <month>, <day>, <hour>, <minute>, <second>",
 	"screenshot_utilities.config.show_chat_message": "Show chat message"
 }

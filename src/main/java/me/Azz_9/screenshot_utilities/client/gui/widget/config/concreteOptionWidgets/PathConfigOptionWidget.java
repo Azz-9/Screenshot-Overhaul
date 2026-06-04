@@ -8,7 +8,9 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -20,12 +22,16 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 import java.nio.file.Path;
+import java.util.function.Consumer;
 
 import javax.swing.*;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.config.option.ConfigOptionWidget;
 import me.Azz_9.screenshot_utilities.client.config.option.options.PathConfigOption;
+import me.Azz_9.screenshot_utilities.client.gui.TooltipRenderer;
+import me.Azz_9.screenshot_utilities.mixin.AbstractWidgetAccessor;
+import me.Azz_9.screenshot_utilities.utils.PathUtils;
 
 /**
  * Row widget for {@link PathConfigOption}.
@@ -40,10 +46,12 @@ public final class PathConfigOptionWidget extends ConfigOptionWidget<Path> {
 	private static final int INNER_GAP = 4;
 
 	private final @NonNull PathConfigOption pathOption;
-	private EditBox pathField;
 
-	public PathConfigOptionWidget(int x, int y, int width, @NonNull PathConfigOption option) {
-		super(x, y, width, option);
+	private EditBox pathField;
+	private Button browseButton;
+
+	public PathConfigOptionWidget(int x, int y, int width, @NonNull PathConfigOption option, @NonNull Consumer<GuiEventListener> onFocusRequested) {
+		super(x, y, width, option, onFocusRequested);
 		this.pathOption = option;
 	}
 
@@ -57,14 +65,12 @@ public final class PathConfigOptionWidget extends ConfigOptionWidget<Path> {
 		pathField.setValue(option.getWorkingValue().toString());
 		pathField.setTextColor(Colors.LIGHT_GRAY);
 
-		// The browse button is rendered/handled manually in renderWidget/mouseClicked
-		// because createControlWidget returns a single widget. We wrap both in a
-		// composite container widget.
-		return new CompositeControlWidget(x, y, width, pathField,
-				Button.builder(Component.literal("…"), btn -> openFileChooser())
-						.pos(x + fieldWidth + INNER_GAP, y)
-						.size(BROWSE_BUTTON_WIDTH, ROW_HEIGHT)
-						.build());
+		browseButton = Button.builder(Component.literal("…"), btn -> openFileChooser())
+				.pos(x + fieldWidth + INNER_GAP, y)
+				.size(BROWSE_BUTTON_WIDTH, ROW_HEIGHT)
+				.build();
+
+		return new CompositeControlWidget(x, y, width, pathField, browseButton);
 	}
 
 	@Override
@@ -72,8 +78,22 @@ public final class PathConfigOptionWidget extends ConfigOptionWidget<Path> {
 		pathField.setValue(option.getWorkingValue().toString());
 	}
 
+	@Override
+	protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
+		super.extractWidgetRenderState(graphics, mouseX, mouseY, deltaTicks);
+
+		// Show the resolved absolute path while hovering the text field
+		if (pathField != null && ((AbstractWidgetAccessor) pathField).invokeAreCoordinatesInRectangle(mouseX, mouseY)) {
+			String absoluteText = PathUtils.toAbsolutePath(option.getWorkingValue()).toString();
+			ScreenRectangle rectangle = graphics.scissorStack.peek() != null
+					? graphics.scissorStack.peek()
+					: new ScreenRectangle(0, 0, MINECRAFT.getWindow().getGuiScaledWidth(), MINECRAFT.getWindow().getGuiScaledHeight());
+			TooltipRenderer.render(graphics, pathField, absoluteText, rectangle);
+		}
+	}
+
 	private void openFileChooser() {
-		Path currentPath = option.getWorkingValue();
+		Path currentAbsolute = PathUtils.toAbsolutePath(option.getWorkingValue());
 
 		String selectedPath = switch (pathOption.getSelectionMode()) {
 			case FILES_ONLY -> {
@@ -97,7 +117,7 @@ public final class PathConfigOptionWidget extends ConfigOptionWidget<Path> {
 
 					yield TinyFileDialogs.tinyfd_openFileDialog(
 							pathOption.getDialogTitle(),
-							currentPath.toString(),
+							currentAbsolute.toString(),
 							filters,
 							description,
 							false
@@ -107,12 +127,12 @@ public final class PathConfigOptionWidget extends ConfigOptionWidget<Path> {
 
 			case DIRECTORIES_ONLY -> TinyFileDialogs.tinyfd_selectFolderDialog(
 					pathOption.getDialogTitle(),
-					currentPath.toString()
+					currentAbsolute.toString()
 			);
 		};
 		if (selectedPath == null) return;
 
-		Path selected = Path.of(selectedPath);
+		Path selected = PathUtils.toStoredPath(Path.of(selectedPath));
 
 		option.setWorkingValue(selected);
 		pathField.setValue(selected.toString());

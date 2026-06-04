@@ -4,10 +4,14 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.function.Consumer;
+
+import me.Azz_9.screenshot_utilities.client.config.option.ConfigOption;
 import me.Azz_9.screenshot_utilities.client.config.option.ConfigOptionWidget;
 import me.Azz_9.screenshot_utilities.client.config.option.options.BooleanConfigOption;
 
@@ -20,8 +24,8 @@ public final class BooleanConfigOptionWidget extends ConfigOptionWidget<Boolean>
 
 	private Button toggleButton;
 
-	public BooleanConfigOptionWidget(int x, int y, int width, @NonNull BooleanConfigOption option) {
-		super(x, y, width, option);
+	public BooleanConfigOptionWidget(int x, int y, int width, @NonNull ConfigOption<Boolean> option, @NonNull Consumer<GuiEventListener> onFocusRequested) {
+		super(x, y, width, option, onFocusRequested);
 	}
 
 	@Override

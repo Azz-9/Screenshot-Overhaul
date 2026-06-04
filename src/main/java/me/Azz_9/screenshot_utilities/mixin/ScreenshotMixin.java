@@ -30,6 +30,6 @@ public abstract class ScreenshotMixin {
 	)
 	private static void grab(File workDir, @Nullable String forceName, RenderTarget target, int downscaleFactor, Consumer<Component> callback, CallbackInfo ci) {
 		ci.cancel();
-		ScreenshotGrabber.grab(Config.getInstance().getScreenshotsDir().toFile(), forceName, target, downscaleFactor, callback);
+		ScreenshotGrabber.grab(Config.getInstance().getAbsoluteScreenshotsDir().toFile(), forceName, target, downscaleFactor, callback);
 	}
 }
