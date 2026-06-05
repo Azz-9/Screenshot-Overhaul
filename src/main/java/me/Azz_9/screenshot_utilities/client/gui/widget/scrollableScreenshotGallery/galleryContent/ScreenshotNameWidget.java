@@ -89,6 +89,10 @@ public class ScreenshotNameWidget extends AbstractWidget {
 	}
 
 	public ScreenshotNameWidget(int x, int y, int width, int height, @NonNull String initialText) {
+		this(x, y, width, height, initialText, true);
+	}
+
+	protected ScreenshotNameWidget(int x, int y, int width, int height, @NonNull String initialText, boolean keepExtension) {
 		super(x, y, width, height, Component.empty());
 		this.font = MINECRAFT.font;
 
@@ -99,7 +103,9 @@ public class ScreenshotNameWidget extends AbstractWidget {
 		this.baseName = dot == -1 ? initialText : initialText.substring(0, dot);
 		this.extension = dot == -1 ? "" : initialText.substring(dot);
 
-		setTextPredicate((text) -> text.endsWith(extension));
+		if (keepExtension) {
+			setTextPredicate((text) -> text.endsWith(extension));
+		}
 		setMaxLength(50);
 
 		this.updateTextPosition();

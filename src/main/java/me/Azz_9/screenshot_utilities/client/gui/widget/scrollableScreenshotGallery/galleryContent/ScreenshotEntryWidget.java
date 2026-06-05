@@ -5,7 +5,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.util.Ease;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -17,23 +16,19 @@ import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.Colors;
-import me.Azz_9.screenshot_utilities.client.gui.trackableChanges.TrackableChanges;
-import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
+import me.Azz_9.screenshot_utilities.client.gui.widget.gallery.AbstractGalleryEntryWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotManager;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotMetadata;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotMetadataUtils;
 
 @Environment(EnvType.CLIENT)
-public class ScreenshotEntryWidget extends SimpleParentWidget implements TrackableChanges {
+public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 
-	public static final int NAME_HEIGHT = 30;
+	public static final int NAME_HEIGHT = AbstractGalleryEntryWidget.DEFAULT_NAME_HEIGHT;
 
 	private static final int BUTTON_SIZE = 10;
 	private static final int BUTTON_FADE_DURATION = 250;
-	private long startTime;
-	private boolean wasHovered;
-	private float progress;
 
 	private final @NonNull String INITIAL_NAME;
 	private final @NonNull ScreenshotMetadata INITIAL_METADATA;
@@ -49,7 +44,7 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Trackab
 
 	public ScreenshotEntryWidget(int x, int y, int thumbnailWidth, int thumbnailHeight, @NonNull Screenshot screenshot,
 	                             @Nullable Consumer<Screenshot> onThumbnailClicked) {
-		super(x, y, thumbnailWidth, thumbnailHeight + NAME_HEIGHT);
+		super(x, y, thumbnailWidth, thumbnailHeight + NAME_HEIGHT, BUTTON_FADE_DURATION);
 		this.INITIAL_NAME = screenshot.file().getName();
 		this.INITIAL_METADATA = ScreenshotMetadata.copyOf(screenshot.getMetadata());
 
@@ -105,41 +100,27 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Trackab
 	}
 
 	@Override
-	protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
+	protected void render(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks, float animationProgress) {
 		// fond global
 		graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), Colors.BLACK_TRANSPARENT);
 
 		thumbnailWidget.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 		nameWidget.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 
-		if (wasHovered != isHovered()) {
-			startTime = System.currentTimeMillis();
-		}
-
-		updateAnimation();
-
 		if (isHovered() && favoriteButton.active || favoriteButton.isFilled()) {
-			favoriteButton.setProgress(favoriteButton.isFilled() ? 1 : progress);
+			favoriteButton.setProgress(favoriteButton.isFilled() ? 1 : animationProgress);
 			favoriteButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 		}
 		if (isHovered() && hideFromMapButton.active || hideFromMapButton.isCrossed()) {
-			hideFromMapButton.setProgress(hideFromMapButton.isCrossed() ? 1 : progress);
+			hideFromMapButton.setProgress(hideFromMapButton.isCrossed() ? 1 : animationProgress);
 			hideFromMapButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 		}
-
-		wasHovered = isHovered();
 	}
 
-	private void updateAnimation() {
-		progress = Ease.outQuad(Math.clamp((float) (System.currentTimeMillis() - startTime) / BUTTON_FADE_DURATION, 0, 1));
-		if (!isHovered())
-			progress = 1.0f - progress;
-	}
-
+	@Override
 	public void triggerLoad() {
 		thumbnailWidget.load();
 	}
-
 
 	@Override
 	public void setWidth(int width) {
@@ -172,7 +153,8 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Trackab
 		return screenshot.getMetadata();
 	}
 
-	public String getName() {
+	@Override
+	public @NonNull String getName() {
 		return nameWidget.getText();
 	}
 
@@ -180,6 +162,7 @@ public class ScreenshotEntryWidget extends SimpleParentWidget implements Trackab
 		return screenshot.pathRelativeToScreenshotDir();
 	}
 
+	@Override
 	public long getTimestampOrLastModified() {
 		Long timestamp = screenshot.getMetadata().getTimestamp();
 		if (timestamp != null) {

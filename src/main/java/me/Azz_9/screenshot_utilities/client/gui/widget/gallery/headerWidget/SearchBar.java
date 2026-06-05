@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.headerWidget;
+package me.Azz_9.screenshot_utilities.client.gui.widget.gallery.headerWidget;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 

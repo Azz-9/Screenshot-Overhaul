@@ -6,26 +6,30 @@ import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
+import me.Azz_9.screenshot_utilities.client.gui.widget.gallery.ScrollableGallery;
 import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent.ScreenshotThumbnailWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotList;
 import me.Azz_9.screenshot_utilities.client.screenshot.panorama.Panorama;
 import me.Azz_9.screenshot_utilities.client.screenshot.panorama.PanoramaHolder;
 
-public class PanoramaGalleryScreen extends AbstractBackNavigableScreen implements FocusableScreen {
+public class PanoramaGalleryScreen extends AbstractSavableScreen implements FocusableScreen {
 
 	// focus manager
 	private final @NonNull FocusManager focusManager = new FocusManager();
 
-	private List<Panorama> panoramas = new ArrayList<>();
+	private ScrollableGallery<>
 
 	public PanoramaGalleryScreen(@NonNull Component title, @Nullable Screen parent) {
 		super(title, parent);
 		ScreenshotList.whenPanoramasLoaded(this::setPanoramas);
+	}
+
+	@Override
+	protected void initContent() {
 	}
 
 	public void setPanoramas(List<Panorama> panoramas) {
