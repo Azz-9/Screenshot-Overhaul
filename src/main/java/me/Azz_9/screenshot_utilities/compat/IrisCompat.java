@@ -7,8 +7,9 @@ import org.jspecify.annotations.NonNull;
 public class IrisCompat {
 
 	public static @NonNull String getShaderName() {
-		if (CompatManager.irisPresent()) {
+		if (CompatManager.irisPresent() && !Iris.getCurrentPackName().equals("(off)")) {
 			int lastDotIndex = Iris.getCurrentPackName().lastIndexOf('.');
+			if (lastDotIndex == -1) return Iris.getCurrentPackName();
 			return Iris.getCurrentPackName().substring(0, lastDotIndex);
 		}
 		return "";

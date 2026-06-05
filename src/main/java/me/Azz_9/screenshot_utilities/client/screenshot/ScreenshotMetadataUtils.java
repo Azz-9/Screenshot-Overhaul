@@ -114,6 +114,9 @@ public class ScreenshotMetadataUtils {
 		if (meta.getTimestamp() != null)
 			textChunks.add(buildTextChunk(KEY_TIMESTAMP, String.valueOf(meta.getTimestamp())));
 		if (!meta.getTags().isEmpty()) textChunks.add(buildTextChunk(KEY_TAGS, String.join(",", meta.getTags())));
+		if (meta.getPanoramaId() != null) textChunks.add(buildTextChunk(KEY_PANORAMA_ID, meta.getPanoramaId()));
+		if (meta.getPanoramaFace() != null)
+			textChunks.add(buildTextChunk(KEY_PANORAMA_FACE, String.valueOf(meta.getPanoramaFace())));
 
 		return injectChunks(originalBytes, textChunks);
 	}

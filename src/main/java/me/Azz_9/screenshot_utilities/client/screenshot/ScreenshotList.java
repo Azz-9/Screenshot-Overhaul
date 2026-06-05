@@ -7,14 +7,14 @@ import org.jspecify.annotations.NonNull;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.config.Config;
+import me.Azz_9.screenshot_utilities.client.screenshot.panorama.Panorama;
 
 public class ScreenshotList {
 	private static final List<String> ACCEPTED_SCREENSHOT_FILE_EXTENSIONS = List.of(".png");
@@ -82,15 +82,22 @@ public class ScreenshotList {
 		thread.start();
 	}
 
-	public static void whenLoaded(Consumer<List<Screenshot>> onLoaded) {
+	public static void whenScreenshotsLoaded(Consumer<List<Screenshot>> onLoaded) {
+		whenLoadedInternal(onLoaded, ScreenshotList::getScreenshots);
+	}
+
+	public static void whenPanoramasLoaded(Consumer<List<Panorama>> onLoaded) {
+		whenLoadedInternal(onLoaded, ScreenshotList::getPanoramas);
+	}
+
+	private static <T> void whenLoadedInternal(Consumer<T> onLoaded, Supplier<T> supplier) {
 		synchronized (lock) {
 			if (loaded) {
-				onLoaded.accept(Collections.unmodifiableList(screenshots));
+				onLoaded.accept(supplier.get());
 			} else {
-				// exécuté à la fin du chargement via notifyChange, on enregistre temporairement
 				Consumer<List<Screenshot>> previous = onChangeListener;
 				onChangeListener = list -> {
-					onLoaded.accept(list);
+					onLoaded.accept(supplier.get());
 					onChangeListener = previous;
 				};
 			}
@@ -102,6 +109,56 @@ public class ScreenshotList {
 			if (!loaded) return Collections.emptyList();
 			return List.copyOf(screenshots);
 		}
+	}
+
+	/**
+	 * Retourne la liste des panoramas déduits des métadonnées, triés par date de la face 0
+	 * (ou à défaut la première face présente), du plus récent au plus ancien.
+	 */
+	public static List<Panorama> getPanoramas() {
+		synchronized (lock) {
+			if (!loaded) return Collections.emptyList();
+
+			Map<UUID, Screenshot[]> groups = new LinkedHashMap<>();
+
+			for (Screenshot screenshot : screenshots) {
+				String rawId = screenshot.getMetadata().getPanoramaId();
+				Integer face = screenshot.getMetadata().getPanoramaFace();
+				if (rawId == null || face == null) continue;
+
+				UUID id;
+				try {
+					id = UUID.fromString(rawId);
+				} catch (IllegalArgumentException e) {
+					continue; // métadonnée corrompue
+				}
+
+				if (face < 0 || face > 5) continue;
+
+				groups.computeIfAbsent(id, k -> new Screenshot[6])[face] = screenshot;
+			}
+
+			return groups.entrySet().stream()
+					.map(e -> {
+						Screenshot[] faces = e.getValue();
+						String folderName = firstFace(faces)
+								.map(s -> s.file().getParentFile().getName())
+								.orElse("unknown");
+						return new Panorama(e.getKey(), folderName, faces);
+					})
+					.sorted(Comparator.comparing(
+							p -> firstFace(p.faces()).map(s -> s.file().lastModified()).orElse(0L),
+							Comparator.reverseOrder()
+					))
+					.collect(Collectors.toCollection(ArrayList::new));
+		}
+	}
+
+	private static Optional<Screenshot> firstFace(Screenshot[] faces) {
+		for (Screenshot face : faces) {
+			if (face != null) return Optional.of(face);
+		}
+		return Optional.empty();
 	}
 
 	public static void setOnChangeListener(Consumer<List<Screenshot>> listener) {

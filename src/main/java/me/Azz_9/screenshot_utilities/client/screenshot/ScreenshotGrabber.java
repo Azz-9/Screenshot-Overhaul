@@ -202,7 +202,11 @@ public class ScreenshotGrabber {
 
 						ScreenshotPreview.setScreenshot(file);
 					} catch (Throwable t) {
-						try { image.close(); } catch (Throwable x) { t.addSuppressed(x); }
+						try {
+							image.close();
+						} catch (Throwable x) {
+							t.addSuppressed(x);
+						}
 						throw t;
 					}
 					image.close();

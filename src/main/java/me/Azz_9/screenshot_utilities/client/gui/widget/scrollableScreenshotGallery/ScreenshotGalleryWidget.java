@@ -107,7 +107,7 @@ public class ScreenshotGalleryWidget extends SmoothScrollableWidget {
 		addFixedChild(sortButton);
 		addFixedChild(openFolderButton);
 
-		ScreenshotList.whenLoaded((screenshots -> {
+		ScreenshotList.whenScreenshotsLoaded((screenshots -> {
 			// make sure the player didn't leave the screen before building entries
 			if (MINECRAFT.screen instanceof ScreenshotGalleryScreen) {
 				buildEntries(screenshots);
@@ -364,7 +364,7 @@ public class ScreenshotGalleryWidget extends SmoothScrollableWidget {
 
 		ScreenshotList.reloadAsync();
 
-		ScreenshotList.whenLoaded(screenshots -> {
+		ScreenshotList.whenScreenshotsLoaded(screenshots -> {
 			buildEntries(screenshots);
 			searchAndFilter(searchBar.getValue(), filterButton.getValue());
 			sortEntries(sortButton.getValue());
