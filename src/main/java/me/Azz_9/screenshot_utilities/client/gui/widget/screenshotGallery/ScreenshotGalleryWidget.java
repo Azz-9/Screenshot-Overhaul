@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery;
+package me.Azz_9.screenshot_utilities.client.gui.widget.screenshotGallery;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 
@@ -12,13 +12,8 @@ import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -27,10 +22,9 @@ import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
 import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.gallery.ScrollableGallery;
-import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent.ScreenshotEntryWidget;
+import me.Azz_9.screenshot_utilities.client.gui.widget.screenshotGallery.content.ScreenshotEntryWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotList;
-import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotManager;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
 
 @Environment(EnvType.CLIENT)
@@ -67,11 +61,6 @@ public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWi
 		}));
 	}
 
-	@Override
-	protected @NonNull ScrollArea getScrollArea() {
-		return new ScrollArea(getX(), getY() + HEADER_HEIGHT, getRight(), getBottom());
-	}
-
 	// rendering
 
 	@Override
@@ -96,8 +85,6 @@ public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWi
 		}
 
 		super.extractWidgetRenderState(graphics, mouseX, mouseY, deltaTicks);
-
-		renderSeparators(graphics);
 	}
 
 	/* ---------------- Layout ---------------- */
@@ -109,53 +96,6 @@ public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWi
 		}
 		setEntries(newEntries);
 		if (onEntriesChanged != null) onEntriesChanged.accept(getEntries());
-	}
-
-	@Override
-	protected void beforeLayoutEntries() {
-		separators.clear();
-		lastLayoutDate = null;
-	}
-
-	@Override
-	protected @NonNull LayoutCursor beforeLayoutEntry(@NonNull ScreenshotEntryWidget entry, int xCursor, int yCursor, int column, int entryHeight) {
-		LocalDate entryDate = Instant.ofEpochMilli(entry.getTimestampOrLastModified()).atZone(ZoneId.systemDefault()).toLocalDate();
-
-		if (!entryDate.equals(lastLayoutDate)) {
-			if (column != 0) {
-				column = 0;
-				xCursor = getX() + PADDING;
-				yCursor += entryHeight + ROW_SPACING;
-			}
-
-			separators.add(new DateSeparator(yCursor, entryDate));
-			yCursor += SEPARATOR_HEIGHT + ROW_SPACING;
-		}
-
-		lastLayoutDate = entryDate;
-
-		return new LayoutCursor(xCursor, yCursor, column);
-	}
-
-	@Override
-	protected void searchAndFilter(@NonNull String query, @NonNull FilterMode mode) {
-		String q = query.trim().toLowerCase(Locale.ROOT);
-
-		for (ScreenshotEntryWidget entry : getEntries()) {
-			boolean visible = (mode == FilterMode.ALL || mode == FilterMode.FAVORITES && ScreenshotManager.isFavorite(entry.getPathRelativeToScreenshotDir()))
-					&& (q.isEmpty() || entry.getName().toLowerCase(Locale.ROOT).contains(q));
-
-			entry.setVisible(visible);
-			entry.setActive(visible);
-		}
-	}
-
-	@Override
-	protected void sortEntries(@NonNull SortMode mode) {
-		getMutableEntries().sort(switch (mode) {
-			case DATE_ASC -> Comparator.comparingLong(e -> e.getTimestampOrLastModified());
-			case DATE_DESC -> Comparator.comparingLong(e -> -e.getTimestampOrLastModified());
-		});
 	}
 
 	// refresh

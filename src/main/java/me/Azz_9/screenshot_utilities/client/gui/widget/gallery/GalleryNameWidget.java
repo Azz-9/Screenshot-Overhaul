@@ -5,7 +5,7 @@ import net.fabricmc.api.Environment;
 
 import org.jspecify.annotations.NonNull;
 
-import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent.ScreenshotNameWidget;
+import me.Azz_9.screenshot_utilities.client.gui.widget.screenshotGallery.content.ScreenshotNameWidget;
 
 @Environment(EnvType.CLIENT)
 public class GalleryNameWidget extends ScreenshotNameWidget {

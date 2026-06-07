@@ -1,14 +1,8 @@
-package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent;
-
-import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
-
-import com.mojang.blaze3d.platform.cursor.CursorTypes;
+package me.Azz_9.screenshot_utilities.client.gui.widget.screenshotGallery.content;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ARGB;
@@ -22,14 +16,14 @@ import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
-import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
+import me.Azz_9.screenshot_utilities.client.gui.widget.gallery.AbstractThumbnailWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotDrawHelper;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTexture;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
 
 @Environment(EnvType.CLIENT)
-public class ScreenshotThumbnailWidget extends AbstractWidget {
+public class ScreenshotThumbnailWidget extends AbstractThumbnailWidget {
 
 	private static final float HOVER_SCALE = 1.04f;
 	private static final float HOVER_SPEED = 10f;
@@ -56,6 +50,7 @@ public class ScreenshotThumbnailWidget extends AbstractWidget {
 	/**
 	 * Déclenche le chargement de la texture. Idempotent.
 	 */
+	@Override
 	public void load() {
 		if (!loaded) {
 			loaded = true;
@@ -114,7 +109,7 @@ public class ScreenshotThumbnailWidget extends AbstractWidget {
 			graphics.disableScissor();
 		}
 
-		handleCursor(graphics);
+		super.extractWidgetRenderState(graphics, mouseX, mouseY, delta);
 	}
 
 	private void updateAppearProgress(float dt) {
@@ -133,31 +128,11 @@ public class ScreenshotThumbnailWidget extends AbstractWidget {
 		currentScale += (float) ((targetScale - currentScale) * (1f - Math.exp(-HOVER_SPEED * dt)));
 	}
 
-	@Override
-	protected void handleCursor(@NonNull GuiGraphicsExtractor graphics) {
-		if (this.isHovered() && this.shouldTakeFocusAfterInteraction()) {
-			graphics.requestCursor(CursorTypes.POINTING_HAND);
-		}
-	}
-
 	// input
 
 	@Override
 	public void onClick(@NonNull MouseButtonEvent click, boolean doubled) {
-		if (MINECRAFT.screen instanceof FocusableScreen screen) {
-			screen.clearFocus();
-		}
+		super.onClick(click, doubled);
 		if (onClick != null) onClick.accept(screenshot);
-	}
-
-	@NonNull
-	public ScreenshotTexture getTexture() {
-		if (texture == null)
-			throw new IllegalStateException("Texture not loaded yet, call load() first");
-		return texture;
-	}
-
-	@Override
-	protected void updateWidgetNarration(@NonNull NarrationElementOutput output) {
 	}
 }

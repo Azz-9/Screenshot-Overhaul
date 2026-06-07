@@ -6,45 +6,37 @@ import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
-
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
-import me.Azz_9.screenshot_utilities.client.gui.widget.gallery.ScrollableGallery;
-import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent.ScreenshotThumbnailWidget;
-import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotList;
-import me.Azz_9.screenshot_utilities.client.screenshot.panorama.Panorama;
+import me.Azz_9.screenshot_utilities.client.gui.widget.panoramaGallery.PanoramaGalleryWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.panorama.PanoramaHolder;
 
 public class PanoramaGalleryScreen extends AbstractSavableScreen implements FocusableScreen {
 
+	private static final int GLOBAL_PADDING = 10;
+
 	// focus manager
 	private final @NonNull FocusManager focusManager = new FocusManager();
 
-	private ScrollableGallery<>
+	private @Nullable PanoramaGalleryWidget gallery;
 
 	public PanoramaGalleryScreen(@NonNull Component title, @Nullable Screen parent) {
 		super(title, parent);
-		ScreenshotList.whenPanoramasLoaded(this::setPanoramas);
 	}
 
 	@Override
 	protected void initContent() {
+		gallery = createGallery();
+
+		addRenderableWidget(gallery);
 	}
 
-	public void setPanoramas(List<Panorama> panoramas) {
-		this.panoramas = panoramas;
-
-		clearWidgets();
-
-		int x = 10;
-		for (Panorama panorama : panoramas) {
-			addRenderableWidget(new ScreenshotThumbnailWidget(x, 10, 150, 150, panorama.faces()[0], screenshot -> {
-				PanoramaHolder.usePanorama(panorama);
-			}));
-
-			x += 160;
-		}
+	private PanoramaGalleryWidget createGallery() {
+		return new PanoramaGalleryWidget(
+				GLOBAL_PADDING, GLOBAL_PADDING,
+				width - GLOBAL_PADDING * 2, getBottomBarTop() - GLOBAL_PADDING,
+				PanoramaHolder::usePanoramaAsync, PanoramaHolder::resetToDefault
+		);
 	}
 
 	@Override

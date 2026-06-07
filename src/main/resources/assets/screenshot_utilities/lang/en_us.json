@@ -12,6 +12,7 @@
 	"screenshot_utilities.navigation.next": "Next",
 
 	"screenshot_utilities.gallery_widget.no_screenshot": "It looks like you haven't taken a screenshot yet.",
+	"screenshot_utilities.gallery_widget.no_panorama": "It looks like you haven't taken a panorama yet.",
 	"screenshot_utilities.gallery_widget.search_bar": "Search bar",
 	"screenshot_utilities.gallery_widget.search_bar.placeholder": "Search...",
 	"screenshot_utilities.gallery_widget.filter": "Filter",

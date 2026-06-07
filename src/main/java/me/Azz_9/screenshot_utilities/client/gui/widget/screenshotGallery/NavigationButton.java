@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery;
+package me.Azz_9.screenshot_utilities.client.gui.widget.screenshotGallery;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MOD_ID;
 

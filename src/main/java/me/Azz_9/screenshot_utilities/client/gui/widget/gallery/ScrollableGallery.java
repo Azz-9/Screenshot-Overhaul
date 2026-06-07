@@ -18,11 +18,11 @@ import net.minecraft.util.Util;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.config.Config;
@@ -30,7 +30,8 @@ import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.SmoothScrollableWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.TexturedCyclingButtonWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.gallery.headerWidget.SearchBar;
-import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.ScreenshotGalleryWidget;
+import me.Azz_9.screenshot_utilities.client.gui.widget.screenshotGallery.ScreenshotGalleryWidget;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotManager;
 
 @Environment(EnvType.CLIENT)
 public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> extends SmoothScrollableWidget {
@@ -174,9 +175,33 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 		return filterButton;
 	}
 
-	protected abstract void searchAndFilter(@NonNull String query, @NonNull FilterMode mode);
+	@Override
+	protected @NonNull ScrollArea getScrollArea() {
+		return new ScrollArea(getX(), getY() + HEADER_HEIGHT, getRight(), getBottom());
+	}
 
-	protected abstract void sortEntries(@NonNull SortMode mode);
+	protected void searchAndFilter(@NonNull String query, @NonNull FilterMode mode) {
+		String q = query.trim().toLowerCase(Locale.ROOT);
+
+		for (T entry : entries) {
+			boolean visible = isEntryVisible(entry, mode, q);
+
+			entry.setVisible(visible);
+			entry.setActive(visible);
+		}
+	}
+
+	protected void sortEntries(@NonNull SortMode mode) {
+		entries.sort(switch (mode) {
+			case DATE_ASC -> Comparator.comparingLong(e -> e.getTimestampOrLastModified());
+			case DATE_DESC -> Comparator.comparingLong(e -> -e.getTimestampOrLastModified());
+		});
+	}
+
+	protected boolean isEntryVisible(@NonNull T entry, @NonNull FilterMode mode, @NonNull String query) {
+		return (mode == FilterMode.ALL || mode == FilterMode.FAVORITES && ScreenshotManager.isFavorite(entry.getPathRelativeToScreenshotDir()))
+				&& (query.isEmpty() || entry.getName().toLowerCase(Locale.ROOT).contains(query));
+	}
 
 	@Override
 	protected int getTotalScrollableHeight() {
@@ -248,7 +273,13 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 		clampScroll();
 	}
 
-	private void renderSeparators(@NonNull GuiGraphicsExtractor graphics) {
+	@Override
+	protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
+		super.extractWidgetRenderState(graphics, mouseX, mouseY, deltaTicks);
+		renderSeparators(graphics);
+	}
+
+	protected void renderSeparators(@NonNull GuiGraphicsExtractor graphics) {
 		ScrollArea area = getScrollArea();
 		int baseY = area.top() - (int) getScrollOffset();
 
@@ -278,9 +309,26 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 	}
 
 	protected void beforeLayoutEntries() {
+		separators.clear();
+		lastLayoutDate = null;
 	}
 
 	protected @NonNull LayoutCursor beforeLayoutEntry(@NonNull T entry, int xCursor, int yCursor, int column, int entryHeight) {
+		LocalDate entryDate = Instant.ofEpochMilli(entry.getTimestampOrLastModified()).atZone(ZoneId.systemDefault()).toLocalDate();
+
+		if (!entryDate.equals(lastLayoutDate)) {
+			if (column != 0) {
+				column = 0;
+				xCursor = getX() + PADDING;
+				yCursor += entryHeight + ROW_SPACING;
+			}
+
+			separators.add(new DateSeparator(yCursor, entryDate));
+			yCursor += SEPARATOR_HEIGHT + ROW_SPACING;
+		}
+
+		lastLayoutDate = entryDate;
+
 		return new LayoutCursor(xCursor, yCursor, column);
 	}
 

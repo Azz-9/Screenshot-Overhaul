@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent;
+package me.Azz_9.screenshot_utilities.client.gui.widget.screenshotGallery.content;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -25,8 +25,6 @@ import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotMetadataUtils;
 @Environment(EnvType.CLIENT)
 public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 
-	public static final int NAME_HEIGHT = AbstractGalleryEntryWidget.DEFAULT_NAME_HEIGHT;
-
 	private static final int BUTTON_SIZE = 10;
 	private static final int BUTTON_FADE_DURATION = 250;
 
@@ -40,15 +38,12 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 
 	private final @NonNull Screenshot screenshot;
 
-	private int baseY;
-
 	public ScreenshotEntryWidget(int x, int y, int thumbnailWidth, int thumbnailHeight, @NonNull Screenshot screenshot,
 	                             @Nullable Consumer<Screenshot> onThumbnailClicked) {
-		super(x, y, thumbnailWidth, thumbnailHeight + NAME_HEIGHT, BUTTON_FADE_DURATION);
+		super(x, y, thumbnailWidth, thumbnailHeight + DEFAULT_NAME_HEIGHT, BUTTON_FADE_DURATION);
 		this.INITIAL_NAME = screenshot.file().getName();
 		this.INITIAL_METADATA = ScreenshotMetadata.copyOf(screenshot.getMetadata());
 
-		this.baseY = y;
 		this.screenshot = screenshot;
 
 		this.thumbnailWidget = new ScreenshotThumbnailWidget(
@@ -60,7 +55,7 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 
 		this.nameWidget = new ScreenshotNameWidget(
 				x, y + thumbnailHeight,
-				thumbnailWidth, NAME_HEIGHT,
+				thumbnailWidth, DEFAULT_NAME_HEIGHT,
 				INITIAL_NAME
 		);
 		nameWidget.setChangedListener(s ->
@@ -91,14 +86,6 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 		this(0, 0, 0, 0, screenshot, null);
 	}
 
-	public int getBaseY() {
-		return baseY;
-	}
-
-	public void setBaseY(int baseY) {
-		this.baseY = baseY;
-	}
-
 	@Override
 	protected void render(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks, float animationProgress) {
 		// fond global
@@ -123,26 +110,11 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 	}
 
 	@Override
-	public void setWidth(int width) {
-		if (getWidth() != width) {
-			super.setWidth(width);
-			updateChildrenPos();
-		}
-	}
-
-	@Override
-	public void setHeight(int height) {
-		if (getHeight() != height) {
-			super.setHeight(height);
-			updateChildrenPos();
-		}
-	}
-
-	private void updateChildrenPos() {
-		thumbnailWidget.setRectangle(getWidth(), getHeight() - NAME_HEIGHT, getX(), getY());
+	protected void updateChildrenPos() {
+		thumbnailWidget.setRectangle(getWidth(), getHeight() - DEFAULT_NAME_HEIGHT, getX(), getY());
 		hideFromMapButton.setPosition(thumbnailWidget.getX(), thumbnailWidget.getY());
 		favoriteButton.setPosition(thumbnailWidget.getRight() - BUTTON_SIZE, thumbnailWidget.getY());
-		nameWidget.setRectangle(getWidth(), NAME_HEIGHT, getX(), thumbnailWidget.getBottom());
+		nameWidget.setRectangle(getWidth(), DEFAULT_NAME_HEIGHT, getX(), thumbnailWidget.getBottom());
 	}
 
 	public @NonNull Screenshot getScreenshot() {
@@ -158,7 +130,7 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 		return nameWidget.getText();
 	}
 
-	public String getPathRelativeToScreenshotDir() {
+	public @NonNull String getPathRelativeToScreenshotDir() {
 		return screenshot.pathRelativeToScreenshotDir();
 	}
 

@@ -17,7 +17,7 @@ import me.Azz_9.screenshot_utilities.client.config.option.options.PathConfigOpti
 import me.Azz_9.screenshot_utilities.client.config.option.options.StringConfigOption;
 import me.Azz_9.screenshot_utilities.client.gui.screen.SettingsScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.config.ConfigTabContent;
-import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.ScreenshotGalleryWidget;
+import me.Azz_9.screenshot_utilities.client.gui.widget.screenshotGallery.ScreenshotGalleryWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotFileNameParser;
 import me.Azz_9.screenshot_utilities.compat.CompatManager;
 

@@ -24,9 +24,29 @@ public abstract class AbstractGalleryEntryWidget extends SimpleParentWidget impl
 		this.animationDurationMs = animationDurationMs;
 	}
 
+	@Override
+	public void setWidth(int width) {
+		if (getWidth() != width) {
+			super.setWidth(width);
+			updateChildrenPos();
+		}
+	}
+
+	@Override
+	public void setHeight(int height) {
+		if (getHeight() != height) {
+			super.setHeight(height);
+			updateChildrenPos();
+		}
+	}
+
+	protected abstract void updateChildrenPos();
+
 	public abstract void triggerLoad();
 
 	public abstract @NonNull String getName();
+
+	public abstract @NonNull String getPathRelativeToScreenshotDir();
 
 	public abstract long getTimestampOrLastModified();
 

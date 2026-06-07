@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.galleryContent;
+package me.Azz_9.screenshot_utilities.client.gui.widget.screenshotGallery.content;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 
@@ -92,7 +92,7 @@ public class ScreenshotNameWidget extends AbstractWidget {
 		this(x, y, width, height, initialText, true);
 	}
 
-	protected ScreenshotNameWidget(int x, int y, int width, int height, @NonNull String initialText, boolean keepExtension) {
+	public ScreenshotNameWidget(int x, int y, int width, int height, @NonNull String initialText, boolean keepExtension) {
 		super(x, y, width, height, Component.empty());
 		this.font = MINECRAFT.font;
 

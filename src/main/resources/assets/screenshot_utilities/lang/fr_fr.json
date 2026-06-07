@@ -12,6 +12,7 @@
 	"screenshot_utilities.navigation.next": "Suivant",
 
 	"screenshot_utilities.gallery_widget.no_screenshot": "Il semble que vous n'ayez pas encore pris de capture d'écran.",
+	"screenshot_utilities.gallery_widget.no_panorama": "Il semble que vous n'ayez pas encore pris de panorama.",
 	"screenshot_utilities.gallery_widget.search_bar": "Barre de recherche",
 	"screenshot_utilities.gallery_widget.search_bar.placeholder": "Rechercher...",
 	"screenshot_utilities.gallery_widget.filter": "Filter",

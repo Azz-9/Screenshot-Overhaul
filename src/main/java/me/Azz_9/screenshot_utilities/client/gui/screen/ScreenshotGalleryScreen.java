@@ -20,7 +20,7 @@ import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.FullViewWidget;
-import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.ScreenshotGalleryWidget;
+import me.Azz_9.screenshot_utilities.client.gui.widget.screenshotGallery.ScreenshotGalleryWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.DeleteScreenshot;
 import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotList;

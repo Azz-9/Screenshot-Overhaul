@@ -1,6 +1,7 @@
 package me.Azz_9.screenshot_utilities.client.screenshot;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+import static me.Azz_9.screenshot_utilities.client.screenshot.panorama.Panorama.firstFace;
 
 import org.jspecify.annotations.NonNull;
 
@@ -139,12 +140,13 @@ public class ScreenshotList {
 			}
 
 			return groups.entrySet().stream()
+					.filter(e -> firstFace(e.getValue()).isPresent())
 					.map(e -> {
 						Screenshot[] faces = e.getValue();
-						String folderName = firstFace(faces)
-								.map(s -> s.file().getParentFile().getName())
-								.orElse("unknown");
-						return new Panorama(e.getKey(), folderName, faces);
+						File folder = firstFace(faces)
+								.map(s -> s.file().getParentFile())
+								.orElse(null);
+						return new Panorama(e.getKey(), folder, faces);
 					})
 					.sorted(Comparator.comparing(
 							p -> firstFace(p.faces()).map(s -> s.file().lastModified()).orElse(0L),
@@ -152,13 +154,6 @@ public class ScreenshotList {
 					))
 					.collect(Collectors.toCollection(ArrayList::new));
 		}
-	}
-
-	private static Optional<Screenshot> firstFace(Screenshot[] faces) {
-		for (Screenshot face : faces) {
-			if (face != null) return Optional.of(face);
-		}
-		return Optional.empty();
 	}
 
 	public static void setOnChangeListener(Consumer<List<Screenshot>> listener) {

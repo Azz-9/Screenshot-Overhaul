@@ -27,8 +27,8 @@ import java.util.function.Function;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
-import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.MetadataEditorPanel;
-import me.Azz_9.screenshot_utilities.client.gui.widget.scrollableScreenshotGallery.NavigationButton;
+import me.Azz_9.screenshot_utilities.client.gui.widget.screenshotGallery.MetadataEditorPanel;
+import me.Azz_9.screenshot_utilities.client.gui.widget.screenshotGallery.NavigationButton;
 import me.Azz_9.screenshot_utilities.client.screenshot.*;
 
 /**

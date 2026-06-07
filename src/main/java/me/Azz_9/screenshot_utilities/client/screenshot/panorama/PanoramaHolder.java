@@ -4,35 +4,158 @@ import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MI
 
 import com.mojang.blaze3d.platform.NativeImage;
 
+import net.minecraft.client.renderer.texture.CubeMapTexture;
+import net.minecraft.client.renderer.texture.TextureContents;
 import net.minecraft.resources.Identifier;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
+import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
 
 public class PanoramaHolder {
 
-	private static final int[] order = new int[]{1, 3, 5, 4, 0, 2};
+	public static final Identifier PANORAMA_LOCATION = Identifier.withDefaultNamespace("textures/gui/title/background/panorama");
+	private static final int[] ORDER = new int[]{1, 3, 5, 4, 0, 2};
+	private static final AtomicReference<Thread> currentTask = new AtomicReference<>(null);
+	private static volatile Panorama currentPanorama = null;
 
-	public static void usePanorama(Panorama panorama) {
-		NativeImage[] images = new NativeImage[order.length];
-		for (int i = 0; i < order.length; i++) {
+	public static void resetToDefault() {
+		Thread previous = currentTask.getAndSet(null);
+		if (previous != null) previous.interrupt();
+		if (currentPanorama == null) return;
 
-			try (InputStream in = Files.newInputStream(panorama.faces()[order[i]].file().toPath())) {
-				images[i] = flipVertical(NativeImage.read(in));
-			} catch (Exception _) {
-				ScreenshotLogger.error("Failed to change panorama");
-				return;
+		Thread thread = new Thread(() -> {
+			try {
+				CubeMapTexture texture = new CubeMapTexture(PANORAMA_LOCATION);
+
+				TextureContents contents;
+				try {
+					contents = texture.loadContents(MINECRAFT.getResourceManager());
+				} catch (IOException e) {
+					ScreenshotLogger.error("Failed to load vanilla panorama: {}", e.getMessage());
+					return;
+				}
+
+				if (Thread.interrupted()) {
+					contents.close();
+					return;
+				}
+
+				MINECRAFT.execute(() -> {
+					texture.apply(contents);
+					MINECRAFT.getTextureManager().register(PANORAMA_LOCATION, texture);
+					currentPanorama = null;
+				});
+
+			} finally {
+				currentTask.compareAndSet(Thread.currentThread(), null);
 			}
-		}
+		}, "panorama-reset");
 
-		DynamicCubeMapTexture texture = new DynamicCubeMapTexture();
-		texture.setImages(images);
-		MINECRAFT.getTextureManager().register(Identifier.withDefaultNamespace("textures/gui/title/background/panorama"), texture);
+		thread.setDaemon(true);
+		currentTask.set(thread);
+		thread.start();
 	}
 
-	private static NativeImage flipVertical(NativeImage src) {
+	public static void usePanoramaAsync(final @NonNull Panorama panorama) {
+		// Interrompt le thread précédent s'il tourne encore
+		Thread previous = currentTask.getAndSet(null);
+		if (previous != null) previous.interrupt();
+		if (panorama.equals(currentPanorama)) return;
+
+		Thread thread = new Thread(() -> {
+			try {
+				NativeImage[] images = loadImages(panorama);
+				if (images == null) return; // erreur de chargement
+
+				// Vérifie qu'on n'a pas été supplanté pendant le chargement
+				if (Thread.interrupted()) {
+					closeAll(images, ORDER.length);
+					return;
+				}
+
+				MINECRAFT.execute(() -> {
+					// Dernier check sur le main thread : on est toujours le task courant ?
+					applyPanorama(images);
+					currentPanorama = panorama;
+				});
+			} finally {
+				// Se retire proprement de la référence (seulement si c'est encore nous)
+				currentTask.compareAndSet(Thread.currentThread(), null);
+			}
+		}, "panorama-loader");
+
+		thread.setDaemon(true);
+		currentTask.set(thread);
+		thread.start();
+	}
+
+	/** Charge les images depuis le disque. Retourne null en cas d'erreur ou d'interruption. */
+	public static @Nullable NativeImage[] loadImages(final @NonNull Panorama panorama) {
+		NativeImage[] images = new NativeImage[ORDER.length];
+		int loaded = 0;
+		try {
+			for (int i = 0; i < ORDER.length; i++) {
+				if (Thread.interrupted()) {
+					closeAll(images, loaded);
+					return null;
+				}
+
+				Screenshot face = panorama.faces()[ORDER[i]];
+				if (face == null) {
+					ScreenshotLogger.error("Panorama '{}' is missing face {}", panorama.folderName(), ORDER[i]);
+					closeAll(images, loaded);
+					return null;
+				}
+
+				try (InputStream in = Files.newInputStream(face.file().toPath())) {
+					images[i] = flipVertical(NativeImage.read(in));
+					loaded++;
+				} catch (IOException e) {
+					ScreenshotLogger.error("Failed to read panorama face {}: {}", ORDER[i], e.getMessage());
+					closeAll(images, loaded);
+					return null;
+				}
+			}
+			return images;
+		} catch (Exception e) {
+			ScreenshotLogger.error("Unexpected error loading panorama: {}", e.getMessage());
+			closeAll(images, loaded);
+			return null;
+		}
+	}
+
+	/** Applique le panorama — doit être appelé sur le main thread. */
+	private static void applyPanorama(final @NonNull NativeImage[] images) {
+		DynamicCubeMapTexture texture = new DynamicCubeMapTexture();
+		texture.setImages(images);
+		MINECRAFT.getTextureManager().register(
+				PANORAMA_LOCATION,
+				texture
+		);
+	}
+
+	/** Libère les NativeImage déjà allouées en cas d'abandon. */
+	private static void closeAll(final NativeImage[] images, int count) {
+		for (int i = 0; i < count; i++) {
+			if (images[i] != null) images[i].close();
+		}
+	}
+
+	public static void usePanorama(final @NonNull Panorama panorama) {
+		NativeImage[] images = loadImages(panorama);
+		if (images != null) applyPanorama(images);
+	}
+
+	private static NativeImage flipVertical(@NonNull NativeImage src) {
 		int width = src.getWidth();
 		int height = src.getHeight();
 
@@ -44,6 +167,11 @@ public class PanoramaHolder {
 			}
 		}
 
+		src.close();
 		return flipped;
+	}
+
+	public static boolean isSelected(final @Nullable Panorama panorama) {
+		return Objects.equals(currentPanorama, panorama);
 	}
 }

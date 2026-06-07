@@ -3,6 +3,7 @@ package me.Azz_9.screenshot_utilities.client.screenshot;
 import org.jspecify.annotations.NonNull;
 
 import java.io.File;
+import java.util.Objects;
 
 import me.Azz_9.screenshot_utilities.client.config.Config;
 
@@ -35,5 +36,16 @@ public class Screenshot {
 
 	public @NonNull String pathRelativeToScreenshotDir() {
 		return pathRelativeToScreenshotDir;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Screenshot that)) return false;
+		return Objects.equals(file, that.file);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(file);
 	}
 }
