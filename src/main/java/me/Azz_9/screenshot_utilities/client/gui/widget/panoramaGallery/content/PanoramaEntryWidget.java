@@ -12,7 +12,6 @@ import java.nio.file.Path;
 import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
-import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.gui.widget.gallery.AbstractGalleryEntryWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.screenshotGallery.content.ScreenshotNameWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
@@ -42,7 +41,7 @@ public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {
 		this.thumbnailWidget = new PanoramaThumbnailWidget(
 				x, y,
 				thumbnailWidth, thumbnailHeight,
-				PanoramaHolder.PANORAMA_LOCATION.withSuffix("_" + panorama.id()),
+				PanoramaHolder.PANORAMA_LOCATION,
 				panorama,
 				onThumbnailClicked
 		);
@@ -91,7 +90,7 @@ public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {
 	@Override
 	protected void render(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks, float animationProgress) {
 		// fond global
-		graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), Colors.BLACK_TRANSPARENT);
+		//graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), Colors.BLACK_TRANSPARENT);
 
 		thumbnailWidget.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 		nameWidget.extractRenderState(graphics, mouseX, mouseY, deltaTicks);

@@ -84,7 +84,7 @@ public class PanoramaHolder {
 
 				MINECRAFT.execute(() -> {
 					// Dernier check sur le main thread : on est toujours le task courant ?
-					applyPanorama(images);
+					register(images, PANORAMA_LOCATION);
 					currentPanorama = panorama;
 				});
 			} finally {
@@ -133,26 +133,11 @@ public class PanoramaHolder {
 		}
 	}
 
-	/** Applique le panorama — doit être appelé sur le main thread. */
-	private static void applyPanorama(final @NonNull NativeImage[] images) {
-		DynamicCubeMapTexture texture = new DynamicCubeMapTexture();
-		texture.setImages(images);
-		MINECRAFT.getTextureManager().register(
-				PANORAMA_LOCATION,
-				texture
-		);
-	}
-
 	/** Libère les NativeImage déjà allouées en cas d'abandon. */
 	private static void closeAll(final NativeImage[] images, int count) {
 		for (int i = 0; i < count; i++) {
 			if (images[i] != null) images[i].close();
 		}
-	}
-
-	public static void usePanorama(final @NonNull Panorama panorama) {
-		NativeImage[] images = loadImages(panorama);
-		if (images != null) applyPanorama(images);
 	}
 
 	private static NativeImage flipVertical(@NonNull NativeImage src) {
@@ -173,5 +158,19 @@ public class PanoramaHolder {
 
 	public static boolean isSelected(final @Nullable Panorama panorama) {
 		return Objects.equals(currentPanorama, panorama);
+	}
+
+	public static void register(NativeImage[] images, Identifier location) {
+		DynamicCubeMapTexture texture = new DynamicCubeMapTexture();
+		texture.setImages(images);
+		MINECRAFT.getTextureManager().register(
+				location,
+				texture
+		);
+	}
+
+	public static void register(Panorama panorama, Identifier location) {
+		NativeImage[] images = loadImages(panorama);
+		if (images != null) register(images, location);
 	}
 }

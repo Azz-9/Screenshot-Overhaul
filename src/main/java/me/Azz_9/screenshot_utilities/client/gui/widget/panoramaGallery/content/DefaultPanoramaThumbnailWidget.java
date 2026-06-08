@@ -1,10 +1,7 @@
 package me.Azz_9.screenshot_utilities.client.gui.widget.panoramaGallery.content;
 
-import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
-
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.texture.CubeMapTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
@@ -25,7 +22,7 @@ public class DefaultPanoramaThumbnailWidget extends AbstractThumbnailWidget impl
 		super(x, y, width, height, Component.empty());
 		this.onClick = onClick;
 		this.cubeMap = new PanoramaCubeMap(panoramaLocation);
-		this.cubeMap.registerTexture(MINECRAFT.getTextureManager(), new CubeMapTexture(panoramaLocation));
+		//this.cubeMap.registerTexture(MINECRAFT.getTextureManager(), new CubeMapTexture(panoramaLocation));
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package me.Azz_9.screenshot_utilities.client.gui.screen;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -37,6 +38,14 @@ public class PanoramaGalleryScreen extends AbstractSavableScreen implements Focu
 				width - GLOBAL_PADDING * 2, getBottomBarTop() - GLOBAL_PADDING,
 				PanoramaHolder::usePanoramaAsync, PanoramaHolder::resetToDefault
 		);
+	}
+
+	@Override
+	public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+	}
+
+	@Override
+	protected void extractPanorama(GuiGraphicsExtractor graphics, float a) {
 	}
 
 	@Override
