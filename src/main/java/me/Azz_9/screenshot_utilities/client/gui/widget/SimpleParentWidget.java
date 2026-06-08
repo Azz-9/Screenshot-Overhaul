@@ -200,4 +200,14 @@ public abstract class SimpleParentWidget extends AbstractWidget implements Conta
 
 		return false;
 	}
+
+	@Override
+	public boolean mouseDragged(@NonNull MouseButtonEvent event, double dx, double dy) {
+		return ContainerEventHandler.super.mouseDragged(event, dx, dy);
+	}
+
+	@Override
+	public boolean mouseReleased(@NonNull MouseButtonEvent event) {
+		return ContainerEventHandler.super.mouseReleased(event);
+	}
 }

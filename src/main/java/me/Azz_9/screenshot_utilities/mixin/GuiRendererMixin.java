@@ -24,7 +24,7 @@ public abstract class GuiRendererMixin {
 			state.cubeMap().renderToArea(
 					state.x(), state.y(),
 					state.width(), state.height(),
-					0f, state.spin()
+					state.pitch(), state.yaw()
 			);
 		}
 	}

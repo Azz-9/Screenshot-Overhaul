@@ -25,8 +25,8 @@ import me.Azz_9.screenshot_utilities.client.screenshot.panorama.Panorama;
 public class PanoramaGalleryWidget extends ScrollableGallery<AbstractGalleryEntryWidget> {
 
 	// thumbnail
-	public static final int MIN_THUMB_WIDTH = 140;
-	public static final int MAX_THUMB_WIDTH = 260;
+	public static final int MIN_THUMB_WIDTH = 170;
+	public static final int MAX_THUMB_WIDTH = 280;
 	private static final double ASPECT_RATIO = 1;
 
 	private final @Nullable Consumer<Panorama> onThumbnailClicked;

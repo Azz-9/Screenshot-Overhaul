@@ -67,7 +67,7 @@ public class DefaultPanoramaEntryWidget extends AbstractGalleryEntryWidget {
 	}
 
 	@Override
-	protected void render(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks, float animationProgress) {
+	protected void renderBeforeChildren(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks, float animationProgress) {
 		// fond global
 		graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), Colors.BLACK_TRANSPARENT);
 

@@ -5,9 +5,8 @@ import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MI
 import com.mojang.blaze3d.ProjectionType;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
-import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
@@ -23,6 +22,8 @@ import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -36,12 +37,14 @@ public class PanoramaCubeMap implements AutoCloseable {
 	private static final float Z_FAR = 10.0F;
 	private static final float FOV = 85.0F;
 
-	private final Identifier location;
-	private final GpuBuffer vertexBuffer;
-	private final ProjectionMatrixBuffer projectionMatrixBuffer;
+	private final @NonNull Identifier location;
+	private final @NonNull GpuBuffer vertexBuffer;
+	private final @NonNull ProjectionMatrixBuffer projectionMatrixBuffer;
 	private boolean textureReady = false;
 
-	public PanoramaCubeMap(Identifier location) {
+	private @Nullable TextureTarget offscreenTarget;
+
+	public PanoramaCubeMap(final @NonNull Identifier location) {
 		this.location = location;
 		this.vertexBuffer = initializeVertices();
 		this.projectionMatrixBuffer = new ProjectionMatrixBuffer("panorama_widget");
@@ -51,7 +54,7 @@ public class PanoramaCubeMap implements AutoCloseable {
 	 * Charge les images et enregistre la DynamicCubeMapTexture.
 	 * Doit être appelé sur le main thread après le chargement async des images.
 	 */
-	public void uploadTexture(NativeImage[] images) {
+	public void uploadTexture(@NonNull NativeImage[] images) {
 		RenderSystem.assertOnRenderThread();
 		PanoramaHolder.register(images, location);
 		this.textureReady = true;
@@ -64,11 +67,20 @@ public class PanoramaCubeMap implements AutoCloseable {
 	 * @param rotX, rotY           Rotation en degrés
 	 */
 	public void renderToArea(int x, int y, int width, int height, float rotX, float rotY) {
-		RenderSystem.assertOnRenderThread();
-
 		if (!textureReady) return;
 
-		RenderTarget mainTarget = MINECRAFT.getMainRenderTarget();
+		RenderSystem.assertOnRenderThread();
+
+		double scale = MINECRAFT.getWindow().getGuiScale();
+		int physicalWidth = (int)(width * scale);
+		int physicalHeight = (int)(height * scale);
+
+		if (offscreenTarget == null
+				|| offscreenTarget.width != physicalWidth
+				|| offscreenTarget.height != physicalHeight) {
+			if (offscreenTarget != null) offscreenTarget.destroyBuffers();
+			offscreenTarget = new TextureTarget("Panorama Widget Offscreen", physicalWidth, physicalHeight, true);
+		}
 
 		// Projection adaptée aux dimensions de la zone, pas de la fenêtre
 		Matrix4f projectionMatrix = new Matrix4f().perspective(
@@ -99,40 +111,27 @@ public class PanoramaCubeMap implements AutoCloseable {
 				new Vector3f(),
 				new Matrix4f()
 		);
-
 		modelViewStack.popMatrix();
-
-		// Les coordonnées du scissor sont en pixels framebuffer (bas-gauche origin),
-		// alors que les coordonnées GUI sont en haut-gauche — il faut flipper Y
-		Window window = MINECRAFT.getWindow();
-		double scaleFactor = window.getGuiScale();
-		int scissorX = x;
-		int scissorY = mainTarget.height - (y + height);
-		int scissorW = width;
-		int scissorH = height;
 
 		try (RenderPass renderPass = RenderSystem.getDevice()
 				.createCommandEncoder()
 				.createRenderPass(
 						() -> "Panorama Widget",
-						mainTarget.getColorTextureView(),
-						OptionalInt.empty(), // pas de clear — on est dans le main target
-						mainTarget.getDepthTextureView(),
-						OptionalDouble.empty()
+						offscreenTarget.getColorTextureView(),
+						OptionalInt.of(0xFF000000), // clear noir
+						offscreenTarget.getDepthTextureView(),
+						OptionalDouble.of(1.0)
 				)) {
 
-			renderPass.enableScissor(scissorX, scissorY, scissorW, scissorH);
 			renderPass.setPipeline(RenderPipelines.PANORAMA);
 			RenderSystem.bindDefaultUniforms(renderPass);
-			renderPass.setVertexBuffer(0, this.vertexBuffer);
+			renderPass.setVertexBuffer(0, vertexBuffer);
 			renderPass.setIndexBuffer(indexBuffer, indices.type());
 			renderPass.setUniform("DynamicTransforms", dynamicTransforms);
 
 			AbstractTexture texture = MINECRAFT.getTextureManager().getTexture(this.location);
 			renderPass.bindTexture("Sampler0", texture.getTextureView(), texture.getSampler());
-
 			renderPass.drawIndexed(0, 0, 36, 1);
-			renderPass.disableScissor();
 		}
 
 		RenderSystem.restoreProjectionMatrix();
@@ -142,11 +141,12 @@ public class PanoramaCubeMap implements AutoCloseable {
 	public void close() {
 		this.vertexBuffer.close();
 		this.projectionMatrixBuffer.close();
+		if (offscreenTarget != null) offscreenTarget.destroyBuffers();
 		MINECRAFT.getTextureManager().release(this.location);
 		this.textureReady = false;
 	}
 
-	private static GpuBuffer initializeVertices() {
+	private static @NonNull GpuBuffer initializeVertices() {
 		GpuBuffer gpuBuffer;
 		try (ByteBufferBuilder byteBufferBuilder = ByteBufferBuilder.exactlySized(DefaultVertexFormat.POSITION.getVertexSize() * 4 * 6)) {
 			BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
@@ -181,5 +181,9 @@ public class PanoramaCubeMap implements AutoCloseable {
 		}
 
 		return gpuBuffer;
+	}
+
+	public @Nullable TextureTarget getOffscreenTarget() {
+		return offscreenTarget;
 	}
 }

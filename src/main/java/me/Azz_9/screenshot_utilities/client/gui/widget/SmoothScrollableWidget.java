@@ -12,6 +12,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.util.Mth;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +75,7 @@ public abstract class SmoothScrollableWidget extends SimpleParentWidget {
 	private final List<AbstractWidget> fixedChildren = new ArrayList<>();
 	private final List<AbstractWidget> scrollableChildren = new ArrayList<>();
 
+	private @Nullable AbstractWidget dragCapture = null;
 
 	// Constructor
 	protected SmoothScrollableWidget(int x, int y, int width, int height) {
@@ -280,7 +282,10 @@ public abstract class SmoothScrollableWidget extends SimpleParentWidget {
 			widget.setY(screenY);
 			boolean handled = widget.mouseClicked(click, doubled);
 			widget.setY(contentY);
-			if (handled) return true;
+			if (handled) {
+				dragCapture = widget;
+				return true;
+			}
 		}
 
 		return true;
@@ -289,6 +294,7 @@ public abstract class SmoothScrollableWidget extends SimpleParentWidget {
 	@Override
 	public boolean mouseReleased(@NonNull MouseButtonEvent click) {
 		draggingScrollbar = false;
+		dragCapture = null;
 		for (AbstractWidget w : fixedChildren) w.mouseReleased(click);
 		for (AbstractWidget w : scrollableChildren) w.mouseReleased(click);
 		return true;
@@ -307,6 +313,10 @@ public abstract class SmoothScrollableWidget extends SimpleParentWidget {
 			// Snap immediately — dragging should feel direct, not smooth
 			scrollOffset = targetScrollOffset;
 			return true;
+		}
+
+		if (dragCapture != null) {
+			return dragCapture.mouseDragged(click, dx, dy);
 		}
 
 		for (AbstractWidget w : fixedChildren) {

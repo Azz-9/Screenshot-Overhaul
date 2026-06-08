@@ -64,10 +64,16 @@ public abstract class AbstractGalleryEntryWidget extends SimpleParentWidget impl
 
 		updateAnimation();
 
-		render(graphics, mouseX, mouseY, deltaTicks, progress);
+		renderBeforeChildren(graphics, mouseX, mouseY, deltaTicks, progress);
+		super.extractWidgetRenderState(graphics, mouseX, mouseY, deltaTicks);
+		renderAfterChildren(graphics, mouseX, mouseY, deltaTicks, progress);
 
 		wasHovered = isHovered();
 	}
 
-	protected abstract void render(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks, float animationProgress);
+	protected void renderBeforeChildren(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks, float animationProgress) {
+	}
+
+	protected void renderAfterChildren(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks, float animationProgress) {
+	}
 }
