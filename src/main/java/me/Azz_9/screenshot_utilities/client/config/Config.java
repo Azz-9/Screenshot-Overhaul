@@ -17,6 +17,7 @@ import me.Azz_9.screenshot_utilities.client.gui.screen.SettingsScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.config.ConfigTabContent;
 import me.Azz_9.screenshot_utilities.client.gui.widget.gallery.ScrollableGallery;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotFileNameParser;
+import me.Azz_9.screenshot_utilities.client.screenshot.panorama.Panorama;
 import me.Azz_9.screenshot_utilities.compat.CompatManager;
 
 public class Config {
@@ -45,6 +46,8 @@ public class Config {
 
 	public final @NonNull SavableObject<ScrollableGallery.SortMode> screenshotSortOrder = new SavableObject<>(ScrollableGallery.SortMode.DATE_DESC);
 	public final @NonNull SavableObject<ScrollableGallery.SortMode> panoramaSortOrder = new SavableObject<>(ScrollableGallery.SortMode.DATE_DESC);
+
+	public final @NonNull NullableSavableObject<Panorama> selectedPanorama = new NullableSavableObject<>(null);
 
 	public static @NonNull Config getInstance() {
 		return INSTANCE;
