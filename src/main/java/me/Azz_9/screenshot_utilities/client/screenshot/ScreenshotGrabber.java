@@ -33,7 +33,8 @@ import me.Azz_9.screenshot_utilities.mixin.NativeImageAccessor;
 
 @Environment(EnvType.CLIENT)
 public class ScreenshotGrabber {
-	public static void grab(File picDir, final @Nullable String forceName, final RenderTarget target, final int downscaleFactor, final Consumer<Component> callback) {
+
+	private static void grab(File picDir, final @Nullable String forceName, final RenderTarget target, final int downscaleFactor, final Consumer<Component> callback) {
 		Screenshot.takeScreenshot(target, downscaleFactor, (image) -> {
 			picDir.mkdir();
 			File file;
@@ -86,6 +87,18 @@ public class ScreenshotGrabber {
 				}
 			});
 		});
+	}
+
+	public static void requestGrab(File picDir, final @Nullable String forceName, final RenderTarget target, final int downscaleFactor, final Consumer<Component> callback) {
+		if (Config.getInstance().hideChatOnScreenshot.getValue() || Config.getInstance().hideHudOnScreenshot.getValue()) {
+			grab(picDir, forceName, target, downscaleFactor, callback);
+			return;
+		}
+
+		ScreenshotRenderState.suppressHud = Config.getInstance().hideHudOnScreenshot.getValue();
+		ScreenshotRenderState.suppressChat = !Config.getInstance().hideHudOnScreenshot.getValue() && Config.getInstance().hideChatOnScreenshot.getValue();
+		ScreenshotRenderState.captureRequested = true;
+		ScreenshotRenderState.pendingCapture = () -> grab(picDir, forceName, target, downscaleFactor, callback);
 	}
 
 	public static @NonNull Component grabPanoramixScreenshot(final File folder) {

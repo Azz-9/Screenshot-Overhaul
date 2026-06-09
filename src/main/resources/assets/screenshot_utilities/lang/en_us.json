@@ -22,6 +22,8 @@
 	"screenshot_utilities.gallery_widget.sort_mode.date_desc": "Newest first",
 	"screenshot_utilities.gallery_widget.open_screenshot_folder": "Open screenshot folder",
 
+	"screenshot_utilities.panorama_gallery.reset": "Reset to default",
+
 	"screenshot_utilities.int_field.increment": "Increment",
 	"screenshot_utilities.int_field.decrement": "Decrement",
 
@@ -41,7 +43,7 @@
 	"screenshot_utilities.metadata.server": "Server IP",
 	"screenshot_utilities.metadata.version": "Version",
 	"screenshot_utilities.metadata.resource_packs": "Resource packs",
-	"screenshot_utilities.metadata.resource_packs.placeholder": "ressource pack 1, ressource pack 2...",
+	"screenshot_utilities.metadata.resource_packs.placeholder": "resource pack 1, resource pack 2...",
 	"screenshot_utilities.metadata.shader": "Shader",
 	"screenshot_utilities.metadata.timestamp": "Timestamp",
 	"screenshot_utilities.metadata.tags": "Tags",
@@ -68,6 +70,11 @@
 	"screenshot_utilities.settings.default_file_dialog_title.files_only": "Select a file",
 	"screenshot_utilities.settings.default_file_dialog_title.directories_only": "Select a directory",
 
+	"screenshot_utilities.config.category.general": "General",
+	"screenshot_utilities.config.category.screenshot": "Screenshot",
+	"screenshot_utilities.config.category.panorama": "Panorama",
+	"screenshot_utilities.config.category.photo_mode": "Photo mode",
+
 	"screenshot_utilities.config.enable_whole_mod": "Enable whole mod",
 	"screenshot_utilities.config.freeze_in_photo_mode": "Freeze world in photo mode",
 	"screenshot_utilities.config.show_player": "Show player",
@@ -77,6 +84,15 @@
 	"screenshot_utilities.config.screenshots_dir.file_dialog_title": "Select the screenshot directory",
 	"screenshot_utilities.config.screenshots_file_name": "Screenshots file name",
 	"screenshot_utilities.config.screenshots_file_name.invalid": "Invalid file name",
-	"screenshot_utilities.config.screenshots_file_name.tooltip": "<datetime>, <year>, <month>, <day>, <hour>, <minute>, <second>",
-	"screenshot_utilities.config.show_chat_message": "Show chat message"
+	"screenshot_utilities.config.screenshots_file_name.tooltip": "<datetime>, <year>, <month>, <day>, <hour>, <minute>, <second>, <worldname>, <serverip>, <version>, <shader>",
+	"screenshot_utilities.config.show_chat_message": "Show chat message",
+	"screenshot_utilities.config.hide_chat_on_screenshot": "Hide chat on screenshot",
+	"screenshot_utilities.config.hide_hud_on_screenshot": "Hide hud on screenshot",
+	"screenshot_utilities.config.grab_on_advancement": "Grab screenshot on advancement",
+	"screenshot_utilities.config.rotation_speed": "Rotation speed",
+	"screenshot_utilities.config.rotation_direction": "Rotation direction",
+	"screenshot_utilities.config.rotation_direction.to_left": "To the left",
+	"screenshot_utilities.config.rotation_direction.to_right": "To the right",
+	"screenshot_utilities.config.vertical_angle": "Vertical angle",
+	"screenshot_utilities.config.starting_horizontal_angle": "Horizontal starting angle"
 }

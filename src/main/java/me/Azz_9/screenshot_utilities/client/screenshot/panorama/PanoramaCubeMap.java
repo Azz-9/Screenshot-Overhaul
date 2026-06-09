@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_utilities.client.gui.widget.panoramaGallery.content;
+package me.Azz_9.screenshot_utilities.client.screenshot.panorama;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 
@@ -27,8 +27,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
-
-import me.Azz_9.screenshot_utilities.client.screenshot.panorama.PanoramaHolder;
 
 @Environment(EnvType.CLIENT)
 public class PanoramaCubeMap implements AutoCloseable {

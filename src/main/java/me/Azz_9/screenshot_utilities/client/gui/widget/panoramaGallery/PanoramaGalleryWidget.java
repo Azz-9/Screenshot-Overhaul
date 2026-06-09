@@ -4,6 +4,7 @@ import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MI
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.NonNull;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
+import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
 import me.Azz_9.screenshot_utilities.client.gui.screen.PanoramaGalleryScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.gallery.AbstractGalleryEntryWidget;
@@ -29,13 +31,21 @@ public class PanoramaGalleryWidget extends ScrollableGallery<AbstractGalleryEntr
 	public static final int MAX_THUMB_WIDTH = 280;
 	private static final double ASPECT_RATIO = 1;
 
-	private final @Nullable Consumer<Panorama> onThumbnailClicked;
-	private final @Nullable Runnable onDefaultClicked;
+	// reset to default button
+	private static final int RESET_BUTTON_HEIGHT = SEARCH_BAR_HEIGHT;
+	private static final int RESET_BUTTON_WIDTH = 60;
 
-	public PanoramaGalleryWidget(int x, int y, int width, int height, @Nullable Consumer<Panorama> onThumbnailClicked, @Nullable Runnable onDefaultClick) {
-		super(x, y, width, height, MIN_THUMB_WIDTH, MAX_THUMB_WIDTH, ASPECT_RATIO);
+	private final @Nullable Consumer<Panorama> onThumbnailClicked;
+	private final @Nullable Runnable onResetToDefault;
+
+	public PanoramaGalleryWidget(int x, int y, int width, int height, @Nullable Consumer<Panorama> onThumbnailClicked, @Nullable Runnable onResetToDefault) {
+		super(x, y, width, height, MIN_THUMB_WIDTH, MAX_THUMB_WIDTH, ASPECT_RATIO, Config.getInstance().panoramaSortOrder);
 		this.onThumbnailClicked = onThumbnailClicked;
-		this.onDefaultClicked = onDefaultClick;
+		this.onResetToDefault = onResetToDefault;
+
+		if (onResetToDefault != null) {
+			addFixedChild(createResetButton());
+		}
 
 		ScreenshotList.whenPanoramasLoaded((panoramas -> {
 			// make sure the player didn't leave the screen before building entries
@@ -48,9 +58,19 @@ public class PanoramaGalleryWidget extends ScrollableGallery<AbstractGalleryEntr
 		}));
 	}
 
+	private Button createResetButton() {
+		return Button.builder(Component.translatable("screenshot_utilities.panorama_gallery.reset"), _ -> {
+					if (onResetToDefault != null) onResetToDefault.run();
+				})
+				.bounds(
+						getRight() - OPEN_FOLDER_BUTTON_SIZE - PADDING * 2 - RESET_BUTTON_WIDTH, getY() + PADDING,
+						RESET_BUTTON_WIDTH, RESET_BUTTON_HEIGHT
+				)
+				.build();
+	}
+
 	private void buildEntries(@NonNull List<Panorama> panoramas) {
 		List<AbstractGalleryEntryWidget> newEntries = new ArrayList<>();
-		//newEntries.add(new DefaultPanoramaEntryWidget(onDefaultClicked));
 		for (Panorama panorama : panoramas) {
 			newEntries.add(new PanoramaEntryWidget(panorama, onThumbnailClicked));
 		}

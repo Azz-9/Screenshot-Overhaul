@@ -1,5 +1,8 @@
 package me.Azz_9.screenshot_utilities.client.screenshot;
 
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+
+import net.minecraft.SharedConstants;
 import net.minecraft.util.Util;
 
 import java.nio.file.Files;
@@ -11,6 +14,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
+
+import me.Azz_9.screenshot_utilities.compat.CompatManager;
+import me.Azz_9.screenshot_utilities.compat.IrisCompat;
 
 public final class ScreenshotFileNameParser {
 
@@ -28,6 +34,23 @@ public final class ScreenshotFileNameParser {
 		map.put("hour", () -> String.format("%02d", now.get().getHour()));
 		map.put("minute", () -> String.format("%02d", now.get().getMinute()));
 		map.put("second", () -> String.format("%02d", now.get().getSecond()));
+
+		map.put("worldname", () -> {
+			if (MINECRAFT.getSingleplayerServer() != null)
+				return MINECRAFT.getSingleplayerServer().getWorldData().getLevelName();
+			else return "";
+		});
+		map.put("serverip", () -> {
+			if (MINECRAFT.getCurrentServer() != null)
+				return MINECRAFT.getCurrentServer().ip;
+			else return "";
+		});
+		map.put("version", () -> SharedConstants.getCurrentVersion().id());
+		map.put("shader", () -> {
+			if (CompatManager.irisPresent())
+				return IrisCompat.getShaderName();
+			else return "";
+		});
 		TOKENS = Collections.unmodifiableMap(map);
 	}
 

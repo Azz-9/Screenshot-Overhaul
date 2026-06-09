@@ -19,6 +19,7 @@ import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.Colors;
+import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
 import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.gallery.ScrollableGallery;
@@ -46,7 +47,7 @@ public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWi
 	public ScreenshotGalleryWidget(int x, int y, int width, int height,
 	                               @Nullable Consumer<List<ScreenshotEntryWidget>> onEntriesChanged,
 	                               @Nullable Consumer<Screenshot> onThumbnailClicked) {
-		super(x, y, width, height, MIN_THUMB_WIDTH, MAX_THUMB_WIDTH, ASPECT_RATIO);
+		super(x, y, width, height, MIN_THUMB_WIDTH, MAX_THUMB_WIDTH, ASPECT_RATIO, Config.getInstance().screenshotSortOrder);
 		this.onEntriesChanged = onEntriesChanged;
 		this.onThumbnailClicked = onThumbnailClicked;
 

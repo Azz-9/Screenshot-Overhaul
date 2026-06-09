@@ -25,8 +25,7 @@ import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
 import me.Azz_9.screenshot_utilities.client.gui.widget.gallery.AbstractThumbnailWidget;
-import me.Azz_9.screenshot_utilities.client.screenshot.panorama.Panorama;
-import me.Azz_9.screenshot_utilities.client.screenshot.panorama.PanoramaHolder;
+import me.Azz_9.screenshot_utilities.client.screenshot.panorama.*;
 
 @Environment(EnvType.CLIENT)
 public class PanoramaThumbnailWidget extends AbstractThumbnailWidget implements AutoCloseable {

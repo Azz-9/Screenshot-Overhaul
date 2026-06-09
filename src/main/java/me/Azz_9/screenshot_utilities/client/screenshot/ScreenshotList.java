@@ -179,6 +179,7 @@ public class ScreenshotList {
 	}
 
 	// TODO check si ça marche avec les sous dossiers
+	// edit: ça marche pas :(
 	private static void startWatchService() {
 		try {
 			WatchService watcher = FileSystems.getDefault().newWatchService();

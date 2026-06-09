@@ -26,6 +26,7 @@ import java.util.*;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.config.Config;
+import me.Azz_9.screenshot_utilities.client.config.SavableObject;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.SmoothScrollableWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.TexturedCyclingButtonWidget;
@@ -46,19 +47,20 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 
 	// header
 	// search bar
-	private static final int SEARCH_BAR_HEIGHT = 20;
+	protected static final int SEARCH_BAR_HEIGHT = 20;
 	private static final int SEARCH_BAR_WIDTH = 150;
 	private final @NonNull SearchBar searchBar;
-	// sort button
-	private static final int SORT_BUTTON_SIZE = SEARCH_BAR_HEIGHT;
-	private final @NonNull TexturedCyclingButtonWidget<ScreenshotGalleryWidget.SortMode> sortButton;
-	// open screenshot folder button
-	private static final int OPEN_FOLDER_BUTTON_SIZE = SEARCH_BAR_HEIGHT;
-	private final @NonNull SpriteIconButton openFolderButton;
 	// filter
 	private static final int FILTER_BUTTON_WIDTH = 100;
 	private static final int FILTER_BUTTON_HEIGHT = SEARCH_BAR_HEIGHT;
 	private final @NonNull CycleButton<ScreenshotGalleryWidget.FilterMode> filterButton;
+	// sort button
+	private static final int SORT_BUTTON_SIZE = SEARCH_BAR_HEIGHT;
+	private final @NonNull TexturedCyclingButtonWidget<ScreenshotGalleryWidget.SortMode> sortButton;
+	private final @NonNull SavableObject<SortMode> sortConfig;
+	// open screenshot folder button
+	protected static final int OPEN_FOLDER_BUTTON_SIZE = SEARCH_BAR_HEIGHT;
+	private final @NonNull SpriteIconButton openFolderButton;
 
 	protected static final int HEADER_HEIGHT = SEARCH_BAR_HEIGHT + PADDING * 2;
 
@@ -73,11 +75,15 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 	private final @NonNull List<T> entries = new ArrayList<>();
 	private int totalContentHeight = 0;
 
-	protected ScrollableGallery(int x, int y, int width, int height, int minThumbWidth, int maxThumbWidth, double aspectRatio) {
+	protected ScrollableGallery(int x, int y, int width, int height,
+	                            int minThumbWidth, int maxThumbWidth, double aspectRatio,
+	                            final @NonNull SavableObject<SortMode> sortConfig) {
 		super(x, y, width, height);
 		this.minThumbWidth = minThumbWidth;
 		this.maxThumbWidth = maxThumbWidth;
 		this.aspectRatio = aspectRatio;
+
+		this.sortConfig = sortConfig;
 
 		this.searchBar = createSearchBar();
 		this.filterButton = createFilterButton();
@@ -125,7 +131,7 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 		TexturedCyclingButtonWidget<ScreenshotGalleryWidget.SortMode> cyclingButtonWidget = new TexturedCyclingButtonWidget<>(
 				getX() + SEARCH_BAR_WIDTH + FILTER_BUTTON_WIDTH + PADDING * 3, getY() + PADDING,
 				SORT_BUTTON_SIZE, SORT_BUTTON_SIZE,
-				Config.getInstance().sortOrder.getValue().ordinal(),
+				sortConfig.getValue().ordinal(),
 				(btn, sortMode) -> {
 					sortEntries(sortMode);
 					layoutEntries();

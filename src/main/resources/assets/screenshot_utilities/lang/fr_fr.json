@@ -22,6 +22,8 @@
 	"screenshot_utilities.gallery_widget.sort_mode.date_desc": "Les plus récents",
 	"screenshot_utilities.gallery_widget.open_screenshot_folder": "Ouvrir le dossier des captures d'écran",
 
+	"screenshot_utilities.panorama_gallery.reset": "Panorama par défaut",
+
 	"screenshot_utilities.int_field.increment": "Incrémenter",
 	"screenshot_utilities.int_field.decrement": "Décrémenter",
 
@@ -68,6 +70,11 @@
 	"screenshot_utilities.settings.default_file_dialog_title.files_only": "Choisir un fichier",
 	"screenshot_utilities.settings.default_file_dialog_title.directories_only": "Choisir un dossier",
 
+	"screenshot_utilities.config.category.general": "Général",
+	"screenshot_utilities.config.category.screenshot": "Capture d'écran",
+	"screenshot_utilities.config.category.panorama": "Panorama",
+	"screenshot_utilities.config.category.photo_mode": "Mode photo",
+
 	"screenshot_utilities.config.enable_whole_mod": "Activer le mod",
 	"screenshot_utilities.config.freeze_in_photo_mode": "Figer le monde en mode photo",
 	"screenshot_utilities.config.show_player": "Afficher le joueur",
@@ -77,6 +84,15 @@
 	"screenshot_utilities.config.screenshots_dir.file_dialog_title": "Sélectionner le dossier des captures d'écran",
 	"screenshot_utilities.config.screenshots_file_name": "Nom de fichier des captures d'écran",
 	"screenshot_utilities.config.screenshots_file_name.invalid": "Nom de fichier invalide",
-	"screenshot_utilities.config.screenshots_file_name.tooltip": "<datetime>, <year>, <month>, <day>, <hour>, <minute>, <second>",
-	"screenshot_utilities.config.show_chat_message": "Afficher le message dans le tchat"
+	"screenshot_utilities.config.screenshots_file_name.tooltip": "<datetime>, <year>, <month>, <day>, <hour>, <minute>, <second>, <worldname>, <serverip>, <version>, <shader>",
+	"screenshot_utilities.config.show_chat_message": "Afficher le message dans le tchat",
+	"screenshot_utilities.config.hide_chat_on_screenshot": "Cacher le tchat sur les captures d'écran",
+	"screenshot_utilities.config.hide_hud_on_screenshot": "Cacher le hud sur les captures d'écran",
+	"screenshot_utilities.config.grab_on_advancement": "",
+	"screenshot_utilities.config.rotation_speed": "Vitesse de rotation",
+	"screenshot_utilities.config.rotation_direction": "Sens de rotation",
+	"screenshot_utilities.config.rotation_direction.to_left": "Vers la gauche",
+	"screenshot_utilities.config.rotation_direction.to_right": "Vers la droite",
+	"screenshot_utilities.config.vertical_angle": "Angle vertical",
+	"screenshot_utilities.config.starting_horizontal_angle": "Angle horizontal initial"
 }

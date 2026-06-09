@@ -7,6 +7,7 @@ import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.PackResources;
+import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.world.level.biome.Biome;
 
 import org.jspecify.annotations.NonNull;
@@ -202,6 +203,7 @@ public class ScreenshotMetadataUtils {
 			shader = IrisCompat.getShaderName();
 		}
 
+		// TODO check la liste de resources pack pour voir si les noms sont carrés
 		return new ScreenshotMetadata(
 				(long) Math.floor(MINECRAFT.player.getX()),
 				(long) Math.floor(MINECRAFT.player.getY()),
@@ -212,7 +214,7 @@ public class ScreenshotMetadataUtils {
 				worldName,
 				serverIp,
 				SharedConstants.getCurrentVersion().id(),
-				MINECRAFT.getResourceManager().listPacks().map(PackResources::packId).toList(),
+				MINECRAFT.getResourcePackRepository().getSelectedPacks().stream().map(Pack::getId).toList(),
 				shader,
 				System.currentTimeMillis(),
 				new ArrayList<>(),

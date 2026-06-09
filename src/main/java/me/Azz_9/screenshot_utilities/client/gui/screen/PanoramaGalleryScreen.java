@@ -35,7 +35,7 @@ public class PanoramaGalleryScreen extends AbstractSavableScreen implements Focu
 		return new PanoramaGalleryWidget(
 				GLOBAL_PADDING, GLOBAL_PADDING,
 				width - GLOBAL_PADDING * 2, getBottomBarTop() - GLOBAL_PADDING,
-				PanoramaHolder::usePanoramaAsync, PanoramaHolder::resetToDefault
+				PanoramaHolder::usePanoramaAsync, PanoramaHolder::resetToDefaultAsync
 		);
 	}
 

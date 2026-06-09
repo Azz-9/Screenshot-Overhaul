@@ -27,7 +27,7 @@ public class PanoramaHolder {
 	private static final AtomicReference<Thread> currentTask = new AtomicReference<>(null);
 	private static volatile Panorama currentPanorama = null;
 
-	public static void resetToDefault() {
+	public static void resetToDefaultAsync() {
 		Thread previous = currentTask.getAndSet(null);
 		if (previous != null) previous.interrupt();
 		if (currentPanorama == null) return;

@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotRenderState;
 
 @Environment(EnvType.CLIENT)
 @Mixin(GameRenderer.class)
@@ -40,5 +41,22 @@ public abstract class GameRendererMixin {
 		if (roll != 0.0f) {
 			projectionMatrix.rotateZ(roll * Mth.DEG_TO_RAD);
 		}
+	}
+
+	@Inject(method = "render", at = @At("TAIL"))
+	private void afterRender(DeltaTracker deltaTracker, boolean advanceGameTime, CallbackInfo ci) {
+		if (!ScreenshotRenderState.captureRequested) return;
+
+		// Reset immédiatement pour ne pas affecter les frames suivantes
+		ScreenshotRenderState.captureRequested = false;
+		ScreenshotRenderState.suppressHud = false;
+		ScreenshotRenderState.suppressChat = false;
+
+		Runnable grabber = ScreenshotRenderState.pendingCapture;
+		ScreenshotRenderState.pendingCapture = null;
+
+		if (grabber == null) return;
+
+		grabber.run();
 	}
 }
