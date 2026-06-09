@@ -10,6 +10,7 @@
 		"AbstractWidgetAccessor",
 		"AWTHackMixin",
 		"CameraMixin",
+		"ClientAdvancementsMixin",
 		"ClientPacketListenerMixin",
 		"ClientWorldMixin",
 		"GameOptionsMixin",

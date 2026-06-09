@@ -11,6 +11,7 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.util.Mth;
 
+import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -203,7 +204,12 @@ public abstract class SmoothScrollableWidget extends SimpleParentWidget {
 		int thumbColor = draggingScrollbar ? Colors.WHITE : Colors.GRAY;
 
 		graphics.fill(sb.trackX(), area.top(), sb.trackX() + SCROLLBAR_WIDTH, area.bottom(), trackColor);
-		graphics.fill(sb.trackX(), sb.thumbTop(), sb.trackX() + SCROLLBAR_WIDTH, sb.thumbTop() + sb.thumbHeight(), thumbColor);
+
+		Matrix3x2fStack matrices = graphics.pose();
+		matrices.pushMatrix();
+		matrices.translate(0, sb.thumbTop());
+		graphics.fill(sb.trackX(), 0, sb.trackX() + SCROLLBAR_WIDTH, sb.thumbHeight(), thumbColor);
+		matrices.popMatrix();
 
 		if (sb.containsTrack(mouseX, mouseY)) {
 			graphics.requestCursor(draggingScrollbar ? CursorTypes.RESIZE_NS : CursorTypes.POINTING_HAND);
@@ -220,13 +226,13 @@ public abstract class SmoothScrollableWidget extends SimpleParentWidget {
 		double ratio = (double) areaHeight / getTotalScrollableHeight();
 		int thumbH = Math.max(MIN_SCROLLBAR_HEIGHT, (int) (areaHeight * ratio));
 		double max = maxScroll();
-		int thumbTop = area.top() + (max > 0 ? (int) ((areaHeight - thumbH) * (scrollOffset / max)) : 0);
+		float thumbTop = area.top() + (max > 0 ? (float) ((areaHeight - thumbH) * (scrollOffset / max)) : 0);
 		int trackX = area.right() - SCROLLBAR_WIDTH - SCROLLBAR_PADDING;
 		int trackY = area.top();
 		return new ScrollbarGeometry(trackX, trackY, areaHeight, thumbTop, thumbH);
 	}
 
-	private record ScrollbarGeometry(int trackX, int trackY, int trackHeight, int thumbTop, int thumbHeight) {
+	private record ScrollbarGeometry(int trackX, int trackY, int trackHeight, float thumbTop, int thumbHeight) {
 		boolean containsThumb(double x, double y) {
 			return x >= trackX && x < trackX + SCROLLBAR_WIDTH && y >= thumbTop && y < thumbTop + thumbHeight;
 		}

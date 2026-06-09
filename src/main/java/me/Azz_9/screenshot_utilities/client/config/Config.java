@@ -37,6 +37,7 @@ public class Config {
 	public final @NonNull ConfigObject<Boolean> hideChatOnScreenshot = new ConfigObject<>(false, "screenshot_utilities.config.hide_chat_on_screenshot");
 	public final @NonNull ConfigObject<Boolean> hideHudOnScreenshot = new ConfigObject<>(false, "screenshot_utilities.config.hide_hud_on_screenshot");
 	public final @NonNull ConfigObject<Boolean> grabScreenshotOnAdvancement = new ConfigObject<>(false, "screenshot_utilities.config.grab_on_advancement");
+	public final @NonNull ConfigObject<Integer> advancementScreenshotDelay = new ConfigObject<>(20, "screenshot_utilities.config.advancement_screenshot_delay");
 
 	// TODO peut être faire en sorte que cette option soit juste un raccourci pour minecraft.gameRenderer.getGameRenderState().optionsRenderState.panoramaSpeed qui est déjà une option de base du jeu
 	public final @NonNull ConfigObject<Integer> rotationSpeed = new ConfigObject<>(10, "screenshot_utilities.config.rotation_speed");

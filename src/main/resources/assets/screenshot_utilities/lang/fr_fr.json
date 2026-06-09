@@ -89,6 +89,7 @@
 	"screenshot_utilities.config.hide_chat_on_screenshot": "Cacher le tchat sur les captures d'écran",
 	"screenshot_utilities.config.hide_hud_on_screenshot": "Cacher le hud sur les captures d'écran",
 	"screenshot_utilities.config.grab_on_advancement": "",
+	"screenshot_utilities.config.advancement_screenshot_delay": "",
 	"screenshot_utilities.config.rotation_speed": "Vitesse de rotation",
 	"screenshot_utilities.config.rotation_direction": "Sens de rotation",
 	"screenshot_utilities.config.rotation_direction.to_left": "Vers la gauche",

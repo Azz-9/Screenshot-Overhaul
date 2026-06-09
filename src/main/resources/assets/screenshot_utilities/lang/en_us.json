@@ -89,6 +89,7 @@
 	"screenshot_utilities.config.hide_chat_on_screenshot": "Hide chat on screenshot",
 	"screenshot_utilities.config.hide_hud_on_screenshot": "Hide hud on screenshot",
 	"screenshot_utilities.config.grab_on_advancement": "Grab screenshot on advancement",
+	"screenshot_utilities.config.advancement_screenshot_delay": "Advancement screenshot delay",
 	"screenshot_utilities.config.rotation_speed": "Rotation speed",
 	"screenshot_utilities.config.rotation_direction": "Rotation direction",
 	"screenshot_utilities.config.rotation_direction.to_left": "To the left",

@@ -16,6 +16,10 @@ import net.minecraft.resources.Identifier;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoModeHud;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotList;
@@ -31,6 +35,8 @@ public class Screenshot_utilitiesClient implements ClientModInitializer {
 	private static KeyMapping rollLeft;
 	private static KeyMapping rollRight;
 	private static KeyMapping panoramaScreenshot;
+
+	private static final List<RunnableState> runnableStates = new ArrayList<>();
 
 	public static @NonNull KeyMapping getOpenPhotoModeKeybind() {
 		return openPhotoMode;
@@ -56,6 +62,15 @@ public class Screenshot_utilitiesClient implements ClientModInitializer {
 
 		ClientTickEvents.START_CLIENT_TICK.register(_ -> {
 			PhotoMode.startTick();
+
+			Iterator<RunnableState> iterator = runnableStates.iterator();
+			while (iterator.hasNext()) {
+				RunnableState runnableState = iterator.next();
+				runnableState.tick();
+				if (runnableState.runIfEndOfCooldown()) {
+					iterator.remove();
+				}
+			}
 		});
 
 		KeyMapping.Category keybind_category = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "screenshot-utilities"));
@@ -99,5 +114,34 @@ public class Screenshot_utilitiesClient implements ClientModInitializer {
 
 		// hide hud in PhotoMode
 		return PhotoMode.isEnabled();
+	}
+
+	public static void runLater(Runnable runnable, int delayTicks) {
+		MINECRAFT.execute(() -> runnableStates.add(new RunnableState(runnable, delayTicks)));
+	}
+
+	private static class RunnableState {
+		private final @NonNull Runnable runnable;
+		private int cooldownTicks;
+
+		private RunnableState(final @NonNull Runnable runnable, int delayTicks) {
+			this.runnable = runnable;
+			this.cooldownTicks = delayTicks;
+		}
+
+		private void tick() {
+			if (cooldownTicks > 0) {
+				cooldownTicks--;
+			}
+		}
+
+		private boolean runIfEndOfCooldown() {
+			if (cooldownTicks <= 0) {
+				runnable.run();
+				return true;
+			}
+
+			return false;
+		}
 	}
 }

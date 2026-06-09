@@ -33,7 +33,7 @@ public class PanoramaGalleryWidget extends ScrollableGallery<AbstractGalleryEntr
 
 	// reset to default button
 	private static final int RESET_BUTTON_HEIGHT = SEARCH_BAR_HEIGHT;
-	private static final int RESET_BUTTON_WIDTH = 60;
+	private static final int RESET_BUTTON_WIDTH = 120;
 
 	private final @Nullable Consumer<Panorama> onThumbnailClicked;
 	private final @Nullable Runnable onResetToDefault;
