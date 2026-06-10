@@ -39,6 +39,7 @@ public abstract class GuiMixin {
 	@Inject(method = "extractChat", at = @At("HEAD"), cancellable = true)
 	private void onRenderChat(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
 		if (ScreenshotRenderState.suppressChat) {
+			System.out.println("canceled");
 			ci.cancel();
 		}
 	}

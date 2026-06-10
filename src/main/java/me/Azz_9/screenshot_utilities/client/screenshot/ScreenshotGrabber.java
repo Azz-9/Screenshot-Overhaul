@@ -90,7 +90,7 @@ public class ScreenshotGrabber {
 	}
 
 	public static void requestGrab(File picDir, final @Nullable String forceName, final RenderTarget target, final int downscaleFactor, final Consumer<Component> callback) {
-		if (Config.getInstance().hideChatOnScreenshot.getValue() || Config.getInstance().hideHudOnScreenshot.getValue()) {
+		if (!Config.getInstance().hideChatOnScreenshot.getValue() && !Config.getInstance().hideHudOnScreenshot.getValue()) {
 			grab(picDir, forceName, target, downscaleFactor, callback);
 			return;
 		}
