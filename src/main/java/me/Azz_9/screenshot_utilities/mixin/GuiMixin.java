@@ -27,11 +27,7 @@ public abstract class GuiMixin {
 	// On hud render
 	@Inject(method = "extractRenderState", at = @At("HEAD"), cancellable = true)
 	private void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-		if (ScreenshotRenderState.suppressHud) {
-			ci.cancel();
-			return;
-		}
-		if (Screenshot_utilitiesClient.hudRenderHook(graphics, deltaTracker)) {
+		if (ScreenshotRenderState.suppressHud || Screenshot_utilitiesClient.hudRenderHook(graphics, deltaTracker)) {
 			ci.cancel();
 		}
 	}
@@ -39,7 +35,6 @@ public abstract class GuiMixin {
 	@Inject(method = "extractChat", at = @At("HEAD"), cancellable = true)
 	private void onRenderChat(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
 		if (ScreenshotRenderState.suppressChat) {
-			System.out.println("canceled");
 			ci.cancel();
 		}
 	}

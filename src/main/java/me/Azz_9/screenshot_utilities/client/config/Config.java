@@ -20,35 +20,36 @@ import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotFileNameParser;
 import me.Azz_9.screenshot_utilities.client.screenshot.panorama.Panorama;
 import me.Azz_9.screenshot_utilities.compat.CompatManager;
 
-public class Config {
+public final class Config {
 	private static final @NonNull Config INSTANCE = new Config();
 
-	public final @NonNull ConfigObject<Boolean> enableWholeMod = new ConfigObject<>(true, "screenshot_utilities.config.enable_whole_mod");
+	public final @NonNull ConfigObject<Boolean> enableWholeMod = new ConfigObject<>(true, "screenshot_utilities.config.enable_whole_mod", Boolean.class);
 
-	public final @NonNull ConfigObject<Boolean> freezeInPhotoMode = new ConfigObject<>(true, "screenshot_utilities.config.freeze_in_photo_mode");
-	public final @NonNull ConfigObject<Boolean> showPlayer = new ConfigObject<>(true, "screenshot_utilities.config.show_player");
-	public final @NonNull ConfigObject<Boolean> showNametags = new ConfigObject<>(true, "screenshot_utilities.config.show_nametags");
+	public final @NonNull ConfigObject<Boolean> freezeInPhotoMode = new ConfigObject<>(true, "screenshot_utilities.config.freeze_in_photo_mode", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> showPlayer = new ConfigObject<>(true, "screenshot_utilities.config.show_player", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> showNametags = new ConfigObject<>(true, "screenshot_utilities.config.show_nametags", Boolean.class);
 
-	public final @NonNull ConfigObject<Boolean> showScreenshotsOnXaerosWorldMap = new ConfigObject<>(true, "screenshot_utilities.config.show_screenshots_on_xaeros_world_map");
+	public final @NonNull ConfigObject<Boolean> showScreenshotsOnXaerosWorldMap = new ConfigObject<>(true, "screenshot_utilities.config.show_screenshots_on_xaeros_world_map", Boolean.class);
 
-	public final @NonNull ConfigObject<Path> screenshotsDir = new ConfigObject<>(Path.of("screenshots"), "screenshot_utilities.config.screenshots_dir");
-	public final @NonNull ConfigObject<String> screenshotsFileName = new ConfigObject<>("<datetime>", "screenshot_utilities.config.screenshots_file_name");
-	public final @NonNull ConfigObject<Boolean> showChatMessage = new ConfigObject<>(true, "screenshot_utilities.config.show_chat_message");
-	public final @NonNull ConfigObject<Boolean> hideChatOnScreenshot = new ConfigObject<>(false, "screenshot_utilities.config.hide_chat_on_screenshot");
-	public final @NonNull ConfigObject<Boolean> hideHudOnScreenshot = new ConfigObject<>(false, "screenshot_utilities.config.hide_hud_on_screenshot");
-	public final @NonNull ConfigObject<Boolean> grabScreenshotOnAdvancement = new ConfigObject<>(false, "screenshot_utilities.config.grab_on_advancement");
-	public final @NonNull ConfigObject<Integer> advancementScreenshotDelay = new ConfigObject<>(20, "screenshot_utilities.config.advancement_screenshot_delay");
+	public final @NonNull ConfigObject<Path> screenshotsDir = new ConfigObject<>(Path.of("screenshots"), "screenshot_utilities.config.screenshots_dir", Path.class);
+	public final @NonNull ConfigObject<String> screenshotsFileName = new ConfigObject<>("<datetime>", "screenshot_utilities.config.screenshots_file_name", String.class);
+	public final @NonNull ConfigObject<Boolean> showChatMessage = new ConfigObject<>(true, "screenshot_utilities.config.show_chat_message", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> hideChatOnScreenshot = new ConfigObject<>(false, "screenshot_utilities.config.hide_chat_on_screenshot", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> hideHudOnScreenshot = new ConfigObject<>(false, "screenshot_utilities.config.hide_hud_on_screenshot", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> hideHandOnScreenshot = new ConfigObject<>(false, "screenshot_utilities.config.hide_hand_on_screenshot", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> grabScreenshotOnAdvancement = new ConfigObject<>(false, "screenshot_utilities.config.grab_on_advancement", Boolean.class);
+	public final @NonNull ConfigObject<Integer> advancementScreenshotDelay = new ConfigObject<>(20, "screenshot_utilities.config.advancement_screenshot_delay", Integer.class);
 
 	// TODO peut être faire en sorte que cette option soit juste un raccourci pour minecraft.gameRenderer.getGameRenderState().optionsRenderState.panoramaSpeed qui est déjà une option de base du jeu
-	public final @NonNull ConfigObject<Integer> rotationSpeed = new ConfigObject<>(10, "screenshot_utilities.config.rotation_speed");
-	public final @NonNull ConfigObject<RotationDirection> rotationDirection = new ConfigObject<>(RotationDirection.TO_LEFT, "screenshot_utilities.config.rotation_direction");
-	public final @NonNull ConfigObject<Integer> verticalAngle = new ConfigObject<>(10, "screenshot_utilities.config.vertical_angle");
-	public final @NonNull ConfigObject<Integer> startingHorizontalAngle = new ConfigObject<>(0, "screenshot_utilities.config.starting_horizontal_angle");
+	public final @NonNull ConfigObject<Integer> rotationSpeed = new ConfigObject<>(10, "screenshot_utilities.config.rotation_speed", Integer.class);
+	public final @NonNull ConfigObject<RotationDirection> rotationDirection = new ConfigObject<>(RotationDirection.TO_LEFT, "screenshot_utilities.config.rotation_direction", RotationDirection.class);
+	public final @NonNull ConfigObject<Integer> verticalAngle = new ConfigObject<>(10, "screenshot_utilities.config.vertical_angle", Integer.class);
+	public final @NonNull ConfigObject<Integer> startingHorizontalAngle = new ConfigObject<>(0, "screenshot_utilities.config.starting_horizontal_angle", Integer.class);
 
-	public final @NonNull SavableObject<ScrollableGallery.SortMode> screenshotSortOrder = new SavableObject<>(ScrollableGallery.SortMode.DATE_DESC);
-	public final @NonNull SavableObject<ScrollableGallery.SortMode> panoramaSortOrder = new SavableObject<>(ScrollableGallery.SortMode.DATE_DESC);
+	public final @NonNull SavableObject<ScrollableGallery.SortMode> screenshotSortOrder = SavableObject.nonNull(ScrollableGallery.SortMode.DATE_DESC, ScrollableGallery.SortMode.class);
+	public final @NonNull SavableObject<ScrollableGallery.SortMode> panoramaSortOrder = SavableObject.nonNull(ScrollableGallery.SortMode.DATE_DESC, ScrollableGallery.SortMode.class);
 
-	public final @NonNull NullableSavableObject<Panorama> selectedPanorama = new NullableSavableObject<>(null);
+	public final @NonNull SavableObject<Panorama> selectedPanorama = SavableObject.nullable(null, Panorama.class);
 
 	public static @NonNull Config getInstance() {
 		return INSTANCE;
@@ -84,25 +85,29 @@ public class Config {
 		screen.addConfigTab(Component.translatable("screenshot_utilities.config.category.general"), generalContent);
 
 		// Screenshot
-		PathConfigOption screenshotsDir = PathConfigOption.builder(Config.getInstance().screenshotsDir).build();
 		StringConfigOption screenshotsFileName = StringConfigOption.builder(Config.getInstance().screenshotsFileName)
 				.maxLength(64)
 				.tooltip(Component.translatable("screenshot_utilities.config.screenshots_file_name.tooltip"))
 				.validate(ScreenshotFileNameParser::validate, Component.translatable("screenshot_utilities.config.screenshots_file_name.invalid"))
+				.build();
+		PathConfigOption screenshotsDir = PathConfigOption.builder(Config.getInstance().screenshotsDir)
+				.selectionMode(PathConfigOption.SelectionMode.DIRECTORIES_ONLY)
 				.build();
 		BooleanConfigOption showChatMessage = BooleanConfigOption.builder(Config.getInstance().showChatMessage).build();
 		BooleanConfigOption hideHudOnScreenshot = BooleanConfigOption.builder(Config.getInstance().hideHudOnScreenshot).build();
 		BooleanConfigOption hideChatOnScreenshot = BooleanConfigOption.builder(Config.getInstance().hideChatOnScreenshot)
 				.dependsOn(() -> !hideHudOnScreenshot.getWorkingValue())
 				.build();
+		BooleanConfigOption hideHandOnScreenshot = BooleanConfigOption.builder(Config.getInstance().hideHandOnScreenshot).build();
 		BooleanConfigOption grabScreenshotOnAdvancement = BooleanConfigOption.builder(Config.getInstance().grabScreenshotOnAdvancement).build();
 
 		ConfigTabContent screenshotContent = ConfigTabContent.builder()
-				.option(screenshotsDir)
 				.option(screenshotsFileName)
+				.option(screenshotsDir)
 				.option(showChatMessage)
 				.option(hideHudOnScreenshot)
 				.option(hideChatOnScreenshot)
+				.option(hideHandOnScreenshot)
 				.option(grabScreenshotOnAdvancement)
 				.build();
 

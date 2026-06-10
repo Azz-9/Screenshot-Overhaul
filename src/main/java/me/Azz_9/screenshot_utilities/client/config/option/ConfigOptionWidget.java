@@ -70,6 +70,8 @@ public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 	private AbstractWidget controlWidget;
 	private Button resetButton;
 
+	private GuiEventListener activeWidget;
+
 	/**
 	 * Cached last-known validation result so we don't validate every frame.
 	 */
@@ -171,24 +173,41 @@ public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 	@Override
 	public boolean mouseClicked(@NonNull MouseButtonEvent event, boolean doubleClick) {
 		if (!option.isDependencySatisfied()) return false;
+
 		if (controlWidget.mouseClicked(event, doubleClick)) {
+			activeWidget = controlWidget;
 			onFocusRequested.accept(controlWidget);
 			return true;
 		}
-		return resetButton.mouseClicked(event, doubleClick);
+
+		if (resetButton.mouseClicked(event, doubleClick)) {
+			activeWidget = resetButton;
+			return true;
+		}
+
+		activeWidget = null;
+		return false;
 	}
 
 	@Override
 	public boolean mouseDragged(@NonNull MouseButtonEvent event, double dx, double dy) {
 		if (!option.isDependencySatisfied()) return false;
-		return controlWidget.mouseDragged(event, dx, dy);
+		return activeWidget instanceof AbstractWidget widget
+				&& widget.mouseDragged(event, dx, dy);
 	}
 
 	@Override
 	public boolean mouseReleased(@NonNull MouseButtonEvent event) {
 		if (!option.isDependencySatisfied()) return false;
-		return controlWidget.mouseReleased(event)
-				|| resetButton.mouseReleased(event);
+		boolean handled = false;
+
+		if (activeWidget instanceof AbstractWidget widget) {
+			handled = widget.mouseReleased(event);
+		}
+
+		activeWidget = null;
+
+		return handled;
 	}
 
 	@Override

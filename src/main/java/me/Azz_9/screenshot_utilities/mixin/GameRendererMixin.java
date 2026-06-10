@@ -24,7 +24,7 @@ public abstract class GameRendererMixin {
 	// Hide hand in PhotoMode
 	@Inject(method = "renderItemInHand", at = @At("HEAD"), cancellable = true)
 	private void onRenderHand(CallbackInfo ci) {
-		if (PhotoMode.isEnabled()) {
+		if (PhotoMode.isEnabled() || ScreenshotRenderState.suppressHand) {
 			ci.cancel();
 		}
 	}
@@ -48,12 +48,7 @@ public abstract class GameRendererMixin {
 		if (!ScreenshotRenderState.captureRequested) return;
 
 		// Reset immédiatement pour ne pas affecter les frames suivantes
-		ScreenshotRenderState.captureRequested = false;
-		ScreenshotRenderState.suppressHud = false;
-		ScreenshotRenderState.suppressChat = false;
-
-		Runnable grabber = ScreenshotRenderState.pendingCapture;
-		ScreenshotRenderState.pendingCapture = null;
+		Runnable grabber = ScreenshotRenderState.reset();
 
 		if (grabber == null) return;
 

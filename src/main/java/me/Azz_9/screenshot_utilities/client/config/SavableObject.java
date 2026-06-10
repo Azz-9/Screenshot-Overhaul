@@ -1,25 +1,46 @@
 package me.Azz_9.screenshot_utilities.client.config;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public class SavableObject<T> {
-	private final @NonNull T defaultValue;
-	private @NonNull T value;
+	private final T defaultValue;
+	private T value;
+	private final Class<T> valueType;
 
-	public SavableObject(@NonNull final T defaultValue) {
+	protected SavableObject(final T defaultValue, Class<T> valueType) {
 		this.value = defaultValue;
 		this.defaultValue = defaultValue;
+		this.valueType = valueType;
 	}
 
-	public @NonNull T getValue() {
+	/**
+	 * Use when T is guaranteed non-null
+	 */
+	public static <T> SavableObject<@NonNull T> nonNull(@NonNull T defaultValue, Class<T> valueType) {
+		return new SavableObject<>(defaultValue, valueType);
+	}
+
+	/**
+	 * Use when T may be null
+	 */
+	public static <T> SavableObject<@Nullable T> nullable(@Nullable T defaultValue, Class<T> valueType) {
+		return new SavableObject<>(defaultValue, valueType);
+	}
+
+	public Class<T> getValueType() {
+		return valueType;
+	}
+
+	public T getValue() {
 		return value;
 	}
 
-	public void setValue(@NonNull T value) {
+	public void setValue(T value) {
 		this.value = value;
 	}
 
-	public @NonNull T getDefaultValue() {
+	public T getDefaultValue() {
 		return defaultValue;
 	}
 

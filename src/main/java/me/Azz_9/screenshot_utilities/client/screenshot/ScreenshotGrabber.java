@@ -97,6 +97,7 @@ public class ScreenshotGrabber {
 
 		ScreenshotRenderState.suppressHud = Config.getInstance().hideHudOnScreenshot.getValue();
 		ScreenshotRenderState.suppressChat = !Config.getInstance().hideHudOnScreenshot.getValue() && Config.getInstance().hideChatOnScreenshot.getValue();
+		ScreenshotRenderState.suppressHand = Config.getInstance().hideHandOnScreenshot.getValue();
 		ScreenshotRenderState.captureRequested = true;
 		ScreenshotRenderState.pendingCapture = () -> grab(picDir, forceName, target, downscaleFactor, callback);
 	}

@@ -5,8 +5,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.NonNull;
@@ -43,25 +41,7 @@ public final class IntSliderConfigOptionWidget extends ConfigOptionWidget<Intege
 
 	@Override
 	protected void onValueReset() {
-		int min = sliderOption.getMin();
-		int max = sliderOption.getMax();
-		double norm = (double) (option.getWorkingValue() - min) / (max - min);
-		// Re-create is cleaner than reflection to set protected `value`
-		// We keep a reference and trigger via applyValue path — just rebuild.
-		repositionSlider(slider.getX(), slider.getY(), slider.getWidth());
-	}
-
-	private void repositionSlider(int x, int y, int width) {
-		// The slider stores its normalized value as a protected field; we rebuild it
-		// to avoid reflection. The list widget will re-add it on next layout pass
-		// via repositionSubWidgets calling setX/setY, so this is fine.
-		int min = sliderOption.getMin();
-		int max = sliderOption.getMax();
-		double norm = (double) (option.getWorkingValue() - min) / (max - min);
-		slider.setX(x);
-		slider.setY(y);
-		// Force value update via the message/value system
-		slider.onClick(new MouseButtonEvent(0, 0, new MouseButtonInfo(0, 0)), false); // harmless no-op to refresh display
+		slider.setIntValue(option.getWorkingValue());
 	}
 
 	private class SliderButton extends AbstractSliderButton {
@@ -84,6 +64,11 @@ public final class IntSliderConfigOptionWidget extends ConfigOptionWidget<Intege
 		protected void applyValue() {
 			option.setWorkingValue(getIntValue());
 			refreshValidation();
+		}
+
+		public void setIntValue(int value) {
+			this.value = (double) (value - MIN) / (MAX - MIN);
+			updateMessage();
 		}
 
 		private int getIntValue() {

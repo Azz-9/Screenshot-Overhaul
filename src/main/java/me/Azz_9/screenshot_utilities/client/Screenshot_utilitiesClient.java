@@ -16,10 +16,13 @@ import net.minecraft.resources.Identifier;
 
 import org.jspecify.annotations.NonNull;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import me.Azz_9.screenshot_utilities.ScreenshotLogger;
+import me.Azz_9.screenshot_utilities.client.config.ConfigLoader;
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoModeHud;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotList;
@@ -56,6 +59,12 @@ public class Screenshot_utilitiesClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+		try {
+			ConfigLoader.load();
+		} catch (IOException e) {
+			ScreenshotLogger.error("Failed to load config file.", e.getMessage());
+		}
+
 		// load screenshots
 		ScreenshotList.loadAsync();
 		ScreenshotManager.load();
