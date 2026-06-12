@@ -12,19 +12,21 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.Colors;
 import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
 import me.Azz_9.screenshot_utilities.client.gui.screen.PanoramaGalleryScreen;
-import me.Azz_9.screenshot_utilities.client.gui.widget.gallery.AbstractGalleryEntryWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.gallery.ScrollableGallery;
 import me.Azz_9.screenshot_utilities.client.gui.widget.panoramaGallery.content.PanoramaEntryWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotList;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
 import me.Azz_9.screenshot_utilities.client.screenshot.panorama.Panorama;
 
-public class PanoramaGalleryWidget extends ScrollableGallery<AbstractGalleryEntryWidget> {
+public class PanoramaGalleryWidget extends ScrollableGallery<PanoramaEntryWidget> {
 
 	// thumbnail
 	public static final int MIN_THUMB_WIDTH = 170;
@@ -37,6 +39,8 @@ public class PanoramaGalleryWidget extends ScrollableGallery<AbstractGalleryEntr
 
 	private final @Nullable Consumer<Panorama> onThumbnailClicked;
 	private final @Nullable Runnable onResetToDefault;
+
+	private final AtomicBoolean refreshing = new AtomicBoolean(false);
 
 	public PanoramaGalleryWidget(int x, int y, int width, int height, @Nullable Consumer<Panorama> onThumbnailClicked, @Nullable Runnable onResetToDefault) {
 		super(x, y, width, height, MIN_THUMB_WIDTH, MAX_THUMB_WIDTH, ASPECT_RATIO, Config.getInstance().panoramaSortOrder);
@@ -70,11 +74,37 @@ public class PanoramaGalleryWidget extends ScrollableGallery<AbstractGalleryEntr
 	}
 
 	private void buildEntries(@NonNull List<Panorama> panoramas) {
-		List<AbstractGalleryEntryWidget> newEntries = new ArrayList<>();
+		List<PanoramaEntryWidget> newEntries = new ArrayList<>();
 		for (Panorama panorama : panoramas) {
 			newEntries.add(new PanoramaEntryWidget(panorama, onThumbnailClicked));
 		}
 		setEntries(newEntries);
+	}
+
+	// refresh
+
+	public void refresh(final boolean clearCache, final @Nullable Runnable onRefreshComplete) {
+		if (!refreshing.compareAndSet(false, true)) return;
+
+		ScreenshotLogger.info("Refreshing panorama gallery entries");
+		if (clearCache) ScreenshotTextureCache.clear();
+
+		ScreenshotList.reloadAsync();
+
+		ScreenshotList.whenPanoramasLoaded(panoramas -> {
+			buildEntries(panoramas);
+			searchAndFilter(getSearchBar().getValue(), getFilterButton().getValue());
+			sortEntries(getSortButton().getValue());
+			layoutEntries();
+
+			if (onRefreshComplete != null) onRefreshComplete.run();
+
+			refreshing.set(false);
+		});
+	}
+
+	public void refresh(final boolean clearCache) {
+		refresh(clearCache, null);
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import org.jspecify.annotations.Nullable;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.panoramaGallery.PanoramaGalleryWidget;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotList;
 import me.Azz_9.screenshot_utilities.client.screenshot.panorama.PanoramaHolder;
 
 public class PanoramaGalleryScreen extends AbstractSavableScreen implements FocusableScreen {
@@ -29,6 +30,8 @@ public class PanoramaGalleryScreen extends AbstractSavableScreen implements Focu
 		gallery = createGallery();
 
 		addRenderableWidget(gallery);
+
+		ScreenshotList.setOnChangeListener(_ -> gallery.refresh(false));
 	}
 
 	private PanoramaGalleryWidget createGallery() {
