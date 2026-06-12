@@ -30,6 +30,7 @@ public final class Config {
 	public final @NonNull ConfigObject<Boolean> showNametags = new ConfigObject<>(true, "screenshot_utilities.config.show_nametags", Boolean.class);
 
 	public final @NonNull ConfigObject<Boolean> showScreenshotsOnXaerosWorldMap = new ConfigObject<>(true, "screenshot_utilities.config.show_screenshots_on_xaeros_world_map", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> showScreenshotsOnJourneyMap = new ConfigObject<>(true, "screenshot_utilities.config.show_screenshots_on_journey_map", Boolean.class);
 
 	public final @NonNull ConfigObject<Path> screenshotsDir = new ConfigObject<>(Path.of("screenshots"), "screenshot_utilities.config.screenshots_dir", Path.class);
 	public final @NonNull ConfigObject<String> screenshotsFileName = new ConfigObject<>("<datetime>", "screenshot_utilities.config.screenshots_file_name", String.class);
@@ -77,9 +78,14 @@ public final class Config {
 				.dependsOn(CompatManager::xaerosWorldMapPresent)
 				.build();
 
+		BooleanConfigOption showScreenshotsOnJourneyMap = BooleanConfigOption.builder(Config.getInstance().showScreenshotsOnJourneyMap)
+				.dependsOn(CompatManager::journeyMapPresent)
+				.build();
+
 		ConfigTabContent generalContent = ConfigTabContent.builder()
 				.option(enableWholeMod)
 				.option(showScreenshotsOnXaerosWorldMap)
+				.option(showScreenshotsOnJourneyMap)
 				.build();
 
 		screen.addConfigTab(Component.translatable("screenshot_utilities.config.category.general"), generalContent);

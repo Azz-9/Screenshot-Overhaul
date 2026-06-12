@@ -84,9 +84,9 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 		ScreenshotMetadata meta = screenshot.getMetadata();
 
 		new FieldListBuilder(this)
-				.longField(meta::getX, meta::setX, "screenshot_utilities.metadata.x")
-				.longField(meta::getY, meta::setY, "screenshot_utilities.metadata.y")
-				.longField(meta::getZ, meta::setZ, "screenshot_utilities.metadata.z")
+				.intField(meta::getX, meta::setX, "screenshot_utilities.metadata.x")
+				.intField(meta::getY, meta::setY, "screenshot_utilities.metadata.y")
+				.intField(meta::getZ, meta::setZ, "screenshot_utilities.metadata.z")
 				.stringField(() -> meta.getDimension() == null ? null : meta.getDimension().toString(),
 						v -> meta.setDimension(v == null ? null : Identifier.tryParse(v)),
 						"screenshot_utilities.metadata.dimension")
@@ -205,6 +205,22 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 
 		private final @NonNull MetadataEditorPanel panel;
 		private int cursorY = 0;
+
+		@NonNull FieldListBuilder intField(
+				@NonNull Supplier<@Nullable Integer> getter,
+				@NonNull Consumer<@Nullable Integer> setter,
+				@NonNull String translationKey
+		) {
+			return addField(new NumberField<>(
+					Component.translatable(translationKey),
+					fieldX(), cursorY, fieldWidth(), LABEL_HEIGHT + FIELD_HEIGHT,
+					getter.get(),
+					v -> Integer.parseInt(v.trim()),
+					v -> true,
+					v -> v == Integer.MAX_VALUE ? v : v + 1,
+					v -> v - 1,
+					setter));
+		}
 
 		FieldListBuilder(@NonNull MetadataEditorPanel panel) {
 			this.panel = panel;

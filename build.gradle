@@ -25,8 +25,12 @@ repositories {
 		url = "https://maven.terraformersmc.com/"
 	}
 	maven {
-		url "https://chocolateminecraft.com/maven"
-		name "Xaero's Maven"
+		name = "Xaero's Maven"
+		url = "https://chocolateminecraft.com/maven"
+	}
+	maven {
+		name = "JourneyMap Maven"
+		url = 'https://maven.blamejared.com'
 	}
 }
 
@@ -48,6 +52,8 @@ dependencies {
 	} else {
 		compileOnly "xaero.map:xaeroworldmap-fabric-${project.minecraft_version}:${project.xaero_worldmap_version}"
 	}
+
+	compileOnly "info.journeymap:journeymap-api-fabric:${project.journeymap_api_version}"
 
 	implementation files("libs/iris-fabric-1.10.9+mc26.1.1.jar")
 }

@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Objects;
 
 public class ScreenshotMetadata {
-	private @Nullable Long x;
-	private @Nullable Long y;
-	private @Nullable Long z;
+	private @Nullable Integer x;
+	private @Nullable Integer y;
+	private @Nullable Integer z;
 	private @Nullable Identifier dimension;
 	private @Nullable Identifier biome;
 	private @Nullable Long seed;
@@ -26,7 +26,7 @@ public class ScreenshotMetadata {
 	private @Nullable Integer panoramaFace;
 	private @NonNull List<String> tags;
 
-	public ScreenshotMetadata(@Nullable Long x, @Nullable Long y, @Nullable Long z,
+	public ScreenshotMetadata(@Nullable Integer x, @Nullable Integer y, @Nullable Integer z,
 	                          @Nullable Identifier dimension, @Nullable Identifier biome,
 	                          @Nullable Long seed, @Nullable String worldName,
 	                          @Nullable String serverIp, @Nullable String version,
@@ -61,27 +61,27 @@ public class ScreenshotMetadata {
 				from.serverIp, from.version, from.resourcePacks, from.shader, from.timestamp, from.tags, from.panoramaId, from.panoramaFace);
 	}
 
-	public @Nullable Long getX() {
+	public @Nullable Integer getX() {
 		return x;
 	}
 
-	public void setX(@Nullable Long x) {
+	public void setX(@Nullable Integer x) {
 		this.x = x;
 	}
 
-	public @Nullable Long getY() {
+	public @Nullable Integer getY() {
 		return y;
 	}
 
-	public void setY(@Nullable Long y) {
+	public void setY(@Nullable Integer y) {
 		this.y = y;
 	}
 
-	public @Nullable Long getZ() {
+	public @Nullable Integer getZ() {
 		return z;
 	}
 
-	public void setZ(@Nullable Long z) {
+	public void setZ(@Nullable Integer z) {
 		this.z = z;
 	}
 

@@ -10,4 +10,8 @@ public class CompatManager {
 	public static boolean xaerosWorldMapPresent() {
 		return FabricLoader.getInstance().isModLoaded("xaeroworldmap");
 	}
+
+	public static boolean journeyMapPresent() {
+		return FabricLoader.getInstance().isModLoaded("journeymap");
+	}
 }

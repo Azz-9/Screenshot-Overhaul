@@ -80,6 +80,7 @@
 	"screenshot_utilities.config.show_player": "Show player",
 	"screenshot_utilities.config.show_nametags": "Show nametags",
 	"screenshot_utilities.config.show_screenshots_on_xaeros_world_map": "Show screenshots on Xaero's World Map",
+	"screenshot_utilities.config.show_screenshots_on_journey_map": "Show screenshots on Journey Map",
 	"screenshot_utilities.config.screenshots_dir": "Screenshots directory",
 	"screenshot_utilities.config.screenshots_dir.file_dialog_title": "Select the screenshot directory",
 	"screenshot_utilities.config.screenshots_file_name": "Screenshots file name",
