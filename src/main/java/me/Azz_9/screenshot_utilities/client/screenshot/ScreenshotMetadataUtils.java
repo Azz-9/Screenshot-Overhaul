@@ -151,9 +151,9 @@ public class ScreenshotMetadataUtils {
 		dis.close();
 
 		return new ScreenshotMetadata(
-				meta.containsKey(KEY_X) ? Long.parseLong(meta.get(KEY_X)) : null,
-				meta.containsKey(KEY_Y) ? Long.parseLong(meta.get(KEY_Y)) : null,
-				meta.containsKey(KEY_Z) ? Long.parseLong(meta.get(KEY_Z)) : null,
+				meta.containsKey(KEY_X) ? Integer.parseInt(meta.get(KEY_X)) : null,
+				meta.containsKey(KEY_Y) ? Integer.parseInt(meta.get(KEY_Y)) : null,
+				meta.containsKey(KEY_Z) ? Integer.parseInt(meta.get(KEY_Z)) : null,
 				Identifier.tryParse(meta.get(KEY_DIMENSION)),
 				Identifier.tryParse(meta.get(KEY_BIOME)),
 				meta.containsKey(KEY_SEED) ? Long.parseLong(meta.get(KEY_SEED)) : null,
@@ -205,9 +205,9 @@ public class ScreenshotMetadataUtils {
 
 		// TODO check la liste de resources pack pour voir si les noms sont carrés
 		return new ScreenshotMetadata(
-				(long) Math.floor(MINECRAFT.player.getX()),
-				(long) Math.floor(MINECRAFT.player.getY()),
-				(long) Math.floor(MINECRAFT.player.getZ()),
+				(int) Math.floor(MINECRAFT.player.getX()),
+				(int) Math.floor(MINECRAFT.player.getY()),
+				(int) Math.floor(MINECRAFT.player.getZ()),
 				MINECRAFT.level.dimension().identifier(),
 				biomeId,
 				seed,

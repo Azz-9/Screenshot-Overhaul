@@ -1,6 +1,9 @@
 package me.Azz_9.screenshot_utilities.client.gui.screen;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.NonNull;
@@ -9,6 +12,7 @@ import org.jspecify.annotations.Nullable;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.panoramaGallery.PanoramaGalleryWidget;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotList;
 import me.Azz_9.screenshot_utilities.client.screenshot.panorama.PanoramaHolder;
 
 public class PanoramaGalleryScreen extends AbstractSavableScreen implements FocusableScreen {
@@ -29,6 +33,8 @@ public class PanoramaGalleryScreen extends AbstractSavableScreen implements Focu
 		gallery = createGallery();
 
 		addRenderableWidget(gallery);
+
+		ScreenshotList.setOnChangeListener(_ -> gallery.refresh(false));
 	}
 
 	private PanoramaGalleryWidget createGallery() {
@@ -37,6 +43,17 @@ public class PanoramaGalleryScreen extends AbstractSavableScreen implements Focu
 				width - GLOBAL_PADDING * 2, getBottomBarTop() - GLOBAL_PADDING,
 				PanoramaHolder::usePanoramaAsync, PanoramaHolder::resetToDefaultAsync
 		);
+	}
+
+	// input
+
+	@Override
+	public boolean keyPressed(@NonNull KeyEvent event) {
+		if (event.key() == InputConstants.KEY_F5 && gallery != null) {
+			gallery.refresh(true);
+			return true;
+		}
+		return super.keyPressed(event);
 	}
 
 	@Override

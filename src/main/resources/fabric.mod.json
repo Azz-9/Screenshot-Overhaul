@@ -18,6 +18,9 @@
 		],
 		"modmenu": [
 			"me.Azz_9.screenshot_utilities.compat.ModMenuCompat"
+		],
+		"journeymap": [
+			"me.Azz_9.screenshot_utilities.compat.journeyMap.JourneyMapIntegration"
 		]
 	},
 

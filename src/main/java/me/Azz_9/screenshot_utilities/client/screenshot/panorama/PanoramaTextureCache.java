@@ -17,4 +17,8 @@ public final class PanoramaTextureCache extends AbstractLruTextureCache<Panorama
 	public static PanoramaTexture getThumbnail(Panorama panorama) {
 		return INSTANCE.get(INSTANCE.THUMBNAIL_CACHE, panorama, PanoramaTexture::loadThumbnail);
 	}
+
+	public static void clearCache() {
+		INSTANCE.clear();
+	}
 }
