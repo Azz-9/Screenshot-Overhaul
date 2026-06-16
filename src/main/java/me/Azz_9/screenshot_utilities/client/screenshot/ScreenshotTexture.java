@@ -56,22 +56,22 @@ public final class ScreenshotTexture implements AutoCloseable {
 
 	@NonNull
 	public static ScreenshotTexture loadSmallThumbnail(Path file) {
-		return new ScreenshotTexture(file, 128);
+		return new ScreenshotTexture(file, 128); // 128x72
 	}
 
 	@NonNull
 	public static ScreenshotTexture loadThumbnail(Path file) {
-		return new ScreenshotTexture(file, 512);
+		return new ScreenshotTexture(file, 512); // 512x288
 	}
 
 	@NonNull
 	public static ScreenshotTexture loadThumbnail(Path file, NativeImage image) {
-		return new ScreenshotTexture(file, image, 512);
+		return new ScreenshotTexture(file, image, 512); //512x288
 	}
 
 	@NonNull
 	public static ScreenshotTexture loadScreenshot(Path file) {
-		return new ScreenshotTexture(file, 1920);
+		return new ScreenshotTexture(file, 1920); // 1920x1080
 	}
 
 	public Path getFile() {

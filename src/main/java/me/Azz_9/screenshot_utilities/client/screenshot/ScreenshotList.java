@@ -30,6 +30,11 @@ public class ScreenshotList {
 
 	private static Consumer<List<Screenshot>> onChangeListener = null;
 
+	private static final Map<WatchKey, Path> watchedDirs = new HashMap<>();
+	private static WatchService currentWatcher;
+	private static Thread currentWatchThread;
+
+
 	private ScreenshotList() {
 	}
 
@@ -178,37 +183,88 @@ public class ScreenshotList {
 		}
 	}
 
-	// TODO check si ça marche avec les sous dossiers
-	// edit: ça marche pas :(
+	public static void changeDirectory(Path newRoot) {
+		synchronized (lock) {
+			if (!loaded) return;
+			loaded = false;
+			stopWatchService();
+		}
+
+		runAsync("screenshot-loader", ScreenshotList::startWatchService);
+	}
+
+	private static void stopWatchService() {
+		if (currentWatchThread != null) {
+			currentWatchThread.interrupt();
+			currentWatchThread = null;
+		}
+		try {
+			if (currentWatcher != null) {
+				currentWatcher.close();
+				currentWatcher = null;
+			}
+		} catch (IOException ignored) {}
+		watchedDirs.clear();
+	}
+
 	private static void startWatchService() {
 		try {
-			WatchService watcher = FileSystems.getDefault().newWatchService();
-			Config.getInstance().getAbsoluteScreenshotsDir().register(watcher,
-					StandardWatchEventKinds.ENTRY_CREATE,
-					StandardWatchEventKinds.ENTRY_DELETE
-			);
+			synchronized (lock) {
+				currentWatcher = FileSystems.getDefault().newWatchService();
+			}
+
+			Path root = Config.getInstance().getAbsoluteScreenshotsDir();
+
+			Files.walk(root)
+					.filter(Files::isDirectory)
+					.forEach(dir -> {
+						try {
+							registerDirectory(currentWatcher, dir);
+						} catch (IOException e) {
+							ScreenshotLogger.warn("Could not watch directory {}: {}", dir, e.getMessage());
+						}
+					});
 
 			Thread watchThread = new Thread(() -> {
 				try {
 					while (true) {
-						WatchKey key = watcher.take();
+						WatchKey key = currentWatcher.take();
+						Path dir;
+						synchronized (lock) {
+							dir = watchedDirs.get(key);
+						}
+						if (dir == null) {
+							key.reset();
+							continue;
+						}
 
 						for (WatchEvent<?> event : key.pollEvents()) {
 							Path changed = (Path) event.context();
-							Path fullPath = Config.getInstance().getAbsoluteScreenshotsDir().resolve(changed);
-
-							if (!isScreenshot(fullPath)) continue;
+							Path fullPath = dir.resolve(changed);
 
 							if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
+								if (Files.isDirectory(fullPath)) {
+									try {
+										registerDirectory(currentWatcher, fullPath);
+									} catch (IOException e) {
+										ScreenshotLogger.warn("Could not watch directory {}: {}", fullPath, e.getMessage());
+										continue;
+									}
+								}
+
+								if (!isScreenshot(fullPath)) continue;
+
 								File file = fullPath.toFile();
-								ScreenshotMetadata metadata = readMetadataWithRetry(file);
+								ScreenshotMetadata metadata;
+								metadata = readMetadataWithRetry(file);
 								Screenshot screenshot = new Screenshot(file, metadata);
 								synchronized (lock) {
 									screenshots.add(screenshot);
 								}
 							} else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
 								synchronized (lock) {
-									screenshots.removeIf(s -> s.file().toPath().equals(fullPath));
+									watchedDirs.entrySet().removeIf(e -> e.getValue().startsWith(fullPath));
+									screenshots.removeIf(s -> s.file().toPath().startsWith(fullPath));
 								}
 							}
 
@@ -221,17 +277,28 @@ public class ScreenshotList {
 					Thread.currentThread().interrupt();
 				} finally {
 					try {
-						watcher.close();
+						currentWatcher.close();
 					} catch (IOException ignored) {
 					}
 				}
 			}, "screenshot-watcher");
 			watchThread.setDaemon(true);
+			synchronized (lock) {
+				currentWatchThread = watchThread;
+			}
 			watchThread.start();
 
 		} catch (IOException e) {
 			ScreenshotLogger.warn("Could not initialize watch service: {}", e.getMessage());
 		}
+	}
+
+	private static void registerDirectory(WatchService watcher, Path dir) throws IOException {
+		WatchKey key = dir.register(watcher,
+				StandardWatchEventKinds.ENTRY_CREATE,
+				StandardWatchEventKinds.ENTRY_DELETE
+		);
+		watchedDirs.put(key, dir);
 	}
 
 	private static ScreenshotMetadata readMetadataWithRetry(File file) {

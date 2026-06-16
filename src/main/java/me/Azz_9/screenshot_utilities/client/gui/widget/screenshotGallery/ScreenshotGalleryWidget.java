@@ -105,7 +105,7 @@ public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWi
 		if (!refreshing.compareAndSet(false, true)) return;
 
 		ScreenshotLogger.info("Refreshing screenshot gallery entries");
-		if (clearCache) ScreenshotTextureCache.clear();
+		if (clearCache) ScreenshotTextureCache.clearCache();
 
 		ScreenshotList.reloadAsync();
 

@@ -1,9 +1,5 @@
 package me.Azz_9.screenshot_utilities.client.gui.widget.panoramaGallery.content;
 
-import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
-import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MOD_ID;
-
-import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.FilterMode;
 
@@ -15,12 +11,10 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import net.minecraft.util.Util;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
@@ -28,9 +22,8 @@ import me.Azz_9.screenshot_utilities.client.gui.widget.gallery.AbstractThumbnail
 import me.Azz_9.screenshot_utilities.client.screenshot.panorama.*;
 
 @Environment(EnvType.CLIENT)
-public class PanoramaThumbnailWidget extends AbstractThumbnailWidget implements AutoCloseable {
+public class PanoramaThumbnailWidget extends AbstractThumbnailWidget {
 
-	private static final AtomicInteger ID_COUNTER = new AtomicInteger(0);
 	private static final float DRAG_SENSITIVITY = 0.45f;
 	private static final float PITCH_CLAMP = 85f;
 	private static final double DRAG_THRESHOLD = 4.0;
@@ -39,9 +32,7 @@ public class PanoramaThumbnailWidget extends AbstractThumbnailWidget implements 
 	private double clickStartY;
 	private boolean didDrag = false;
 
-	private final PanoramaCubeMap cubeMap;
 	private final Panorama panorama;
-	private boolean loading = false;
 	private float yaw = 0f;
 	private float pitch = 0f;
 	private final @Nullable Consumer<Panorama> onClick;
@@ -51,36 +42,13 @@ public class PanoramaThumbnailWidget extends AbstractThumbnailWidget implements 
 		super(x, y, width, height, Component.empty());
 		this.panorama = panorama;
 		this.onClick = onClick;
-
-		// Identifier unique par instance de widget
-		Identifier location = Identifier.fromNamespaceAndPath(
-				MOD_ID,
-				"dynamic/panorama_widget_" + ID_COUNTER.getAndIncrement()
-		);
-		this.cubeMap = new PanoramaCubeMap(location);
-		startLoading();
-	}
-
-	private void startLoading() {
-		loading = true;
-		Util.ioPool().execute(() -> {
-			NativeImage[] images = PanoramaHolder.loadImages(panorama);
-			if (images != null) {
-				MINECRAFT.execute(() -> {
-					cubeMap.uploadTexture(images);
-					// Fermer les NativeImage après upload GPU
-					for (NativeImage image : images) image.close();
-					loading = false;
-				});
-			} else {
-				loading = false;
-			}
-		});
 	}
 
 	@Override
 	public void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
-		if (loading) {
+		PanoramaTexture panoramaTexture = PanoramaTextureCache.getThumbnail(panorama);
+		PanoramaCubeMap cubeMap = panoramaTexture.getCubeMap();
+		if (!panoramaTexture.isReady() || cubeMap == null) {
 			int min = Math.min(getWidth(), getHeight());
 			Loading.drawLoadingSpinner(
 					graphics,
@@ -154,10 +122,5 @@ public class PanoramaThumbnailWidget extends AbstractThumbnailWidget implements 
 	public void onClick(@NonNull MouseButtonEvent click, boolean doubled) {
 		super.onClick(click, doubled);
 		if (onClick != null) onClick.accept(panorama);
-	}
-
-	@Override
-	public void close() throws Exception {
-		cubeMap.close();
 	}
 }
