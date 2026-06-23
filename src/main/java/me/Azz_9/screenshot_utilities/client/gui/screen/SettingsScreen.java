@@ -8,12 +8,10 @@ import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.config.ConfigLoader;
 import me.Azz_9.screenshot_utilities.client.config.option.ConfigOption;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
@@ -147,10 +145,6 @@ public class SettingsScreen extends TabsScreen implements FocusableScreen {
 	@Override
 	protected void onSave() {
 		super.onSave();
-		try {
-			ConfigLoader.save();
-		} catch (IOException e) {
-			ScreenshotLogger.error("Failed to save config file.", e.getMessage());
-		}
+		ConfigLoader.trySave();
 	}
 }

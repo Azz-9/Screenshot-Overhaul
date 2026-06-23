@@ -7,7 +7,6 @@ import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.PackResources;
-import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.world.level.biome.Biome;
 
 import org.jspecify.annotations.NonNull;
@@ -38,7 +37,6 @@ public class ScreenshotMetadataUtils {
 	private static final @NonNull String KEY_RESOURCE_PACKS = "ResourcePacks";
 	private static final @NonNull String KEY_SHADER = "Shader";
 	private static final @NonNull String KEY_TIMESTAMP = "Timestamp";
-	private static final @NonNull String KEY_TAGS = "Tags";
 	private static final @NonNull String KEY_PANORAMA_ID = "PanoramaId";
 	private static final @NonNull String KEY_PANORAMA_FACE = "PanoramaFace";
 
@@ -114,7 +112,6 @@ public class ScreenshotMetadataUtils {
 		if (meta.getShader() != null) textChunks.add(buildTextChunk(KEY_SHADER, meta.getShader()));
 		if (meta.getTimestamp() != null)
 			textChunks.add(buildTextChunk(KEY_TIMESTAMP, String.valueOf(meta.getTimestamp())));
-		if (!meta.getTags().isEmpty()) textChunks.add(buildTextChunk(KEY_TAGS, String.join(",", meta.getTags())));
 		if (meta.getPanoramaId() != null) textChunks.add(buildTextChunk(KEY_PANORAMA_ID, meta.getPanoramaId()));
 		if (meta.getPanoramaFace() != null)
 			textChunks.add(buildTextChunk(KEY_PANORAMA_FACE, String.valueOf(meta.getPanoramaFace())));
@@ -163,7 +160,6 @@ public class ScreenshotMetadataUtils {
 				meta.containsKey(KEY_RESOURCE_PACKS) ? Arrays.asList(meta.get(KEY_RESOURCE_PACKS).split(",")) : List.of(),
 				meta.get(KEY_SHADER),
 				meta.containsKey(KEY_TIMESTAMP) ? Long.parseLong(meta.get(KEY_TIMESTAMP)) : null,
-				meta.containsKey(KEY_TAGS) ? Arrays.asList(meta.get(KEY_TAGS).split(",")) : List.of(),
 				meta.get(KEY_PANORAMA_ID),
 				meta.containsKey(KEY_PANORAMA_FACE) ? Integer.parseInt(meta.get(KEY_PANORAMA_FACE)) : null
 		);
@@ -176,7 +172,7 @@ public class ScreenshotMetadataUtils {
 					null, null, null, null, null,
 					SharedConstants.getCurrentVersion().name(),
 					MINECRAFT.getResourceManager().listPacks().map(PackResources::packId).toList(),
-					null, System.currentTimeMillis(), new ArrayList<>(), panoramaId, faceIndex
+					null, System.currentTimeMillis(), panoramaId, faceIndex
 			);
 
 		IntegratedServer singleplayerServer = MINECRAFT.getSingleplayerServer();
@@ -203,7 +199,6 @@ public class ScreenshotMetadataUtils {
 			shader = IrisCompat.getShaderName();
 		}
 
-		// TODO check la liste de resources pack pour voir si les noms sont carrés
 		return new ScreenshotMetadata(
 				(int) Math.floor(MINECRAFT.player.getX()),
 				(int) Math.floor(MINECRAFT.player.getY()),
@@ -214,10 +209,14 @@ public class ScreenshotMetadataUtils {
 				worldName,
 				serverIp,
 				SharedConstants.getCurrentVersion().id(),
-				MINECRAFT.getResourcePackRepository().getSelectedPacks().stream().map(Pack::getId).toList(),
+				MINECRAFT.getResourcePackRepository().getSelectedPacks()
+						.stream()
+						.filter(pack -> !pack.isRequired() || pack.getId().equals("vanilla"))
+						.map(pack -> pack.getTitle().getString())
+						.toList()
+						.reversed(),
 				shader,
 				System.currentTimeMillis(),
-				new ArrayList<>(),
 				panoramaId,
 				faceIndex
 		);

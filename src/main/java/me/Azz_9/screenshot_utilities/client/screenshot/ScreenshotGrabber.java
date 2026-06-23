@@ -90,7 +90,7 @@ public class ScreenshotGrabber {
 	}
 
 	public static void requestGrab(File picDir, final @Nullable String forceName, final RenderTarget target, final int downscaleFactor, final Consumer<Component> callback) {
-		if (!Config.getInstance().hideChatOnScreenshot.getValue() && !Config.getInstance().hideHudOnScreenshot.getValue()) {
+		if (!ScreenshotRenderState.shouldRequestScreenshot()) {
 			grab(picDir, forceName, target, downscaleFactor, callback);
 			return;
 		}
@@ -215,6 +215,12 @@ public class ScreenshotGrabber {
 						Files.write(file.toPath(), pngWithMeta);
 
 						ScreenshotPreview.setScreenshot(file);
+
+						// Hide every panorama screenshot by default
+						ScreenshotManager.setHiddenFromMap(
+								Config.getInstance().getAbsoluteScreenshotsDir().relativize(file.toPath()).toString(),
+								true
+						);
 					} catch (Throwable t) {
 						try {
 							image.close();

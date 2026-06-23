@@ -7,6 +7,7 @@
 
 	"screenshot_utilities.narrator.screenshot_gallery": "Visionneuse de captures d'écran",
 	"screenshot_utilities.options.screenshots": "Captures d'écrans...",
+	"screenshot_utilities.options.change_panorama": "Changer le panorama",
 
 	"screenshot_utilities.navigation.back": "Retour",
 	"screenshot_utilities.navigation.next": "Suivant",
@@ -18,8 +19,13 @@
 	"screenshot_utilities.gallery_widget.filter": "Filter",
 	"screenshot_utilities.gallery_widget.filter.all": "All",
 	"screenshot_utilities.gallery_widget.filter.favorites": "Favorites",
+	"screenshot_utilities.gallery_widget.sort_by": "Trié par",
 	"screenshot_utilities.gallery_widget.sort_mode.date_asc": "Les plus anciens",
 	"screenshot_utilities.gallery_widget.sort_mode.date_desc": "Les plus récents",
+	"screenshot_utilities.gallery_widget.sort_mode.world_name_asc": "World name asc",
+	"screenshot_utilities.gallery_widget.sort_mode.world_name_desc": "World name desc",
+	"screenshot_utilities.gallery_widget.sort_mode.server_ip_asc": "Server IP asc",
+	"screenshot_utilities.gallery_widget.sort_mode.server_ip_desc": "Server IP desc",
 	"screenshot_utilities.gallery_widget.open_screenshot_folder": "Ouvrir le dossier des captures d'écran",
 
 	"screenshot_utilities.panorama_gallery.reset": "Panorama par défaut",
@@ -46,8 +52,6 @@
 	"screenshot_utilities.metadata.resource_packs.placeholder": "resource pack 1, resource pack 2...",
 	"screenshot_utilities.metadata.shader": "Shader",
 	"screenshot_utilities.metadata.timestamp": "Horodotage",
-	"screenshot_utilities.metadata.tags": "Étiquette",
-	"screenshot_utilities.metadata.tags.placeholder": "étiquette1, étiquette2...",
 
 	"screenshot_utilities.hide_from_worldmap": "Cacher de la carte",
 	"screenshot_utilities.hidden_from_worldmap": "Caché de la carte",
@@ -89,6 +93,7 @@
 	"screenshot_utilities.config.show_chat_message": "Afficher le message dans le tchat",
 	"screenshot_utilities.config.hide_chat_on_screenshot": "Cacher le tchat sur les captures d'écran",
 	"screenshot_utilities.config.hide_hud_on_screenshot": "Cacher le hud sur les captures d'écran",
+	"screenshot_utilities.config.hide_hand_on_screenshot": "Cacher la main sur les captures d'écran",
 	"screenshot_utilities.config.grab_on_advancement": "",
 	"screenshot_utilities.config.advancement_screenshot_delay": "",
 	"screenshot_utilities.config.rotation_speed": "Vitesse de rotation",

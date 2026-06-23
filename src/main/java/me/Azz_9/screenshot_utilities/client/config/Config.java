@@ -1,7 +1,5 @@
 package me.Azz_9.screenshot_utilities.client.config;
 
-import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
-
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -10,6 +8,7 @@ import org.jspecify.annotations.NonNull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.UUID;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.config.option.options.*;
@@ -17,8 +16,8 @@ import me.Azz_9.screenshot_utilities.client.gui.screen.SettingsScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.config.ConfigTabContent;
 import me.Azz_9.screenshot_utilities.client.gui.widget.gallery.ScrollableGallery;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotFileNameParser;
-import me.Azz_9.screenshot_utilities.client.screenshot.panorama.Panorama;
 import me.Azz_9.screenshot_utilities.compat.CompatManager;
+import me.Azz_9.screenshot_utilities.utils.PathUtils;
 
 public final class Config {
 	private static final @NonNull Config INSTANCE = new Config();
@@ -50,14 +49,14 @@ public final class Config {
 	public final @NonNull SavableObject<ScrollableGallery.SortMode> screenshotSortOrder = SavableObject.nonNull(ScrollableGallery.SortMode.DATE_DESC, ScrollableGallery.SortMode.class);
 	public final @NonNull SavableObject<ScrollableGallery.SortMode> panoramaSortOrder = SavableObject.nonNull(ScrollableGallery.SortMode.DATE_DESC, ScrollableGallery.SortMode.class);
 
-	public final @NonNull SavableObject<Panorama> selectedPanorama = SavableObject.nullable(null, Panorama.class);
+	public final @NonNull SavableObject<UUID> selectedPanoramaUUID = SavableObject.nullable(null, UUID.class);
 
 	public static @NonNull Config getInstance() {
 		return INSTANCE;
 	}
 
 	public @NonNull Path getAbsoluteScreenshotsDir() {
-		Path absolute = MINECRAFT.gameDirectory.toPath().resolve(screenshotsDir.getValue());
+		Path absolute = PathUtils.toAbsolutePath(screenshotsDir.getValue());
 		if (!Files.exists(absolute)) {
 			try {
 				Files.createDirectories(absolute);
@@ -120,12 +119,12 @@ public final class Config {
 		screen.addConfigTab(Component.translatable("screenshot_utilities.config.category.screenshot"), screenshotContent);
 
 		// panorama
-		IntSliderConfigOption rotationSpeed = IntSliderConfigOption.builder(Config.getInstance().rotationSpeed, 0, 100).build();
+		IntSliderConfigOption rotationSpeed = IntSliderConfigOption.builder(Config.getInstance().rotationSpeed, 0, 100).buildLive();
 		EnumConfigOption<RotationDirection> rotationDirection = EnumConfigOption.builder(Config.getInstance().rotationDirection, RotationDirection.class)
 				.valueName(RotationDirection::getText)
-				.build();
-		IntSliderConfigOption verticalAngle = IntSliderConfigOption.builder(Config.getInstance().verticalAngle, -180, 180).build();
-		IntSliderConfigOption startingHorizontalAngle = IntSliderConfigOption.builder(Config.getInstance().startingHorizontalAngle, 0, 360).build();
+				.buildLive();
+		IntSliderConfigOption verticalAngle = IntSliderConfigOption.builder(Config.getInstance().verticalAngle, -180, 180).buildLive();
+		IntSliderConfigOption startingHorizontalAngle = IntSliderConfigOption.builder(Config.getInstance().startingHorizontalAngle, 0, 360).buildLive();
 
 		ConfigTabContent panoramaContent = ConfigTabContent.builder()
 				.option(rotationSpeed)

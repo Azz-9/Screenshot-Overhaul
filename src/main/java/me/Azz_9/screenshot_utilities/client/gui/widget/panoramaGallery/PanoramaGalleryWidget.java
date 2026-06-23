@@ -37,13 +37,18 @@ public class PanoramaGalleryWidget extends ScrollableGallery<PanoramaEntryWidget
 	private static final int RESET_BUTTON_HEIGHT = SEARCH_BAR_HEIGHT;
 	private static final int RESET_BUTTON_WIDTH = 120;
 
+	private final @Nullable Consumer<List<PanoramaEntryWidget>> onEntriesChanged;
 	private final @Nullable Consumer<Panorama> onThumbnailClicked;
 	private final @Nullable Runnable onResetToDefault;
 
 	private final AtomicBoolean refreshing = new AtomicBoolean(false);
 
-	public PanoramaGalleryWidget(int x, int y, int width, int height, @Nullable Consumer<Panorama> onThumbnailClicked, @Nullable Runnable onResetToDefault) {
+	public PanoramaGalleryWidget(int x, int y, int width, int height,
+	                             @Nullable Consumer<List<PanoramaEntryWidget>> onEntriesChanged,
+								 @Nullable Consumer<Panorama> onThumbnailClicked,
+								 @Nullable Runnable onResetToDefault) {
 		super(x, y, width, height, MIN_THUMB_WIDTH, MAX_THUMB_WIDTH, ASPECT_RATIO, Config.getInstance().panoramaSortOrder);
+		this.onEntriesChanged = onEntriesChanged;
 		this.onThumbnailClicked = onThumbnailClicked;
 		this.onResetToDefault = onResetToDefault;
 
@@ -51,7 +56,7 @@ public class PanoramaGalleryWidget extends ScrollableGallery<PanoramaEntryWidget
 			addFixedChild(createResetButton());
 		}
 
-		ScreenshotList.whenPanoramasLoaded((panoramas -> {
+		ScreenshotList.whenPanoramasLoaded(panoramas -> {
 			// make sure the player didn't leave the screen before building entries
 			if (MINECRAFT.screen instanceof PanoramaGalleryScreen) {
 				buildEntries(panoramas.stream().filter(Panorama::isComplete).toList());
@@ -59,7 +64,7 @@ public class PanoramaGalleryWidget extends ScrollableGallery<PanoramaEntryWidget
 				sortEntries(getSortButton().getValue());
 				layoutEntries();
 			}
-		}));
+		});
 	}
 
 	private Button createResetButton() {
@@ -79,6 +84,7 @@ public class PanoramaGalleryWidget extends ScrollableGallery<PanoramaEntryWidget
 			newEntries.add(new PanoramaEntryWidget(panorama, onThumbnailClicked));
 		}
 		setEntries(newEntries);
+		if (onEntriesChanged != null) onEntriesChanged.accept(getEntries());
 	}
 
 	// refresh

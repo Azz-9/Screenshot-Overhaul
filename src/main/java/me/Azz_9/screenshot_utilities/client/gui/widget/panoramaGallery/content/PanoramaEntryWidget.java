@@ -1,5 +1,6 @@
 package me.Azz_9.screenshot_utilities.client.gui.widget.panoramaGallery.content;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 
@@ -52,6 +53,8 @@ public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {
 				thumbnailWidth, DEFAULT_NAME_HEIGHT,
 				INITIAL_NAME, false
 		);
+		nameWidget.setChangedListener(s ->
+				nameWidget.setChatFormatting(hasChanged() ? ChatFormatting.ITALIC : ChatFormatting.RESET));
 
 		addRenderableChild(thumbnailWidget);
 		addRenderableChild(nameWidget);
@@ -87,6 +90,18 @@ public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {
 		}
 
 		return panorama.folder().lastModified();
+	}
+
+	@Override
+	public @Nullable String getWorldName() {
+		if (panorama.presentFaces().isEmpty()) return null;
+		return panorama.presentFaces().getFirst().getMetadata().getWorldName();
+	}
+
+	@Override
+	public @Nullable String getServerIp() {
+		if (panorama.presentFaces().isEmpty()) return null;
+		return panorama.presentFaces().getFirst().getMetadata().getServerIp();
 	}
 
 	@Override

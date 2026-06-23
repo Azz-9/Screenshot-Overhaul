@@ -28,6 +28,7 @@ public class ScreenshotList {
 	private static volatile boolean loaded = false;
 	private static volatile boolean loading = false;
 
+	private static final List<Runnable> pendingLoadCallbacks = new ArrayList<>();
 	private static Consumer<List<Screenshot>> onChangeListener = null;
 
 	private static final Map<WatchKey, Path> watchedDirs = new HashMap<>();
@@ -82,6 +83,7 @@ public class ScreenshotList {
 				loaded = true;
 			}
 
+			runPendingCallbacks();
 			onComplete.run();
 		}, threadName);
 		thread.setDaemon(true);
@@ -101,13 +103,20 @@ public class ScreenshotList {
 			if (loaded) {
 				onLoaded.accept(supplier.get());
 			} else {
-				Consumer<List<Screenshot>> previous = onChangeListener;
-				onChangeListener = list -> {
-					onLoaded.accept(supplier.get());
-					onChangeListener = previous;
-				};
+				pendingLoadCallbacks.add(() -> onLoaded.accept(supplier.get()));
 			}
 		}
+	}
+
+	private static void runPendingCallbacks() {
+		List<Runnable> callbacks;
+
+		synchronized (lock) {
+			callbacks = new ArrayList<>(pendingLoadCallbacks);
+			pendingLoadCallbacks.clear();
+		}
+
+		callbacks.forEach(Runnable::run);
 	}
 
 	public static @NonNull List<Screenshot> getScreenshots() {

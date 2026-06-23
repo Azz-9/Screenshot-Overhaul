@@ -25,6 +25,7 @@
 		"MouseMixin",
 		"MultiPlayerGameModeMixin",
 		"NativeImageAccessor",
+		"OptionsScreenMixin",
 		"ParticleEngineMixin",
 		"ScreenAccessor",
 		"ScreenMixin",

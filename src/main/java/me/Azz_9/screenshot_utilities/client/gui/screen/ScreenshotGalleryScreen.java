@@ -209,12 +209,6 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 	/* ---------------- Cleanup ---------------- */
 
 	@Override
-	protected void onSave() {
-		// TrackedItems (screenshot title edits) are committed by super
-		super.onSave();
-	}
-
-	@Override
 	public void onClose() {
 		ScreenshotManager.save();
 

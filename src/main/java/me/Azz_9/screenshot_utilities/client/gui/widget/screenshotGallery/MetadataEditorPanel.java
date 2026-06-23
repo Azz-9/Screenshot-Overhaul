@@ -105,12 +105,6 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 						Component.translatable("screenshot_utilities.metadata.resource_packs.placeholder"))
 				.stringField(meta::getShader, meta::setShader, "screenshot_utilities.metadata.shader")
 				.positiveLongField(meta::getTimestamp, meta::setTimestamp, "screenshot_utilities.metadata.timestamp")
-				.stringField(() -> String.join(", ", meta.getTags()),
-						v -> meta.setTags(v == null
-								? new ArrayList<>()
-								: Arrays.stream(v.split(",")).map(String::trim).toList()),
-						"screenshot_utilities.metadata.tags",
-						Component.translatable("screenshot_utilities.metadata.tags.placeholder"))
 				.build();
 	}
 

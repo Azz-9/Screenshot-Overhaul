@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Ease;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import me.Azz_9.screenshot_utilities.client.gui.trackableChanges.TrackableChanges;
 import me.Azz_9.screenshot_utilities.client.gui.widget.SimpleParentWidget;
@@ -49,6 +50,10 @@ public abstract class AbstractGalleryEntryWidget extends SimpleParentWidget impl
 	public abstract @NonNull String getPathRelativeToScreenshotDir();
 
 	public abstract long getTimestampOrLastModified();
+
+	public abstract @Nullable String getWorldName();
+
+	public abstract @Nullable String getServerIp();
 
 	private void updateAnimation() {
 		progress = Ease.outQuad(Math.clamp((float) (System.currentTimeMillis() - startTime) / animationDurationMs, 0, 1));

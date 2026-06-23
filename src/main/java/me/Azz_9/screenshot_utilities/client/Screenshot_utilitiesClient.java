@@ -7,6 +7,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -22,12 +23,16 @@ import java.util.Iterator;
 import java.util.List;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
+import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.config.ConfigLoader;
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoModeHud;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotList;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotManager;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotPreview;
+import me.Azz_9.screenshot_utilities.client.screenshot.panorama.Panorama;
+import me.Azz_9.screenshot_utilities.client.screenshot.panorama.PanoramaHolder;
+import me.Azz_9.screenshot_utilities.compat.journeyMap.JourneyMapIntegration;
 
 @Environment(EnvType.CLIENT)
 public class Screenshot_utilitiesClient implements ClientModInitializer {
@@ -68,6 +73,17 @@ public class Screenshot_utilitiesClient implements ClientModInitializer {
 		// load screenshots
 		ScreenshotList.loadAsync();
 		ScreenshotManager.load();
+		if (Config.getInstance().selectedPanoramaUUID.getValue() != null) {
+			ScreenshotList.whenPanoramasLoaded(panoramas -> {
+				Panorama selectedPanorama = null;
+				for (Panorama panorama : panoramas) {
+					if (Config.getInstance().selectedPanoramaUUID.getValue().equals(panorama.id())) {
+						selectedPanorama = panorama;
+					}
+				}
+				if (selectedPanorama != null) PanoramaHolder.usePanoramaAsync(selectedPanorama);
+			});
+		}
 
 		ClientTickEvents.START_CLIENT_TICK.register(_ -> {
 			PhotoMode.startTick();
@@ -80,6 +96,10 @@ public class Screenshot_utilitiesClient implements ClientModInitializer {
 					iterator.remove();
 				}
 			}
+		});
+
+		ClientPlayConnectionEvents.JOIN.register((listener, sender, client) -> {
+			JourneyMapIntegration.init();
 		});
 
 		KeyMapping.Category keybind_category = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "screenshot-utilities"));

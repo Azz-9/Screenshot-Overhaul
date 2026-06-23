@@ -18,6 +18,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
+import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
 
 public class PanoramaHolder {
@@ -53,6 +54,7 @@ public class PanoramaHolder {
 					texture.apply(contents);
 					MINECRAFT.getTextureManager().register(PANORAMA_LOCATION, texture);
 					currentPanorama = null;
+					Config.getInstance().selectedPanoramaUUID.setValue(null);
 				});
 
 			} finally {
@@ -69,7 +71,7 @@ public class PanoramaHolder {
 		// Interrompt le thread précédent s'il tourne encore
 		Thread previous = currentTask.getAndSet(null);
 		if (previous != null) previous.interrupt();
-		if (panorama.equals(currentPanorama)) return;
+		if (isSelected(panorama)) return;
 
 		Thread thread = new Thread(() -> {
 			try {
@@ -86,6 +88,7 @@ public class PanoramaHolder {
 					// Dernier check sur le main thread : on est toujours le task courant ?
 					register(images, PANORAMA_LOCATION);
 					currentPanorama = panorama;
+					Config.getInstance().selectedPanoramaUUID.setValue(currentPanorama.id());
 				});
 			} finally {
 				// Se retire proprement de la référence (seulement si c'est encore nous)

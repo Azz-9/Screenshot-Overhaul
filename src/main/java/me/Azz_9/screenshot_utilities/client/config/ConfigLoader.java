@@ -14,6 +14,8 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import me.Azz_9.screenshot_utilities.ScreenshotLogger;
+
 public class ConfigLoader {
 	private static final Gson GSON = new GsonBuilder()
 			.setPrettyPrinting()
@@ -38,12 +40,22 @@ public class ConfigLoader {
 	private static final Path CONFIG_FILE = FabricLoader.getInstance().getConfigDir().resolve(MOD_ID + ".json");
 
 	public static void save() throws IOException {
+		ScreenshotLogger.info("Saving config...");
 		JsonObject root = new JsonObject();
 		collectFields(root);
 		Files.writeString(CONFIG_FILE, GSON.toJson(root));
 	}
 
+	public static void trySave() {
+		try {
+			save();
+		} catch (IOException e) {
+			ScreenshotLogger.error("Failed to save config file : {}", e.getMessage());
+		}
+	}
+
 	public static void load() throws IOException {
+		ScreenshotLogger.info("Loading config...");
 		if (!Files.exists(CONFIG_FILE)) return;
 		JsonObject root = JsonParser.parseString(Files.readString(CONFIG_FILE)).getAsJsonObject();
 		applyFields(root);

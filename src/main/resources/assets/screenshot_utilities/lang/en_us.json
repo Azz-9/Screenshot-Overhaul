@@ -7,6 +7,7 @@
 
 	"screenshot_utilities.narrator.screenshot_gallery": "Screenshot gallery",
 	"screenshot_utilities.options.screenshots": "Screenshots...",
+	"screenshot_utilities.options.change_panorama": "Change panorama",
 
 	"screenshot_utilities.navigation.back": "Back",
 	"screenshot_utilities.navigation.next": "Next",
@@ -18,8 +19,13 @@
 	"screenshot_utilities.gallery_widget.filter": "Filter",
 	"screenshot_utilities.gallery_widget.filter.all": "All",
 	"screenshot_utilities.gallery_widget.filter.favorites": "Favorites",
+	"screenshot_utilities.gallery_widget.sort_by": "Sort by",
 	"screenshot_utilities.gallery_widget.sort_mode.date_asc": "Oldest first",
 	"screenshot_utilities.gallery_widget.sort_mode.date_desc": "Newest first",
+	"screenshot_utilities.gallery_widget.sort_mode.world_name_asc": "World name asc",
+	"screenshot_utilities.gallery_widget.sort_mode.world_name_desc": "World name desc",
+	"screenshot_utilities.gallery_widget.sort_mode.server_ip_asc": "Server IP asc",
+	"screenshot_utilities.gallery_widget.sort_mode.server_ip_desc": "Server IP desc",
 	"screenshot_utilities.gallery_widget.open_screenshot_folder": "Open screenshot folder",
 
 	"screenshot_utilities.panorama_gallery.reset": "Reset to default",
@@ -46,8 +52,6 @@
 	"screenshot_utilities.metadata.resource_packs.placeholder": "resource pack 1, resource pack 2...",
 	"screenshot_utilities.metadata.shader": "Shader",
 	"screenshot_utilities.metadata.timestamp": "Timestamp",
-	"screenshot_utilities.metadata.tags": "Tags",
-	"screenshot_utilities.metadata.tags.placeholder": "tag1, tag2...",
 
 	"screenshot_utilities.hide_from_worldmap": "Hide from worldmap",
 	"screenshot_utilities.hidden_from_worldmap": "Hidden from worldmap",
@@ -89,6 +93,7 @@
 	"screenshot_utilities.config.show_chat_message": "Show chat message",
 	"screenshot_utilities.config.hide_chat_on_screenshot": "Hide chat on screenshot",
 	"screenshot_utilities.config.hide_hud_on_screenshot": "Hide hud on screenshot",
+	"screenshot_utilities.config.hide_hand_on_screenshot": "Hide hand on screenshot",
 	"screenshot_utilities.config.grab_on_advancement": "Grab screenshot on advancement",
 	"screenshot_utilities.config.advancement_screenshot_delay": "Advancement screenshot delay",
 	"screenshot_utilities.config.rotation_speed": "Rotation speed",

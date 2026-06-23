@@ -105,7 +105,7 @@ public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen 
 
 		cancelButton = Button.builder(
 						Component.translatable("screenshot_utilities.cancel"),
-						btn -> onCancelPressed())
+						btn -> onClose())
 				.pos(startX, buttonsY)
 				.size(BUTTON_WIDTH, BUTTON_HEIGHT)
 				.build();
@@ -271,14 +271,6 @@ public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen 
 
 	private boolean canSave() {
 		return hasUnsavedChanges() && trackedItems.stream().allMatch(TrackableChanges::isValid);
-	}
-
-	private void onCancelPressed() {
-		if (hasUnsavedChanges()) {
-			showUnsavedOverlay();
-		} else {
-			super.onClose();
-		}
 	}
 
 	private void onSavePressed() {

@@ -24,14 +24,13 @@ public class ScreenshotMetadata {
 	private @Nullable Long timestamp;
 	private @Nullable String panoramaId;
 	private @Nullable Integer panoramaFace;
-	private @NonNull List<String> tags;
 
 	public ScreenshotMetadata(@Nullable Integer x, @Nullable Integer y, @Nullable Integer z,
 	                          @Nullable Identifier dimension, @Nullable Identifier biome,
 	                          @Nullable Long seed, @Nullable String worldName,
 	                          @Nullable String serverIp, @Nullable String version,
 	                          @NonNull List<String> resourcePacks, @Nullable String shader,
-	                          @Nullable Long timestamp, @NonNull List<String> tags,
+	                          @Nullable Long timestamp,
 							  @Nullable String panoramaId, @Nullable Integer panoramaFace) {
 		this.x = x;
 		this.y = y;
@@ -45,20 +44,19 @@ public class ScreenshotMetadata {
 		this.resourcePacks = resourcePacks;
 		this.shader = shader;
 		this.timestamp = timestamp;
-		this.tags = tags;
 		this.panoramaId = panoramaId;
 		this.panoramaFace = panoramaFace;
 	}
 
 	public static ScreenshotMetadata empty() {
 		return new ScreenshotMetadata(null, null, null, null, null, null,
-				null, null, null, new ArrayList<>(), null, null, new ArrayList<>(),
+				null, null, null, new ArrayList<>(), null, null,
 				null, null);
 	}
 
 	public static ScreenshotMetadata copyOf(@NonNull ScreenshotMetadata from) {
 		return new ScreenshotMetadata(from.x, from.y, from.z, from.dimension, from.biome, from.seed, from.worldName,
-				from.serverIp, from.version, from.resourcePacks, from.shader, from.timestamp, from.tags, from.panoramaId, from.panoramaFace);
+				from.serverIp, from.version, from.resourcePacks, from.shader, from.timestamp, from.panoramaId, from.panoramaFace);
 	}
 
 	public @Nullable Integer getX() {
@@ -157,14 +155,6 @@ public class ScreenshotMetadata {
 		this.timestamp = timestamp;
 	}
 
-	public @NonNull List<String> getTags() {
-		return List.copyOf(tags);
-	}
-
-	public void setTags(@NonNull List<String> tags) {
-		this.tags = tags;
-	}
-
 	public @Nullable String getPanoramaId() {
 		return panoramaId;
 	}
@@ -197,7 +187,6 @@ public class ScreenshotMetadata {
 				Objects.equals(getResourcePacks(), that.getResourcePacks()) &&
 				Objects.equals(getShader(), that.getShader()) &&
 				Objects.equals(getTimestamp(), that.getTimestamp()) &&
-				Objects.equals(getTags(), that.getTags()) &&
 				Objects.equals(getPanoramaId(), that.getPanoramaId()) &&
 				Objects.equals(getPanoramaFace(), that.getPanoramaFace());
 	}
@@ -205,7 +194,7 @@ public class ScreenshotMetadata {
 	@Override
 	public int hashCode() {
 		return Objects.hash(getX(), getY(), getZ(), getDimension(), getBiome(), getSeed(), getWorldName(),
-				getServerIp(), getVersion(), getResourcePacks(), getShader(), getTimestamp(), getTags(), getPanoramaId(), getPanoramaFace());
+				getServerIp(), getVersion(), getResourcePacks(), getShader(), getTimestamp(), getPanoramaId(), getPanoramaFace());
 	}
 
 	@Override
@@ -223,7 +212,6 @@ public class ScreenshotMetadata {
 				", resourcePacks='" + resourcePacks + '\'' +
 				", shader='" + shader + '\'' +
 				", timestamp=" + timestamp +
-				", tags=" + tags +
 				", panoramaId=" + panoramaId +
 				", panoramaFace=" + panoramaFace +
 				'}';

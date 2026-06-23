@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_utilities.client.screenshot;
+package me.Azz_9.screenshot_utilities.client.gui.widget.screenshotGallery;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MOD_ID;
@@ -18,6 +18,7 @@ import net.minecraft.util.Ease;
 import org.jspecify.annotations.NonNull;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
+import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotPreview;
 
 public class ScreenshotPreviewWidget extends AbstractWidget {
 

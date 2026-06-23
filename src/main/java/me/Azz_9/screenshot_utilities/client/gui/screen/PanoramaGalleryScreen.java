@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import me.Azz_9.screenshot_utilities.client.config.ConfigLoader;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.panoramaGallery.PanoramaGalleryWidget;
@@ -41,7 +42,7 @@ public class PanoramaGalleryScreen extends AbstractSavableScreen implements Focu
 		return new PanoramaGalleryWidget(
 				GLOBAL_PADDING, GLOBAL_PADDING,
 				width - GLOBAL_PADDING * 2, getBottomBarTop() - GLOBAL_PADDING,
-				PanoramaHolder::usePanoramaAsync, PanoramaHolder::resetToDefaultAsync
+				this::setTrackedItems, PanoramaHolder::usePanoramaAsync, PanoramaHolder::resetToDefaultAsync
 		);
 	}
 
@@ -59,5 +60,11 @@ public class PanoramaGalleryScreen extends AbstractSavableScreen implements Focu
 	@Override
 	public @NonNull FocusManager getFocusManager() {
 		return focusManager;
+	}
+
+	@Override
+	public void onClose() {
+		super.onClose();
+		ConfigLoader.trySave();
 	}
 }

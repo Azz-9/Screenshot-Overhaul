@@ -9,7 +9,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.SpriteIconButton;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -19,7 +18,6 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -29,7 +27,6 @@ import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.config.SavableObject;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.SmoothScrollableWidget;
-import me.Azz_9.screenshot_utilities.client.gui.widget.TexturedCyclingButtonWidget;
 import me.Azz_9.screenshot_utilities.client.gui.widget.gallery.headerWidget.SearchBar;
 import me.Azz_9.screenshot_utilities.client.gui.widget.screenshotGallery.ScreenshotGalleryWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotManager;
@@ -55,8 +52,9 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 	private static final int FILTER_BUTTON_HEIGHT = SEARCH_BAR_HEIGHT;
 	private final @NonNull CycleButton<ScreenshotGalleryWidget.FilterMode> filterButton;
 	// sort button
-	private static final int SORT_BUTTON_SIZE = SEARCH_BAR_HEIGHT;
-	private final @NonNull TexturedCyclingButtonWidget<ScreenshotGalleryWidget.SortMode> sortButton;
+	private static final int SORT_BUTTON_WIDTH = 120;
+	private static final int SORT_BUTTON_HEIGHT = SEARCH_BAR_HEIGHT;
+	private final @NonNull CycleButton<ScreenshotGalleryWidget.SortMode> sortButton;
 	private final @NonNull SavableObject<SortMode> sortConfig;
 	// open screenshot folder button
 	protected static final int OPEN_FOLDER_BUTTON_SIZE = SEARCH_BAR_HEIGHT;
@@ -66,10 +64,10 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 
 	// separator
 	private static final int SEPARATOR_HEIGHT = MINECRAFT.font.lineHeight;
-	private final @NonNull List<DateSeparator> separators = new ArrayList<>();
-	private @Nullable LocalDate lastLayoutDate = null;
+	private final @NonNull List<Separator> separators = new ArrayList<>();
+	private @Nullable String lastLayoutLabel = null;
 
-	private record DateSeparator(int contentY, LocalDate date) {
+	private record Separator(int contentY, String label) {
 	}
 
 	private final @NonNull List<T> entries = new ArrayList<>();
@@ -127,21 +125,15 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 				);
 	}
 
-	private TexturedCyclingButtonWidget<ScreenshotGalleryWidget.SortMode> createSortButton() {
-		TexturedCyclingButtonWidget<ScreenshotGalleryWidget.SortMode> cyclingButtonWidget = new TexturedCyclingButtonWidget<>(
-				getX() + SEARCH_BAR_WIDTH + FILTER_BUTTON_WIDTH + PADDING * 3, getY() + PADDING,
-				SORT_BUTTON_SIZE, SORT_BUTTON_SIZE,
-				sortConfig.getValue().ordinal(),
-				(btn, sortMode) -> {
-					sortEntries(sortMode);
-					layoutEntries();
-				},
-				ScreenshotGalleryWidget.SortMode.values(),
-				ScreenshotGalleryWidget.SortMode::getIcon
-		);
-		cyclingButtonWidget.setTooltipFactory((value) -> Tooltip.create(value.getText()));
+	private CycleButton<ScreenshotGalleryWidget.SortMode> createSortButton() {
 
-		return cyclingButtonWidget;
+		return CycleButton.<SortMode>builder(SortMode::getText, sortConfig::getValue)
+				.withValues(SortMode.values())
+				.create(getX() + SEARCH_BAR_WIDTH + FILTER_BUTTON_WIDTH + PADDING * 3, getY() + PADDING,
+						SORT_BUTTON_WIDTH, SORT_BUTTON_HEIGHT, Component.translatable("screenshot_utilities.gallery_widget.sort_by"), (button, sortMode) -> {
+							sortEntries(sortMode);
+							layoutEntries();
+						});
 	}
 
 	private SpriteIconButton createOpenFolderButton() {
@@ -169,7 +161,7 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 		return searchBar;
 	}
 
-	protected @NonNull TexturedCyclingButtonWidget<SortMode> getSortButton() {
+	protected @NonNull CycleButton<SortMode> getSortButton() {
 		return sortButton;
 	}
 
@@ -201,6 +193,10 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 		entries.sort(switch (mode) {
 			case DATE_ASC -> Comparator.comparingLong(e -> e.getTimestampOrLastModified());
 			case DATE_DESC -> Comparator.comparingLong(e -> -e.getTimestampOrLastModified());
+			case WORLD_NAME_ASC -> Comparator.comparing(AbstractGalleryEntryWidget::getWorldName, Comparator.nullsLast(Comparator.naturalOrder()));
+			case WORLD_NAME_DESC -> Comparator.comparing(AbstractGalleryEntryWidget::getWorldName, Comparator.nullsLast(Comparator.reverseOrder()));
+			case SERVER_IP_ASC -> Comparator.comparing(AbstractGalleryEntryWidget::getServerIp, Comparator.nullsLast(Comparator.naturalOrder()));
+			case SERVER_IP_DESC -> Comparator.comparing(AbstractGalleryEntryWidget::getServerIp, Comparator.nullsLast(Comparator.reverseOrder()));
 		});
 	}
 
@@ -291,18 +287,17 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 
 		graphics.enableScissor(area.left(), area.top(), area.right(), area.bottom());
 
-		for (DateSeparator sep : separators) {
+		for (Separator sep : separators) {
 			int y = baseY + sep.contentY();
 			if (y + SEPARATOR_HEIGHT < area.top() || y > area.bottom()) continue;
 
-			String text = sep.date().format(DateTimeFormatter.ofPattern("dd LLLL yyyy"));
-			int textWidth = MINECRAFT.font.width(text);
+			int textWidth = MINECRAFT.font.width(sep.label());
 			int textLeft = getX() + (getWidth() - textWidth) / 2;
 			int textRight = textLeft + textWidth;
 			int textPad = 5;
 			int lineY = y + MINECRAFT.font.lineHeight / 2;
 
-			graphics.text(MINECRAFT.font, text, textLeft, y, Colors.GRAY, false);
+			graphics.text(MINECRAFT.font, sep.label(), textLeft, y, Colors.GRAY, false);
 			graphics.fill(getX() + PADDING, lineY, textLeft - textPad, lineY + 1, Colors.GRAY);
 			graphics.fill(textRight + textPad, lineY, getRight() - PADDING, lineY + 1, Colors.GRAY);
 		}
@@ -316,24 +311,31 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 
 	protected void beforeLayoutEntries() {
 		separators.clear();
-		lastLayoutDate = null;
+		lastLayoutLabel = null;
 	}
 
 	protected @NonNull LayoutCursor beforeLayoutEntry(@NonNull T entry, int xCursor, int yCursor, int column, int entryHeight) {
-		LocalDate entryDate = Instant.ofEpochMilli(entry.getTimestampOrLastModified()).atZone(ZoneId.systemDefault()).toLocalDate();
+		String entryLabel = switch (sortButton.getValue()) {
+			case DATE_ASC, DATE_DESC -> Instant.ofEpochMilli(entry.getTimestampOrLastModified())
+					.atZone(ZoneId.systemDefault())
+					.toLocalDate()
+					.format(DateTimeFormatter.ofPattern("dd LLLL yyyy"));
+			case WORLD_NAME_ASC, WORLD_NAME_DESC -> entry.getWorldName() == null ? "No world" : entry.getWorldName();
+			case SERVER_IP_ASC, SERVER_IP_DESC -> entry.getServerIp() == null ? "No server" : entry.getServerIp();
+		};
 
-		if (!entryDate.equals(lastLayoutDate)) {
+		if (!entryLabel.equals(lastLayoutLabel)) {
 			if (column != 0) {
 				column = 0;
 				xCursor = getX() + PADDING;
 				yCursor += entryHeight + ROW_SPACING;
 			}
 
-			separators.add(new DateSeparator(yCursor, entryDate));
+			separators.add(new Separator(yCursor, entryLabel));
 			yCursor += SEPARATOR_HEIGHT + ROW_SPACING;
 		}
 
-		lastLayoutDate = entryDate;
+		lastLayoutLabel = entryLabel;
 
 		return new LayoutCursor(xCursor, yCursor, column);
 	}
@@ -369,15 +371,17 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 	}
 
 	public enum SortMode {
-		DATE_ASC("screenshot_utilities.gallery_widget.sort_mode.date_asc", "sort_asc"),
-		DATE_DESC("screenshot_utilities.gallery_widget.sort_mode.date_desc", "sort_desc");
+		DATE_DESC("screenshot_utilities.gallery_widget.sort_mode.date_desc"),
+		DATE_ASC("screenshot_utilities.gallery_widget.sort_mode.date_asc"),
+		WORLD_NAME_DESC("screenshot_utilities.gallery_widget.sort_mode.world_name_desc"),
+		WORLD_NAME_ASC("screenshot_utilities.gallery_widget.sort_mode.world_name_asc"),
+		SERVER_IP_DESC("screenshot_utilities.gallery_widget.sort_mode.server_ip_desc"),
+		SERVER_IP_ASC("screenshot_utilities.gallery_widget.sort_mode.server_ip_asc");
 
 		private final @NonNull String translationKey;
-		private final @NonNull Identifier icon;
 
-		SortMode(@NonNull String translationKey, @NonNull String icon) {
+		SortMode(@NonNull String translationKey) {
 			this.translationKey = translationKey;
-			this.icon = Identifier.fromNamespaceAndPath(MOD_ID, "icon/" + icon);
 		}
 
 		public @NonNull String getTranslationKey() {
@@ -386,10 +390,6 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 
 		public @NonNull Component getText() {
 			return Component.translatable(getTranslationKey());
-		}
-
-		public @NonNull Identifier getIcon() {
-			return icon;
 		}
 	}
 

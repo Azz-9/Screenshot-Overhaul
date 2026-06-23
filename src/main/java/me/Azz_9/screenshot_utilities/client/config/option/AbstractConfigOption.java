@@ -16,10 +16,15 @@ import me.Azz_9.screenshot_utilities.client.config.ConfigObject;
 
 /**
  * Base implementation of {@link ConfigOption}.
+ * <p>
+ * Manages the working copy, validator, tooltip supplier, and dependency list.
+ * Concrete subclasses only need to concern themselves with type-specific logic.
  *
- * <p>Manages the working copy, the validator, the tooltip supplier, and the
- * dependency list. Concrete subclasses only need to concern themselves with
- * type-specific logic (widget creation, etc.).</p>
+ * <h3>Live mode</h3>
+ * When {@link Builder#buildLive()} is used, the option operates in "live" mode:
+ * every call to {@link #setWorkingValue} also commits immediately to the backing
+ * {@link ConfigObject}. A snapshot of the value at construction time is kept so
+ * that {@link #hasChanged()} and {@link #revertChanges()} still work correctly.
  *
  * @param <T> the type of the configuration value
  */
@@ -37,6 +42,9 @@ public abstract class AbstractConfigOption<T> implements ConfigOption<T> {
 	 */
 	private @NonNull T workingValue;
 
+	private boolean live = false;
+	private @Nullable T snapshotValue = null;
+
 	protected AbstractConfigOption(
 			@NonNull ConfigObject<T> configObject,
 			@NonNull Component label,
@@ -52,6 +60,19 @@ public abstract class AbstractConfigOption<T> implements ConfigOption<T> {
 		this.validationErrorMessage = validationErrorMessage;
 		this.dependencies = List.copyOf(dependencies);
 		this.workingValue = configObject.getValue();
+	}
+
+	// -------------------------------------------------------------------------
+	// Live mode activation — called by Builder.buildLive()
+	// -------------------------------------------------------------------------
+
+	final void enableLive() {
+		this.live = true;
+		this.snapshotValue = configObject.getValue();
+	}
+
+	public boolean isLive() {
+		return live;
 	}
 
 	// -------------------------------------------------------------------------
@@ -77,11 +98,12 @@ public abstract class AbstractConfigOption<T> implements ConfigOption<T> {
 	@Override
 	public void setWorkingValue(@NonNull T value) {
 		this.workingValue = value;
+		if (live) configObject.setValue(value);
 	}
 
 	@Override
 	public void resetToDefault() {
-		this.workingValue = configObject.getDefaultValue();
+		setWorkingValue(configObject.getDefaultValue());
 	}
 
 	@Override
@@ -103,17 +125,24 @@ public abstract class AbstractConfigOption<T> implements ConfigOption<T> {
 
 	@Override
 	public boolean hasChanged() {
-		return !workingValue.equals(configObject.getValue());
+		// Live options compare against the snapshot, not the ConfigObject value
+		// (which is always equal to workingValue in live mode).
+		T reference = live && snapshotValue != null ? snapshotValue : configObject.getValue();
+		return !workingValue.equals(reference);
 	}
 
 	@Override
 	public void revertChanges() {
-		this.workingValue = configObject.getValue();
+		// Live options revert to the snapshot; standard options revert to the
+		// ConfigObject's current value.
+		T target = live && snapshotValue != null ? snapshotValue : configObject.getValue();
+		setWorkingValue(target);
 	}
 
 	@Override
 	public void commitChanges() {
-		configObject.setValue(workingValue);
+		// No-op in live mode — already committed on every setWorkingValue.
+		if (!live) configObject.setValue(workingValue);
 	}
 
 	// -------------------------------------------------------------------------
@@ -211,6 +240,28 @@ public abstract class AbstractConfigOption<T> implements ConfigOption<T> {
 			return dependsOn(booleanOption::getWorkingValue);
 		}
 
+		/**
+		 * Builds a standard option with a working copy separate from the config object.
+		 */
 		public abstract @NonNull O build();
+
+		/**
+		 * Builds the same concrete option type as {@link #build()}, but with
+		 * live mode enabled: every {@link AbstractConfigOption#setWorkingValue}
+		 * also commits immediately to the backing {@link ConfigObject}.
+		 *
+		 * <p>A snapshot of the current value is taken at this point so that
+		 * {@link AbstractConfigOption#hasChanged()} and
+		 * {@link AbstractConfigOption#revertChanges()} still work correctly,
+		 * allowing Cancel to undo the live changes.</p>
+		 *
+		 * <p>Use for options whose effect should be visible in real time
+		 * (e.g. panorama rotation speed).</p>
+		 */
+		public @NonNull O buildLive() {
+			O option = build();
+			option.enableLive();
+			return option;
+		}
 	}
 }

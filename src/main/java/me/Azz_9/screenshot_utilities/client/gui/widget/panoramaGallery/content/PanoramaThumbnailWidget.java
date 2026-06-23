@@ -110,7 +110,7 @@ public class PanoramaThumbnailWidget extends AbstractThumbnailWidget {
 
 	@Override
 	public boolean mouseReleased(MouseButtonEvent click) {
-		if (click.button() == 0 && isMouseOver(click.x(), click.y()) && !didDrag) {
+		if (click.button() == 0 && !didDrag) {
 			this.playDownSound(Minecraft.getInstance().getSoundManager());
 			this.onClick(click, false);
 		}

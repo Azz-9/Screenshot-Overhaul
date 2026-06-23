@@ -144,6 +144,16 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 	}
 
 	@Override
+	public @Nullable String getWorldName() {
+		return screenshot.getMetadata().getWorldName();
+	}
+
+	@Override
+	public @Nullable String getServerIp() {
+		return screenshot.getMetadata().getServerIp();
+	}
+
+	@Override
 	public void updateWidgetNarration(@NonNull NarrationElementOutput output) {
 	}
 

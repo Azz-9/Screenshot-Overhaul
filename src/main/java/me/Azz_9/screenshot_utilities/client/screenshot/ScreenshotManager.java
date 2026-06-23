@@ -26,6 +26,7 @@ public class ScreenshotManager {
 	public static void load() {
 		if (!Files.exists(statesFile)) return;
 
+		ScreenshotLogger.info("Loading screenshot-states.json");
 		try (Reader reader = Files.newBufferedReader(statesFile)) {
 			Type type = new TypeToken<HashMap<String, ScreenshotState>>() {
 			}.getType();
@@ -37,6 +38,7 @@ public class ScreenshotManager {
 	}
 
 	public static void save() {
+		ScreenshotLogger.info("Saving screenshot-states.json");
 		try {
 			Files.createDirectories(statesFile.getParent());
 			try (Writer writer = Files.newBufferedWriter(statesFile)) {
@@ -73,6 +75,10 @@ public class ScreenshotManager {
 		return states.get(filePathRelativeToScreenshotDir).hiddenFromMap;
 	}
 
+	public static void remove(String filePath) {
+		states.remove(filePath);
+	}
+
 	public static void changeFilePath(String oldFilePathRelativeToScreenshotDir, String newFilePathRelativeToScreenshotDir) {
 		ScreenshotState state = states.remove(oldFilePathRelativeToScreenshotDir);
 		if (state != null) {
@@ -99,9 +105,13 @@ public class ScreenshotManager {
 			this.favorite = favorite;
 			this.hiddenFromMap = hiddenFromMap;
 		}
-	}
 
-	public static void remove(String filePath) {
-		states.remove(filePath);
+		@Override
+		public String toString() {
+			return "ScreenshotState{" +
+					"favorite=" + favorite +
+					", hiddenFromMap=" + hiddenFromMap +
+					'}';
+		}
 	}
 }
