@@ -1,13 +1,17 @@
 package me.Azz_9.screenshot_utilities.client.gui.widget.screenshotGallery;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MOD_ID;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.SpriteIconButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -31,6 +35,11 @@ import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
 @Environment(EnvType.CLIENT)
 public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWidget> {
 
+	private static final Identifier SETTINGS_SPRITE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/cogwheel");
+
+	// settings
+	private static final int SETTINGS_BUTTON_SIZE = 20;
+
 	// thumbnail
 	public static final int MIN_THUMB_WIDTH = 140;
 	public static final int MAX_THUMB_WIDTH = 260;
@@ -51,6 +60,8 @@ public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWi
 		this.onEntriesChanged = onEntriesChanged;
 		this.onThumbnailClicked = onThumbnailClicked;
 
+		addFixedChild(createSettingsButton());
+
 		ScreenshotList.whenScreenshotsLoaded((screenshots -> {
 			// make sure the player didn't leave the screen before building entries
 			if (MINECRAFT.screen instanceof ScreenshotGalleryScreen) {
@@ -60,6 +71,30 @@ public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWi
 				layoutEntries();
 			}
 		}));
+	}
+
+	@Override
+	protected SpriteIconButton createOpenFolderButton() {
+		SpriteIconButton openFolderButton = super.createOpenFolderButton();
+		openFolderButton.setPosition(
+				getRight() - SETTINGS_BUTTON_SIZE - OPEN_FOLDER_BUTTON_SIZE - PADDING * 2,
+				getY() + PADDING
+		);
+		return openFolderButton;
+	}
+
+	private Button createSettingsButton() {
+		SpriteIconButton button = SpriteIconButton.TextAndIcon.builder(
+						Component.translatable("screenshot_utilities.settings"),
+						(_) -> MINECRAFT.setScreen(Config.getInstance().getSettingsScreen(MINECRAFT.screen)),
+						true
+				)
+				.withTootip()
+				.size(SETTINGS_BUTTON_SIZE, SETTINGS_BUTTON_SIZE)
+				.sprite(SETTINGS_SPRITE, 15, 15)
+				.build();
+		button.setPosition(getRight() - SETTINGS_BUTTON_SIZE - PADDING, getY() + PADDING);
+		return button;
 	}
 
 	// rendering
@@ -105,11 +140,12 @@ public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWi
 		if (!refreshing.compareAndSet(false, true)) return;
 
 		ScreenshotLogger.info("Refreshing screenshot gallery entries");
-		if (clearCache) ScreenshotTextureCache.clearCache();
 
 		ScreenshotList.reloadAsync();
 
 		ScreenshotList.whenScreenshotsLoaded(screenshots -> {
+			if (clearCache) ScreenshotTextureCache.clearCache();
+
 			buildEntries(screenshots);
 			searchAndFilter(getSearchBar().getValue(), getFilterButton().getValue());
 			sortEntries(getSortButton().getValue());

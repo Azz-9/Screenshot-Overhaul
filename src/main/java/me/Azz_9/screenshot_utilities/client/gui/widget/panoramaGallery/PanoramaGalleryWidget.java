@@ -93,11 +93,12 @@ public class PanoramaGalleryWidget extends ScrollableGallery<PanoramaEntryWidget
 		if (!refreshing.compareAndSet(false, true)) return;
 
 		ScreenshotLogger.info("Refreshing panorama gallery entries");
-		if (clearCache) PanoramaTextureCache.clearCache();
 
 		ScreenshotList.reloadAsync();
 
 		ScreenshotList.whenPanoramasLoaded(panoramas -> {
+			if (clearCache) PanoramaTextureCache.clearCache();
+
 			buildEntries(panoramas);
 			searchAndFilter(getSearchBar().getValue(), getFilterButton().getValue());
 			sortEntries(getSortButton().getValue());

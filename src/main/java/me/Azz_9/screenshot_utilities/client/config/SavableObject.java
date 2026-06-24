@@ -3,10 +3,16 @@ package me.Azz_9.screenshot_utilities.client.config;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
+
 public class SavableObject<T> {
 	private final T defaultValue;
 	private T value;
 	private final Class<T> valueType;
+	private final List<Consumer<T>> listeners = new ArrayList<>();
 
 	protected SavableObject(final T defaultValue, Class<T> valueType) {
 		this.value = defaultValue;
@@ -37,7 +43,14 @@ public class SavableObject<T> {
 	}
 
 	public void setValue(T value) {
+		if (!Objects.equals(this.value, value)) {
+			listeners.forEach(listener -> listener.accept(value));
+		}
 		this.value = value;
+	}
+
+	public void addOnChangeListener(Consumer<T> listener) {
+		listeners.add(listener);
 	}
 
 	public T getDefaultValue() {

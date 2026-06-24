@@ -34,6 +34,8 @@ import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotManager;
 @Environment(EnvType.CLIENT)
 public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> extends SmoothScrollableWidget {
 
+	private static final Identifier FOLDER_SPRITE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/folder");
+
 	protected static final int PADDING = 10;
 	protected static final int ROW_SPACING = 14;
 	private static final int PRELOAD_MARGIN = 200;
@@ -136,7 +138,7 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 						});
 	}
 
-	private SpriteIconButton createOpenFolderButton() {
+	protected SpriteIconButton createOpenFolderButton() {
 		SpriteIconButton openFolderButton = SpriteIconButton.TextAndIcon.builder(
 						Component.translatable("screenshot_utilities.gallery_widget.open_screenshot_folder"),
 						(btn) -> {
@@ -149,7 +151,7 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 				)
 				.withTootip()
 				.size(OPEN_FOLDER_BUTTON_SIZE, OPEN_FOLDER_BUTTON_SIZE)
-				.sprite(Identifier.fromNamespaceAndPath(MOD_ID, "icon/folder"), 15, 15)
+				.sprite(FOLDER_SPRITE, 15, 15)
 				.build();
 
 		openFolderButton.setPosition(getRight() - PADDING - OPEN_FOLDER_BUTTON_SIZE, getY() + PADDING);

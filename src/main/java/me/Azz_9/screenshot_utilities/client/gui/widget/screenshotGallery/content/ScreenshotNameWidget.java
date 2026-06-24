@@ -95,6 +95,7 @@ public class ScreenshotNameWidget extends AbstractWidget {
 	public ScreenshotNameWidget(int x, int y, int width, int height, @NonNull String initialText, boolean keepExtension) {
 		super(x, y, width, height, Component.empty());
 		this.font = MINECRAFT.font;
+		setMaxLength(255); // max file name length
 
 		setText(initialText);
 		setDrawsBackground(false);
@@ -106,7 +107,6 @@ public class ScreenshotNameWidget extends AbstractWidget {
 		if (keepExtension) {
 			setTextPredicate((text) -> text.endsWith(extension));
 		}
-		setMaxLength(50);
 
 		this.updateTextPosition();
 	}

@@ -4,6 +4,7 @@ import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MI
 import static me.Azz_9.screenshot_utilities.client.screenshot.panorama.Panorama.firstFace;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,28 +13,29 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.screenshot.panorama.Panorama;
 
 public class ScreenshotList {
-	private static final List<String> ACCEPTED_SCREENSHOT_FILE_EXTENSIONS = List.of(".png");
+	private static final @NonNull List<String> ACCEPTED_SCREENSHOT_FILE_EXTENSIONS = List.of(".png");
 	private static final int MAX_READ_ATTEMPTS = 10;
 	private static final int READ_DELAY_MS = 50;
 
-	private static final List<Screenshot> screenshots = new ArrayList<>();
-	private static final Object lock = new Object();
+	private static final @NonNull List<Screenshot> screenshots = new ArrayList<>();
+	private static final @NonNull Object lock = new Object();
 
 	private static volatile boolean loaded = false;
 	private static volatile boolean loading = false;
 
-	private static final List<Runnable> pendingLoadCallbacks = new ArrayList<>();
-	private static Consumer<List<Screenshot>> onChangeListener = null;
+	private static final @NonNull List<Runnable> pendingLoadCallbacks = new ArrayList<>();
+	private static @Nullable Consumer<List<Screenshot>> onChangeListener = null;
 
-	private static final Map<WatchKey, Path> watchedDirs = new HashMap<>();
-	private static WatchService currentWatcher;
-	private static Thread currentWatchThread;
+	private static final @NonNull Map<WatchKey, Path> watchedDirs = new HashMap<>();
+	private static @Nullable WatchService currentWatcher;
+	private static @Nullable Thread currentWatchThread;
 
 
 	private ScreenshotList() {
@@ -52,26 +54,27 @@ public class ScreenshotList {
 			if (!loaded) return;
 			loaded = false;
 		}
-		runAsync("screenshot-reloader", ScreenshotList::notifyChange);
+		runAsync("screenshot-reloader", null);
 	}
 
-	private static void runAsync(String threadName, Runnable onComplete) {
+	private static void runAsync(@NonNull String threadName, @Nullable Runnable onComplete) {
 		Thread thread = new Thread(() -> {
 			List<Screenshot> result;
 			try {
-				result = Files.walk(Config.getInstance().getAbsoluteScreenshotsDir())
-						.filter(ScreenshotList::isScreenshot)
-						.map(path -> {
-							File file = path.toFile();
-							ScreenshotMetadata metadata;
-							try {
-								metadata = ScreenshotMetadataUtils.read(file);
-							} catch (Exception e) {
-								metadata = ScreenshotMetadata.empty();
-							}
-							return new Screenshot(file, metadata);
-						})
-						.collect(Collectors.toCollection(ArrayList::new));
+				try (Stream<Path> paths = Files.walk(Config.getInstance().getAbsoluteScreenshotsDir())) {
+					result = paths.filter(ScreenshotList::isScreenshot)
+							.map(path -> {
+								File file = path.toFile();
+								ScreenshotMetadata metadata;
+								try {
+									metadata = ScreenshotMetadataUtils.read(file);
+								} catch (Exception e) {
+									metadata = ScreenshotMetadata.empty();
+								}
+								return new Screenshot(file, metadata);
+							})
+							.collect(Collectors.toCollection(ArrayList::new));
+				}
 			} catch (IOException e) {
 				ScreenshotLogger.warn("Could not load screenshots: {}", e.getMessage());
 				result = new ArrayList<>();
@@ -84,21 +87,21 @@ public class ScreenshotList {
 			}
 
 			runPendingCallbacks();
-			onComplete.run();
+			if (onComplete != null) onComplete.run();
 		}, threadName);
 		thread.setDaemon(true);
 		thread.start();
 	}
 
-	public static void whenScreenshotsLoaded(Consumer<List<Screenshot>> onLoaded) {
+	public static void whenScreenshotsLoaded(@NonNull Consumer<List<Screenshot>> onLoaded) {
 		whenLoadedInternal(onLoaded, ScreenshotList::getScreenshots);
 	}
 
-	public static void whenPanoramasLoaded(Consumer<List<Panorama>> onLoaded) {
+	public static void whenPanoramasLoaded(@NonNull Consumer<List<Panorama>> onLoaded) {
 		whenLoadedInternal(onLoaded, ScreenshotList::getPanoramas);
 	}
 
-	private static <T> void whenLoadedInternal(Consumer<T> onLoaded, Supplier<T> supplier) {
+	private static <T> void whenLoadedInternal(@NonNull Consumer<T> onLoaded, @NonNull Supplier<T> supplier) {
 		synchronized (lock) {
 			if (loaded) {
 				onLoaded.accept(supplier.get());
@@ -130,7 +133,7 @@ public class ScreenshotList {
 	 * Retourne la liste des panoramas déduits des métadonnées, triés par date de la face 0
 	 * (ou à défaut la première face présente), du plus récent au plus ancien.
 	 */
-	public static List<Panorama> getPanoramas() {
+	public static @NonNull List<Panorama> getPanoramas() {
 		synchronized (lock) {
 			if (!loaded) return Collections.emptyList();
 
@@ -170,7 +173,7 @@ public class ScreenshotList {
 		}
 	}
 
-	public static void setOnChangeListener(Consumer<List<Screenshot>> listener) {
+	public static void setOnChangeListener(@NonNull Consumer<List<Screenshot>> listener) {
 		synchronized (lock) {
 			onChangeListener = listener;
 		}
@@ -192,7 +195,7 @@ public class ScreenshotList {
 		}
 	}
 
-	public static void changeDirectory(Path newRoot) {
+	public static void onScreenshotDirectoryChanged() {
 		synchronized (lock) {
 			if (!loaded) return;
 			loaded = false;
@@ -224,8 +227,8 @@ public class ScreenshotList {
 
 			Path root = Config.getInstance().getAbsoluteScreenshotsDir();
 
-			Files.walk(root)
-					.filter(Files::isDirectory)
+			try (Stream<Path> paths = Files.walk(root)) {
+				paths.filter(Files::isDirectory)
 					.forEach(dir -> {
 						try {
 							registerDirectory(currentWatcher, dir);
@@ -233,10 +236,13 @@ public class ScreenshotList {
 							ScreenshotLogger.warn("Could not watch directory {}: {}", dir, e.getMessage());
 						}
 					});
+			}
 
 			Thread watchThread = new Thread(() -> {
 				try {
 					while (true) {
+						if (currentWatcher == null) continue;
+
 						WatchKey key = currentWatcher.take();
 						Path dir;
 						synchronized (lock) {

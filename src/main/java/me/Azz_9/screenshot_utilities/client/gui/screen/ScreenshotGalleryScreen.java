@@ -1,13 +1,10 @@
 package me.Azz_9.screenshot_utilities.client.gui.screen;
 
-import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
-
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -16,7 +13,6 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
-import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.gui.widget.FullViewWidget;
@@ -34,13 +30,10 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 
 	// layout
 	private static final int GLOBAL_PADDING = 10;
-	private static final int SETTINGS_BUTTON_WIDTH = 120;
-	private static final int SETTINGS_BUTTON_HEIGHT = 20;
 
 	// widgets
 	private @Nullable ScreenshotGalleryWidget gallery;
 	private @Nullable FullViewWidget fullView;
-	private @Nullable Button settingsButton;
 
 	public ScreenshotGalleryScreen() {
 		super(Component.translatable("screenshot_utilities.narrator.screenshot_gallery"));
@@ -53,12 +46,10 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 
 	@Override
 	protected void initContent() {
-		settingsButton = createSettingsButton();
 		gallery = createGallery();
 		fullView = createFullView();
 
 		addRenderableWidget(gallery);
-		addRenderableWidget(settingsButton);
 		// fullView is added last so it renders on top of everything, including the bottom bar
 		addRenderableWidget(fullView);
 
@@ -83,17 +74,10 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 		});
 	}
 
-	private Button createSettingsButton() {
-		return Button.builder(Component.translatable("screenshot_utilities.settings"), (_) ->
-						MINECRAFT.setScreen(Config.getInstance().getSettingsScreen(this)))
-				.bounds(width - SETTINGS_BUTTON_WIDTH - GLOBAL_PADDING, GLOBAL_PADDING, SETTINGS_BUTTON_WIDTH, SETTINGS_BUTTON_HEIGHT)
-				.build();
-	}
-
 	private ScreenshotGalleryWidget createGallery() {
 		return new ScreenshotGalleryWidget(
 				GLOBAL_PADDING, GLOBAL_PADDING,
-				width - SETTINGS_BUTTON_WIDTH - GLOBAL_PADDING * 2 - 20, getBottomBarTop() - GLOBAL_PADDING,
+				width - GLOBAL_PADDING * 2, getBottomBarTop() - GLOBAL_PADDING,
 				this::setTrackedItems, this::openFullView);
 	}
 
@@ -150,7 +134,6 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 		int bgMouseY = fullViewActive ? -1 : mouseY;
 
 		if (gallery != null) gallery.extractRenderState(graphics, bgMouseX, bgMouseY, deltaTicks);
-		if (settingsButton != null) settingsButton.extractRenderState(graphics, bgMouseX, bgMouseY, deltaTicks);
 
 		super.extractRenderState(graphics, bgMouseX, bgMouseY, deltaTicks);
 

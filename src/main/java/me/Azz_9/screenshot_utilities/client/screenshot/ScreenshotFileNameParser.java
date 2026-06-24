@@ -20,6 +20,9 @@ public final class ScreenshotFileNameParser {
 	// Tous les tokens supportés
 	private static final Map<String, Supplier<String>> TOKENS;
 
+	private static final int MAX_SEGMENT_LENGTH = 255;
+	private static final int MAX_FILE_STEM_LENGTH = MAX_SEGMENT_LENGTH - 4;
+
 	static {
 		Map<String, Supplier<String>> map = new LinkedHashMap<>();
 		map.put("datetime", Util::getFilenameFormattedDateTime);
@@ -72,11 +75,13 @@ public final class ScreenshotFileNameParser {
 		String normalized = resolved.replace('\\', '/');
 
 		// suppression des segments vides
-		String[] rawSegments = normalized.split("/");
+		String[] rawSegments = normalized.split("/", -1);
 
 		List<String> segments = new ArrayList<>();
-		for (String s : rawSegments) {
-			String cleaned = sanitize(s);
+		for (int i = 0; i < rawSegments.length; i++) {
+			String cleaned = i == rawSegments.length - 1
+					? sanitizeFileStem(rawSegments[i])
+					: sanitizeDirectoryName(rawSegments[i]);
 			if (!cleaned.isEmpty()) {
 				segments.add(cleaned);
 			}
@@ -130,6 +135,26 @@ public final class ScreenshotFileNameParser {
 		return sb.toString();
 	}
 
+	private static String sanitizeDirectoryName(String segment) {
+		String s = sanitize(segment);
+
+		if (s.length() > MAX_SEGMENT_LENGTH) {
+			s = s.substring(0, MAX_SEGMENT_LENGTH);
+		}
+
+		return s;
+	}
+
+	private static String sanitizeFileStem(String stem) {
+		String s = sanitize(stem);
+
+		if (s.length() > MAX_FILE_STEM_LENGTH) {
+			s = s.substring(0, MAX_FILE_STEM_LENGTH);
+		}
+
+		return s;
+	}
+
 	private static String sanitize(String segment) {
 		String s = ILLEGAL_CHARS.matcher(segment.trim()).replaceAll("_");
 
@@ -148,7 +173,16 @@ public final class ScreenshotFileNameParser {
 
 		int count = 2;
 		while (true) {
-			candidate = folder.resolve(stem + "_" + count + ".png");
+			String strCount = String.valueOf(count);
+
+			int maxLength = MAX_FILE_STEM_LENGTH - (strCount.length() + 1);
+
+			String truncatedStem = stem.length() > maxLength
+					? stem.substring(0, maxLength)
+					: stem;
+
+			candidate = folder.resolve(truncatedStem + "_" + strCount + ".png");
+
 			if (!Files.exists(candidate)) return candidate;
 			count++;
 		}

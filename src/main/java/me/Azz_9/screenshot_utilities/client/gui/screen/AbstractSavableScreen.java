@@ -63,8 +63,7 @@ public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen 
 	// Tracked items — identity set so distinct equal objects are both tracked
 	// -------------------------------------------------------------------------
 
-	private final Set<TrackableChanges> trackedItems =
-			Collections.newSetFromMap(new IdentityHashMap<>());
+	private final Set<TrackableChanges> trackedItems = Collections.newSetFromMap(new IdentityHashMap<>());
 
 	// -------------------------------------------------------------------------
 	// Widgets

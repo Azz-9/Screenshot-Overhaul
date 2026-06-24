@@ -18,6 +18,7 @@ import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -66,6 +67,7 @@ public class Screenshot_utilitiesClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		try {
 			ConfigLoader.load();
+			Config.getInstance().screenshotsDir.addOnChangeListener(this::onScreenshotDirectoryChanged);
 		} catch (IOException e) {
 			ScreenshotLogger.error("Failed to load config file.", e.getMessage());
 		}
@@ -143,6 +145,11 @@ public class Screenshot_utilitiesClient implements ClientModInitializer {
 
 		// hide hud in PhotoMode
 		return PhotoMode.isEnabled();
+	}
+
+	private void onScreenshotDirectoryChanged(Path path) {
+		ScreenshotList.onScreenshotDirectoryChanged();
+		ScreenshotManager.onScreenshotDirectoryChanged(path);
 	}
 
 	public static void runLater(Runnable runnable, int delayTicks) {
