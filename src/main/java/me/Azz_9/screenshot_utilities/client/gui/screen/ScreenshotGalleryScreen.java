@@ -150,7 +150,7 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 					gallery.refresh(false, null);
 					// Toaster
 					SystemToast.add(
-							MINECRAFT.getToastManager(),
+							MINECRAFT.gui.toastManager(),
 							CustomToastId.SCREENSHOT_DELETE_FAILED,
 							Component.translatable("screenshot_utilities.delete_failed.title"),
 							Component.translatable("screenshot_utilities.delete_failed.message", screenshot.file().getName())

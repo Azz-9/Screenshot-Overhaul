@@ -39,7 +39,7 @@ public final class ConfigOptionWidgetFactory {
 	 */
 	public static @NonNull ConfigOptionWidget<?> create(int x, int y, int width, @NonNull ConfigOption<?> option) {
 		Consumer<GuiEventListener> focusRequester = widget -> {
-			if (MINECRAFT.screen instanceof FocusableScreen fs) fs.requestFocus(widget);
+			if (MINECRAFT.gui.screen() instanceof FocusableScreen fs) fs.requestFocus(widget);
 		};
 
 		ConfigOptionWidget<?> widget = switch (option) {

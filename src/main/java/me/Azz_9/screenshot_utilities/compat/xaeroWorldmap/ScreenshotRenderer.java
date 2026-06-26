@@ -5,7 +5,6 @@ import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MI
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 
 import java.nio.file.Path;
@@ -14,6 +13,7 @@ import java.util.Map;
 
 import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotTextureCache;
+import xaero.lib.client.graphics.XaeroBufferProvider;
 import xaero.map.WorldMap;
 import xaero.map.element.MapElementGraphics;
 import xaero.map.element.render.ElementRenderInfo;
@@ -52,14 +52,14 @@ public class ScreenshotRenderer extends ElementRenderer<Screenshot, ScreenshotRe
 	}
 
 	@Override
-	public void preRender(ElementRenderInfo info, MultiBufferSource.BufferSource vanillaBuffers,
+	public void preRender(ElementRenderInfo info, XaeroBufferProvider xaeroBufferProvider,
 	                      MultiTextureRenderTypeRendererProvider rendererProvider, boolean shadow) {
 		context.textureRenderer = rendererProvider.getRenderer(CustomRenderTypes.GUI_BILINEAR_PRE);
-		context.userScale = MINECRAFT.screen instanceof GuiMap guiMap ? guiMap.getUserScale() : 1.0;
+		context.userScale = MINECRAFT.gui.screen() instanceof GuiMap guiMap ? guiMap.getUserScale() : 1.0;
 	}
 
 	@Override
-	public void postRender(ElementRenderInfo info, MultiBufferSource.BufferSource vanillaBuffers,
+	public void postRender(ElementRenderInfo info, XaeroBufferProvider xaeroBufferProvider,
 	                       MultiTextureRenderTypeRendererProvider rendererProvider, boolean shadow) {
 		rendererProvider.draw(context.textureRenderer);
 	}
@@ -68,7 +68,7 @@ public class ScreenshotRenderer extends ElementRenderer<Screenshot, ScreenshotRe
 	public void renderElementShadow(Screenshot screenshot, boolean hovered, float optionalScale,
 	                                double partialX, double partialY, ElementRenderInfo info,
 	                                MapElementGraphics guiGraphics,
-	                                MultiBufferSource.BufferSource vanillaBuffers,
+	                                XaeroBufferProvider xaeroBufferProvider,
 	                                MultiTextureRenderTypeRendererProvider rendererProvider) {
 		// pas d'ombre
 	}
@@ -77,7 +77,7 @@ public class ScreenshotRenderer extends ElementRenderer<Screenshot, ScreenshotRe
 	public boolean renderElement(Screenshot screenshot, boolean hovered, double optionalDepth,
 	                             float optionalScale, double partialX, double partialY,
 	                             ElementRenderInfo info, MapElementGraphics guiGraphics,
-	                             MultiBufferSource.BufferSource vanillaBuffers,
+	                             XaeroBufferProvider xaeroBufferProvider,
 	                             MultiTextureRenderTypeRendererProvider rendererProvider) {
 		PoseStack matrixStack = guiGraphics.pose();
 

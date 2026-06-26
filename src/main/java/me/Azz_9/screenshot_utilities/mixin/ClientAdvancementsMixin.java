@@ -35,10 +35,10 @@ public abstract class ClientAdvancementsMixin {
 					ScreenshotGrabber.requestGrab(
 							Config.getInstance().getAbsoluteScreenshotsDir().toFile(),
 							null,
-							MINECRAFT.getMainRenderTarget(),
+							MINECRAFT.gameRenderer.mainRenderTarget(),
 							1,
 							message -> MINECRAFT.execute(() -> {
-								MINECRAFT.gui.getChat().addClientSystemMessage(message);
+								MINECRAFT.gui.hud.getChat().addClientSystemMessage(message);
 								MINECRAFT.getNarrator().saySystemQueued(message);
 							})
 					), Config.getInstance().advancementScreenshotDelay.getValue());

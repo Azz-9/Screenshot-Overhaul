@@ -11,13 +11,13 @@ import java.awt.geom.Point2D;
 
 import journeymap.api.v2.client.IClientAPI;
 import journeymap.api.v2.client.IClientPlugin;
-import journeymap.api.v2.client.display.Context;
 import journeymap.api.v2.client.display.IOverlayListener;
 import journeymap.api.v2.client.display.MarkerOverlay;
 import journeymap.api.v2.client.display.Overlay;
 import journeymap.api.v2.client.fullscreen.ModPopupMenu;
 import journeymap.api.v2.client.model.MapImage;
 import journeymap.api.v2.client.util.UIState;
+import journeymap.api.v2.common.Context;
 import journeymap.api.v2.common.JourneyMapPlugin;
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.config.Config;

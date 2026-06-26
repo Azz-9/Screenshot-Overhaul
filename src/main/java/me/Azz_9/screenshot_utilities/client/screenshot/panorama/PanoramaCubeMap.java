@@ -2,6 +2,7 @@ package me.Azz_9.screenshot_utilities.client.screenshot.panorama;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 
+import com.mojang.blaze3d.GpuFormat;
 import com.mojang.blaze3d.ProjectionType;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
@@ -77,7 +78,7 @@ public class PanoramaCubeMap implements AutoCloseable {
 				|| offscreenTarget.width != physicalWidth
 				|| offscreenTarget.height != physicalHeight) {
 			if (offscreenTarget != null) offscreenTarget.destroyBuffers();
-			offscreenTarget = new TextureTarget("Panorama Widget Offscreen", physicalWidth, physicalHeight, true);
+			offscreenTarget = new TextureTarget("Panorama Widget Offscreen", physicalWidth, physicalHeight, true, GpuFormat.RGBA8_UNORM);
 		}
 
 		// Projection adaptée aux dimensions de la zone, pas de la fenêtre

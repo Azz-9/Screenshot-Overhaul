@@ -34,7 +34,7 @@ public abstract class WorldRendererMixin {
 	protected abstract boolean shouldShowEntityOutlines();
 
 	// Freeze tick delta in PhotoMode
-	@ModifyVariable(method = "extractLevel", at = @At("HEAD"), argsOnly = true, name = "deltaTracker")
+	@ModifyVariable(method = "render", at = @At("HEAD"), argsOnly = true, name = "deltaTracker")
 	private static DeltaTracker freezeTickDelta(DeltaTracker deltaTracker) {
 		if (PhotoMode.isEnabled() && Config.getInstance().freezeInPhotoMode.getValue()) {
 			return DeltaTracker.ZERO;
@@ -44,7 +44,7 @@ public abstract class WorldRendererMixin {
 	}
 
 	// Freeze tick delta in PhotoMode
-	@ModifyVariable(method = "extractLevel", at = @At("HEAD"), argsOnly = true, name = "deltaPartialTick")
+	@ModifyVariable(method = "render", at = @At("HEAD"), argsOnly = true, name = "deltaPartialTick")
 	private static float freezeTickDelta(float deltaPartialTick) {
 		if (PhotoMode.isEnabled() && Config.getInstance().freezeInPhotoMode.getValue()) {
 			return 0;

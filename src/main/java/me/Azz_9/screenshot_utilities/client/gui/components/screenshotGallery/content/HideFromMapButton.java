@@ -81,7 +81,7 @@ public class HideFromMapButton extends Button {
 	@Override
 	public void onClick(@NonNull MouseButtonEvent click, boolean doubled) {
 		toggle();
-		if (MINECRAFT.screen instanceof FocusableScreen screen) {
+		if (MINECRAFT.gui.screen() instanceof FocusableScreen screen) {
 			screen.requestFocus(this);
 		}
 		super.onClick(click, doubled);

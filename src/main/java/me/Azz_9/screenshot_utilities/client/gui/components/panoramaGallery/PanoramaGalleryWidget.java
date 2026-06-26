@@ -58,7 +58,7 @@ public class PanoramaGalleryWidget extends ScrollableGallery<PanoramaEntryWidget
 
 		ScreenshotList.whenPanoramasLoaded(panoramas -> {
 			// make sure the player didn't leave the screen before building entries
-			if (MINECRAFT.screen instanceof PanoramaGalleryScreen) {
+			if (MINECRAFT.gui.screen() instanceof PanoramaGalleryScreen) {
 				buildEntries(panoramas.stream().filter(Panorama::isComplete).toList());
 				searchAndFilter(getSearchBar().getValue(), getFilterButton().getValue());
 				sortEntries(getSortButton().getValue());

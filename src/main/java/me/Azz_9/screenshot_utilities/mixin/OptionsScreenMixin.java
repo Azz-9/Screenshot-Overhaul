@@ -39,7 +39,7 @@ public abstract class OptionsScreenMixin extends Screen {
 		SpriteIconButton screenshotViewerButton = this.addRenderableWidget(
 				SpriteIconButton.TextAndIcon.builder(
 								Component.translatable("screenshot_utilities.options.screenshots"),
-								(btn) -> MINECRAFT.setScreen(new ScreenshotGalleryScreen()),
+								(btn) -> MINECRAFT.gui.setScreen(new ScreenshotGalleryScreen()),
 								true
 						)
 						.withTootip()

@@ -44,7 +44,7 @@ public abstract class TitleScreenMixin extends Screen {
 		SpriteIconButton screenshotViewerButton = this.addRenderableWidget(
 				SpriteIconButton.TextAndIcon.builder(
 								Component.translatable("screenshot_utilities.options.screenshots"),
-								(btn) -> MINECRAFT.setScreen(new ScreenshotGalleryScreen()),
+								(btn) -> MINECRAFT.gui.setScreen(new ScreenshotGalleryScreen()),
 								true
 						)
 						.withTootip()
@@ -57,7 +57,7 @@ public abstract class TitleScreenMixin extends Screen {
 
 		this.addRenderableWidget(Button.builder(
 						Component.translatable("screenshot_utilities.options.change_panorama"),
-						(btn) -> MINECRAFT.setScreen(new PanoramaGalleryScreen(Component.empty(), this))
+						(btn) -> MINECRAFT.gui.setScreen(new PanoramaGalleryScreen(Component.empty(), this))
 				)
 				.bounds(width - 100 - 10, 10, 100, 20)
 				.build());

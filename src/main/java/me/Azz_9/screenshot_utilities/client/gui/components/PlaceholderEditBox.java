@@ -50,7 +50,7 @@ public class PlaceholderEditBox extends EditBox {
 
 	@Override
 	public void onClick(MouseButtonEvent event, boolean doubleClick) {
-		if (MINECRAFT.screen instanceof FocusableScreen screen) {
+		if (MINECRAFT.gui.screen() instanceof FocusableScreen screen) {
 			screen.requestFocus(this);
 		}
 		super.onClick(event, doubleClick);

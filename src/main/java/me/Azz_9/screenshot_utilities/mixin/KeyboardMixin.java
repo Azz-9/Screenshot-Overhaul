@@ -28,7 +28,7 @@ public abstract class KeyboardMixin {
 	private void onKey(long handle, int action, KeyEvent event, CallbackInfo ci) {
 		if (handle == MINECRAFT.getWindow().handle() && MINECRAFT.player != null && MINECRAFT.level != null &&
 				action == InputConstants.PRESS &&
-				(!(MINECRAFT.screen instanceof KeyBindsScreen keybindsScreen) ||
+				(!(MINECRAFT.gui.screen() instanceof KeyBindsScreen keybindsScreen) ||
 						(keybindsScreen.lastKeySelection <= Util.getMillis() - 20L)) &&
 				Screenshot_utilitiesClient.getPanoramaScreenshotKeybind().matches(event)) {
 

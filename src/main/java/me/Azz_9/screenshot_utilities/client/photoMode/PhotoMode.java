@@ -21,8 +21,6 @@ import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.flag.FeatureFlagSet;
 
 import org.jspecify.annotations.Nullable;
-import org.spongepowered.asm.mixin.Unique;
-
 
 import java.util.Collections;
 import java.util.UUID;
@@ -86,7 +84,7 @@ public class PhotoMode {
 		camera.spawn();
 
 		prevCameraType = MINECRAFT.options.getCameraType();
-		if (MINECRAFT.gameRenderer.getMainCamera().isDetached()) {
+		if (MINECRAFT.gameRenderer.mainCamera().isDetached()) {
 			MINECRAFT.options.setCameraType(CameraType.FIRST_PERSON);
 		}
 
@@ -150,7 +148,7 @@ public class PhotoMode {
 
 	// return whether the base onScroll method should be canceled
 	public static boolean onMouseScroll(long handle, double xoffset, double yoffset) {
-		if (!PhotoMode.isEnabled() || PhotoMode.getCamera() == null || handle != MINECRAFT.getWindow().handle() || MINECRAFT.screen != null) {
+		if (!PhotoMode.isEnabled() || PhotoMode.getCamera() == null || handle != MINECRAFT.getWindow().handle() || MINECRAFT.gui.screen() != null) {
 			return false;
 		}
 

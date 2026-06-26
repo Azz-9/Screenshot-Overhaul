@@ -2,10 +2,10 @@ package me.Azz_9.screenshot_utilities.client.screenshot.panorama;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MOD_ID;
 
+import com.mojang.blaze3d.GpuFormat;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.TextureFormat;
 
 import net.minecraft.client.renderer.texture.AbstractTexture;
 
@@ -26,7 +26,7 @@ public class DynamicCubeMapTexture extends AbstractTexture {
 		this.texture = device.createTexture(
 				() -> MOD_ID + "_panorama",
 				21,
-				TextureFormat.RGBA8,
+				GpuFormat.RGBA8_UNORM,
 				width,
 				height,
 				6,
@@ -38,15 +38,13 @@ public class DynamicCubeMapTexture extends AbstractTexture {
 		for (int face = 0; face < 6; face++) {
 			device.createCommandEncoder().writeToTexture(
 					this.texture,
-					images[face],
+					images[face].getPixelBytes(),
 					0,
 					face,
 					0,
 					0,
 					width,
-					height,
-					0,
-					0
+					height
 			);
 		}
 	}
