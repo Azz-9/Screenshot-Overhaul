@@ -35,8 +35,13 @@
 
 	"screenshot_utilities.close": "Fermer",
 	"screenshot_utilities.delete": "Supprimer",
+	"screenshot_utilities.delete_failed.title": "Screenshot delete failed",
+	"screenshot_utilities.delete_failed.message": "Failed to delete screenshot %s",
 	"screenshot_utilities.copy": "Copier",
+	"screenshot_utilities.copying": "Copie...",
 	"screenshot_utilities.copied": "Copié !",
+	"screenshot_utilities.copy_failed.title": "Screenshot copy failed",
+	"screenshot_utilities.copy_failed.message": "Failed to copy screenshot %s",
 	"screenshot_utilities.reset": "Réinitialiser",
 	"screenshot_utilities.edit_metadata": "Modifier les metadonnées",
 	"screenshot_utilities.metadata.x": "X",

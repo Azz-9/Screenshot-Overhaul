@@ -1,10 +1,13 @@
 package me.Azz_9.screenshot_utilities.client.gui.screen;
 
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -12,11 +15,14 @@ import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.concurrent.CompletableFuture;
+
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
+import me.Azz_9.screenshot_utilities.client.gui.components.FullViewWidget;
+import me.Azz_9.screenshot_utilities.client.gui.components.screenshotGallery.ScreenshotGalleryWidget;
+import me.Azz_9.screenshot_utilities.client.gui.components.toats.CustomToastId;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
-import me.Azz_9.screenshot_utilities.client.gui.widget.FullViewWidget;
-import me.Azz_9.screenshot_utilities.client.gui.widget.screenshotGallery.ScreenshotGalleryWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.DeleteScreenshot;
 import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotList;
@@ -117,8 +123,41 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 	}
 
 	private void onDeleteRequested(@NonNull Screenshot screenshot) {
-		if (!DeleteScreenshot.delete(screenshot))
-			ScreenshotLogger.error("Could not delete screenshot: " + screenshot.pathRelativeToScreenshotDir());
+		if (gallery == null || fullView == null) return;
+
+		Screenshot next = gallery.getNextVisibleScreenshot(screenshot);
+		Screenshot prev = next == null ? gallery.getPreviousVisibleScreenshot(screenshot) : null;
+
+		final double savedScroll = gallery.getScrollOffset();
+		gallery.removeEntry(screenshot);
+		gallery.setScrollOffset(savedScroll);
+
+		if (next != null) fullView.show(next);
+		else if (prev != null) fullView.show(prev);
+		else closeFullView();
+
+		if (fullView.isVisible()) fullView.refreshNavButtons();
+
+		CompletableFuture.runAsync(() -> {
+			boolean success = DeleteScreenshot.delete(screenshot);
+			if (!success) {
+				ScreenshotLogger.error("Could not delete screenshot: " + screenshot.pathRelativeToScreenshotDir());
+				MINECRAFT.execute(() -> {
+					// Rollback : refresh remet le screenshot dans la liste
+					gallery.refresh(false, null);
+					// Toaster
+					SystemToast.add(
+							MINECRAFT.getToastManager(),
+							CustomToastId.SCREENSHOT_DELETE_FAILED,
+							Component.translatable("screenshot_utilities.delete_failed.title"),
+							Component.translatable("screenshot_utilities.delete_failed.message", screenshot.file().getName())
+					);
+				});
+			}
+			// Si succès : le WatchService va déclencher un refresh,
+			// mais removeEntry a déjà retiré le screenshot — buildEntries
+			// reconstruira la liste sans lui, aucun effet visible
+		});
 	}
 
 	// render

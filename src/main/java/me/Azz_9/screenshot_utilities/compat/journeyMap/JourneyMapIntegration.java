@@ -69,7 +69,7 @@ public class JourneyMapIntegration implements IClientPlugin {
 								public void onOverlayMenuPopup(UIState mapState, Point2D.Double mousePosition, BlockPos blockPosition, ModPopupMenu modPopupMenu) {
 									modPopupMenu.addMenuItem(
 											"screenshot_utilities.copy",
-											_ -> CopyScreenshot.copyToClipboard(screenshot.file())
+											_ -> CopyScreenshot.copyToClipboard(screenshot.file(), null, null)
 									);
 
 									modPopupMenu.addMenuItem(

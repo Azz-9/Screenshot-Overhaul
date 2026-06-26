@@ -207,7 +207,7 @@ public class ScreenshotPreview {
 	}
 
 	public static void copyCurrentScreenshot() {
-		CopyScreenshot.copyToClipboard(screenshotFile);
+		CopyScreenshot.copyToClipboardWithToastError(screenshotFile, null, null);
 	}
 
 	public static void deleteCurrentScreenshot() {

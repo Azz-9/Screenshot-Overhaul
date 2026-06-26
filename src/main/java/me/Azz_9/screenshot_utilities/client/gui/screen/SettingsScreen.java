@@ -14,10 +14,10 @@ import java.util.Map;
 
 import me.Azz_9.screenshot_utilities.client.config.ConfigLoader;
 import me.Azz_9.screenshot_utilities.client.config.option.ConfigOption;
+import me.Azz_9.screenshot_utilities.client.gui.components.config.ConfigOptionListWidget;
+import me.Azz_9.screenshot_utilities.client.gui.components.config.ConfigTabContent;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
-import me.Azz_9.screenshot_utilities.client.gui.widget.config.ConfigOptionListWidget;
-import me.Azz_9.screenshot_utilities.client.gui.widget.config.ConfigTabContent;
 
 /**
  * Settings screen with tabs, scrollable option lists, validation, and an

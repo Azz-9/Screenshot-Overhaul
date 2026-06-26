@@ -120,7 +120,7 @@ public class ScreenshotReader extends ElementReader<Screenshot, ScreenshotRender
 		options.add(new RightClickOption(Component.translatable("screenshot_utilities.copy").getString(), 0, target) {
 			@Override
 			public void onAction(Screen screen) {
-				CopyScreenshot.copyToClipboard(screenshot.file());
+				CopyScreenshot.copyToClipboardWithToastError(screenshot.file(), null, null);
 			}
 		});
 

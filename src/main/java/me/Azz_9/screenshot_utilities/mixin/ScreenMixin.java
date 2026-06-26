@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import me.Azz_9.screenshot_utilities.client.gui.widget.screenshotGallery.ScreenshotPreviewWidget;
+import me.Azz_9.screenshot_utilities.client.gui.components.screenshotGallery.ScreenshotPreviewWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotPreview;
 
 @Environment(EnvType.CLIENT)

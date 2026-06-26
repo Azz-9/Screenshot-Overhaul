@@ -10,9 +10,9 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import me.Azz_9.screenshot_utilities.client.config.ConfigLoader;
+import me.Azz_9.screenshot_utilities.client.gui.components.panoramaGallery.PanoramaGalleryWidget;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
-import me.Azz_9.screenshot_utilities.client.gui.widget.panoramaGallery.PanoramaGalleryWidget;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotList;
 import me.Azz_9.screenshot_utilities.client.screenshot.panorama.PanoramaHolder;
 

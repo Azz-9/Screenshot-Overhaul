@@ -19,8 +19,8 @@ import java.util.IdentityHashMap;
 import java.util.Set;
 
 import me.Azz_9.screenshot_utilities.client.Colors;
+import me.Azz_9.screenshot_utilities.client.gui.components.config.UnsavedChangesOverlay;
 import me.Azz_9.screenshot_utilities.client.gui.trackableChanges.TrackableChanges;
-import me.Azz_9.screenshot_utilities.client.gui.widget.config.UnsavedChangesOverlay;
 
 /**
  * <p>

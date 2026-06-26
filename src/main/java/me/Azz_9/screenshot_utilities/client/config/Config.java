@@ -12,9 +12,9 @@ import java.util.UUID;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.config.option.options.*;
+import me.Azz_9.screenshot_utilities.client.gui.components.config.ConfigTabContent;
+import me.Azz_9.screenshot_utilities.client.gui.components.gallery.ScrollableGallery;
 import me.Azz_9.screenshot_utilities.client.gui.screen.SettingsScreen;
-import me.Azz_9.screenshot_utilities.client.gui.widget.config.ConfigTabContent;
-import me.Azz_9.screenshot_utilities.client.gui.widget.gallery.ScrollableGallery;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotFileNameParser;
 import me.Azz_9.screenshot_utilities.compat.CompatManager;
 import me.Azz_9.screenshot_utilities.utils.PathUtils;
