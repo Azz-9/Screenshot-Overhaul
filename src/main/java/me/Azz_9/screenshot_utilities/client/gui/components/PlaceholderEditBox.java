@@ -1,13 +1,18 @@
 package me.Azz_9.screenshot_utilities.client.gui.components;
 
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.NonNull;
+
+import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 
 @Environment(EnvType.CLIENT)
 public class PlaceholderEditBox extends EditBox {
@@ -41,5 +46,13 @@ public class PlaceholderEditBox extends EditBox {
 				graphics.text(FONT, this.placeholderText, x, y, this.placeholderColor);
 			}
 		}
+	}
+
+	@Override
+	public void onClick(MouseButtonEvent event, boolean doubleClick) {
+		if (MINECRAFT.screen instanceof FocusableScreen screen) {
+			screen.requestFocus(this);
+		}
+		super.onClick(event, doubleClick);
 	}
 }

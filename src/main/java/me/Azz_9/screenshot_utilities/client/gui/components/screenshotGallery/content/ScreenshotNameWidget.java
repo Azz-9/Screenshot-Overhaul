@@ -51,8 +51,6 @@ public class ScreenshotNameWidget extends AbstractWidget {
 	private final Font font;
 	private final List<EditBox.TextFormatter> formatters = new ArrayList<>();
 	// screenshot
-	private final @NonNull String extension;
-	private final @NonNull String baseName;
 	private String text = "";
 	private int maxLength = 32;
 	private boolean drawsBackground = true;
@@ -82,31 +80,19 @@ public class ScreenshotNameWidget extends AbstractWidget {
 	private int fullTextWidth = 0;
 	// underline
 	private float underlineProgress = 0.0f;
-	private @NonNull ChatFormatting chatFormatting = ChatFormatting.RESET;
+	private final @NonNull List<ChatFormatting> chatFormattings = new ArrayList<>();
 
 	public ScreenshotNameWidget(int width, int height, @NonNull String initialText) {
 		this(0, 0, width, height, initialText);
 	}
 
 	public ScreenshotNameWidget(int x, int y, int width, int height, @NonNull String initialText) {
-		this(x, y, width, height, initialText, true);
-	}
-
-	public ScreenshotNameWidget(int x, int y, int width, int height, @NonNull String initialText, boolean keepExtension) {
 		super(x, y, width, height, Component.empty());
 		this.font = MINECRAFT.font;
 		setMaxLength(255); // max file name length
 
 		setText(initialText);
 		setDrawsBackground(false);
-
-		int dot = initialText.lastIndexOf('.');
-		this.baseName = dot == -1 ? initialText : initialText.substring(0, dot);
-		this.extension = dot == -1 ? "" : initialText.substring(dot);
-
-		if (keepExtension) {
-			setTextPredicate((text) -> text.endsWith(extension));
-		}
 
 		this.updateTextPosition();
 	}
@@ -165,8 +151,12 @@ public class ScreenshotNameWidget extends AbstractWidget {
 		this.textPredicate = textPredicate;
 	}
 
-	public void setChatFormatting(@NonNull ChatFormatting chatFormatting) {
-		this.chatFormatting = chatFormatting;
+	public void clearChatFormattings() {
+		this.chatFormattings.clear();
+	}
+
+	public void addChatFormatting(@NonNull ChatFormatting formatting) {
+		this.chatFormattings.add(formatting);
 	}
 
 	public void write(String input) {
@@ -393,7 +383,7 @@ public class ScreenshotNameWidget extends AbstractWidget {
 
 	@Override
 	public boolean charTyped(@NonNull CharacterEvent input) {
-		if (!this.isActive()) {
+		if (!this.isActive() || !this.isFocused()) {
 			return false;
 		} else if (input.isAllowedChatCharacter()) {
 			if (this.editable) {
@@ -491,7 +481,7 @@ public class ScreenshotNameWidget extends AbstractWidget {
 		if (!this.text.isEmpty()) {
 			graphics.text(
 					this.font,
-					Component.literal(this.text).withStyle(chatFormatting),
+					Component.literal(this.text).withStyle(chatFormattings.toArray(ChatFormatting[]::new)),
 					drawX,
 					textY,
 					textColor,

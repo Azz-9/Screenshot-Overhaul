@@ -10,6 +10,7 @@ import org.jspecify.annotations.Nullable;
 
 import me.Azz_9.screenshot_utilities.client.gui.components.SimpleParentWidget;
 import me.Azz_9.screenshot_utilities.client.gui.trackableChanges.TrackableChanges;
+import me.Azz_9.screenshot_utilities.utils.PathUtils;
 
 @Environment(EnvType.CLIENT)
 public abstract class AbstractGalleryEntryWidget extends SimpleParentWidget implements TrackableChanges {
@@ -23,6 +24,11 @@ public abstract class AbstractGalleryEntryWidget extends SimpleParentWidget impl
 	protected AbstractGalleryEntryWidget(int x, int y, int width, int height, int animationDurationMs) {
 		super(x, y, width, height);
 		this.animationDurationMs = animationDurationMs;
+	}
+
+	@Override
+	public boolean isValid() {
+		return PathUtils.isValidFileName(getName());
 	}
 
 	@Override

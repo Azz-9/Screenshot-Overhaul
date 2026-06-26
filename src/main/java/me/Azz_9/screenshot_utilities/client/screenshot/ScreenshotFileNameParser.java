@@ -1,6 +1,8 @@
 package me.Azz_9.screenshot_utilities.client.screenshot;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+import static me.Azz_9.screenshot_utilities.utils.PathUtils.ILLEGAL_CHARS;
+import static me.Azz_9.screenshot_utilities.utils.PathUtils.MAX_FILE_NAME_LENGTH;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.util.Util;
@@ -10,18 +12,17 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
 
 import me.Azz_9.screenshot_utilities.compat.CompatManager;
 import me.Azz_9.screenshot_utilities.compat.IrisCompat;
+import me.Azz_9.screenshot_utilities.utils.PathUtils;
 
 public final class ScreenshotFileNameParser {
 
 	// Tous les tokens supportés
 	private static final Map<String, Supplier<String>> TOKENS;
 
-	private static final int MAX_SEGMENT_LENGTH = 255;
-	private static final int MAX_FILE_STEM_LENGTH = MAX_SEGMENT_LENGTH - 4;
+	private static final int MAX_FILE_STEM_LENGTH = MAX_FILE_NAME_LENGTH - 4;
 
 	static {
 		Map<String, Supplier<String>> map = new LinkedHashMap<>();
@@ -53,8 +54,6 @@ public final class ScreenshotFileNameParser {
 		});
 		TOKENS = Collections.unmodifiableMap(map);
 	}
-
-	private static final Pattern ILLEGAL_CHARS = Pattern.compile("[\\\\:*?\"<>|\u0000-\u001F]");
 
 	private ScreenshotFileNameParser() {
 	}
@@ -138,8 +137,8 @@ public final class ScreenshotFileNameParser {
 	private static String sanitizeDirectoryName(String segment) {
 		String s = sanitize(segment);
 
-		if (s.length() > MAX_SEGMENT_LENGTH) {
-			s = s.substring(0, MAX_SEGMENT_LENGTH);
+		if (s.length() > MAX_FILE_NAME_LENGTH) {
+			s = s.substring(0, MAX_FILE_NAME_LENGTH);
 		}
 
 		return s;
@@ -160,7 +159,7 @@ public final class ScreenshotFileNameParser {
 
 		if (s.equals(".") || s.equals("..")) return "_";
 
-		if (isReservedName(s)) {
+		if (PathUtils.isReservedName(s)) {
 			return "_" + s;
 		}
 
@@ -239,7 +238,7 @@ public final class ScreenshotFileNameParser {
 		String[] segments = pattern.split("/", -1);
 
 		for (String segment : segments) {
-			if (segment.equals(".") || segment.equals("..") || isReservedName(segment) || segment.isEmpty()) {
+			if (segment.equals(".") || segment.equals("..") || PathUtils.isReservedName(segment) || segment.isEmpty()) {
 				return false;
 			}
 		}
@@ -253,13 +252,5 @@ public final class ScreenshotFileNameParser {
 	 */
 	private static String stripTokens(String s) {
 		return s.replaceAll("<[^>]*>", "");
-	}
-
-	/**
-	 * Noms réservés sur Windows (CON, PRN, AUX, NUL, COM1-9, LPT1-9).
-	 */
-	private static boolean isReservedName(String seg) {
-		String upper = seg.toUpperCase(Locale.ROOT);
-		return upper.matches("CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9]");
 	}
 }

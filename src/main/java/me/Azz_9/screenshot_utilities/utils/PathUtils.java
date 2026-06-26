@@ -5,6 +5,8 @@ import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MI
 import org.jspecify.annotations.NonNull;
 
 import java.nio.file.Path;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 /**
  * Utility methods for converting between stored (relative-when-possible) paths
@@ -23,6 +25,10 @@ import java.nio.file.Path;
  * </ul>
  */
 public final class PathUtils {
+
+	public static final int MAX_FILE_NAME_LENGTH = 255;
+
+	public static final Pattern ILLEGAL_CHARS = Pattern.compile("[\\\\:*?\"<>|\u0000-\u001F]");
 
 	private PathUtils() {
 	}
@@ -80,5 +86,22 @@ public final class PathUtils {
 		Path rootB = b.getRoot();
 		if (rootA == null || rootB == null) return rootA == rootB;
 		return rootA.equals(rootB);
+	}
+
+	/**
+	 * Noms réservés sur Windows (CON, PRN, AUX, NUL, COM1-9, LPT1-9).
+	 */
+	public static boolean isReservedName(@NonNull String fileName) {
+		String upper = fileName.toUpperCase(Locale.ROOT);
+		return upper.matches("CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9]");
+	}
+
+	public static boolean isValidString(@NonNull String string) {
+		return !ILLEGAL_CHARS.matcher(string).find();
+	}
+
+	public static boolean isValidFileName(@NonNull String fileName) {
+		fileName = fileName.trim();
+		return !fileName.isEmpty() && !isReservedName(fileName) && !fileName.equals("..") && !fileName.equals(".") && !ILLEGAL_CHARS.matcher(fileName).find();
 	}
 }

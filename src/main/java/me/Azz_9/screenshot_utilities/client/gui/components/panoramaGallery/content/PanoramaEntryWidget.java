@@ -19,6 +19,7 @@ import me.Azz_9.screenshot_utilities.client.gui.components.screenshotGallery.con
 import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_utilities.client.screenshot.panorama.Panorama;
 import me.Azz_9.screenshot_utilities.client.screenshot.panorama.PanoramaHolder;
+import me.Azz_9.screenshot_utilities.utils.PathUtils;
 
 public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {
 
@@ -34,7 +35,7 @@ public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {
 	}
 
 	public PanoramaEntryWidget(int x, int y, int thumbnailWidth, int thumbnailHeight, @NonNull Panorama panorama,
-								  @Nullable Consumer<Panorama> onThumbnailClicked) {
+	                           @Nullable Consumer<Panorama> onThumbnailClicked) {
 		super(x, y, thumbnailWidth, thumbnailHeight, 0);
 		this.INITIAL_NAME = panorama.folderName();
 
@@ -51,10 +52,18 @@ public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {
 		this.nameWidget = new ScreenshotNameWidget(
 				x, y + thumbnailHeight,
 				thumbnailWidth, DEFAULT_NAME_HEIGHT,
-				INITIAL_NAME, false
+				INITIAL_NAME
 		);
-		nameWidget.setChangedListener(s ->
-				nameWidget.setChatFormatting(hasChanged() ? ChatFormatting.ITALIC : ChatFormatting.RESET));
+		nameWidget.setTextPredicate(PathUtils::isValidString);
+		nameWidget.setChangedListener(string -> {
+			nameWidget.clearChatFormattings();
+			if (hasChanged()) {
+				nameWidget.addChatFormatting(ChatFormatting.ITALIC);
+			}
+			if (!PathUtils.isValidFileName(string)) {
+				nameWidget.addChatFormatting(ChatFormatting.RED);
+			}
+		});
 
 		addRenderableChild(thumbnailWidget);
 		addRenderableChild(nameWidget);

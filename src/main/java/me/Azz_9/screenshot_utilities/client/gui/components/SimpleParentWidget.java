@@ -1,5 +1,7 @@
 package me.Azz_9.screenshot_utilities.client.gui.components;
 
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -18,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+
+import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 
 @Environment(EnvType.CLIENT)
 public abstract class SimpleParentWidget extends AbstractWidget implements ContainerEventHandler {
@@ -82,18 +86,18 @@ public abstract class SimpleParentWidget extends AbstractWidget implements Conta
 
 	@Override
 	public @Nullable GuiEventListener getFocused() {
-		/*if (MINECRAFT.screen instanceof FocusableScreen screen) {
-			return screen.getFocused();
-		}*/
+		if (MINECRAFT.screen instanceof FocusableScreen screen) {
+			return screen.getGlobalFocused();
+		}
 		return focused;
 	}
 
 	@Override
 	public void setFocused(final @Nullable GuiEventListener focused) {
-		/*if (MINECRAFT.screen instanceof FocusableScreen screen) {
+		if (MINECRAFT.screen instanceof FocusableScreen screen) {
 			screen.requestFocus(focused);
 			return;
-		}*/
+		}
 		if (this.focused != focused) {
 			if (this.focused != null) {
 				this.focused.setFocused(false);
@@ -187,10 +191,6 @@ public abstract class SimpleParentWidget extends AbstractWidget implements Conta
 			if (element.mouseClicked(click, doubled)) {
 				if (click.button() == 0) {
 					this.setDragging(true);
-				}
-
-				if (shouldTakeFocusAfterInteraction()) {
-					this.setFocused(element);
 				}
 
 				return true;

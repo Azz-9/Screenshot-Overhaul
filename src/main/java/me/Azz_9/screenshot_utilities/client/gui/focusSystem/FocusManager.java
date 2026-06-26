@@ -9,28 +9,21 @@ import org.jetbrains.annotations.Nullable;
 @Environment(EnvType.CLIENT)
 public final class FocusManager {
 
-	private @Nullable GuiEventListener focused;
+	private @Nullable GuiEventListener globalFocused;
 
-	public void requestFocus(@Nullable final GuiEventListener element) {
-		if (focused == element) return;
-
-		if (focused != null) {
-			focused.setFocused(false);
-		}
-
-		focused = element;
-
-		if (focused != null) {
-			focused.setFocused(true);
-		}
+	public void requestFocus(@Nullable final GuiEventListener newFocus) {
+		if (globalFocused == newFocus) return;
+		if (globalFocused != null) globalFocused.setFocused(false);
+		if (newFocus != null) newFocus.setFocused(true);
+		globalFocused = newFocus;
 	}
 
 	public void clearFocus() {
 		requestFocus(null);
 	}
 
-	public @Nullable GuiEventListener getFocused() {
-		return focused;
+	public @Nullable GuiEventListener getGlobalFocused() {
+		return globalFocused;
 	}
 }
 

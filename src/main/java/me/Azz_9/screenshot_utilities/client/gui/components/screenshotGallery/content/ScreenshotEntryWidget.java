@@ -21,6 +21,7 @@ import me.Azz_9.screenshot_utilities.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotManager;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotMetadata;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotMetadataUtils;
+import me.Azz_9.screenshot_utilities.utils.PathUtils;
 
 @Environment(EnvType.CLIENT)
 public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
@@ -58,8 +59,18 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 				thumbnailWidth, DEFAULT_NAME_HEIGHT,
 				INITIAL_NAME
 		);
-		nameWidget.setChangedListener(s ->
-				nameWidget.setChatFormatting(hasChanged() ? ChatFormatting.ITALIC : ChatFormatting.RESET));
+		int dot = INITIAL_NAME.lastIndexOf('.');
+		String extension = dot == -1 ? "" : INITIAL_NAME.substring(dot);
+		nameWidget.setTextPredicate((text) -> text.endsWith(extension) && PathUtils.isValidString(text));
+		nameWidget.setChangedListener(string -> {
+			nameWidget.clearChatFormattings();
+			if (hasChanged()) {
+				nameWidget.addChatFormatting(ChatFormatting.ITALIC);
+			}
+			if (!PathUtils.isValidFileName(string)) {
+				nameWidget.addChatFormatting(ChatFormatting.RED);
+			}
+		});
 
 		this.hideFromMapButton = new HideFromMapButton(
 				getX(), getY(), BUTTON_SIZE, BUTTON_SIZE,

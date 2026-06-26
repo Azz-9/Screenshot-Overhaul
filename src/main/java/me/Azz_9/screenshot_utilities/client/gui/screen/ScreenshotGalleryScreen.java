@@ -7,7 +7,9 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.toasts.SystemToast;
+import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -106,6 +108,7 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 	public void openFullView(@NonNull Screenshot screenshot) {
 		if (fullView == null) return;
 		fullView.show(screenshot);
+		clearFocus();
 
 		// Freeze the gallery layer and the settings button
 		if (gallery != null) {
@@ -217,6 +220,9 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 
 	@Override
 	public boolean keyPressed(@NonNull KeyEvent event) {
+		if (getGlobalFocused() instanceof GuiEventListener l && l.keyPressed(event))
+			return true;
+
 		if (fullView != null && fullView.isVisible())
 			return fullView.keyPressed(event);
 
@@ -225,6 +231,15 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 			return true;
 		}
 		return super.keyPressed(event);
+	}
+
+	@Override
+	public boolean charTyped(@NonNull CharacterEvent event) {
+		if (getGlobalFocused() instanceof GuiEventListener l && l.charTyped(event))
+			return true;
+		if (fullView != null && fullView.isVisible())
+			return fullView.charTyped(event);
+		return super.charTyped(event);
 	}
 
 	/* ---------------- Cleanup ---------------- */
