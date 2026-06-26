@@ -213,14 +213,14 @@ public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen 
 	 * Registers an item so this screen considers it when computing dirty / valid state.
 	 * Safe to call at any point in the screen lifetime.
 	 */
-	public void registerTracked(@NonNull TrackableChanges item) {
+	public synchronized void registerTracked(@NonNull TrackableChanges item) {
 		trackedItems.add(item);
 	}
 
 	/**
 	 * Unregisters an item. No-op if the item was not registered.
 	 */
-	public void unregisterTracked(@NonNull TrackableChanges item) {
+	public synchronized void unregisterTracked(@NonNull TrackableChanges item) {
 		trackedItems.remove(item);
 	}
 
@@ -228,7 +228,7 @@ public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen 
 	 * Replaces the entire tracked set.
 	 * Useful when the visible content changes wholesale (e.g. page change in a gallery).
 	 */
-	public void setTrackedItems(@NonNull Collection<? extends TrackableChanges> items) {
+	public synchronized void setTrackedItems(@NonNull Collection<? extends TrackableChanges> items) {
 		trackedItems.clear();
 		trackedItems.addAll(items);
 	}
@@ -236,7 +236,7 @@ public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen 
 	/**
 	 * Returns an unmodifiable snapshot of the currently tracked items.
 	 */
-	public @NonNull Set<TrackableChanges> getTrackedItems() {
+	public synchronized @NonNull Set<TrackableChanges> getTrackedItems() {
 		return Collections.unmodifiableSet(trackedItems);
 	}
 
@@ -256,7 +256,7 @@ public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen 
 	 * super.onClose() yourself once the async work completes.
 	 * </p>
 	 */
-	protected void onSave() {
+	protected synchronized void onSave() {
 		trackedItems.forEach(TrackableChanges::commitChanges);
 	}
 
@@ -264,11 +264,11 @@ public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen 
 	// Internal helpers
 	// -------------------------------------------------------------------------
 
-	private boolean hasUnsavedChanges() {
+	private synchronized boolean hasUnsavedChanges() {
 		return trackedItems.stream().anyMatch(TrackableChanges::hasChanged);
 	}
 
-	private boolean canSave() {
+	private synchronized boolean canSave() {
 		return hasUnsavedChanges() && trackedItems.stream().allMatch(TrackableChanges::isValid);
 	}
 
@@ -277,7 +277,7 @@ public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen 
 		super.onClose();
 	}
 
-	private void showUnsavedOverlay() {
+	private synchronized void showUnsavedOverlay() {
 		unsavedOverlay = new UnsavedChangesOverlay(
 				width, height,
 				/* onCancel  */ () -> unsavedOverlay = null,

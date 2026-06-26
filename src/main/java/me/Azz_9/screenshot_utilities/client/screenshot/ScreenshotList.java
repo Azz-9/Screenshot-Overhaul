@@ -119,7 +119,7 @@ public class ScreenshotList {
 			pendingLoadCallbacks.clear();
 		}
 
-		callbacks.forEach(Runnable::run);
+		MINECRAFT.execute(() -> callbacks.forEach(Runnable::run));
 	}
 
 	public static @NonNull List<Screenshot> getScreenshots() {

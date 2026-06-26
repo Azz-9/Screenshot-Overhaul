@@ -430,6 +430,12 @@ public abstract class SmoothScrollableWidget extends SimpleParentWidget {
 		return scrollOffset;
 	}
 
+	protected void setScrollOffset(double offset) {
+		targetScrollOffset = offset;
+		scrollOffset = offset;
+		clampScroll();
+	}
+
 
 	// ScrollArea record
 

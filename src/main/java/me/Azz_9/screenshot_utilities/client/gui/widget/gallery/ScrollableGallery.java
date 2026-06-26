@@ -289,7 +289,7 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 
 		graphics.enableScissor(area.left(), area.top(), area.right(), area.bottom());
 
-		for (Separator sep : separators) {
+		for (Separator sep : List.copyOf(separators)) {
 			int y = baseY + sep.contentY();
 			if (y + SEPARATOR_HEIGHT < area.top() || y > area.bottom()) continue;
 

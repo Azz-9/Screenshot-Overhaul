@@ -57,18 +57,17 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 			if (fullView == null || gallery == null) return;
 
 			Screenshot current = fullView.getCurrentScreenshot();
-			if (current != null && !current.file().exists()) {
-				Screenshot next = gallery.getNextVisibleScreenshot(current);
-				if (next != null) {
-					fullView.show(next);
-				} else {
-					Screenshot prev = gallery.getPreviousVisibleScreenshot(current);
-					if (prev != null) fullView.show(prev);
-					else closeFullView();
-				}
-			}
+			boolean currentDeleted = current != null && !current.file().exists();
+
+			Screenshot next = currentDeleted ? gallery.getNextVisibleScreenshot(current) : null;
+			Screenshot prev = (currentDeleted && next == null) ? gallery.getPreviousVisibleScreenshot(current) : null;
 
 			gallery.refresh(false, () -> {
+				if (currentDeleted) {
+					if (next != null) fullView.show(next);
+					else if (prev != null) fullView.show(prev);
+					else closeFullView();
+				}
 				if (fullView.isVisible()) fullView.refreshNavButtons();
 			});
 		});

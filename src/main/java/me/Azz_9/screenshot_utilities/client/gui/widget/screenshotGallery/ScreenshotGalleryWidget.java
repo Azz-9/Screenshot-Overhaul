@@ -139,10 +139,11 @@ public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWi
 	public void refresh(final boolean clearCache, final @Nullable Runnable onRefreshComplete) {
 		if (!refreshing.compareAndSet(false, true)) return;
 
+		final double savedScroll = getScrollOffset();
+
 		ScreenshotLogger.info("Refreshing screenshot gallery entries");
 
 		ScreenshotList.reloadAsync();
-
 		ScreenshotList.whenScreenshotsLoaded(screenshots -> {
 			if (clearCache) ScreenshotTextureCache.clearCache();
 
@@ -151,8 +152,9 @@ public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWi
 			sortEntries(getSortButton().getValue());
 			layoutEntries();
 
-			if (onRefreshComplete != null) onRefreshComplete.run();
+			setScrollOffset(savedScroll);
 
+			if (onRefreshComplete != null) onRefreshComplete.run();
 			refreshing.set(false);
 		});
 	}
@@ -178,7 +180,7 @@ public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWi
 	public int indexOf(@NonNull Screenshot screenshot) {
 		List<ScreenshotEntryWidget> entries = getEntries();
 		for (int i = 0; i < entries.size(); i++) {
-			if (entries.get(i).getScreenshot() == screenshot) {
+			if (entries.get(i).getScreenshot().file().equals(screenshot.file())) {
 				return i;
 			}
 		}
