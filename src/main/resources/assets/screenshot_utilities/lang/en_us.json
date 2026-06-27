@@ -102,6 +102,7 @@
 	"screenshot_utilities.config.hide_hand_on_screenshot": "Hide hand on screenshot",
 	"screenshot_utilities.config.grab_on_advancement": "Grab screenshot on advancement",
 	"screenshot_utilities.config.advancement_screenshot_delay": "Advancement screenshot delay",
+	"screenshot_utilities.config.show_screenshot_preview": "Show preview",
 	"screenshot_utilities.config.rotation_speed": "Rotation speed",
 	"screenshot_utilities.config.rotation_direction": "Rotation direction",
 	"screenshot_utilities.config.rotation_direction.to_left": "To the left",

@@ -34,6 +34,7 @@ public final class Config {
 	public final @NonNull ConfigObject<Path> screenshotsDir = new ConfigObject<>(Path.of("screenshots"), "screenshot_utilities.config.screenshots_dir", Path.class);
 	public final @NonNull ConfigObject<String> screenshotsFileName = new ConfigObject<>("<datetime>", "screenshot_utilities.config.screenshots_file_name", String.class);
 	public final @NonNull ConfigObject<Boolean> showChatMessage = new ConfigObject<>(true, "screenshot_utilities.config.show_chat_message", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> showPreview = new ConfigObject<>(true, "screenshot_utilities.config.show_screenshot_preview", Boolean.class);
 	public final @NonNull ConfigObject<Boolean> hideChatOnScreenshot = new ConfigObject<>(false, "screenshot_utilities.config.hide_chat_on_screenshot", Boolean.class);
 	public final @NonNull ConfigObject<Boolean> hideHudOnScreenshot = new ConfigObject<>(false, "screenshot_utilities.config.hide_hud_on_screenshot", Boolean.class);
 	public final @NonNull ConfigObject<Boolean> hideHandOnScreenshot = new ConfigObject<>(false, "screenshot_utilities.config.hide_hand_on_screenshot", Boolean.class);
@@ -99,6 +100,7 @@ public final class Config {
 				.selectionMode(PathConfigOption.SelectionMode.DIRECTORIES_ONLY)
 				.build();
 		BooleanConfigOption showChatMessage = BooleanConfigOption.builder(Config.getInstance().showChatMessage).build();
+		BooleanConfigOption showPreview = BooleanConfigOption.builder(Config.getInstance().showPreview).build();
 		BooleanConfigOption hideHudOnScreenshot = BooleanConfigOption.builder(Config.getInstance().hideHudOnScreenshot).build();
 		BooleanConfigOption hideChatOnScreenshot = BooleanConfigOption.builder(Config.getInstance().hideChatOnScreenshot)
 				.dependsOn(() -> !hideHudOnScreenshot.getWorkingValue())
@@ -110,6 +112,7 @@ public final class Config {
 				.option(screenshotsFileName)
 				.option(screenshotsDir)
 				.option(showChatMessage)
+				.option(showPreview)
 				.option(hideHudOnScreenshot)
 				.option(hideChatOnScreenshot)
 				.option(hideHandOnScreenshot)
