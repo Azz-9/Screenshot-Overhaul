@@ -2,7 +2,9 @@ package me.Azz_9.screenshot_utilities.client.gui.components.panoramaGallery.cont
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -36,7 +38,7 @@ public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {
 
 	public PanoramaEntryWidget(int x, int y, int thumbnailWidth, int thumbnailHeight, @NonNull Panorama panorama,
 	                           @Nullable Consumer<Panorama> onThumbnailClicked) {
-		super(x, y, thumbnailWidth, thumbnailHeight, 0);
+		super(x, y, thumbnailWidth, thumbnailHeight, 0, panorama.folder().getParentFile().toPath());
 		this.INITIAL_NAME = panorama.folderName();
 
 		this.panorama = panorama;
@@ -60,8 +62,12 @@ public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {
 			if (hasChanged()) {
 				nameWidget.addChatFormatting(ChatFormatting.ITALIC);
 			}
-			if (!PathUtils.isValidFileName(string)) {
+			boolean nameAlreadyTaken = PathUtils.exists(getParentFolder(), getName()) && hasNameChanged();
+			if (!PathUtils.isValidFileName(string) || nameAlreadyTaken) {
 				nameWidget.addChatFormatting(ChatFormatting.RED);
+				if (nameAlreadyTaken) {
+					nameWidget.setTooltip(Tooltip.create(Component.translatable("screenshot_utilities.gallery_widget.entry.name_already_taken")));
+				}
 			}
 		});
 
@@ -121,6 +127,11 @@ public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {
 
 	@Override
 	public boolean hasChanged() {
+		return hasNameChanged();
+	}
+
+	@Override
+	protected boolean hasNameChanged() {
 		return !INITIAL_NAME.equals(getName());
 	}
 

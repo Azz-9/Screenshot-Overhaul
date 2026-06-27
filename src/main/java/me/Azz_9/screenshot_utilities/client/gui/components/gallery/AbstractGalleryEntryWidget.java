@@ -8,6 +8,8 @@ import net.minecraft.util.Ease;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.nio.file.Path;
+
 import me.Azz_9.screenshot_utilities.client.gui.components.SimpleParentWidget;
 import me.Azz_9.screenshot_utilities.client.gui.trackableChanges.TrackableChanges;
 import me.Azz_9.screenshot_utilities.utils.PathUtils;
@@ -21,14 +23,21 @@ public abstract class AbstractGalleryEntryWidget extends SimpleParentWidget impl
 	private boolean wasHovered;
 	private float progress;
 
-	protected AbstractGalleryEntryWidget(int x, int y, int width, int height, int animationDurationMs) {
+	private final Path parentFolder;
+
+	protected AbstractGalleryEntryWidget(int x, int y, int width, int height, int animationDurationMs, Path parentFolder) {
 		super(x, y, width, height);
 		this.animationDurationMs = animationDurationMs;
+		this.parentFolder = parentFolder;
+	}
+
+	protected Path getParentFolder() {
+		return parentFolder;
 	}
 
 	@Override
 	public boolean isValid() {
-		return PathUtils.isValidFileName(getName());
+		return PathUtils.isValidFileName(getName()) && (!PathUtils.exists(getParentFolder(), getName()) || hasNameChanged());
 	}
 
 	@Override
@@ -46,6 +55,8 @@ public abstract class AbstractGalleryEntryWidget extends SimpleParentWidget impl
 			updateChildrenPos();
 		}
 	}
+
+	protected abstract boolean hasNameChanged();
 
 	protected abstract void updateChildrenPos();
 
