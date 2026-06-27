@@ -60,7 +60,8 @@ public class ScreenshotGrabber {
 						Files.write(file.toPath(), pngWithMeta);
 
 						// preview
-						ScreenshotPreview.setScreenshot(file);
+						if (Config.getInstance().showPreview.getValue())
+							ScreenshotPreview.setScreenshot(file);
 
 						// chat message
 						if (Config.getInstance().showChatMessage.getValue()) {
@@ -214,7 +215,8 @@ public class ScreenshotGrabber {
 						Files.createDirectories(file.toPath().getParent());
 						Files.write(file.toPath(), pngWithMeta);
 
-						ScreenshotPreview.setScreenshot(file);
+						if (Config.getInstance().showPreview.getValue())
+							ScreenshotPreview.setScreenshot(file);
 
 						// Hide every panorama screenshot by default
 						ScreenshotManager.setHiddenFromMap(
