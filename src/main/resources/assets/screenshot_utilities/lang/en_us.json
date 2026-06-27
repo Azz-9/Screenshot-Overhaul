@@ -27,6 +27,7 @@
 	"screenshot_utilities.gallery_widget.sort_mode.server_ip_asc": "Server IP asc",
 	"screenshot_utilities.gallery_widget.sort_mode.server_ip_desc": "Server IP desc",
 	"screenshot_utilities.gallery_widget.open_screenshot_folder": "Open screenshot folder",
+	"screenshot_utilities.gallery_widget.entry.name_already_taken": "There is already a file with the same name in this location",
 
 	"screenshot_utilities.panorama_gallery.reset": "Reset to default",
 

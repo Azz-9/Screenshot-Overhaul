@@ -104,4 +104,8 @@ public final class PathUtils {
 		fileName = fileName.trim();
 		return !fileName.isEmpty() && !isReservedName(fileName) && !fileName.equals("..") && !fileName.equals(".") && !ILLEGAL_CHARS.matcher(fileName).find();
 	}
+
+	public static boolean exists(@NonNull Path parentFolder, @NonNull String fileName) {
+		return parentFolder.resolve(fileName).toFile().exists();
+	}
 }

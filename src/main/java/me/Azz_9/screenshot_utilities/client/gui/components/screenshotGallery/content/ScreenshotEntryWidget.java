@@ -4,7 +4,9 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -41,7 +43,7 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 
 	public ScreenshotEntryWidget(int x, int y, int thumbnailWidth, int thumbnailHeight, @NonNull Screenshot screenshot,
 	                             @Nullable Consumer<Screenshot> onThumbnailClicked) {
-		super(x, y, thumbnailWidth, thumbnailHeight + DEFAULT_NAME_HEIGHT, BUTTON_FADE_DURATION);
+		super(x, y, thumbnailWidth, thumbnailHeight + DEFAULT_NAME_HEIGHT, BUTTON_FADE_DURATION, screenshot.file().getParentFile().toPath());
 		this.INITIAL_NAME = screenshot.file().getName();
 		this.INITIAL_METADATA = ScreenshotMetadata.copyOf(screenshot.getMetadata());
 
@@ -67,8 +69,12 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 			if (hasChanged()) {
 				nameWidget.addChatFormatting(ChatFormatting.ITALIC);
 			}
-			if (!PathUtils.isValidFileName(string)) {
+			boolean nameAlreadyTaken = PathUtils.exists(getParentFolder(), getName()) && hasNameChanged();
+			if (!PathUtils.isValidFileName(string) || nameAlreadyTaken) {
 				nameWidget.addChatFormatting(ChatFormatting.RED);
+				if (nameAlreadyTaken) {
+					nameWidget.setTooltip(Tooltip.create(Component.translatable("screenshot_utilities.gallery_widget.entry.name_already_taken")));
+				}
 			}
 		});
 
@@ -173,6 +179,7 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 		return hasNameChanged() || hasMetadataChanged();
 	}
 
+	@Override
 	public boolean hasNameChanged() {
 		return !INITIAL_NAME.equals(getName());
 	}
