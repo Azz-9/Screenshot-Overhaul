@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
 import me.Azz_9.screenshot_utilities.client.gui.components.FullViewWidget;
 import me.Azz_9.screenshot_utilities.client.gui.components.screenshotGallery.ScreenshotGalleryWidget;
-import me.Azz_9.screenshot_utilities.client.gui.components.toats.CustomToastId;
+import me.Azz_9.screenshot_utilities.client.gui.components.toasts.CustomToastId;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.screenshot.DeleteScreenshot;

@@ -19,7 +19,7 @@ import java.io.File;
 import javax.imageio.ImageIO;
 
 import me.Azz_9.screenshot_utilities.ScreenshotLogger;
-import me.Azz_9.screenshot_utilities.client.gui.components.toats.CustomToastId;
+import me.Azz_9.screenshot_utilities.client.gui.components.toasts.CustomToastId;
 
 public class CopyScreenshot {
 	public static void copyToClipboardWithToastError(@NonNull File imageFile, @Nullable Runnable onCopy, @Nullable Runnable onError) {

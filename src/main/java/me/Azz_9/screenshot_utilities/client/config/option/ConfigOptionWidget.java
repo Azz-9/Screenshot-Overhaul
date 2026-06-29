@@ -142,7 +142,7 @@ public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 
 		// Propagate enabled state to sub-widgets
 		controlWidget.active = enabled;
-		resetButton.active = enabled;
+		resetButton.active = enabled && !option.getWorkingValue().equals(option.getDefaultValue());
 
 		// Render sub-widgets (they manage their own position)
 		controlWidget.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
@@ -287,6 +287,7 @@ public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 				.size(RESET_BUTTON_WIDTH, ROW_HEIGHT)
 				.build();
 		button.setPosition(x, y);
+		button.active = !option.getWorkingValue().equals(option.getDefaultValue());
 		return button;
 	}
 

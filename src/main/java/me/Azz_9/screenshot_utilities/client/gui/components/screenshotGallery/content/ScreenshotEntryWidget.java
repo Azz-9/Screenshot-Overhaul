@@ -196,7 +196,6 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 
 	@Override
 	public void commitChanges() {
-		//TODO qu'est ce qu'il se passe si on renomme un fichier par le même nom qu'un autre et que l'autre on le renomme par le même nom que le premier ? 🤔
 		if (hasMetadataChanged()) {
 			try {
 				ScreenshotMetadataUtils.update(screenshot.file(), screenshot.getMetadata());

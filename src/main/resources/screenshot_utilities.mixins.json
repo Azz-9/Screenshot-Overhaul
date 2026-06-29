@@ -19,6 +19,7 @@
 		"GuiRendererMixin",
 		"HideNameTagsMixin",
 		"HudMixin",
+		"ItemInHandRendererMixin",
 		"KeyboardMixin",
 		"LevelExtractorMixin",
 		"LevelRendererMixin",

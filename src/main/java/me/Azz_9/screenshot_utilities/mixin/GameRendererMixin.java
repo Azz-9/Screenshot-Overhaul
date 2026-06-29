@@ -21,14 +21,6 @@ import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotRenderState;
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
 
-	// Hide hand in PhotoMode
-	@Inject(method = "renderItemInHand", at = @At("HEAD"), cancellable = true)
-	private void onRenderHand(CallbackInfo ci) {
-		if (PhotoMode.isEnabled() || ScreenshotRenderState.suppressHand) {
-			ci.cancel();
-		}
-	}
-
 	// Apply roll
 	@Inject(
 			method = "renderLevel",
