@@ -101,18 +101,14 @@ public abstract class AbstractConfigOption<T> implements ConfigOption<T> {
 		if (live && isValid()) configObject.setValue(value);
 	}
 
-	/**
-	 * Delegates to validate() so that AbstractSavableScreen
-	 * can gate the Save button on all options being valid.
-	 */
-	@Override
-	public boolean isValid() {
-		return validate().isValid();
-	}
-
 	@Override
 	public void resetToDefault() {
 		setWorkingValue(configObject.getDefaultValue());
+	}
+
+	@Override
+	public @NonNull T getDefaultValue() {
+		return configObject.getDefaultValue();
 	}
 
 	@Override

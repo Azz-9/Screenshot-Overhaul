@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_utilities.client.gui.components.toats;
+package me.Azz_9.screenshot_utilities.client.gui.components.toasts;
 
 import net.minecraft.client.gui.components.toasts.SystemToast;
 

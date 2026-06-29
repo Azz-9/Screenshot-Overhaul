@@ -53,10 +53,17 @@ public interface ConfigOption<T> extends TrackableChanges {
 	 */
 	void setWorkingValue(@NonNull T value);
 
+	@Override
+	default boolean isValid() {
+		return validate().isValid();
+	}
+
 	/**
 	 * Resets the working value to the {@link ConfigObject}'s {@code defaultValue}.
 	 */
 	void resetToDefault();
+
+	@NonNull T getDefaultValue();
 
 	// -------------------------------------------------------------------------
 	// Validation

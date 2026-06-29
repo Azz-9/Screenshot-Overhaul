@@ -1,5 +1,7 @@
 package me.Azz_9.screenshot_utilities.client.gui.components.panoramaGallery.content;
 
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.FilterMode;
 
@@ -19,6 +21,7 @@ import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_utilities.client.gui.Loading;
 import me.Azz_9.screenshot_utilities.client.gui.components.gallery.AbstractThumbnailWidget;
+import me.Azz_9.screenshot_utilities.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_utilities.client.screenshot.panorama.*;
 
 @Environment(EnvType.CLIENT)
@@ -77,12 +80,12 @@ public class PanoramaThumbnailWidget extends AbstractThumbnailWidget {
 	}
 
 	// input
-
-
 	@Override
 	public boolean mouseClicked(@NonNull MouseButtonEvent click, boolean doubleClick) {
 		if (this.isActive()) {
 			if (this.isValidClickButton(click.buttonInfo()) && this.isMouseOver(click.x(), click.y())) {
+				if (MINECRAFT.screen instanceof FocusableScreen screen) screen.requestFocus(this);
+
 				clickStartX = click.x();
 				clickStartY = click.y();
 				didDrag = false;
