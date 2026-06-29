@@ -1,5 +1,7 @@
 package me.Azz_9.screenshot_utilities.client.config;
 
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.PHOTO_MODE_ENABLED;
+
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -138,18 +140,20 @@ public final class Config {
 
 		screen.addConfigTab(Component.translatable("screenshot_utilities.config.category.panorama"), panoramaContent);
 
-		// Photo mode
-		BooleanConfigOption freezeInPhotoMode = BooleanConfigOption.builder(Config.getInstance().freezeInPhotoMode).build();
-		BooleanConfigOption showPlayer = BooleanConfigOption.builder(Config.getInstance().showPlayer).build();
-		BooleanConfigOption showNametags = BooleanConfigOption.builder(Config.getInstance().showNametags).build();
+		if (PHOTO_MODE_ENABLED) {
+			// Photo mode
+			BooleanConfigOption freezeInPhotoMode = BooleanConfigOption.builder(Config.getInstance().freezeInPhotoMode).build();
+			BooleanConfigOption showPlayer = BooleanConfigOption.builder(Config.getInstance().showPlayer).build();
+			BooleanConfigOption showNametags = BooleanConfigOption.builder(Config.getInstance().showNametags).build();
 
-		ConfigTabContent photoModeContent = ConfigTabContent.builder()
-				.option(freezeInPhotoMode)
-				.option(showPlayer)
-				.option(showNametags)
-				.build();
+			ConfigTabContent photoModeContent = ConfigTabContent.builder()
+					.option(freezeInPhotoMode)
+					.option(showPlayer)
+					.option(showNametags)
+					.build();
 
-		screen.addConfigTab(Component.translatable("screenshot_utilities.config.category.photo_mode"), photoModeContent);
+			screen.addConfigTab(Component.translatable("screenshot_utilities.config.category.photo_mode"), photoModeContent);
+		}
 
 		return screen;
 	}
