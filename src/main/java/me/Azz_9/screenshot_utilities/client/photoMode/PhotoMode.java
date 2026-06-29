@@ -1,6 +1,7 @@
 package me.Azz_9.screenshot_utilities.client.photoMode;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
+import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.PHOTO_MODE_ENABLED;
 
 import com.mojang.authlib.GameProfile;
 
@@ -21,7 +22,6 @@ import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.flag.FeatureFlagSet;
 
 import org.jspecify.annotations.Nullable;
-import org.spongepowered.asm.mixin.Unique;
 
 
 import java.util.Collections;
@@ -53,7 +53,7 @@ public class PhotoMode {
 	}
 
 	public static void enable() {
-		if (MINECRAFT.level == null || MINECRAFT.player == null) {
+		if (!PHOTO_MODE_ENABLED || MINECRAFT.level == null || MINECRAFT.player == null) {
 			return;
 		}
 
@@ -97,6 +97,8 @@ public class PhotoMode {
 
 	public static void disable() {
 		enabled = false;
+
+		PacketBuffer.applyAndClear();
 
 		MINECRAFT.smartCull = true;
 

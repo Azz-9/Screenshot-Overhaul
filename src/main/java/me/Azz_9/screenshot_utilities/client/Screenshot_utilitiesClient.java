@@ -37,6 +37,9 @@ import me.Azz_9.screenshot_utilities.compat.journeyMap.JourneyMapIntegration;
 
 @Environment(EnvType.CLIENT)
 public class Screenshot_utilitiesClient implements ClientModInitializer {
+
+	public static final boolean PHOTO_MODE_ENABLED = Boolean.parseBoolean(System.getenv().getOrDefault("ENABLE_PHOTO_MODE", "false"));
+
 	public static final @NonNull Minecraft MINECRAFT = Minecraft.getInstance();
 	public static final @NonNull String MOD_ID = "screenshot_utilities";
 
@@ -107,16 +110,18 @@ public class Screenshot_utilitiesClient implements ClientModInitializer {
 		KeyMapping.Category keybind_category = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "screenshot-utilities"));
 
 		// photo mode
-		openPhotoMode = KeyMappingHelper.registerKeyMapping(new KeyMapping("screenshot_utilities.controls.photo_mode", InputConstants.Type.KEYSYM, InputConstants.KEY_F10, keybind_category));
-		rollLeft = KeyMappingHelper.registerKeyMapping(new KeyMapping("screenshot_utilities.controls.roll_left", InputConstants.Type.KEYSYM, InputConstants.KEY_Q, keybind_category));
-		rollRight = KeyMappingHelper.registerKeyMapping(new KeyMapping("screenshot_utilities.controls.roll_right", InputConstants.Type.KEYSYM, InputConstants.KEY_E, keybind_category));
+		if (PHOTO_MODE_ENABLED) {
+			openPhotoMode = KeyMappingHelper.registerKeyMapping(new KeyMapping("screenshot_utilities.controls.photo_mode", InputConstants.Type.KEYSYM, InputConstants.KEY_F10, keybind_category));
+			rollLeft = KeyMappingHelper.registerKeyMapping(new KeyMapping("screenshot_utilities.controls.roll_left", InputConstants.Type.KEYSYM, InputConstants.KEY_Q, keybind_category));
+			rollRight = KeyMappingHelper.registerKeyMapping(new KeyMapping("screenshot_utilities.controls.roll_right", InputConstants.Type.KEYSYM, InputConstants.KEY_E, keybind_category));
+		}
 
 		// panorama screenshot
 		panoramaScreenshot = KeyMappingHelper.registerKeyMapping(new KeyMapping("screenshot_utilities.controls.panorama_screenshot", InputConstants.Type.KEYSYM, InputConstants.KEY_F9, keybind_category));
 	}
 
 	public static void handleKeybindsHook() {
-		while (Screenshot_utilitiesClient.getOpenPhotoModeKeybind().consumeClick()) {
+		while (PHOTO_MODE_ENABLED && Screenshot_utilitiesClient.getOpenPhotoModeKeybind().consumeClick()) {
 			PhotoMode.toggle();
 		}
 
