@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import me.Azz_9.screenshot_utilities.client.gui.screen.ScreenshotGalleryScreen;
 
 @Mixin(PauseScreen.class)
-public abstract class OptionsScreenMixin extends Screen {
+public abstract class PauseScreenMixin extends Screen {
 
 	@Shadow
 	private @Nullable Button disconnectButton;
@@ -30,7 +30,7 @@ public abstract class OptionsScreenMixin extends Screen {
 	@Unique
 	private static final int SIZE = 20;
 
-	protected OptionsScreenMixin(Component title) {
+	protected PauseScreenMixin(Component title) {
 		super(title);
 	}
 

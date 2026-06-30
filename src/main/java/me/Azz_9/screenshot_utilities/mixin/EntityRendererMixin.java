@@ -16,7 +16,7 @@ import me.Azz_9.screenshot_utilities.client.config.Config;
 import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 
 @Mixin(EntityRenderer.class)
-public abstract class HideNameTagsMixin<S extends EntityRenderState> {
+public abstract class EntityRendererMixin<S extends EntityRenderState> {
 	
 	// Hide name tags if showNametags is false
 	@Inject(

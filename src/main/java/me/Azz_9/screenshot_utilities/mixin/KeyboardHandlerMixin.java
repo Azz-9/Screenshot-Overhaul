@@ -23,9 +23,9 @@ import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotGrabber;
 
 @Environment(EnvType.CLIENT)
 @Mixin(KeyboardHandler.class)
-public abstract class KeyboardMixin {
+public abstract class KeyboardHandlerMixin {
 	@Inject(method = "keyPress", at = @At("HEAD"))
-	private void onKey(long handle, int action, KeyEvent event, CallbackInfo ci) {
+	private void onKeyPress(long handle, int action, KeyEvent event, CallbackInfo ci) {
 		if (handle == MINECRAFT.getWindow().handle() && MINECRAFT.player != null && MINECRAFT.level != null &&
 				action == InputConstants.PRESS &&
 				(!(MINECRAFT.screen instanceof KeyBindsScreen keybindsScreen) ||

@@ -3,8 +3,6 @@ package me.Azz_9.screenshot_utilities.mixin;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.ChatScreen;
-import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
@@ -39,7 +37,7 @@ public abstract class MinecraftMixin {
 
 	// Disable block breaking in PhotoMode
 	@Inject(method = "continueAttack", at = @At("HEAD"), cancellable = true)
-	private void onHandleBlockBreaking(CallbackInfo ci) {
+	private void onContinueAttack(CallbackInfo ci) {
 		if (PhotoMode.isEnabled()) {
 			ci.cancel();
 		}

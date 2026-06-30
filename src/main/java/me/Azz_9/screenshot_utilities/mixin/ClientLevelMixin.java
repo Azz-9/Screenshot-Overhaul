@@ -16,7 +16,7 @@ import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 
 @Environment(EnvType.CLIENT)
 @Mixin(ClientLevel.class)
-public abstract class ClientWorldMixin {
+public abstract class ClientLevelMixin {
 
 	@Shadow
 	public abstract void tickNonPassenger(Entity entity);
