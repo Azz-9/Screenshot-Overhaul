@@ -21,6 +21,7 @@
 		"HudMixin",
 		"KeyboardMixin",
 		"LevelExtractorMixin",
+		"LevelRendererMixin",
 		"MinecraftMixin",
 		"MouseMixin",
 		"MultiPlayerGameModeMixin",
@@ -30,8 +31,7 @@
 		"ScreenAccessor",
 		"ScreenMixin",
 		"ScreenshotMixin",
-		"TitleScreenMixin",
-		"WorldRendererMixin"
+		"TitleScreenMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

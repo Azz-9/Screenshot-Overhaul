@@ -7,22 +7,13 @@ import com.mojang.authlib.GameProfile;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.CameraType;
-import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.multiplayer.CommonListenerCookie;
-import net.minecraft.client.multiplayer.LevelLoadTracker;
-import net.minecraft.client.multiplayer.chat.ChatAbilities;
 import net.minecraft.client.player.ClientInput;
 import net.minecraft.client.player.KeyboardInput;
-import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.server.ServerLinks;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Input;
-import net.minecraft.world.flag.FeatureFlagSet;
 
 import org.jspecify.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.UUID;
 
 @Environment(EnvType.CLIENT)
@@ -55,32 +46,11 @@ public class PhotoMode {
 			return;
 		}
 
-		ClientPacketListener clientPacketListener = new ClientPacketListener(
-				MINECRAFT,
-				new Connection(PacketFlow.CLIENTBOUND),
-				new CommonListenerCookie(
-						new LevelLoadTracker(),
-						new GameProfile(UUID.randomUUID(), "Camera"),
-						MINECRAFT.getTelemetryManager().createWorldSessionManager(false, null, null, null),
-						MINECRAFT.player.registryAccess().freeze(),
-						FeatureFlagSet.of(),
-						null,
-						null,
-						null,
-						Collections.emptyMap(),
-						null,
-						Collections.emptyMap(),
-						ServerLinks.EMPTY,
-						Collections.emptyMap(),
-						false
-				)
-		);
-
 		frozenTime = MINECRAFT.level.getOverworldClockTime();
 
 		MINECRAFT.smartCull = false;
 
-		camera = new PhotoCamera(MINECRAFT, MINECRAFT.level, clientPacketListener, MINECRAFT.player.getStats(), MINECRAFT.player.getRecipeBook(), Input.EMPTY, false, ChatAbilities.NO_RESTRICTIONS);
+		camera = new PhotoCamera(MINECRAFT.level, new GameProfile(UUID.randomUUID(), "Camera"));
 		camera.spawn();
 
 		prevCameraType = MINECRAFT.options.getCameraType();

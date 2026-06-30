@@ -55,7 +55,7 @@ dependencies {
 
 	compileOnly "info.journeymap:journeymap-api-fabric:${project.journeymap_api_version}"
 
-	implementation files("libs/iris-fabric-1.10.9+mc26.1.1.jar")
+	implementation files("libs/iris-fabric-1.11.1+mc26.2.jar")
 }
 
 processResources {

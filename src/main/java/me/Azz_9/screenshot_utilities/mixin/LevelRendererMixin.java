@@ -14,7 +14,7 @@ import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 
 @Environment(EnvType.CLIENT)
 @Mixin(LevelRenderer.class)
-public abstract class WorldRendererMixin {
+public abstract class LevelRendererMixin {
 
 	// Freeze tick delta in PhotoMode
 	@ModifyVariable(method = "render", at = @At("HEAD"), argsOnly = true, name = "deltaTracker")
@@ -24,15 +24,5 @@ public abstract class WorldRendererMixin {
 		}
 
 		return deltaTracker;
-	}
-
-	// Freeze tick delta in PhotoMode
-	@ModifyVariable(method = "render", at = @At("HEAD"), argsOnly = true, name = "deltaPartialTick")
-	private static float freezeTickDelta(float deltaPartialTick) {
-		if (PhotoMode.isEnabled() && Config.getInstance().freezeInPhotoMode.getValue()) {
-			return 0;
-		}
-
-		return deltaPartialTick;
 	}
 }

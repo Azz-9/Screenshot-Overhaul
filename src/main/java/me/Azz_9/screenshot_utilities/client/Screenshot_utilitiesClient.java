@@ -33,6 +33,7 @@ import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotManager;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotPreview;
 import me.Azz_9.screenshot_utilities.client.screenshot.panorama.Panorama;
 import me.Azz_9.screenshot_utilities.client.screenshot.panorama.PanoramaHolder;
+import me.Azz_9.screenshot_utilities.compat.CompatManager;
 import me.Azz_9.screenshot_utilities.compat.journeyMap.JourneyMapIntegration;
 
 @Environment(EnvType.CLIENT)
@@ -101,7 +102,9 @@ public class Screenshot_utilitiesClient implements ClientModInitializer {
 		});
 
 		ClientPlayConnectionEvents.JOIN.register((listener, sender, client) -> {
-			JourneyMapIntegration.init();
+			if (CompatManager.journeyMapPresent()) {
+				JourneyMapIntegration.init();
+			}
 		});
 
 		KeyMapping.Category keybind_category = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "screenshot-utilities"));

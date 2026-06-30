@@ -2,29 +2,24 @@ package me.Azz_9.screenshot_utilities.client.photoMode;
 
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 
+import com.mojang.authlib.GameProfile;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.ClientRecipeBook;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.multiplayer.chat.ChatAbilities;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.ClientInput;
 import net.minecraft.client.player.KeyboardInput;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.stats.StatsCounter;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.player.Input;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
 import org.jspecify.annotations.NonNull;
 
-import me.Azz_9.screenshot_utilities.accessors.network.ClientPacketListenerAccessor;
-
 @Environment(EnvType.CLIENT)
-public class PhotoCamera extends LocalPlayer {
+public class PhotoCamera extends AbstractClientPlayer {
 
 	public static final double DIAGONAL_MULTIPLIER = Mth.sin((float) Math.toRadians(45));
 	private static final float ROLL_SPEED_WITH_CTRL = 1.0f;
@@ -33,20 +28,19 @@ public class PhotoCamera extends LocalPlayer {
 	public float prevRoll = 0.0f;
 	private double velocity = 1.0f;
 
+	public ClientInput input;
+	public float yBob;
+	public float xBob;
+	public float yBobO;
+	public float xBobO;
+
 	public PhotoCamera(
-			@NonNull Minecraft client,
-			@NonNull ClientLevel world,
-			@NonNull ClientPacketListener networkHandler,
-			@NonNull StatsCounter stats,
-			@NonNull ClientRecipeBook recipeBook,
-			@NonNull Input lastPlayerInput,
-			boolean lastSprinting,
-			ChatAbilities chatAbilities
+			@NonNull ClientLevel level,
+			@NonNull GameProfile gameProfile
 	) {
-		super(client, world, networkHandler, stats, recipeBook, lastPlayerInput, lastSprinting, chatAbilities);
+		super(level, gameProfile);
 		setId(-500);
 		setPose(Pose.SWIMMING);
-		((ClientPacketListenerAccessor) networkHandler).screenshotUtilities$setClientLoaded(true); // Otherwise input is frozen
 		getAbilities().flying = true;
 		noPhysics = true;
 		setInvisible(true);
@@ -57,23 +51,18 @@ public class PhotoCamera extends LocalPlayer {
 		}
 	}
 
+	@Override
+	public void tick() {
+		input.tick();
+		doMotion();
+		super.tick();
+	}
+
 	private static double getSwimmingY(@NonNull Entity entity) {
 		if (entity.getPose() == Pose.SWIMMING) {
 			return entity.getY();
 		}
 		return entity.getY() - entity.getEyeHeight(Pose.SWIMMING) + entity.getEyeHeight(entity.getPose());
-	}
-
-	public float getRoll(float tickDelta) {
-		return Mth.rotLerp(tickDelta, prevRoll, roll);
-	}
-
-	public double getVelocity() {
-		return velocity;
-	}
-
-	public void setVelocity(double velocity) {
-		this.velocity = velocity;
 	}
 
 	public void spawn() {
@@ -97,29 +86,13 @@ public class PhotoCamera extends LocalPlayer {
 		super.setPose(Pose.SWIMMING);
 	}
 
-	// Prevents slow down due to being in swimming pose.
-
 	@Override
-	public boolean isMovingSlowly() {
-		return false;
-	}
-
-	@Override
-	protected boolean updateIsUnderwater() {
-		this.wasUnderwater = this.isEyeInFluid(FluidTags.WATER);
-		return this.wasUnderwater;
-	}
-
-	@Override
-	public void aiStep() {
-		getAbilities().setFlyingSpeed(0);
-		this.doMotion();
-		super.aiStep();
-		getAbilities().flying = true;
-		setOnGround(false);
+	protected void doWaterSplashEffect() {
 	}
 
 	public void doMotion() {
+		getAbilities().setFlyingSpeed(0);
+
 		double speed = getVelocity();
 
 		float yaw = getYRot();
@@ -170,6 +143,46 @@ public class PhotoCamera extends LocalPlayer {
 		}
 
 		this.setDeltaMovement(velocityX, velocityY, velocityZ);
+
+		getAbilities().flying = true;
+		setOnGround(false);
+	}
+
+	@Override
+	public float getViewXRot(float a) {
+		return this.getXRot();
+	}
+
+	@Override
+	public float getViewYRot(float a) {
+		return this.getYRot();
+	}
+
+	@Override
+	public boolean isEffectiveAi() {
+		return true;
+	}
+
+	@Override
+	public boolean canSimulateMovement() {
+		return true;
+	}
+
+	@Override
+	protected void applyInput() {
+		Vec2 input = this.input.getMoveVector();
+		if (input.lengthSquared() != 0.0F) {
+			input = input.scale(0.98F);
+		}
+
+		this.xxa = input.x;
+		this.zza = input.y;
+		this.jumping = this.input.keyPresses.jump();
+		this.setSprinting((this.input.keyPresses.sprint() && this.input.keyPresses.forward()) || (this.input.keyPresses.forward() && this.isSprinting()));
+		this.yBobO = this.yBob;
+		this.xBobO = this.xBob;
+		this.xBob = this.xBob + (this.getXRot() - this.xBob) * 0.5F;
+		this.yBob = this.yBob + (this.getYRot() - this.yBob) * 0.5F;
 	}
 
 	private float getRollSpeed() {
@@ -182,5 +195,17 @@ public class PhotoCamera extends LocalPlayer {
 
 	public void rollRight() {
 		this.roll += getRollSpeed();
+	}
+
+	public float getRoll(float tickDelta) {
+		return Mth.rotLerp(tickDelta, prevRoll, roll);
+	}
+
+	public double getVelocity() {
+		return velocity;
+	}
+
+	public void setVelocity(double velocity) {
+		this.velocity = velocity;
 	}
 }
