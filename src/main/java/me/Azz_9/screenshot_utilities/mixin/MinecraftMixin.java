@@ -35,7 +35,7 @@ public abstract class MinecraftMixin {
 
 	// Disable block breaking in PhotoMode
 	@Inject(method = "continueAttack", at = @At("HEAD"), cancellable = true)
-	private void onHandleBlockBreaking(CallbackInfo ci) {
+	private void onContinueAttack(CallbackInfo ci) {
 		if (PhotoMode.isEnabled()) {
 			ci.cancel();
 		}

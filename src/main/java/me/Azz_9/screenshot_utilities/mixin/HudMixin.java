@@ -23,14 +23,14 @@ public abstract class HudMixin {
 
 	// On hud render
 	@Inject(method = "extractRenderState", at = @At("HEAD"), cancellable = true)
-	private void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+	private void extractRenderState(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
 		if (ScreenshotRenderState.suppressHud || Screenshot_utilitiesClient.hudRenderHook(graphics, deltaTracker)) {
 			ci.cancel();
 		}
 	}
 
 	@Inject(method = "extractChat", at = @At("HEAD"), cancellable = true)
-	private void onRenderChat(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+	private void onExtractChat(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
 		if (ScreenshotRenderState.suppressChat) {
 			ci.cancel();
 		}

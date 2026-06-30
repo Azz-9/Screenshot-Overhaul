@@ -13,7 +13,7 @@ import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 
 @Environment(EnvType.CLIENT)
 @Mixin(Options.class)
-public abstract class GameOptionsMixin {
+public abstract class OptionsMixin {
 
 	// Disable F5 in PhotoMode
 	@Inject(method = "setCameraType", at = @At("HEAD"), cancellable = true)
