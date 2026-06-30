@@ -3,10 +3,6 @@ package me.Azz_9.screenshot_utilities.mixin;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.ChatScreen;
-import net.minecraft.client.gui.screens.PauseScreen;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -50,14 +46,6 @@ public abstract class MinecraftMixin {
 	private void onDisconnect(CallbackInfo ci) {
 		if (PhotoMode.isEnabled()) {
 			PhotoMode.disable();
-		}
-	}
-
-	// Disable opening container screens in PhotoMode
-	@Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
-	private void onSetScreen(Screen screen, CallbackInfo ci) {
-		if (PhotoMode.isEnabled() && screen instanceof AbstractContainerScreen<?>) {
-			ci.cancel();
 		}
 	}
 

@@ -4,7 +4,6 @@ import static me.Azz_9.screenshot_utilities.client.config.Config.RotationDirecti
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -25,7 +24,7 @@ import me.Azz_9.screenshot_utilities.client.screenshot.panorama.PanoramaThumbnai
 public abstract class GuiRendererMixin {
 
 	@Inject(method = "render", at = @At("HEAD"))
-	private void onRenderHead(GpuBufferSlice fogBuffer, CallbackInfo ci) {
+	private void onRenderHead(CallbackInfo ci) {
 		for (PanoramaThumbnailRenderState state : PanoramaThumbnailRenderQueue.drain()) {
 			state.cubeMap().renderToArea(
 					state.x(), state.y(),

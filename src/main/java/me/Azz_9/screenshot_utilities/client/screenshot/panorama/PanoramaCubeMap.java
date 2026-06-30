@@ -3,6 +3,7 @@ package me.Azz_9.screenshot_utilities.client.screenshot.panorama;
 import static me.Azz_9.screenshot_utilities.client.Screenshot_utilitiesClient.MINECRAFT;
 
 import com.mojang.blaze3d.GpuFormat;
+import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.ProjectionType;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
@@ -10,7 +11,10 @@ import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.MeshData;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -26,8 +30,8 @@ import org.joml.Vector4f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.OptionalDouble;
-import java.util.OptionalInt;
 
 @Environment(EnvType.CLIENT)
 public class PanoramaCubeMap implements AutoCloseable {
@@ -95,7 +99,7 @@ public class PanoramaCubeMap implements AutoCloseable {
 				ProjectionType.PERSPECTIVE
 		);
 
-		RenderSystem.AutoStorageIndexBuffer indices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+		RenderSystem.AutoStorageIndexBuffer indices = RenderSystem.getSequentialBuffer(PrimitiveTopology.QUADS);
 		GpuBuffer indexBuffer = indices.getBuffer(36);
 
 		Matrix4fStack modelViewStack = RenderSystem.getModelViewStack();
@@ -117,20 +121,20 @@ public class PanoramaCubeMap implements AutoCloseable {
 				.createRenderPass(
 						() -> "Panorama Widget",
 						offscreenTarget.getColorTextureView(),
-						OptionalInt.of(0xFF000000), // clear noir
+						Optional.of(new Vector4f(255, 0, 0, 0)), // clear noir
 						offscreenTarget.getDepthTextureView(),
 						OptionalDouble.of(1.0)
 				)) {
 
 			renderPass.setPipeline(RenderPipelines.PANORAMA);
 			RenderSystem.bindDefaultUniforms(renderPass);
-			renderPass.setVertexBuffer(0, vertexBuffer);
+			renderPass.setVertexBuffer(0, vertexBuffer.slice());
 			renderPass.setIndexBuffer(indexBuffer, indices.type());
 			renderPass.setUniform("DynamicTransforms", dynamicTransforms);
 
 			AbstractTexture texture = MINECRAFT.getTextureManager().getTexture(this.location);
 			renderPass.bindTexture("Sampler0", texture.getTextureView(), texture.getSampler());
-			renderPass.drawIndexed(0, 0, 36, 1);
+			renderPass.drawIndexed(36, 1, 0, 0, 0);
 		}
 
 		RenderSystem.restoreProjectionMatrix();
@@ -146,40 +150,46 @@ public class PanoramaCubeMap implements AutoCloseable {
 	}
 
 	private static @NonNull GpuBuffer initializeVertices() {
-		GpuBuffer gpuBuffer;
-		try (ByteBufferBuilder byteBufferBuilder = ByteBufferBuilder.exactlySized(DefaultVertexFormat.POSITION.getVertexSize() * 4 * 6)) {
-			BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-			bufferBuilder.addVertex(-1.0F, -1.0F, 1.0F);
-			bufferBuilder.addVertex(-1.0F, 1.0F, 1.0F);
-			bufferBuilder.addVertex(1.0F, 1.0F, 1.0F);
-			bufferBuilder.addVertex(1.0F, -1.0F, 1.0F);
-			bufferBuilder.addVertex(1.0F, -1.0F, 1.0F);
-			bufferBuilder.addVertex(1.0F, 1.0F, 1.0F);
-			bufferBuilder.addVertex(1.0F, 1.0F, -1.0F);
-			bufferBuilder.addVertex(1.0F, -1.0F, -1.0F);
-			bufferBuilder.addVertex(1.0F, -1.0F, -1.0F);
-			bufferBuilder.addVertex(1.0F, 1.0F, -1.0F);
-			bufferBuilder.addVertex(-1.0F, 1.0F, -1.0F);
-			bufferBuilder.addVertex(-1.0F, -1.0F, -1.0F);
-			bufferBuilder.addVertex(-1.0F, -1.0F, -1.0F);
-			bufferBuilder.addVertex(-1.0F, 1.0F, -1.0F);
-			bufferBuilder.addVertex(-1.0F, 1.0F, 1.0F);
-			bufferBuilder.addVertex(-1.0F, -1.0F, 1.0F);
-			bufferBuilder.addVertex(-1.0F, -1.0F, -1.0F);
-			bufferBuilder.addVertex(-1.0F, -1.0F, 1.0F);
-			bufferBuilder.addVertex(1.0F, -1.0F, 1.0F);
-			bufferBuilder.addVertex(1.0F, -1.0F, -1.0F);
-			bufferBuilder.addVertex(-1.0F, 1.0F, 1.0F);
-			bufferBuilder.addVertex(-1.0F, 1.0F, -1.0F);
-			bufferBuilder.addVertex(1.0F, 1.0F, -1.0F);
-			bufferBuilder.addVertex(1.0F, 1.0F, 1.0F);
-
-			try (MeshData meshData = bufferBuilder.buildOrThrow()) {
-				gpuBuffer = RenderSystem.getDevice().createBuffer(() -> "Cube map vertex buffer", 32, meshData.vertexBuffer());
+		try (ByteBufferBuilder byteBufferBuilder = ByteBufferBuilder.exactlySized(DefaultVertexFormat.POSITION.getVertexSize() * 4 * 6);){
+			BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION);
+			bufferBuilder.addVertex(-1.0f, -1.0f, 1.0f);
+			bufferBuilder.addVertex(-1.0f, 1.0f, 1.0f);
+			bufferBuilder.addVertex(1.0f, 1.0f, 1.0f);
+			bufferBuilder.addVertex(1.0f, -1.0f, 1.0f);
+			bufferBuilder.addVertex(1.0f, -1.0f, 1.0f);
+			bufferBuilder.addVertex(1.0f, 1.0f, 1.0f);
+			bufferBuilder.addVertex(1.0f, 1.0f, -1.0f);
+			bufferBuilder.addVertex(1.0f, -1.0f, -1.0f);
+			bufferBuilder.addVertex(1.0f, -1.0f, -1.0f);
+			bufferBuilder.addVertex(1.0f, 1.0f, -1.0f);
+			bufferBuilder.addVertex(-1.0f, 1.0f, -1.0f);
+			bufferBuilder.addVertex(-1.0f, -1.0f, -1.0f);
+			bufferBuilder.addVertex(-1.0f, -1.0f, -1.0f);
+			bufferBuilder.addVertex(-1.0f, 1.0f, -1.0f);
+			bufferBuilder.addVertex(-1.0f, 1.0f, 1.0f);
+			bufferBuilder.addVertex(-1.0f, -1.0f, 1.0f);
+			bufferBuilder.addVertex(-1.0f, -1.0f, -1.0f);
+			bufferBuilder.addVertex(-1.0f, -1.0f, 1.0f);
+			bufferBuilder.addVertex(1.0f, -1.0f, 1.0f);
+			bufferBuilder.addVertex(1.0f, -1.0f, -1.0f);
+			bufferBuilder.addVertex(-1.0f, 1.0f, 1.0f);
+			bufferBuilder.addVertex(-1.0f, 1.0f, -1.0f);
+			bufferBuilder.addVertex(1.0f, 1.0f, -1.0f);
+			bufferBuilder.addVertex(1.0f, 1.0f, 1.0f);
+			MeshData meshData = bufferBuilder.buildOrThrow();
+			try {
+				GpuBuffer gpuBuffer = RenderSystem.getDevice().createBuffer(() -> "Cube map vertex buffer", 32, meshData.vertexBuffer());
+				meshData.close();
+				return gpuBuffer;
+			} catch (Throwable throwable) {
+				try {
+					meshData.close();
+				} catch (Throwable throwable2) {
+					throwable.addSuppressed(throwable2);
+				}
+				throw throwable;
 			}
 		}
-
-		return gpuBuffer;
 	}
 
 	public @Nullable TextureTarget getOffscreenTarget() {

@@ -134,13 +134,13 @@ public class Screenshot_utilitiesClient implements ClientModInitializer {
 	// return whether the base render method should be canceled
 	public static boolean hudRenderHook(final @NonNull GuiGraphicsExtractor graphics, final @NonNull DeltaTracker deltaTracker) {
 		if (!(MINECRAFT.gui.screen() instanceof LevelLoadingScreen)) {
-			if (!MINECRAFT.options.hideGui) {
+			if (!MINECRAFT.gui.hud.isHidden()) {
 				PhotoModeHud.render(graphics, deltaTracker);
 			}
 		}
 
 		// screenshot preview
-		if (MINECRAFT.gui.screen() == null && !MINECRAFT.options.hideGui)
+		if (MINECRAFT.gui.screen() == null && !MINECRAFT.gui.hud.isHidden())
 			ScreenshotPreview.render(graphics, 0, 0, deltaTracker.getGameTimeDeltaPartialTick(true));
 
 		// hide hud in PhotoMode

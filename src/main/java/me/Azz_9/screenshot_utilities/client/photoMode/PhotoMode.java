@@ -61,7 +61,7 @@ public class PhotoMode {
 				new CommonListenerCookie(
 						new LevelLoadTracker(),
 						new GameProfile(UUID.randomUUID(), "Camera"),
-						MINECRAFT.getTelemetryManager().createWorldSessionManager(false, null, null),
+						MINECRAFT.getTelemetryManager().createWorldSessionManager(false, null, null, null),
 						MINECRAFT.player.registryAccess().freeze(),
 						FeatureFlagSet.of(),
 						null,
