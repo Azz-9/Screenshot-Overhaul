@@ -17,7 +17,7 @@ import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 import me.Azz_9.screenshot_utilities.client.screenshot.ScreenshotRenderState;
 
 @Mixin(ItemInHandRenderer.class)
-public abstract class ItemInhandRendererMixin {
+public abstract class ItemInHandRendererMixin {
 
 	// Hide hand in PhotoMode and on screenshot
 	@Inject(

@@ -25,7 +25,7 @@ import me.Azz_9.screenshot_utilities.client.photoMode.PhotoMode;
 
 @Environment(EnvType.CLIENT)
 @Mixin(LevelRenderer.class)
-public abstract class WorldRendererMixin {
+public abstract class LevelRendererMixin {
 
 	@Shadow
 	protected abstract EntityRenderState extractEntity(Entity entity, float partialTickTime);

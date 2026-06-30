@@ -14,14 +14,13 @@
 		"ClientPacketListenerMixin",
 		"ClientWorldMixin",
 		"GameOptionsMixin",
-		"GameRendererAccessor",
 		"GameRendererMixin",
 		"GuiMixin",
-		"GuiRendererAccessor",
 		"GuiRendererMixin",
 		"HideNameTagsMixin",
-		"ItemInhandRendererMixin",
+		"ItemInHandRendererMixin",
 		"KeyboardMixin",
+		"LevelRendererMixin",
 		"MinecraftMixin",
 		"MouseMixin",
 		"MultiPlayerGameModeMixin",
@@ -31,8 +30,7 @@
 		"ScreenAccessor",
 		"ScreenMixin",
 		"ScreenshotMixin",
-		"TitleScreenMixin",
-		"WorldRendererMixin"
+		"TitleScreenMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
