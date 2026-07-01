@@ -22,7 +22,7 @@ public abstract class AbstractBackNavigableScreen extends Screen {
 	@Override
 	public void onClose() {
 		if (PARENT != null) {
-			minecraft.gui.setScreen(PARENT);
+			minecraft.setScreen(PARENT);
 		} else {
 			super.onClose();
 		}

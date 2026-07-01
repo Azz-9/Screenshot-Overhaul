@@ -79,7 +79,7 @@ public class PanoramaThumbnailWidget extends AbstractThumbnailWidget {
 	public boolean mouseClicked(@NonNull MouseButtonEvent click, boolean doubleClick) {
 		if (this.isActive()) {
 			if (this.isValidClickButton(click.buttonInfo()) && this.isMouseOver(click.x(), click.y())) {
-				if (MINECRAFT.gui.screen() instanceof FocusableScreen screen) screen.requestFocus(this);
+				if (MINECRAFT.screen instanceof FocusableScreen screen) screen.requestFocus(this);
 
 				clickStartX = click.x();
 				clickStartY = click.y();

@@ -61,7 +61,7 @@ public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWi
 
 		ScreenshotList.whenScreenshotsLoaded((screenshots -> {
 			// make sure the player didn't leave the screen before building entries
-			if (MINECRAFT.gui.screen() instanceof ScreenshotGalleryScreen) {
+			if (MINECRAFT.screen instanceof ScreenshotGalleryScreen) {
 				buildEntries(screenshots);
 				searchAndFilter(getSearchBar().getValue(), getFilterButton().getValue());
 				sortEntries(getSortButton().getValue());
@@ -83,7 +83,7 @@ public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWi
 	private @NonNull Button createSettingsButton() {
 		SpriteIconButton button = SpriteIconButton.TextAndIcon.builder(
 						Component.translatable("screenshot_overhaul.settings"),
-						(_) -> MINECRAFT.gui.setScreen(Config.getInstance().getSettingsScreen(MINECRAFT.gui.screen())),
+						(_) -> MINECRAFT.setScreen(Config.getInstance().getSettingsScreen(MINECRAFT.screen)),
 						true
 				)
 				.withTootip()

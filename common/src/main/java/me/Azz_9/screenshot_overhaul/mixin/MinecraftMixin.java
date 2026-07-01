@@ -4,6 +4,8 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.Nullable;
@@ -56,15 +58,16 @@ public abstract class MinecraftMixin {
 		}
 	}
 
+	// Disable opening container screens in PhotoMode
+	@Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
+	private void onSetScreen(Screen screen, CallbackInfo ci) {
+		if (PhotoMode.isEnabled() && screen instanceof AbstractContainerScreen<?>) {
+			ci.cancel();
+		}
+	}
+
 	@Inject(method = "handleKeybinds", at = @At("HEAD"))
 	private void onHandleKeybinds(CallbackInfo ci) {
 		CommonClass.handleKeybindsHook();
-	}
-
-	@Inject(method = "handleGlobalKeyPress", at = @At("HEAD"), cancellable = true)
-	private void onHandleGlobalKeyPress(InputConstants.Key key, boolean controlDown, CallbackInfoReturnable<Boolean> cir) {
-		if (CommonClass.handleGlobalKeyPressHook(key, controlDown)) {
-			cir.setReturnValue(true);
-		}
 	}
 }

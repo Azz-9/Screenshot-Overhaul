@@ -154,28 +154,16 @@ public class CommonClass {
 		}
 	}
 
-	public static boolean handleGlobalKeyPressHook(InputConstants.Key key, boolean controlDown) {
-		if (getPanoramaScreenshotKeybind().matches(key)) {
-			Component text = ScreenshotGrabber.grabPanoramixScreenshot(Config.getInstance().getAbsoluteScreenshotsDir().toFile());
-			if (Config.getInstance().showChatMessage.getValue()) {
-				MINECRAFT.showDebugChat(text);
-			}
-			return true;
-		}
-
-		return false;
-	}
-
 	// return whether the base render method should be canceled
 	public static boolean hudRenderHook(final @NonNull GuiGraphicsExtractor graphics, final @NonNull DeltaTracker deltaTracker) {
-		if (!(MINECRAFT.gui.screen() instanceof LevelLoadingScreen)) {
-			if (!MINECRAFT.gui.hud.isHidden()) {
+		if (!(MINECRAFT.screen instanceof LevelLoadingScreen)) {
+			if (!MINECRAFT.options.hideGui) {
 				PhotoModeHud.render(graphics, deltaTracker);
 			}
 		}
 
 		// screenshot preview
-		if (MINECRAFT.gui.screen() == null && !MINECRAFT.gui.hud.isHidden())
+		if (MINECRAFT.screen == null && !MINECRAFT.options.hideGui)
 			ScreenshotPreview.render(graphics, 0, 0, deltaTracker.getGameTimeDeltaPartialTick(true));
 
 		// hide hud in PhotoMode

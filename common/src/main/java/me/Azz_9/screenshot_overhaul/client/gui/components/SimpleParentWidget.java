@@ -83,7 +83,7 @@ public abstract class SimpleParentWidget extends AbstractWidget implements Conta
 
 	@Override
 	public @Nullable GuiEventListener getFocused() {
-		if (MINECRAFT.gui.screen() instanceof FocusableScreen screen) {
+		if (MINECRAFT.screen instanceof FocusableScreen screen) {
 			return screen.getGlobalFocused();
 		}
 		return focused;
@@ -91,7 +91,7 @@ public abstract class SimpleParentWidget extends AbstractWidget implements Conta
 
 	@Override
 	public void setFocused(final @Nullable GuiEventListener focused) {
-		if (MINECRAFT.gui.screen() instanceof FocusableScreen screen) {
+		if (MINECRAFT.screen instanceof FocusableScreen screen) {
 			screen.requestFocus(focused);
 			return;
 		}

@@ -52,7 +52,7 @@ public class PhotoMode {
 		camera.spawn();
 
 		prevCameraType = MINECRAFT.options.getCameraType();
-		if (MINECRAFT.gameRenderer.mainCamera().isDetached()) {
+		if (MINECRAFT.gameRenderer.getMainCamera().isDetached()) {
 			MINECRAFT.options.setCameraType(CameraType.FIRST_PERSON);
 		}
 
@@ -118,7 +118,7 @@ public class PhotoMode {
 
 	// return whether the base onScroll method should be canceled
 	public static boolean onMouseScroll(long handle, double xoffset, double yoffset) {
-		if (!PhotoMode.isEnabled() || PhotoMode.getCamera() == null || handle != MINECRAFT.getWindow().handle() || MINECRAFT.gui.screen() != null) {
+		if (!PhotoMode.isEnabled() || PhotoMode.getCamera() == null || handle != MINECRAFT.getWindow().handle() || MINECRAFT.screen != null) {
 			return false;
 		}
 

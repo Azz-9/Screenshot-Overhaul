@@ -114,7 +114,7 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 						FILTER_BUTTON_WIDTH, FILTER_BUTTON_HEIGHT,
 						Component.translatable("screenshot_overhaul.gallery_widget.filter"),
 						(btn, val) -> {
-							if (MINECRAFT.gui.screen() instanceof FocusableScreen focusableScreen)
+							if (MINECRAFT.screen instanceof FocusableScreen focusableScreen)
 								focusableScreen.requestFocus(btn);
 
 							searchAndFilter(searchBar.getValue(), val);
@@ -138,7 +138,7 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 		SpriteIconButton openFolderButton = SpriteIconButton.TextAndIcon.builder(
 						Component.translatable("screenshot_overhaul.gallery_widget.open_screenshot_folder"),
 						(btn) -> {
-							if (MINECRAFT.gui.screen() instanceof FocusableScreen focusableScreen)
+							if (MINECRAFT.screen instanceof FocusableScreen focusableScreen)
 								focusableScreen.requestFocus(btn);
 
 							Util.getPlatform().openPath(Config.getInstance().getAbsoluteScreenshotsDir());

@@ -28,7 +28,7 @@ public class CopyScreenshot {
 
 			MINECRAFT.execute(() ->
 					SystemToast.add(
-							MINECRAFT.gui.toastManager(),
+							MINECRAFT.getToastManager(),
 							CustomToastId.SCREENSHOT_COPY_FAILED,
 							Component.translatable("screenshot_overhaul.copy_failed.title"),
 							Component.translatable("screenshot_overhaul.copy_failed.message", imageFile.getName())

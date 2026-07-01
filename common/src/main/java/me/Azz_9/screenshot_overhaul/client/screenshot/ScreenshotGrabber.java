@@ -115,13 +115,13 @@ public class ScreenshotGrabber {
 		int height = 4096;
 		int ow = MINECRAFT.getWindow().getWidth();
 		int oh = MINECRAFT.getWindow().getHeight();
-		RenderTarget target = MINECRAFT.gameRenderer.mainRenderTarget();
+		RenderTarget target = MINECRAFT.getMainRenderTarget();
 		float xRot = MINECRAFT.player.getXRot();
 		float yRot = MINECRAFT.player.getYRot();
 		float xRotO = MINECRAFT.player.xRotO;
 		float yRotO = MINECRAFT.player.yRotO;
 		MINECRAFT.gameRenderer.setRenderBlockOutline(false);
-		Camera camera = MINECRAFT.gameRenderer.mainCamera();
+		Camera camera = MINECRAFT.gameRenderer.getMainCamera();
 
 		String panoramaId = UUID.randomUUID().toString();
 
@@ -165,7 +165,7 @@ public class ScreenshotGrabber {
 
 				MINECRAFT.player.yRotO = MINECRAFT.player.getYRot();
 				MINECRAFT.player.xRotO = MINECRAFT.player.getXRot();
-				MINECRAFT.gameRenderer.update(DeltaTracker.ONE);
+				MINECRAFT.gameRenderer.update(DeltaTracker.ONE, true);
 				MINECRAFT.gameRenderer.extract(DeltaTracker.ONE, true);
 				MINECRAFT.gameRenderer.renderLevel(DeltaTracker.ONE);
 

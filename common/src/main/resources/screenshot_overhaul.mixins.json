@@ -15,13 +15,11 @@
 		"ClientPacketListenerMixin",
 		"EntityRendererMixin",
 		"GameRendererMixin",
-		"GlCommandEncoderMixin",
 		"GuiGraphicsExtractorAccessor",
 		"GuiMixin",
 		"GuiRendererMixin",
-		"HudMixin",
 		"ItemInHandRendererMixin",
-		"LevelExtractorMixin",
+		"KeyboardHandlerMixin",
 		"LevelRendererMixin",
 		"MinecraftMixin",
 		"MouseHandlerMixin",
@@ -33,8 +31,7 @@
 		"ScreenAccessor",
 		"ScreenMixin",
 		"ScreenshotMixin",
-		"TitleScreenMixin",
-		"VulkanCommandEncoderMixin"
+		"TitleScreenMixin"
 	],
 	"server": [],
 	"injectors": {

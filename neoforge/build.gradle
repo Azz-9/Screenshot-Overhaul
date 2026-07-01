@@ -4,7 +4,7 @@ plugins {
 }
 
 final def includeXaero = project.hasProperty("launch_with_xaero_worldmap") && project.launch_with_xaero_worldmap.toBoolean()
-final def includeIris = project.hasProperty("launch_with_iris") && project.launch_with_iris.toBoolean()
+final def includeIrisAndSodium = project.hasProperty("launch_with_iris_and_sodium") && project.launch_with_iris_and_sodium.toBoolean()
 
 dependencies {
 	if (includeXaero) {
@@ -15,10 +15,16 @@ dependencies {
 
 	compileOnly "info.journeymap:journeymap-api-neoforge:${project.journeymap_api_version}"
 
-	if (includeIris) {
-		implementation "maven.modrinth:iris:${project.iris_shader_version}+${minecraft_version}-neoforge"
+	if (includeIrisAndSodium) {
+		implementation "maven.modrinth:iris:${project.iris_shader_version}-neoforge"
 	} else {
-		compileOnly "maven.modrinth:iris:1.10.9+26.1-neoforge"
+		compileOnly "maven.modrinth:iris:${project.iris_shader_version}-neoforge"
+	}
+
+	if (includeIrisAndSodium) {
+		implementation "maven.modrinth:sodium:mc${project.sodium_version}-neoforge"
+	} else {
+		compileOnly "maven.modrinth:sodium:mc${project.sodium_version}-neoforge"
 	}
 }
 
@@ -37,18 +43,6 @@ neoForge {
         client {
             client()
             gameDirectory = this.mkdir(this.file('runs/client'))
-        }
-        data {
-            clientData()
-            gameDirectory = this.mkdir(this.file('runs/data'))
-            // DataGen can be run by - "./gradlew :neoforge:runData" in Terminal.
-            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
-        }
-        server {
-            server()
-            this.file('runs/server').createParentDirectories()
-            gameDirectory = this.mkdir(this.file('runs/server'))
         }
     }
     mods {
