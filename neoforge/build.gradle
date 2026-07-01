@@ -16,7 +16,7 @@ dependencies {
 	compileOnly "info.journeymap:journeymap-api-neoforge:${project.journeymap_api_version}"
 
 	if (includeIris) {
-		implementation "maven.modrinth:iris:${project.iris_shader_version}+${minecraft_version}-neoforge"
+		implementation "maven.modrinth:iris:${project.iris_shader_version}-neoforge"
 	} else {
 		compileOnly "maven.modrinth:iris:1.10.9+26.1-neoforge"
 	}

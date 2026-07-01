@@ -40,9 +40,9 @@ dependencies {
 	compileOnly "info.journeymap:journeymap-api-fabric:${project.journeymap_api_version}"
 
 	if (includeIris) {
-		implementation "maven.modrinth:iris:${project.iris_shader_version}+${minecraft_version}-fabric"
+		implementation "maven.modrinth:iris:${project.iris_shader_version}-fabric"
 	} else {
-		compileOnly "maven.modrinth:iris:${project.iris_shader_version}+${minecraft_version}-fabric"
+		compileOnly "maven.modrinth:iris:${project.iris_shader_version}-fabric"
 	}
 }
 
