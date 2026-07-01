@@ -32,8 +32,7 @@ import me.Azz_9.screenshot_overhaul.mixin.NativeImageAccessor;
 
 public class ScreenshotGrabber {
 
-	public static volatile boolean capturingPanorama = false;
-	public static final AtomicInteger pendingPanoramaFaces = new AtomicInteger(0);
+	private static final AtomicInteger pendingPanoramaFaces = new AtomicInteger(0);
 
 	private static void grab(@NonNull File picDir, final @Nullable String forceName, final @NonNull RenderTarget target, final int downscaleFactor, final @NonNull Consumer<Component> callback) {
 		Screenshot.takeScreenshot(target, downscaleFactor, (image) -> {
@@ -127,7 +126,6 @@ public class ScreenshotGrabber {
 
 		MutableComponent text;
 		try {
-			capturingPanorama = true;
 			pendingPanoramaFaces.set(6);
 
 			camera.enablePanoramicMode();
@@ -241,7 +239,7 @@ public class ScreenshotGrabber {
 					ScreenshotLogger.warn("Couldn't save panorama face {}: {}", faceIndex, e.getMessage());
 				} finally {
 					if (pendingPanoramaFaces.decrementAndGet() == 0) {
-						capturingPanorama = false;
+						ScreenshotManager.save();
 					}
 				}
 			});
