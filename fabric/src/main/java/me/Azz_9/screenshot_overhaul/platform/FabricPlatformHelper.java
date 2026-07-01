@@ -1,7 +1,6 @@
 package me.Azz_9.screenshot_overhaul.platform;
 
-import me.Azz_9.screenshot_overhaul.compat.IrisCompat;
-import me.Azz_9.screenshot_overhaul.platform.services.IPlatformHelper;
+import static me.Azz_9.screenshot_overhaul.Constants.FABRIC;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
@@ -16,11 +15,14 @@ import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
 
+import me.Azz_9.screenshot_overhaul.compat.IrisCompat;
+import me.Azz_9.screenshot_overhaul.platform.services.IPlatformHelper;
+
 public class FabricPlatformHelper implements IPlatformHelper {
 
     @Override
-    public String getPlatformName() {
-        return "Fabric";
+	public @NonNull String getPlatformName() {
+		return FABRIC;
     }
 
     @Override

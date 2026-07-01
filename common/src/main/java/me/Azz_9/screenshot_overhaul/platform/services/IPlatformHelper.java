@@ -1,11 +1,12 @@
 package me.Azz_9.screenshot_overhaul.platform.services;
 
+import static me.Azz_9.screenshot_overhaul.Constants.FABRIC;
+import static me.Azz_9.screenshot_overhaul.Constants.NEOFORGE;
+
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
-import net.minecraft.client.multiplayer.ClientPacketListener;
 
-import org.apache.logging.log4j.util.TriConsumer;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -18,7 +19,15 @@ public interface IPlatformHelper {
      *
      * @return The name of the current platform.
      */
-    String getPlatformName();
+	@NonNull String getPlatformName();
+
+	default boolean isFabric() {
+		return getPlatformName().equals(FABRIC);
+	}
+
+	default boolean isNeoForge() {
+		return getPlatformName().equals(NEOFORGE);
+	}
 
     /**
      * Checks if a mod with the given id is loaded.

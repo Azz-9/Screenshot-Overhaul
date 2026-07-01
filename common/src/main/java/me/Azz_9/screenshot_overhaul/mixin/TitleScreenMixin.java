@@ -18,14 +18,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import me.Azz_9.screenshot_overhaul.client.gui.screen.PanoramaGalleryScreen;
 import me.Azz_9.screenshot_overhaul.client.gui.screen.ScreenshotGalleryScreen;
+import me.Azz_9.screenshot_overhaul.compat.CompatManager;
+import me.Azz_9.screenshot_overhaul.platform.Services;
 
 @Mixin(TitleScreen.class)
 public abstract class TitleScreenMixin extends Screen {
 
 	@Unique
-	private static final int screenshot_overhaul$MARGIN = 4;
+	private static final int MARGIN = 4;
 	@Unique
-	private static final int screenshot_overhaul$SIZE = 20;
+	private static final int SIZE = 20;
+	@Unique
+	private static final int BUTTONS_WIDTH = 200;
 
 	protected TitleScreenMixin(Component title) {
 		super(title);
@@ -34,9 +38,15 @@ public abstract class TitleScreenMixin extends Screen {
 	// add buttons on the title screen
 	@Inject(method = "init", at = @At("TAIL"))
 	public void init(CallbackInfo info) {
-		int realmsY = this.height / 4 + 48 + 24 * 2;
-
-		int realmsRightX = this.width / 2 + 100;
+		int screenshotButtonX = (this.width + BUTTONS_WIDTH) / 2 + MARGIN;
+		int screenshotButtonY = this.height / 4 + 96;
+		if (!Services.PLATFORM.isNeoForge()) {
+			if (CompatManager.modMenuPresent()) {
+				screenshotButtonY -= SIZE + MARGIN;
+			}
+		} else {
+			screenshotButtonY += 8;
+		}
 
 		SpriteIconButton screenshotViewerButton = this.addRenderableWidget(
 				SpriteIconButton.TextAndIcon.builder(
@@ -45,12 +55,12 @@ public abstract class TitleScreenMixin extends Screen {
 								true
 						)
 						.withTootip()
-						.size(screenshot_overhaul$SIZE, screenshot_overhaul$SIZE)
+						.size(SIZE, SIZE)
 						.sprite(Identifier.fromNamespaceAndPath(MOD_ID, "icon/screenshot"), 15, 15)
 						.build()
 		);
 
-		screenshotViewerButton.setPosition(realmsRightX + screenshot_overhaul$MARGIN, realmsY);
+		screenshotViewerButton.setPosition(screenshotButtonX, screenshotButtonY);
 
 		this.addRenderableWidget(Button.builder(
 						Component.translatable("screenshot_overhaul.options.change_panorama"),
