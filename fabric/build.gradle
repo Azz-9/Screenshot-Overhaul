@@ -5,7 +5,7 @@ plugins {
 
 final def includeModMenu = project.hasProperty("launch_with_modmenu") && project.launch_with_modmenu.toBoolean()
 final def includeXaero = project.hasProperty("launch_with_xaero_worldmap") && project.launch_with_xaero_worldmap.toBoolean()
-final def includeIris = project.hasProperty("launch_with_iris") && project.launch_with_iris.toBoolean()
+final def includeIrisAndSodium = project.hasProperty("launch_with_iris_and_sodium") && project.launch_with_iris_and_sodium.toBoolean()
 
 repositories {
 	// Add repositories to retrieve artifacts from in here.
@@ -39,10 +39,16 @@ dependencies {
 
 	compileOnly "info.journeymap:journeymap-api-fabric:${project.journeymap_api_version}"
 
-	if (includeIris) {
+	if (includeIrisAndSodium) {
 		implementation "maven.modrinth:iris:${project.iris_shader_version}-fabric"
 	} else {
 		compileOnly "maven.modrinth:iris:${project.iris_shader_version}-fabric"
+	}
+
+	if (includeIrisAndSodium) {
+		implementation "maven.modrinth:sodium:mc${project.sodium_version}-fabric"
+	} else {
+		compileOnly "maven.modrinth:sodium:mc${project.sodium_version}-fabric"
 	}
 }
 
