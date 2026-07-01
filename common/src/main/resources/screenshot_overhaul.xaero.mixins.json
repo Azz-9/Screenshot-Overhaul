@@ -1,0 +1,19 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "me.Azz_9.screenshot_overhaul.compat.xaeroWorldmap.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"MapElementRenderHandlerBuilderMixin"
+	],
+	"client": [
+		"GuiMapAccessor",
+		"GuiMapMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}

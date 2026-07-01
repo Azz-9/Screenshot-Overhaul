@@ -1,0 +1,47 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "me.Azz_9.screenshot_overhaul.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"mixins": [
+		"EntityMixin"
+	],
+	"client": [
+		"AbstractWidgetAccessor",
+		"AWTHackMixin",
+		"CameraMixin",
+		"ClientAdvancementsMixin",
+		"ClientLevelMixin",
+		"ClientPacketListenerMixin",
+		"EntityRendererMixin",
+		"GameRendererMixin",
+		"GlCommandEncoderMixin",
+		"GuiGraphicsExtractorAccessor",
+		"GuiMixin",
+		"GuiRendererMixin",
+		"HudMixin",
+		"ItemInHandRendererMixin",
+		"LevelExtractorMixin",
+		"LevelRendererMixin",
+		"MinecraftMixin",
+		"MouseHandlerMixin",
+		"MultiPlayerGameModeMixin",
+		"NativeImageAccessor",
+		"OptionsMixin",
+		"ParticleEngineMixin",
+		"PauseScreenMixin",
+		"ScreenAccessor",
+		"ScreenMixin",
+		"ScreenshotMixin",
+		"TitleScreenMixin",
+		"VulkanCommandEncoderMixin"
+	],
+	"server": [],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}
+
