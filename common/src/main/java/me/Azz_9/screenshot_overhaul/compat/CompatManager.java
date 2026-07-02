@@ -14,4 +14,8 @@ public class CompatManager {
 	public static boolean journeyMapPresent() {
 		return Services.PLATFORM.isModLoaded("journeymap");
 	}
+
+	public static boolean modMenuPresent() {
+		return Services.PLATFORM.isModLoaded("modmenu");
+	}
 }

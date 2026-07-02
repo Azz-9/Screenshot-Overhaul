@@ -1,9 +1,7 @@
 package me.Azz_9.screenshot_overhaul.platform;
 
+import static me.Azz_9.screenshot_overhaul.Constants.NEOFORGE;
 import static me.Azz_9.screenshot_overhaul.ScreenshotOverhaul.KEY_MAPPINGS;
-
-import me.Azz_9.screenshot_overhaul.compat.IrisCompat;
-import me.Azz_9.screenshot_overhaul.platform.services.IPlatformHelper;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -19,14 +17,15 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+
+import me.Azz_9.screenshot_overhaul.compat.IrisCompat;
+import me.Azz_9.screenshot_overhaul.platform.services.IPlatformHelper;
 
 public class NeoForgePlatformHelper implements IPlatformHelper {
 
     @Override
     public String getPlatformName() {
-        return "NeoForge";
+		return NEOFORGE;
     }
 
     @Override
