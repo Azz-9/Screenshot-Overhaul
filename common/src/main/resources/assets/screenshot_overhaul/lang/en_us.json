@@ -103,6 +103,8 @@
 	"screenshot_overhaul.config.grab_on_advancement": "Grab screenshot on advancement",
 	"screenshot_overhaul.config.advancement_screenshot_delay": "Advancement screenshot delay",
 	"screenshot_overhaul.config.show_screenshot_preview": "Show preview",
+	"screenshot_overhaul.config.panorama_resolution": "Panorama resolution in pixel",
+	"screenshot_overhaul.config.panorama_resolution.warning_high": "High-resolution panoramas may take significantly longer to generate and can substantially increase video memory (VRAM) usage.",
 	"screenshot_overhaul.config.rotation_speed": "Rotation speed",
 	"screenshot_overhaul.config.rotation_direction": "Rotation direction",
 	"screenshot_overhaul.config.rotation_direction.to_left": "To the left",

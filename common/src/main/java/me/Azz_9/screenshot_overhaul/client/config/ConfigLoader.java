@@ -36,7 +36,11 @@ public class ConfigLoader {
 						in.nextNull();
 						return null;
 					}
-					return Path.of(in.nextString());
+					try {
+						return Path.of(in.nextString());
+					} catch (Exception e) {
+						return null;
+					}
 				}
 			})
 			.create();

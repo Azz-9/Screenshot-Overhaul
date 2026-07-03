@@ -4,6 +4,7 @@ import static me.Azz_9.screenshot_overhaul.CommonClass.PHOTO_MODE_ENABLED;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -25,30 +26,31 @@ import me.Azz_9.screenshot_overhaul.utils.PathUtils;
 public final class Config {
 	private static final @NonNull Config INSTANCE = new Config();
 
-	public final @NonNull ConfigObject<Boolean> enableWholeMod = new ConfigObject<>(true, "screenshot_overhaul.config.enable_whole_mod", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> enableWholeMod = ConfigObject.nonNull(true, "screenshot_overhaul.config.enable_whole_mod", Boolean.class);
 
-	public final @NonNull ConfigObject<Boolean> freezeInPhotoMode = new ConfigObject<>(true, "screenshot_overhaul.config.freeze_in_photo_mode", Boolean.class);
-	public final @NonNull ConfigObject<Boolean> showPlayer = new ConfigObject<>(true, "screenshot_overhaul.config.show_player", Boolean.class);
-	public final @NonNull ConfigObject<Boolean> showNametags = new ConfigObject<>(true, "screenshot_overhaul.config.show_nametags", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> freezeInPhotoMode = ConfigObject.nonNull(true, "screenshot_overhaul.config.freeze_in_photo_mode", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> showPlayer = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_player", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> showNametags = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_nametags", Boolean.class);
 
-	public final @NonNull ConfigObject<Boolean> showScreenshotsOnXaerosWorldMap = new ConfigObject<>(true, "screenshot_overhaul.config.show_screenshots_on_xaeros_world_map", Boolean.class);
-	public final @NonNull ConfigObject<Boolean> showScreenshotsOnJourneyMap = new ConfigObject<>(true, "screenshot_overhaul.config.show_screenshots_on_journey_map", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> showScreenshotsOnXaerosWorldMap = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_screenshots_on_xaeros_world_map", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> showScreenshotsOnJourneyMap = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_screenshots_on_journey_map", Boolean.class);
 
-	public final @NonNull ConfigObject<Path> screenshotsDir = new ConfigObject<>(Path.of("screenshots"), "screenshot_overhaul.config.screenshots_dir", Path.class);
-	public final @NonNull ConfigObject<String> screenshotsFileName = new ConfigObject<>("<datetime>", "screenshot_overhaul.config.screenshots_file_name", String.class);
-	public final @NonNull ConfigObject<Boolean> showChatMessage = new ConfigObject<>(true, "screenshot_overhaul.config.show_chat_message", Boolean.class);
-	public final @NonNull ConfigObject<Boolean> showPreview = new ConfigObject<>(true, "screenshot_overhaul.config.show_screenshot_preview", Boolean.class);
-	public final @NonNull ConfigObject<Boolean> hideChatOnScreenshot = new ConfigObject<>(false, "screenshot_overhaul.config.hide_chat_on_screenshot", Boolean.class);
-	public final @NonNull ConfigObject<Boolean> hideHudOnScreenshot = new ConfigObject<>(false, "screenshot_overhaul.config.hide_hud_on_screenshot", Boolean.class);
-	public final @NonNull ConfigObject<Boolean> hideHandOnScreenshot = new ConfigObject<>(false, "screenshot_overhaul.config.hide_hand_on_screenshot", Boolean.class);
-	public final @NonNull ConfigObject<Boolean> grabScreenshotOnAdvancement = new ConfigObject<>(false, "screenshot_overhaul.config.grab_on_advancement", Boolean.class);
-	public final @NonNull ConfigObject<Integer> advancementScreenshotDelay = new ConfigObject<>(20, "screenshot_overhaul.config.advancement_screenshot_delay", Integer.class);
+	public final @NonNull ConfigObject<Path> screenshotsDir = ConfigObject.withApplier(Path.of("screenshots"), "screenshot_overhaul.config.screenshots_dir", Path.class, path -> path != null ? PathUtils.toStoredPath(path) : Path.of("screenshots"));
+	public final @NonNull ConfigObject<String> screenshotsFileName = ConfigObject.withApplier("<datetime>", "screenshot_overhaul.config.screenshots_file_name", String.class, pattern -> ScreenshotFileNameParser.validate(pattern) ? pattern : "<datetime>");
+	public final @NonNull ConfigObject<Boolean> showChatMessage = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_chat_message", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> showPreview = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_screenshot_preview", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> hideChatOnScreenshot = ConfigObject.nonNull(false, "screenshot_overhaul.config.hide_chat_on_screenshot", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> hideHudOnScreenshot = ConfigObject.nonNull(false, "screenshot_overhaul.config.hide_hud_on_screenshot", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> hideHandOnScreenshot = ConfigObject.nonNull(false, "screenshot_overhaul.config.hide_hand_on_screenshot", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> grabScreenshotOnAdvancement = ConfigObject.nonNull(false, "screenshot_overhaul.config.grab_on_advancement", Boolean.class);
+	public final @NonNull ConfigObject<Integer> advancementScreenshotDelay = ConfigObject.withApplier(20, "screenshot_overhaul.config.advancement_screenshot_delay", Integer.class, integer -> integer != null ? Mth.clamp(integer, 0, 100) : 20);
 
+	public final @NonNull ConfigObject<Integer> panoramaResolution = ConfigObject.withApplier(1024, "screenshot_overhaul.config.panorama_resolution", Integer.class, integer -> integer != null ? Mth.clamp(integer, 256, 4096) : 1024);
 	// TODO peut être faire en sorte que cette option soit juste un raccourci pour minecraft.gameRenderer.getGameRenderState().optionsRenderState.panoramaSpeed qui est déjà une option de base du jeu
-	public final @NonNull ConfigObject<Integer> rotationSpeed = new ConfigObject<>(10, "screenshot_overhaul.config.rotation_speed", Integer.class);
-	public final @NonNull ConfigObject<RotationDirection> rotationDirection = new ConfigObject<>(RotationDirection.TO_LEFT, "screenshot_overhaul.config.rotation_direction", RotationDirection.class);
-	public final @NonNull ConfigObject<Integer> verticalAngle = new ConfigObject<>(10, "screenshot_overhaul.config.vertical_angle", Integer.class);
-	public final @NonNull ConfigObject<Integer> startingHorizontalAngle = new ConfigObject<>(0, "screenshot_overhaul.config.starting_horizontal_angle", Integer.class);
+	public final @NonNull ConfigObject<Integer> rotationSpeed = ConfigObject.withApplier(10, "screenshot_overhaul.config.rotation_speed", Integer.class, integer -> integer != null ? Mth.clamp(integer, 0, 100) : 10);
+	public final @NonNull ConfigObject<RotationDirection> rotationDirection = ConfigObject.nonNull(RotationDirection.TO_LEFT, "screenshot_overhaul.config.rotation_direction", RotationDirection.class);
+	public final @NonNull ConfigObject<Integer> verticalAngle = ConfigObject.withApplier(10, "screenshot_overhaul.config.vertical_angle", Integer.class, integer -> integer != null ? Mth.clamp(integer, -180, 180) : 10);
+	public final @NonNull ConfigObject<Integer> startingHorizontalAngle = ConfigObject.withApplier(0, "screenshot_overhaul.config.starting_horizontal_angle", Integer.class, integer -> integer != null ? Mth.clamp(integer, 0, 360) : 0);
 
 	public final @NonNull SavableObject<ScrollableGallery.SortMode> screenshotSortOrder = SavableObject.nonNull(ScrollableGallery.SortMode.DATE_DESC, ScrollableGallery.SortMode.class);
 	public final @NonNull SavableObject<ScrollableGallery.SortMode> panoramaSortOrder = SavableObject.nonNull(ScrollableGallery.SortMode.DATE_DESC, ScrollableGallery.SortMode.class);
@@ -110,6 +112,7 @@ public final class Config {
 				.build();
 		BooleanConfigOption hideHandOnScreenshot = BooleanConfigOption.builder(Config.getInstance().hideHandOnScreenshot).build();
 		BooleanConfigOption grabScreenshotOnAdvancement = BooleanConfigOption.builder(Config.getInstance().grabScreenshotOnAdvancement).build();
+		IntSliderConfigOption advancementScreenshotDelay = IntSliderConfigOption.builder(Config.getInstance().advancementScreenshotDelay, 0, 100).build();
 
 		ConfigTabContent screenshotContent = ConfigTabContent.builder()
 				.option(screenshotsFileName)
@@ -120,11 +123,20 @@ public final class Config {
 				.option(hideChatOnScreenshot)
 				.option(hideHandOnScreenshot)
 				.option(grabScreenshotOnAdvancement)
+				.option(advancementScreenshotDelay)
 				.build();
 
 		screen.addConfigTab(Component.translatable("screenshot_overhaul.config.category.screenshot"), screenshotContent);
 
 		// panorama
+		IntSliderConfigOption panoramaSize = IntSliderConfigOption.builder(Config.getInstance().panoramaResolution, 256, 4096)
+				.tooltip(integer -> {
+					if (integer > 2048) {
+						return Component.translatable("screenshot_overhaul.config.panorama_resolution.warning_high");
+					}
+					return null;
+				})
+				.build();
 		IntSliderConfigOption rotationSpeed = IntSliderConfigOption.builder(Config.getInstance().rotationSpeed, 0, 100).buildLive();
 		EnumConfigOption<RotationDirection> rotationDirection = EnumConfigOption.builder(Config.getInstance().rotationDirection, RotationDirection.class)
 				.valueName(RotationDirection::getText)
@@ -133,6 +145,7 @@ public final class Config {
 		IntSliderConfigOption startingHorizontalAngle = IntSliderConfigOption.builder(Config.getInstance().startingHorizontalAngle, 0, 360).buildLive();
 
 		ConfigTabContent panoramaContent = ConfigTabContent.builder()
+				.option(panoramaSize)
 				.option(rotationSpeed)
 				.option(rotationDirection)
 				.option(verticalAngle)
