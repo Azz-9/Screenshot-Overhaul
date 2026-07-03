@@ -13,8 +13,8 @@ import me.Azz_9.screenshot_overhaul.client.config.ConfigLoader;
 import me.Azz_9.screenshot_overhaul.client.gui.components.panoramaGallery.PanoramaGalleryWidget;
 import me.Azz_9.screenshot_overhaul.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_overhaul.client.gui.focusSystem.FocusableScreen;
+import me.Azz_9.screenshot_overhaul.client.panorama.PanoramaHolder;
 import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotList;
-import me.Azz_9.screenshot_overhaul.client.screenshot.panorama.PanoramaHolder;
 
 public class PanoramaGalleryScreen extends AbstractSavableScreen implements FocusableScreen {
 

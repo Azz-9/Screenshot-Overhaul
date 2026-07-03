@@ -6,19 +6,20 @@ import java.io.File;
 import java.util.Objects;
 
 import me.Azz_9.screenshot_overhaul.client.config.Config;
+import me.Azz_9.screenshot_overhaul.client.metadata.Metadata;
 
 public class Screenshot {
 	private final @NonNull File file;
 	private final @NonNull String pathRelativeToScreenshotDir;
-	private @NonNull ScreenshotMetadata metadata;
+	private @NonNull Metadata metadata;
 
-	public Screenshot(@NonNull File file, @NonNull ScreenshotMetadata metadata, @NonNull String pathRelativeToScreenshotDir) {
+	public Screenshot(@NonNull File file, @NonNull Metadata metadata, @NonNull String pathRelativeToScreenshotDir) {
 		this.file = file;
 		this.pathRelativeToScreenshotDir = pathRelativeToScreenshotDir;
 		this.metadata = metadata;
 	}
 
-	public Screenshot(@NonNull File file, @NonNull ScreenshotMetadata metadata) {
+	public Screenshot(@NonNull File file, @NonNull Metadata metadata) {
 		this(file, metadata, Config.getInstance().getAbsoluteScreenshotsDir().relativize(file.toPath()).toString());
 	}
 
@@ -26,11 +27,11 @@ public class Screenshot {
 		return file;
 	}
 
-	public @NonNull ScreenshotMetadata getMetadata() {
+	public @NonNull Metadata getMetadata() {
 		return metadata;
 	}
 
-	public void setMetadata(@NonNull ScreenshotMetadata metadata) {
+	public void setMetadata(@NonNull Metadata metadata) {
 		this.metadata = metadata;
 	}
 

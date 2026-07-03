@@ -4,11 +4,9 @@ import static me.Azz_9.screenshot_overhaul.Constants.MOD_ID;
 
 import com.mojang.blaze3d.platform.InputConstants;
 
-import net.minecraft.SharedConstants;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.LevelLoadingScreen;
 import net.minecraft.network.chat.Component;
@@ -24,14 +22,14 @@ import java.util.List;
 
 import me.Azz_9.screenshot_overhaul.client.config.Config;
 import me.Azz_9.screenshot_overhaul.client.config.ConfigLoader;
+import me.Azz_9.screenshot_overhaul.client.panorama.Panorama;
+import me.Azz_9.screenshot_overhaul.client.panorama.PanoramaHolder;
 import me.Azz_9.screenshot_overhaul.client.photoMode.PhotoMode;
 import me.Azz_9.screenshot_overhaul.client.photoMode.PhotoModeHud;
+import me.Azz_9.screenshot_overhaul.client.preview.ScreenshotPreview;
 import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotGrabber;
 import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotList;
 import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotManager;
-import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotPreview;
-import me.Azz_9.screenshot_overhaul.client.screenshot.panorama.Panorama;
-import me.Azz_9.screenshot_overhaul.client.screenshot.panorama.PanoramaHolder;
 import me.Azz_9.screenshot_overhaul.compat.CompatManager;
 import me.Azz_9.screenshot_overhaul.compat.journeyMap.JourneyMapIntegration;
 import me.Azz_9.screenshot_overhaul.platform.Services;

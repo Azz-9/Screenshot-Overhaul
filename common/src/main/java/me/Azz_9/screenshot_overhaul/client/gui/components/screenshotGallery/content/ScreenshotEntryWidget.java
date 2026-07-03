@@ -17,10 +17,10 @@ import java.util.function.Consumer;
 import me.Azz_9.screenshot_overhaul.ScreenshotLogger;
 import me.Azz_9.screenshot_overhaul.client.Colors;
 import me.Azz_9.screenshot_overhaul.client.gui.components.gallery.AbstractGalleryEntryWidget;
+import me.Azz_9.screenshot_overhaul.client.metadata.Metadata;
+import me.Azz_9.screenshot_overhaul.client.metadata.MetadataUtils;
 import me.Azz_9.screenshot_overhaul.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotManager;
-import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotMetadata;
-import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotMetadataUtils;
 import me.Azz_9.screenshot_overhaul.utils.PathUtils;
 
 public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
@@ -29,7 +29,7 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 	private static final int BUTTON_FADE_DURATION = 250;
 
 	private final @NonNull String INITIAL_NAME;
-	private final @NonNull ScreenshotMetadata INITIAL_METADATA;
+	private final @NonNull Metadata INITIAL_METADATA;
 
 	private final @NonNull ScreenshotThumbnailWidget thumbnailWidget;
 	private final @NonNull ScreenshotNameWidget nameWidget;
@@ -42,7 +42,7 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 	                             @Nullable Consumer<Screenshot> onThumbnailClicked) {
 		super(x, y, thumbnailWidth, thumbnailHeight + DEFAULT_NAME_HEIGHT, BUTTON_FADE_DURATION, screenshot.file().getParentFile().toPath());
 		this.INITIAL_NAME = screenshot.file().getName();
-		this.INITIAL_METADATA = ScreenshotMetadata.copyOf(screenshot.getMetadata());
+		this.INITIAL_METADATA = Metadata.copyOf(screenshot.getMetadata());
 
 		this.screenshot = screenshot;
 
@@ -135,7 +135,7 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 		return screenshot;
 	}
 
-	public @NonNull ScreenshotMetadata getMetadata() {
+	public @NonNull Metadata getMetadata() {
 		return screenshot.getMetadata();
 	}
 
@@ -195,7 +195,7 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 	public void commitChanges() {
 		if (hasMetadataChanged()) {
 			try {
-				ScreenshotMetadataUtils.update(screenshot.file(), screenshot.getMetadata());
+				MetadataUtils.update(screenshot.file(), screenshot.getMetadata());
 			} catch (Exception e) {
 				ScreenshotLogger.error("Could not save metadata for {}", screenshot.file().getName());
 			}

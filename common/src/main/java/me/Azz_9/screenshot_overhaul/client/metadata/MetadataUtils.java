@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_overhaul.client.screenshot;
+package me.Azz_9.screenshot_overhaul.client.metadata;
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
 
@@ -23,7 +23,7 @@ import me.Azz_9.screenshot_overhaul.client.config.Config;
 import me.Azz_9.screenshot_overhaul.compat.CompatManager;
 import me.Azz_9.screenshot_overhaul.platform.Services;
 
-public class ScreenshotMetadataUtils {
+public class MetadataUtils {
 
 	private static final @NonNull String KEY_X = "X";
 	private static final @NonNull String KEY_Y = "Y";
@@ -40,7 +40,7 @@ public class ScreenshotMetadataUtils {
 	private static final @NonNull String KEY_PANORAMA_ID = "PanoramaId";
 	private static final @NonNull String KEY_PANORAMA_FACE = "PanoramaFace";
 
-	public static void add(@NonNull File imageFile, @Nullable ScreenshotMetadata meta) {
+	public static void add(@NonNull File imageFile, @Nullable Metadata meta) {
 		try {
 			byte[] originalBytes = Files.readAllBytes(imageFile.toPath());
 			byte[] newBytes = injectIntoBytes(originalBytes, meta);
@@ -93,7 +93,7 @@ public class ScreenshotMetadataUtils {
 		return out.toByteArray();
 	}
 
-	public static byte[] injectIntoBytes(byte[] originalBytes, @Nullable ScreenshotMetadata meta) throws Exception {
+	public static byte[] injectIntoBytes(byte[] originalBytes, @Nullable Metadata meta) throws Exception {
 		if (meta == null) return originalBytes;
 
 		List<byte[]> textChunks = new ArrayList<>();
@@ -119,7 +119,7 @@ public class ScreenshotMetadataUtils {
 		return injectChunks(originalBytes, textChunks);
 	}
 
-	public static @NonNull ScreenshotMetadata read(@NonNull File imageFile) throws Exception {
+	public static @NonNull Metadata read(@NonNull File imageFile) throws Exception {
 		Map<String, String> meta = new LinkedHashMap<>();
 		DataInputStream dis = new DataInputStream(new FileInputStream(imageFile));
 
@@ -147,7 +147,7 @@ public class ScreenshotMetadataUtils {
 		}
 		dis.close();
 
-		return new ScreenshotMetadata(
+		return new Metadata(
 				meta.containsKey(KEY_X) ? Integer.parseInt(meta.get(KEY_X)) : null,
 				meta.containsKey(KEY_Y) ? Integer.parseInt(meta.get(KEY_Y)) : null,
 				meta.containsKey(KEY_Z) ? Integer.parseInt(meta.get(KEY_Z)) : null,
@@ -165,9 +165,9 @@ public class ScreenshotMetadataUtils {
 		);
 	}
 
-	public static @NonNull ScreenshotMetadata collect(@Nullable String panoramaId, @Nullable Integer faceIndex) {
+	public static @NonNull Metadata collect(@Nullable String panoramaId, @Nullable Integer faceIndex) {
 		if (MINECRAFT.player == null || MINECRAFT.level == null)
-			return new ScreenshotMetadata(
+			return new Metadata(
 					null, null, null,
 					null, null, null, null, null,
 					SharedConstants.getCurrentVersion().name(),
@@ -199,7 +199,7 @@ public class ScreenshotMetadataUtils {
 			shader = Services.PLATFORM.getShaderName();
 		}
 
-		return new ScreenshotMetadata(
+		return new Metadata(
 				(int) Math.floor(MINECRAFT.player.getX()),
 				(int) Math.floor(MINECRAFT.player.getY()),
 				(int) Math.floor(MINECRAFT.player.getZ()),
@@ -222,11 +222,11 @@ public class ScreenshotMetadataUtils {
 		);
 	}
 
-	public static @NonNull ScreenshotMetadata collect() {
+	public static @NonNull Metadata collect() {
 		return collect(null, null);
 	}
 
-	public static void update(@NonNull File imageFile, @Nullable ScreenshotMetadata meta) {
+	public static void update(@NonNull File imageFile, @Nullable Metadata meta) {
 		try {
 			byte[] originalBytes = Files.readAllBytes(imageFile.toPath());
 			byte[] stripped = stripTextChunks(originalBytes);

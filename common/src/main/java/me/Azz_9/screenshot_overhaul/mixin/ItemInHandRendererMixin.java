@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import me.Azz_9.screenshot_overhaul.client.photoMode.PhotoMode;
-import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotRenderState;
+import me.Azz_9.screenshot_overhaul.client.screenshot.FutureScreenshotState;
 
 @Mixin(ItemInHandRenderer.class)
 public abstract class ItemInHandRendererMixin {
@@ -25,7 +25,7 @@ public abstract class ItemInHandRendererMixin {
 	)
 	private void onSubmitHandsWithItems(float frameInterp, PoseStack poseStack, SubmitNodeCollector submitNodeCollector,
 										LocalPlayer player, int lightCoords, CallbackInfo ci) {
-		if (PhotoMode.isEnabled() || ScreenshotRenderState.suppressHand) {
+		if (PhotoMode.isEnabled() || FutureScreenshotState.suppressHand) {
 			ci.cancel();
 		}
 	}

@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_overhaul.client.screenshot;
+package me.Azz_9.screenshot_overhaul.client.texture;
 
 import com.mojang.blaze3d.platform.NativeImage;
 
@@ -14,6 +14,8 @@ import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
+
+import me.Azz_9.screenshot_overhaul.client.ImageScaler;
 
 public final class ScreenshotTexture implements AutoCloseable {
 

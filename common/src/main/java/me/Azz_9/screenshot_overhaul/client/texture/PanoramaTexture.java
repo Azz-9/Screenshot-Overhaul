@@ -1,8 +1,8 @@
-package me.Azz_9.screenshot_overhaul.client.screenshot.panorama;
+package me.Azz_9.screenshot_overhaul.client.texture;
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
 import static me.Azz_9.screenshot_overhaul.Constants.MOD_ID;
-import static me.Azz_9.screenshot_overhaul.client.screenshot.panorama.PanoramaHolder.loadImages;
+import static me.Azz_9.screenshot_overhaul.client.panorama.PanoramaHolder.loadImages;
 
 import com.mojang.blaze3d.platform.NativeImage;
 
@@ -17,7 +17,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import me.Azz_9.screenshot_overhaul.client.screenshot.ImageScaler;
+import me.Azz_9.screenshot_overhaul.client.ImageScaler;
+import me.Azz_9.screenshot_overhaul.client.panorama.Panorama;
 
 public class PanoramaTexture implements AutoCloseable {
 	private static final @NonNull AtomicInteger ID_COUNTER = new AtomicInteger(0);

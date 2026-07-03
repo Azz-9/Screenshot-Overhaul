@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_overhaul.client.screenshot.panorama;
+package me.Azz_9.screenshot_overhaul.client.texture;
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
 
@@ -30,6 +30,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.OptionalDouble;
+
+import me.Azz_9.screenshot_overhaul.client.panorama.PanoramaHolder;
 
 public class PanoramaCubeMap implements AutoCloseable {
 

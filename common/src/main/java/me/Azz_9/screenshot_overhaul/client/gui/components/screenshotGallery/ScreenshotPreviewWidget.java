@@ -18,7 +18,7 @@ import net.minecraft.util.Ease;
 import org.jspecify.annotations.NonNull;
 
 import me.Azz_9.screenshot_overhaul.client.Colors;
-import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotPreview;
+import me.Azz_9.screenshot_overhaul.client.preview.ScreenshotPreview;
 
 public class ScreenshotPreviewWidget extends AbstractWidget {
 

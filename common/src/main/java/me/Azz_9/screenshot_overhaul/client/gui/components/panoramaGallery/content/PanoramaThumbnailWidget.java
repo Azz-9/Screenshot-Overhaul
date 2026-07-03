@@ -17,10 +17,15 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
 
+import me.Azz_9.screenshot_overhaul.client.cache.PanoramaTextureCache;
 import me.Azz_9.screenshot_overhaul.client.gui.Loading;
 import me.Azz_9.screenshot_overhaul.client.gui.components.gallery.AbstractThumbnailWidget;
 import me.Azz_9.screenshot_overhaul.client.gui.focusSystem.FocusableScreen;
-import me.Azz_9.screenshot_overhaul.client.screenshot.panorama.*;
+import me.Azz_9.screenshot_overhaul.client.panorama.Panorama;
+import me.Azz_9.screenshot_overhaul.client.renderState.PanoramaThumbnailRenderQueue;
+import me.Azz_9.screenshot_overhaul.client.renderState.PanoramaThumbnailRenderState;
+import me.Azz_9.screenshot_overhaul.client.texture.PanoramaCubeMap;
+import me.Azz_9.screenshot_overhaul.client.texture.PanoramaTexture;
 
 public class PanoramaThumbnailWidget extends AbstractThumbnailWidget {
 

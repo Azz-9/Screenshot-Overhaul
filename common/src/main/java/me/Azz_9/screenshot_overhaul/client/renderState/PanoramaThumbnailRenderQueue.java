@@ -1,6 +1,5 @@
-package me.Azz_9.screenshot_overhaul.client.screenshot.panorama;
+package me.Azz_9.screenshot_overhaul.client.renderState;
 
-import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;

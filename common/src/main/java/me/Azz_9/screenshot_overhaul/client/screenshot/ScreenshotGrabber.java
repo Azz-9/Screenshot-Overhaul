@@ -28,6 +28,9 @@ import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_overhaul.ScreenshotLogger;
 import me.Azz_9.screenshot_overhaul.client.config.Config;
+import me.Azz_9.screenshot_overhaul.client.metadata.Metadata;
+import me.Azz_9.screenshot_overhaul.client.metadata.MetadataUtils;
+import me.Azz_9.screenshot_overhaul.client.preview.ScreenshotPreview;
 import me.Azz_9.screenshot_overhaul.mixin.NativeImageAccessor;
 
 public class ScreenshotGrabber {
@@ -54,8 +57,8 @@ public class ScreenshotGrabber {
 							((NativeImageAccessor) (Object) image).invokeWriteToChannel(channel);
 						}
 
-						ScreenshotMetadata metadata = ScreenshotMetadataUtils.collect();
-						byte[] pngWithMeta = ScreenshotMetadataUtils.injectIntoBytes(baos.toByteArray(), metadata);
+						Metadata metadata = MetadataUtils.collect();
+						byte[] pngWithMeta = MetadataUtils.injectIntoBytes(baos.toByteArray(), metadata);
 
 						Files.createDirectories(file.toPath().getParent());
 						Files.write(file.toPath(), pngWithMeta);
@@ -92,16 +95,16 @@ public class ScreenshotGrabber {
 	}
 
 	public static void requestGrab(@NonNull File picDir, final @Nullable String forceName, final @NonNull RenderTarget target, final int downscaleFactor, final @NonNull Consumer<Component> callback) {
-		if (!ScreenshotRenderState.shouldRequestScreenshot()) {
+		if (!FutureScreenshotState.shouldRequestScreenshot()) {
 			grab(picDir, forceName, target, downscaleFactor, callback);
 			return;
 		}
 
-		ScreenshotRenderState.suppressHud = Config.getInstance().hideHudOnScreenshot.getValue();
-		ScreenshotRenderState.suppressChat = !Config.getInstance().hideHudOnScreenshot.getValue() && Config.getInstance().hideChatOnScreenshot.getValue();
-		ScreenshotRenderState.suppressHand = Config.getInstance().hideHandOnScreenshot.getValue();
-		ScreenshotRenderState.captureRequested = true;
-		ScreenshotRenderState.pendingCapture = () -> grab(picDir, forceName, target, downscaleFactor, callback);
+		FutureScreenshotState.suppressHud = Config.getInstance().hideHudOnScreenshot.getValue();
+		FutureScreenshotState.suppressChat = !Config.getInstance().hideHudOnScreenshot.getValue() && Config.getInstance().hideChatOnScreenshot.getValue();
+		FutureScreenshotState.suppressHand = Config.getInstance().hideHandOnScreenshot.getValue();
+		FutureScreenshotState.captureRequested = true;
+		FutureScreenshotState.pendingCapture = () -> grab(picDir, forceName, target, downscaleFactor, callback);
 	}
 
 	public static @NonNull Component grabPanoramixScreenshot(final @NonNull File folder) {
@@ -212,9 +215,9 @@ public class ScreenshotGrabber {
 							((NativeImageAccessor) (Object) image).invokeWriteToChannel(channel);
 						}
 
-						byte[] pngWithMeta = ScreenshotMetadataUtils.injectIntoBytes(
+						byte[] pngWithMeta = MetadataUtils.injectIntoBytes(
 								baos.toByteArray(),
-								ScreenshotMetadataUtils.collect(panoramaId, faceIndex)
+								MetadataUtils.collect(panoramaId, faceIndex)
 						);
 
 						Files.createDirectories(file.toPath().getParent());
