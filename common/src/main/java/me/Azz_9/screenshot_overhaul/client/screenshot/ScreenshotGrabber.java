@@ -114,8 +114,8 @@ public class ScreenshotGrabber {
 		File panoramaFolder = getPanoramaFolder(folder);
 
 		int downscaleFactor = 4;
-		int width = 4096;
-		int height = 4096;
+		int width = Config.getInstance().panoramaResolution.getValue() * downscaleFactor;
+		int height = Config.getInstance().panoramaResolution.getValue() * downscaleFactor;
 		int ow = MINECRAFT.getWindow().getWidth();
 		int oh = MINECRAFT.getWindow().getHeight();
 		RenderTarget target = MINECRAFT.gameRenderer.mainRenderTarget();

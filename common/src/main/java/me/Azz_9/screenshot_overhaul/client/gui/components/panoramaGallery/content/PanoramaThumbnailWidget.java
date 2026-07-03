@@ -53,7 +53,7 @@ public class PanoramaThumbnailWidget extends AbstractThumbnailWidget {
 	public void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
 		PanoramaTexture panoramaTexture = PanoramaTextureCache.getThumbnail(panorama);
 		PanoramaCubeMap cubeMap = panoramaTexture.getCubeMap();
-		if (!panoramaTexture.isReady() || cubeMap == null || cubeMap.getOffscreenTarget() == null || cubeMap.getOffscreenTarget().getColorTextureView() == null) {
+		if (!panoramaTexture.isReady() || cubeMap == null) {
 			int min = Math.min(getWidth(), getHeight());
 			Loading.drawLoadingSpinner(
 					graphics,
@@ -67,14 +67,16 @@ public class PanoramaThumbnailWidget extends AbstractThumbnailWidget {
 				new PanoramaThumbnailRenderState(getX(), getY(), getWidth(), getHeight(), pitch, yaw, cubeMap)
 		);
 
-		graphics.blit(
-				cubeMap.getOffscreenTarget().getColorTextureView(),
-				RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR),
-				getX(), getY(),
-				getX() + getWidth(), getY() + getHeight(),
-				0f, 1f,
-				1f, 0f
-		);
+		if (cubeMap.getOffscreenTarget() != null && cubeMap.getOffscreenTarget().getColorTextureView() != null) {
+			graphics.blit(
+					cubeMap.getOffscreenTarget().getColorTextureView(),
+					RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR),
+					getX(), getY(),
+					getX() + getWidth(), getY() + getHeight(),
+					0f, 1f,
+					1f, 0f
+			);
+		}
 
 		super.extractWidgetRenderState(graphics, mouseX, mouseY, delta);
 	}

@@ -40,12 +40,8 @@ public class PanoramaTexture implements AutoCloseable {
 		);
 	}
 
-	public static @NonNull PanoramaTexture loadMaxResolution(@NonNull Panorama panorama) {
-		return new PanoramaTexture(panorama, 4096);
-	}
-
 	public static @NonNull PanoramaTexture loadThumbnail(@NonNull Panorama panorama) {
-		return new PanoramaTexture(panorama, 1024);
+		return new PanoramaTexture(panorama, 512);
 	}
 
 	private static @Nullable LoadedPanoramaData loadData(@NonNull Panorama panorama, int size) {

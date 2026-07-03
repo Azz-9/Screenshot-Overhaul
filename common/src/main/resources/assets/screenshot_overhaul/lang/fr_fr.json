@@ -103,6 +103,8 @@
 	"screenshot_overhaul.config.grab_on_advancement": "Faire une capture d'écran lors d'un succcès",
 	"screenshot_overhaul.config.advancement_screenshot_delay": "Retard des captures d'écran des succès",
 	"screenshot_overhaul.config.show_screenshot_preview": "Afficher la prévisualisation",
+	"screenshot_overhaul.config.panorama_resolution": "Résolution des panoramas en pixel",
+	"screenshot_overhaul.config.panorama_resolution.warning_high": "Les panoramas en haute résolution peuvent prendre beaucoup plus de temps à être générés et peuvent augmenter significativement l'utilisation de la mémoire vidéo (VRAM).",
 	"screenshot_overhaul.config.rotation_speed": "Vitesse de rotation",
 	"screenshot_overhaul.config.rotation_direction": "Sens de rotation",
 	"screenshot_overhaul.config.rotation_direction.to_left": "Vers la gauche",
