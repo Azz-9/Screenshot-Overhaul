@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import me.Azz_9.screenshot_overhaul.client.gui.components.screenshotGallery.ScreenshotPreviewWidget;
-import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotPreview;
+import me.Azz_9.screenshot_overhaul.client.preview.ScreenshotPreview;
 
 @Mixin(Screen.class)
 public abstract class ScreenMixin {

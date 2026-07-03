@@ -18,8 +18,8 @@ import me.Azz_9.screenshot_overhaul.ScreenshotLogger;
 import me.Azz_9.screenshot_overhaul.client.Colors;
 import me.Azz_9.screenshot_overhaul.client.gui.components.gallery.AbstractGalleryEntryWidget;
 import me.Azz_9.screenshot_overhaul.client.gui.components.screenshotGallery.content.ScreenshotNameWidget;
+import me.Azz_9.screenshot_overhaul.client.panorama.Panorama;
 import me.Azz_9.screenshot_overhaul.client.screenshot.Screenshot;
-import me.Azz_9.screenshot_overhaul.client.screenshot.panorama.Panorama;
 import me.Azz_9.screenshot_overhaul.utils.PathUtils;
 
 public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {

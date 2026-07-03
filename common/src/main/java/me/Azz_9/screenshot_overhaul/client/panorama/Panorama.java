@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_overhaul.client.screenshot.panorama;
+package me.Azz_9.screenshot_overhaul.client.panorama;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;

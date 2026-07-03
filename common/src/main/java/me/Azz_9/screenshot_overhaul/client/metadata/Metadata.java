@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_overhaul.client.screenshot;
+package me.Azz_9.screenshot_overhaul.client.metadata;
 
 import net.minecraft.resources.Identifier;
 
@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ScreenshotMetadata {
+public class Metadata {
 	private @Nullable Integer x;
 	private @Nullable Integer y;
 	private @Nullable Integer z;
@@ -25,13 +25,13 @@ public class ScreenshotMetadata {
 	private @Nullable String panoramaId;
 	private @Nullable Integer panoramaFace;
 
-	public ScreenshotMetadata(@Nullable Integer x, @Nullable Integer y, @Nullable Integer z,
-	                          @Nullable Identifier dimension, @Nullable Identifier biome,
-	                          @Nullable Long seed, @Nullable String worldName,
-	                          @Nullable String serverIp, @Nullable String version,
-	                          @NonNull List<String> resourcePacks, @Nullable String shader,
-	                          @Nullable Long timestamp,
-							  @Nullable String panoramaId, @Nullable Integer panoramaFace) {
+	public Metadata(@Nullable Integer x, @Nullable Integer y, @Nullable Integer z,
+	                @Nullable Identifier dimension, @Nullable Identifier biome,
+	                @Nullable Long seed, @Nullable String worldName,
+	                @Nullable String serverIp, @Nullable String version,
+	                @NonNull List<String> resourcePacks, @Nullable String shader,
+	                @Nullable Long timestamp,
+	                @Nullable String panoramaId, @Nullable Integer panoramaFace) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -48,14 +48,14 @@ public class ScreenshotMetadata {
 		this.panoramaFace = panoramaFace;
 	}
 
-	public static @NonNull ScreenshotMetadata empty() {
-		return new ScreenshotMetadata(null, null, null, null, null, null,
+	public static @NonNull Metadata empty() {
+		return new Metadata(null, null, null, null, null, null,
 				null, null, null, new ArrayList<>(), null, null,
 				null, null);
 	}
 
-	public static @NonNull ScreenshotMetadata copyOf(@NonNull ScreenshotMetadata from) {
-		return new ScreenshotMetadata(from.x, from.y, from.z, from.dimension, from.biome, from.seed, from.worldName,
+	public static @NonNull Metadata copyOf(@NonNull Metadata from) {
+		return new Metadata(from.x, from.y, from.z, from.dimension, from.biome, from.seed, from.worldName,
 				from.serverIp, from.version, from.resourcePacks, from.shader, from.timestamp, from.panoramaId, from.panoramaFace);
 	}
 
@@ -174,7 +174,7 @@ public class ScreenshotMetadata {
 	@Override
 	public boolean equals(Object o) {
 		if (o == null || getClass() != o.getClass()) return false;
-		ScreenshotMetadata that = (ScreenshotMetadata) o;
+		Metadata that = (Metadata) o;
 		return Objects.equals(getX(), that.getX()) &&
 				Objects.equals(getY(), that.getY()) &&
 				Objects.equals(getZ(), that.getZ()) &&

@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_overhaul.client.screenshot.panorama;
+package me.Azz_9.screenshot_overhaul.client.panorama;
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
 
@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import me.Azz_9.screenshot_overhaul.ScreenshotLogger;
 import me.Azz_9.screenshot_overhaul.client.config.Config;
 import me.Azz_9.screenshot_overhaul.client.screenshot.Screenshot;
+import me.Azz_9.screenshot_overhaul.client.texture.DynamicCubeMapTexture;
 
 public class PanoramaHolder {
 

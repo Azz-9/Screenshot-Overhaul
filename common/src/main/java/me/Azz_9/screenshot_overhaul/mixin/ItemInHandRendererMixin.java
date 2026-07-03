@@ -3,7 +3,6 @@ package me.Azz_9.screenshot_overhaul.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.world.InteractionHand;
@@ -15,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import me.Azz_9.screenshot_overhaul.client.photoMode.PhotoMode;
-import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotRenderState;
+import me.Azz_9.screenshot_overhaul.client.screenshot.FutureScreenshotState;
 
 @Mixin(ItemInHandRenderer.class)
 public abstract class ItemInHandRendererMixin {
@@ -31,7 +30,7 @@ public abstract class ItemInHandRendererMixin {
 										float inverseArmHeight, PoseStack poseStack,
 										SubmitNodeCollector submitNodeCollector, int lightCoords,
 										CallbackInfo ci) {
-		if (PhotoMode.isEnabled() || ScreenshotRenderState.suppressHand) {
+		if (PhotoMode.isEnabled() || FutureScreenshotState.suppressHand) {
 			ci.cancel();
 		}
 	}

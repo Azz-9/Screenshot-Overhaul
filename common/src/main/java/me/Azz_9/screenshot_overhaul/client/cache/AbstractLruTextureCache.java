@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_overhaul.client.screenshot;
+package me.Azz_9.screenshot_overhaul.client.cache;
 
 import org.jspecify.annotations.NonNull;
 

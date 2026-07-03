@@ -14,8 +14,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import me.Azz_9.screenshot_overhaul.client.config.Config;
-import me.Azz_9.screenshot_overhaul.client.screenshot.panorama.PanoramaThumbnailRenderQueue;
-import me.Azz_9.screenshot_overhaul.client.screenshot.panorama.PanoramaThumbnailRenderState;
+import me.Azz_9.screenshot_overhaul.client.renderState.PanoramaThumbnailRenderQueue;
+import me.Azz_9.screenshot_overhaul.client.renderState.PanoramaThumbnailRenderState;
 
 @Mixin(GuiRenderer.class)
 public abstract class GuiRendererMixin {

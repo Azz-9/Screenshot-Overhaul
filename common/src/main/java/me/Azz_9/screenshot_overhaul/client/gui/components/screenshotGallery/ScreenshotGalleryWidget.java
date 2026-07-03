@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_overhaul.ScreenshotLogger;
 import me.Azz_9.screenshot_overhaul.client.Colors;
+import me.Azz_9.screenshot_overhaul.client.cache.ScreenshotTextureCache;
 import me.Azz_9.screenshot_overhaul.client.config.Config;
 import me.Azz_9.screenshot_overhaul.client.gui.Loading;
 import me.Azz_9.screenshot_overhaul.client.gui.components.gallery.ScrollableGallery;
@@ -28,7 +29,6 @@ import me.Azz_9.screenshot_overhaul.client.gui.components.screenshotGallery.cont
 import me.Azz_9.screenshot_overhaul.client.gui.screen.ScreenshotGalleryScreen;
 import me.Azz_9.screenshot_overhaul.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotList;
-import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotTextureCache;
 
 public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWidget> {
 

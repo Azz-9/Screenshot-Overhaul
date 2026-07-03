@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_overhaul.client.screenshot;
+package me.Azz_9.screenshot_overhaul.client.gui;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.render.TextureSetup;
@@ -10,6 +10,7 @@ import org.joml.Matrix3x2f;
 import org.jspecify.annotations.NonNull;
 
 import me.Azz_9.screenshot_overhaul.client.Colors;
+import me.Azz_9.screenshot_overhaul.client.texture.ScreenshotTexture;
 import me.Azz_9.screenshot_overhaul.mixin.GuiGraphicsExtractorAccessor;
 import me.Azz_9.screenshot_overhaul.platform.Services;
 

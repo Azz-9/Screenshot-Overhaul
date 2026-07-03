@@ -5,8 +5,6 @@ import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 
@@ -18,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import me.Azz_9.screenshot_overhaul.CommonClass;
 import me.Azz_9.screenshot_overhaul.client.photoMode.PhotoMode;
-import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotRenderState;
+import me.Azz_9.screenshot_overhaul.client.screenshot.FutureScreenshotState;
 
 @Mixin(Gui.class)
 public abstract class GuiMixin {
@@ -26,14 +24,14 @@ public abstract class GuiMixin {
 	// On hud render
 	@Inject(method = "extractRenderState", at = @At("HEAD"), cancellable = true)
 	private void extractRenderState(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-		if (ScreenshotRenderState.suppressHud || CommonClass.hudRenderHook(graphics, deltaTracker)) {
+		if (FutureScreenshotState.suppressHud || CommonClass.hudRenderHook(graphics, deltaTracker)) {
 			ci.cancel();
 		}
 	}
 
 	@Inject(method = "extractChat", at = @At("HEAD"), cancellable = true)
 	private void onExtractChat(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-		if (ScreenshotRenderState.suppressChat) {
+		if (FutureScreenshotState.suppressChat) {
 			ci.cancel();
 		}
 	}

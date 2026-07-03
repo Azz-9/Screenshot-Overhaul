@@ -17,14 +17,14 @@ import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_overhaul.ScreenshotLogger;
 import me.Azz_9.screenshot_overhaul.client.Colors;
+import me.Azz_9.screenshot_overhaul.client.cache.PanoramaTextureCache;
 import me.Azz_9.screenshot_overhaul.client.config.Config;
 import me.Azz_9.screenshot_overhaul.client.gui.Loading;
 import me.Azz_9.screenshot_overhaul.client.gui.components.gallery.ScrollableGallery;
 import me.Azz_9.screenshot_overhaul.client.gui.components.panoramaGallery.content.PanoramaEntryWidget;
 import me.Azz_9.screenshot_overhaul.client.gui.screen.PanoramaGalleryScreen;
+import me.Azz_9.screenshot_overhaul.client.panorama.Panorama;
 import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotList;
-import me.Azz_9.screenshot_overhaul.client.screenshot.panorama.Panorama;
-import me.Azz_9.screenshot_overhaul.client.screenshot.panorama.PanoramaTextureCache;
 
 public class PanoramaGalleryWidget extends ScrollableGallery<PanoramaEntryWidget> {
 

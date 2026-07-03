@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_overhaul.client.screenshot.panorama;
+package me.Azz_9.screenshot_overhaul.client.texture;
 
 import static me.Azz_9.screenshot_overhaul.Constants.MOD_ID;
 

@@ -5,6 +5,7 @@ import org.jspecify.annotations.NonNull;
 import java.io.File;
 
 import me.Azz_9.screenshot_overhaul.ScreenshotLogger;
+import me.Azz_9.screenshot_overhaul.client.metadata.Metadata;
 
 public class DeleteScreenshot {
 	public static boolean delete(@NonNull Screenshot screenshot) {
@@ -17,6 +18,6 @@ public class DeleteScreenshot {
 	}
 
 	public static boolean delete(@NonNull File file) {
-		return delete(new Screenshot(file, ScreenshotMetadata.empty()));
+		return delete(new Screenshot(file, Metadata.empty()));
 	}
 }

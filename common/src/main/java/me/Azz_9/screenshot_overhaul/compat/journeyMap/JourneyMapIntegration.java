@@ -22,8 +22,13 @@ import journeymap.api.v2.client.model.MapImage;
 import journeymap.api.v2.client.util.UIState;
 import journeymap.api.v2.common.JourneyMapPlugin;
 import me.Azz_9.screenshot_overhaul.ScreenshotLogger;
+import me.Azz_9.screenshot_overhaul.client.cache.ScreenshotTextureCache;
 import me.Azz_9.screenshot_overhaul.client.config.Config;
-import me.Azz_9.screenshot_overhaul.client.screenshot.*;
+import me.Azz_9.screenshot_overhaul.client.metadata.Metadata;
+import me.Azz_9.screenshot_overhaul.client.screenshot.CopyScreenshot;
+import me.Azz_9.screenshot_overhaul.client.screenshot.Screenshot;
+import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotList;
+import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotManager;
 
 @JourneyMapPlugin(apiVersion = "2.0.0")
 public class JourneyMapIntegration implements IClientPlugin {
@@ -47,7 +52,7 @@ public class JourneyMapIntegration implements IClientPlugin {
 
 		ScreenshotList.whenScreenshotsLoaded(screenshots -> {
 			for (Screenshot screenshot : screenshots) {
-				ScreenshotMetadata metadata = screenshot.getMetadata();
+				Metadata metadata = screenshot.getMetadata();
 				if (ScreenshotManager.isHiddenFromMap(screenshot.pathRelativeToScreenshotDir()) || metadata.getX() == null || metadata.getY() == null || metadata.getZ() == null || metadata.getDimension() == null)
 					continue;
 

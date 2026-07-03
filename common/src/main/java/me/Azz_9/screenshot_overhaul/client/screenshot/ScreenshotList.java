@@ -1,7 +1,7 @@
 package me.Azz_9.screenshot_overhaul.client.screenshot;
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
-import static me.Azz_9.screenshot_overhaul.client.screenshot.panorama.Panorama.firstFace;
+import static me.Azz_9.screenshot_overhaul.client.panorama.Panorama.firstFace;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -17,7 +17,9 @@ import java.util.stream.Stream;
 
 import me.Azz_9.screenshot_overhaul.ScreenshotLogger;
 import me.Azz_9.screenshot_overhaul.client.config.Config;
-import me.Azz_9.screenshot_overhaul.client.screenshot.panorama.Panorama;
+import me.Azz_9.screenshot_overhaul.client.metadata.Metadata;
+import me.Azz_9.screenshot_overhaul.client.metadata.MetadataUtils;
+import me.Azz_9.screenshot_overhaul.client.panorama.Panorama;
 
 public class ScreenshotList {
 	private static final @NonNull List<String> ACCEPTED_SCREENSHOT_FILE_EXTENSIONS = List.of(".png");
@@ -65,11 +67,11 @@ public class ScreenshotList {
 					result = paths.filter(ScreenshotList::isScreenshot)
 							.map(path -> {
 								File file = path.toFile();
-								ScreenshotMetadata metadata;
+								Metadata metadata;
 								try {
-									metadata = ScreenshotMetadataUtils.read(file);
+									metadata = MetadataUtils.read(file);
 								} catch (Exception e) {
-									metadata = ScreenshotMetadata.empty();
+									metadata = Metadata.empty();
 								}
 								return new Screenshot(file, metadata);
 							})
@@ -271,7 +273,7 @@ public class ScreenshotList {
 								if (!isScreenshot(fullPath)) continue;
 
 								File file = fullPath.toFile();
-								ScreenshotMetadata metadata;
+								Metadata metadata;
 								metadata = readMetadataWithRetry(file);
 								Screenshot screenshot = new Screenshot(file, metadata);
 								synchronized (lock) {
@@ -317,7 +319,7 @@ public class ScreenshotList {
 		watchedDirs.put(key, dir);
 	}
 
-	private static @NonNull ScreenshotMetadata readMetadataWithRetry(@NonNull File file) {
+	private static @NonNull Metadata readMetadataWithRetry(@NonNull File file) {
 		for (int i = 0; i < MAX_READ_ATTEMPTS; i++) {
 			try {
 				// Check if the file is fully written by comparing its size on two read
@@ -327,7 +329,7 @@ public class ScreenshotList {
 
 				if (sizeAfter == 0 || sizeBefore != sizeAfter) continue;
 
-				return ScreenshotMetadataUtils.read(file);
+				return MetadataUtils.read(file);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				break;
@@ -336,7 +338,7 @@ public class ScreenshotList {
 			}
 		}
 
-		return ScreenshotMetadata.empty();
+		return Metadata.empty();
 	}
 
 	private static boolean isScreenshot(@NonNull Path path) {

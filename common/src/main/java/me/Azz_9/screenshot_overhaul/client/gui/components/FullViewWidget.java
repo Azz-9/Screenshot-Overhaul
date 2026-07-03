@@ -24,10 +24,15 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import me.Azz_9.screenshot_overhaul.client.Colors;
+import me.Azz_9.screenshot_overhaul.client.cache.ScreenshotTextureCache;
 import me.Azz_9.screenshot_overhaul.client.gui.Loading;
+import me.Azz_9.screenshot_overhaul.client.gui.ScreenshotDrawHelper;
 import me.Azz_9.screenshot_overhaul.client.gui.components.screenshotGallery.MetadataEditorPanel;
 import me.Azz_9.screenshot_overhaul.client.gui.components.screenshotGallery.NavigationButton;
-import me.Azz_9.screenshot_overhaul.client.screenshot.*;
+import me.Azz_9.screenshot_overhaul.client.metadata.Metadata;
+import me.Azz_9.screenshot_overhaul.client.screenshot.CopyScreenshot;
+import me.Azz_9.screenshot_overhaul.client.screenshot.Screenshot;
+import me.Azz_9.screenshot_overhaul.client.texture.ScreenshotTexture;
 
 /**
  * Overlay widget that renders a single screenshot in full view with navigation,
@@ -347,7 +352,7 @@ public class FullViewWidget extends AbstractWidget {
 				center, FULL_VIEW_PADDING + fullViewHeight + 4, Colors.WHITE);
 
 		StringBuilder line = new StringBuilder();
-		ScreenshotMetadata meta = screenshot.getMetadata();
+		Metadata meta = screenshot.getMetadata();
 		if (meta.getX() != null && meta.getY() != null && meta.getZ() != null)
 			line.append("X: ").append(meta.getX())
 					.append(" Y: ").append(meta.getY())

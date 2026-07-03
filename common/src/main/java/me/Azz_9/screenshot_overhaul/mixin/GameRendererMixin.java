@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import me.Azz_9.screenshot_overhaul.client.photoMode.PhotoMode;
-import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotRenderState;
+import me.Azz_9.screenshot_overhaul.client.screenshot.FutureScreenshotState;
 
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
@@ -34,10 +34,10 @@ public abstract class GameRendererMixin {
 
 	@Inject(method = "render", at = @At("TAIL"))
 	private void afterRender(DeltaTracker deltaTracker, boolean advanceGameTime, CallbackInfo ci) {
-		if (!ScreenshotRenderState.captureRequested) return;
+		if (!FutureScreenshotState.captureRequested) return;
 
 		// Reset immédiatement pour ne pas affecter les frames suivantes
-		Runnable grabber = ScreenshotRenderState.reset();
+		Runnable grabber = FutureScreenshotState.reset();
 
 		if (grabber != null) grabber.run();
 	}

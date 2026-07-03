@@ -1,10 +1,11 @@
-package me.Azz_9.screenshot_overhaul.client.screenshot.panorama;
+package me.Azz_9.screenshot_overhaul.client.cache;
 
 import org.jspecify.annotations.NonNull;
 
 import java.util.Map;
 
-import me.Azz_9.screenshot_overhaul.client.screenshot.AbstractLruTextureCache;
+import me.Azz_9.screenshot_overhaul.client.panorama.Panorama;
+import me.Azz_9.screenshot_overhaul.client.texture.PanoramaTexture;
 
 public final class PanoramaTextureCache extends AbstractLruTextureCache<Panorama, PanoramaTexture> {
 	private static final int MAX_ENTRIES = 16;

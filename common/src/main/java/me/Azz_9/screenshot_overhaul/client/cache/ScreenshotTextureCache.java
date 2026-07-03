@@ -1,9 +1,11 @@
-package me.Azz_9.screenshot_overhaul.client.screenshot;
+package me.Azz_9.screenshot_overhaul.client.cache;
 
 import org.jspecify.annotations.NonNull;
 
 import java.nio.file.Path;
 import java.util.Map;
+
+import me.Azz_9.screenshot_overhaul.client.texture.ScreenshotTexture;
 
 /**
  * Cache LRU

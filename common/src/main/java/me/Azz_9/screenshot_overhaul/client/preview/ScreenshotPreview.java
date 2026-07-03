@@ -1,4 +1,4 @@
-package me.Azz_9.screenshot_overhaul.client.screenshot;
+package me.Azz_9.screenshot_overhaul.client.preview;
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
 
@@ -12,7 +12,12 @@ import java.io.File;
 
 import me.Azz_9.screenshot_overhaul.ScreenshotLogger;
 import me.Azz_9.screenshot_overhaul.client.Colors;
+import me.Azz_9.screenshot_overhaul.client.cache.ScreenshotTextureCache;
 import me.Azz_9.screenshot_overhaul.client.config.Config;
+import me.Azz_9.screenshot_overhaul.client.gui.ScreenshotDrawHelper;
+import me.Azz_9.screenshot_overhaul.client.screenshot.CopyScreenshot;
+import me.Azz_9.screenshot_overhaul.client.screenshot.DeleteScreenshot;
+import me.Azz_9.screenshot_overhaul.client.texture.ScreenshotTexture;
 
 public class ScreenshotPreview {
 

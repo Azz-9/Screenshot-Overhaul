@@ -13,12 +13,12 @@ import java.io.File;
 import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_overhaul.client.Colors;
+import me.Azz_9.screenshot_overhaul.client.cache.ScreenshotTextureCache;
 import me.Azz_9.screenshot_overhaul.client.gui.Loading;
+import me.Azz_9.screenshot_overhaul.client.gui.ScreenshotDrawHelper;
 import me.Azz_9.screenshot_overhaul.client.gui.components.gallery.AbstractThumbnailWidget;
 import me.Azz_9.screenshot_overhaul.client.screenshot.Screenshot;
-import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotDrawHelper;
-import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotTexture;
-import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotTextureCache;
+import me.Azz_9.screenshot_overhaul.client.texture.ScreenshotTexture;
 
 public class ScreenshotThumbnailWidget extends AbstractThumbnailWidget {
 

@@ -4,7 +4,7 @@ import org.jspecify.annotations.Nullable;
 
 import me.Azz_9.screenshot_overhaul.client.config.Config;
 
-public class ScreenshotRenderState {
+public class FutureScreenshotState {
 	public static volatile boolean suppressHud = false;
 	public static volatile boolean suppressChat = false;
 	public static volatile boolean suppressHand = false;

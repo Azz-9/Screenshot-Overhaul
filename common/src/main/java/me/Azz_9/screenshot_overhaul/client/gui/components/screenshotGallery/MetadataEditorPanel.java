@@ -28,8 +28,8 @@ import me.Azz_9.screenshot_overhaul.client.Colors;
 import me.Azz_9.screenshot_overhaul.client.gui.components.PlaceholderEditBox;
 import me.Azz_9.screenshot_overhaul.client.gui.components.SimpleParentWidget;
 import me.Azz_9.screenshot_overhaul.client.gui.components.SmoothScrollableWidget;
+import me.Azz_9.screenshot_overhaul.client.metadata.Metadata;
 import me.Azz_9.screenshot_overhaul.client.screenshot.Screenshot;
-import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotMetadata;
 
 public class MetadataEditorPanel extends SmoothScrollableWidget {
 
@@ -78,7 +78,7 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 
 		// scrollable fields
 
-		ScreenshotMetadata meta = screenshot.getMetadata();
+		Metadata meta = screenshot.getMetadata();
 
 		new FieldListBuilder(this)
 				.intField(meta::getX, meta::setX, "screenshot_overhaul.metadata.x")

@@ -12,8 +12,8 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.Azz_9.screenshot_overhaul.client.cache.ScreenshotTextureCache;
 import me.Azz_9.screenshot_overhaul.client.screenshot.Screenshot;
-import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotTextureCache;
 import xaero.map.WorldMap;
 import xaero.map.element.MapElementGraphics;
 import xaero.map.element.render.ElementRenderInfo;
