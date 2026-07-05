@@ -112,7 +112,9 @@ public final class Config {
 				.build();
 		BooleanConfigOption hideHandOnScreenshot = BooleanConfigOption.builder(Config.getInstance().hideHandOnScreenshot).build();
 		BooleanConfigOption grabScreenshotOnAdvancement = BooleanConfigOption.builder(Config.getInstance().grabScreenshotOnAdvancement).build();
-		IntSliderConfigOption advancementScreenshotDelay = IntSliderConfigOption.builder(Config.getInstance().advancementScreenshotDelay, 0, 100).build();
+		IntSliderConfigOption advancementScreenshotDelay = IntSliderConfigOption.builder(Config.getInstance().advancementScreenshotDelay, 0, 100)
+				.dependsOn(grabScreenshotOnAdvancement)
+				.build();
 
 		ConfigTabContent screenshotContent = ConfigTabContent.builder()
 				.option(screenshotsFileName)

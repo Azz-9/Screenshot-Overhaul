@@ -32,9 +32,9 @@ dependencies {
 	}
 
 	if (includeXaero) {
-		implementation "xaero.map:xaeroworldmap-fabric-${project.minecraft_version}:${project.xaero_worldmap_version}"
+		implementation "xaero.map:xaeroworldmap-fabric-${project.xaero_worldmap_version}"
 	} else {
-		compileOnly "xaero.map:xaeroworldmap-fabric-${project.minecraft_version}:${project.xaero_worldmap_version}"
+		compileOnly "xaero.map:xaeroworldmap-fabric-${project.xaero_worldmap_version}"
 	}
 
 	compileOnly "info.journeymap:journeymap-api-fabric:${project.journeymap_api_version}"
