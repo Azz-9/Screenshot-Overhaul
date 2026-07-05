@@ -33,6 +33,7 @@ import java.util.OptionalDouble;
 
 import me.Azz_9.screenshot_overhaul.client.panorama.PanoramaHolder;
 
+// MC_COPY Class partially copied from net.minecraft.client.renderer.CubeMap
 public class PanoramaCubeMap implements AutoCloseable {
 
 	private static final float Z_NEAR = 0.05F;
