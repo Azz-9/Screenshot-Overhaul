@@ -13,6 +13,7 @@ import org.jspecify.annotations.NonNull;
 
 public class DynamicCubeMapTexture extends AbstractTexture {
 
+	// MC_COPY Partially copied from net.minecraft.client.renderer.texture.CubeMapTexture.doLoad()
 	public void upload(@NonNull NativeImage[] images) {
 		GpuDevice device = RenderSystem.getDevice();
 
