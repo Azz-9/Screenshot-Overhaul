@@ -8,9 +8,9 @@ final def includeIrisAndSodium = project.hasProperty("launch_with_iris_and_sodiu
 
 dependencies {
 	if (includeXaero) {
-		implementation "xaero.map:xaeroworldmap-neoforge-${project.minecraft_version}:${project.xaero_worldmap_version}"
+		implementation "xaero.map:xaeroworldmap-neoforge-${project.xaero_worldmap_version}"
 	} else {
-		compileOnly "xaero.map:xaeroworldmap-neoforge-${project.minecraft_version}:${project.xaero_worldmap_version}"
+		compileOnly "xaero.map:xaeroworldmap-neoforge-${project.xaero_worldmap_version}"
 	}
 
 	compileOnly "info.journeymap:journeymap-api-neoforge:${project.journeymap_api_version}"
