@@ -27,7 +27,6 @@ import me.Azz_9.screenshot_overhaul.client.panorama.PanoramaHolder;
 import me.Azz_9.screenshot_overhaul.client.photoMode.PhotoMode;
 import me.Azz_9.screenshot_overhaul.client.photoMode.PhotoModeHud;
 import me.Azz_9.screenshot_overhaul.client.preview.ScreenshotPreview;
-import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotGrabber;
 import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotList;
 import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotManager;
 import me.Azz_9.screenshot_overhaul.compat.CompatManager;
@@ -154,7 +153,7 @@ public class CommonClass {
 
 	public static boolean handleGlobalKeyPressHook(InputConstants.Key key, boolean controlDown) {
 		if (getPanoramaScreenshotKeybind().matches(key)) {
-			Component text = ScreenshotGrabber.grabPanoramixScreenshot(Config.getInstance().getAbsoluteScreenshotsDir().toFile());
+			Component text = MINECRAFT.grabPanoramixScreenshot(Config.getInstance().getAbsoluteScreenshotsDir().toFile());
 			if (Config.getInstance().showChatMessage.getValue()) {
 				MINECRAFT.showDebugChat(text);
 			}
