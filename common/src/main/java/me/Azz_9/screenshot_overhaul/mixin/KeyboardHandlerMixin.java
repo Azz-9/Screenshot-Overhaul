@@ -17,7 +17,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import me.Azz_9.screenshot_overhaul.CommonClass;
 import me.Azz_9.screenshot_overhaul.client.config.Config;
-import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotGrabber;
 
 @Mixin(KeyboardHandler.class)
 public abstract class KeyboardHandlerMixin {
@@ -30,7 +29,7 @@ public abstract class KeyboardHandlerMixin {
 						(keybindsScreen.lastKeySelection <= Util.getMillis() - 20L)) &&
 				CommonClass.getPanoramaScreenshotKeybind().matches(event)) {
 
-			Component text = ScreenshotGrabber.grabPanoramixScreenshot(Config.getInstance().getAbsoluteScreenshotsDir().toFile());
+			Component text = MINECRAFT.grabPanoramixScreenshot(Config.getInstance().getAbsoluteScreenshotsDir().toFile());
 			if (Config.getInstance().showChatMessage.getValue()) {
 				MINECRAFT.player.sendSystemMessage(text);
 			}

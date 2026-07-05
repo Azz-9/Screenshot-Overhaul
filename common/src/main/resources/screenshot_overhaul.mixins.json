@@ -3,6 +3,9 @@
 	"minVersion": "0.8",
 	"package": "me.Azz_9.screenshot_overhaul.mixin",
 	"compatibilityLevel": "JAVA_25",
+	"mixinextras": {
+		"minVersion": "0.5.4"
+	},
 	"mixins": [
 		"EntityMixin"
 	],

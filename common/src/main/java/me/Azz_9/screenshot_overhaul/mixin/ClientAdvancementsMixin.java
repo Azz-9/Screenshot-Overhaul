@@ -6,6 +6,7 @@ import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
+import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastManager;
 import net.minecraft.client.multiplayer.ClientAdvancements;
@@ -15,7 +16,6 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import me.Azz_9.screenshot_overhaul.CommonClass;
 import me.Azz_9.screenshot_overhaul.client.config.Config;
-import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotGrabber;
 
 @Mixin(ClientAdvancements.class)
 public abstract class ClientAdvancementsMixin {
@@ -29,17 +29,14 @@ public abstract class ClientAdvancementsMixin {
 	)
 	private void update(ToastManager instance, Toast toast, Operation<Void> original) {
 		if (Config.getInstance().grabScreenshotOnAdvancement.getValue()) {
-			CommonClass.runLater(() ->
-					ScreenshotGrabber.requestGrab(
-							Config.getInstance().getAbsoluteScreenshotsDir().toFile(),
-							null,
-							MINECRAFT.getMainRenderTarget(),
-							1,
-							message -> MINECRAFT.execute(() -> {
-								MINECRAFT.gui.getChat().addClientSystemMessage(message);
-								MINECRAFT.getNarrator().saySystemQueued(message);
-							})
-					), Config.getInstance().advancementScreenshotDelay.getValue());
+			CommonClass.runLater(() -> Screenshot.grab(
+					MINECRAFT.gameDirectory,
+					MINECRAFT.getMainRenderTarget(),
+					message -> {
+						MINECRAFT.gui.getChat().addClientSystemMessage(message);
+						MINECRAFT.getNarrator().saySystemQueued(message);
+					}
+			), Config.getInstance().advancementScreenshotDelay.getValue());
 		}
 	}
 }
