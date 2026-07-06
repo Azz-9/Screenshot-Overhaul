@@ -131,7 +131,8 @@ public final class Config {
 		screen.addConfigTab(Component.translatable("screenshot_overhaul.config.category.screenshot"), screenshotContent);
 
 		// panorama
-		IntSliderConfigOption panoramaSize = IntSliderConfigOption.builder(Config.getInstance().panoramaResolution, 256, 4096)
+		IntFieldConfigOption panoramaSize = IntFieldConfigOption.builder(Config.getInstance().panoramaResolution)
+				.range(256, 4096)
 				.tooltip(integer -> {
 					if (integer > 2048) {
 						return Component.translatable("screenshot_overhaul.config.panorama_resolution.warning_high");

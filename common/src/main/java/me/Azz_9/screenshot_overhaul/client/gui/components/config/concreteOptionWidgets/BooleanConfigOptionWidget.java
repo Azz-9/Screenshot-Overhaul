@@ -1,9 +1,9 @@
 package me.Azz_9.screenshot_overhaul.client.gui.components.config.concreteOptionWidgets;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.NonNull;
@@ -47,7 +47,7 @@ public final class BooleanConfigOptionWidget extends ConfigOptionWidget<Boolean>
 
 	private @NonNull Component getToggleLabel() {
 		return option.getWorkingValue()
-				? CommonComponents.OPTION_ON
-				: CommonComponents.OPTION_OFF;
+				? Component.translatable("options.on").withStyle(ChatFormatting.GREEN)
+				: Component.translatable("options.off").withStyle(ChatFormatting.RED);
 	}
 }
