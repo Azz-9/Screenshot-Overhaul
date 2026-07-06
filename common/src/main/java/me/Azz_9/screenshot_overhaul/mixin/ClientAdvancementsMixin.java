@@ -31,7 +31,7 @@ public abstract class ClientAdvancementsMixin {
 		if (Config.getInstance().grabScreenshotOnAdvancement.getValue()) {
 			CommonClass.runLater(() -> Screenshot.grab(
 					MINECRAFT.gameDirectory,
-					MINECRAFT.gameRenderer.getMainRenderTarget(),
+					MINECRAFT.gameRenderer.mainRenderTarget(),
 					message -> MINECRAFT.showDebugChat(message)
 			), Config.getInstance().advancementScreenshotDelay.getValue());
 		}
