@@ -1,7 +1,6 @@
 package me.Azz_9.screenshot_overhaul;
 
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.client.Minecraft;
 
 public class ScreenshotOverhaul implements ModInitializer {
 
