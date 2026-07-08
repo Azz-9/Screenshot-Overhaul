@@ -40,6 +40,7 @@ processResources {
             'group'                        : project.group, //Else we target the task's group.
             'minecraft_version'            : minecraft_version,
             'minecraft_version_range'      : minecraft_version_range,
+            'minecraft_compatibility': minecraft_compatibility,
             'fabric_version'               : fabric_version,
             'fabric_loader_version'        : fabric_loader_version,
             'mod_name'                     : mod_name,
@@ -49,7 +50,9 @@ processResources {
             'description'                  : project.description,
             'neoforge_version'             : neoforge_version,
             'neoforge_loader_version_range': neoforge_loader_version_range,
-            'java_version'                 : java_version
+            'java_version'           : java_version,
+            'issues'                 : issues,
+            'sources'                : sources
     ]
 
     var jsonExpandProps = expandProps.collectEntries {
