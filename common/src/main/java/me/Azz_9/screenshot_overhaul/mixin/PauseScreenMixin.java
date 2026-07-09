@@ -36,10 +36,10 @@ public abstract class PauseScreenMixin extends Screen {
 	@Definition(id = "integratedServer", local = @Local(type = IntegratedServer.class, name = "integratedServer"))
 	@Expression("integratedServer = ?")
 	@Inject(method = "createPauseMenu", at = @At("MIXINEXTRAS:EXPRESSION"))
-	private void insertModMenuIconButton(CallbackInfo ci, @Local(name = "iconButtonRow") LinearLayout iconButtonRow) {
+	private void insertIconButton(CallbackInfo ci, @Local(name = "iconButtonRow") LinearLayout iconButtonRow) {
 		iconButtonRow.addChild(SpriteIconButton.TextAndIcon.builder(
 								Component.translatable("screenshot_overhaul.options.screenshots"),
-								(btn) -> MINECRAFT.gui.setScreen(new ScreenshotGalleryScreen()),
+						(btn) -> MINECRAFT.gui.setScreen(new ScreenshotGalleryScreen(this)),
 								true
 						)
 						.withTootip()

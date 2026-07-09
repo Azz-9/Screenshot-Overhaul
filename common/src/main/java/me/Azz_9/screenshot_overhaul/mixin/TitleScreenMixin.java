@@ -66,7 +66,7 @@ public abstract class TitleScreenMixin extends Screen {
 		this.addRenderableWidget(
 				SpriteIconButton.TextAndIcon.builder(
 								Component.translatable("screenshot_overhaul.options.screenshots"),
-								(btn) -> MINECRAFT.gui.setScreen(new ScreenshotGalleryScreen()),
+								(btn) -> MINECRAFT.gui.setScreen(new ScreenshotGalleryScreen(this)),
 								true
 						)
 						.withTootip()
