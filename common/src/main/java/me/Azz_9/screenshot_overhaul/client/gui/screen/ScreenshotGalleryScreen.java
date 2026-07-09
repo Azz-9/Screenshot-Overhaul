@@ -7,6 +7,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.toasts.SystemToast;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -40,8 +41,8 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 	private @Nullable ScreenshotGalleryWidget gallery;
 	private @Nullable FullViewWidget fullView;
 
-	public ScreenshotGalleryScreen() {
-		super(Component.translatable("screenshot_overhaul.narrator.screenshot_gallery"));
+	public ScreenshotGalleryScreen(Screen parent) {
+		super(Component.translatable("screenshot_overhaul.narrator.screenshot_gallery"), parent);
 	}
 
 	@Override
