@@ -1,32 +1,161 @@
-# MultiLoader Template
+# Screenshot Overhaul
 
-This project provides a Gradle project template that can compile Minecraft mods for multiple modloaders using a common project for the sources. This project does not require any third party libraries or dependencies. If you have any questions or want to discuss the project, please join our [Discord](https://discord.myceliummod.network).
+![Fabric](https://img.shields.io/badge/Loader-Fabric-blue)
+![NeoForge](https://img.shields.io/badge/Loader-NeoForge-orange)
+![Environment: Client](https://img.shields.io/badge/Environment-Client-red)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow)
 
-## Getting Started
+Improve Minecraft screenshots with a built-in gallery, metadata, custom names, previews, panoramas, and map
+integrations.
 
-### IntelliJ IDEA
-This guide will show how to import the MultiLoader Template into IntelliJ IDEA. The setup process is roughly equivalent to setting up the modloaders independently and should be very familiar to anyone who has worked with their MDKs.
+---
 
-1. Clone or download this repository to your computer.
-2. Configure the project by setting the properties in the `gradle.properties` file. You will also need to change the `rootProject.name`  property in `settings.gradle`, this should match the folder name of your project, or else IDEA may complain.
-3. Open the template's root folder as a new project in IDEA. This is the folder that contains this README.md file and the gradlew executable.
-4. If your default JVM/JDK is not Java 25 you will encounter an error when opening the project. This error is fixed by going to `File > Settings > Build, Execution, Deployment > Build Tools > Gradle > Gradle JVM` and changing the value to a valid Java 25 JVM. You will also need to set the Project SDK to Java 25. This can be done by going to `File > Project Structure > Project SDK`. Once both have been set open the Gradle tab in IDEA and click the refresh button to reload the project.
-5. Open your Run/Debug Configurations. Under the `Application` category there should now be options to run Fabric and NeoForge projects. Select one of the client options and try to run it.
-6. Assuming you were able to run the game in step 5 your workspace should now be set up.
+## Features
 
-### Eclipse
-While it is possible to use this template in Eclipse it is not recommended. During the development of this template multiple critical bugs and quirks related to Eclipse were found at nearly every level of the required build tools. While we continue to work with these tools to report and resolve issues support for projects like these are not there yet. For now Eclipse is considered unsupported by this project. The development cycle for build tools is notoriously slow so there are no ETAs available.
+- Built-in screenshot gallery available from the title screen and pause menu.
+- Full-screen screenshot viewer with navigation, delete, and copy actions.
+- Search, sorting, and favorites filtering in the gallery.
+- Persistent favorites and an option to hide specific screenshots from compatible maps.
+- PNG metadata added to screenshots: position, dimension, biome, seed, world, server, version, resource packs, shader,
+  and timestamp.
+- Metadata editing directly from the gallery.
+- Configurable screenshot directory, with support for subfolders.
+- Custom screenshot file names using tokens (`<datetime>`, `<worldname>`, `<shader>`, etc.).
+- Animated screenshot preview after capture.
+- Options to hide the HUD, chat, or hand only while taking a screenshot.
+- Optional automatic screenshot capture when an advancement is unlocked.
+- Panorama capture with a dedicated keybind.
+- Panorama gallery and support for using a captured panorama as the title screen background.
+- Optional integration with Xaero's World Map and JourneyMap to display screenshots on the map.
+- Iris compatibility to save the active shader in metadata and file-name tokens.
+- Fabric and NeoForge support.
 
-## Development Guide
-When using this template the majority of your mod should be developed in the `common` project. The `common` project is compiled against the vanilla game and is used to hold code that is shared between the different loader-specific versions of your mod. The `common` project has no knowledge or access to ModLoader specific code, apis, or concepts. Code that requires something from a specific loader must be done through the project that is specific to that loader, such as the `fabric` or `neoforge` projects.
+> Photo mode exists in the codebase but is gated behind `SCREENSHOT_OVERHAUL_ENABLE_PHOTO_MODE` since this feature is
+> still in the development phase.
 
-Loader specific projects such as the `fabric` and `neoforge` project are used to load the `common` project into the game. These projects also define code that is specific to that loader. Loader specific projects can access all the code in the `common` project. It is important to remember that the `common` project can not access code from loader specific projects.
+---
 
-## Removing Platforms and Loaders
-While this template has support for many modloaders, new loaders may appear in the future, and existing loaders may become less relevant.
+## Installation
 
-Removing loader specific projects is as easy as deleting the folder, and removing the `include("projectname")` line from the `settings.gradle` file.
-For example if you wanted to remove support for `forge` you would follow the following steps:
+1. Install Minecraft `26.2` with Fabric or NeoForge.
+2. Install the dependencies for your loader:
+    - Fabric: Fabric Loader, Fabric API.
+    - NeoForge: NeoForge.
+3. Download the Screenshot Overhaul `.jar` file.
+    - [Modrinth](#)
+    - [CurseForge](#)
+4. Place the `.jar` file in your `.minecraft/mods/` folder.
+5. Launch the game once to generate the configuration file.
 
-1. Delete the subproject folder. For example, delete `MultiLoader-Template/forge`.
-2. Remove the project from `settings.gradle`. For example, remove `include("forge")`. 
+This is a client-side mod: it must be installed on the client, not on a dedicated server.
+
+---
+
+## Quick Usage
+
+- Open the screenshot gallery from the title screen or pause menu.
+- Press `F9` to take a panorama screenshot.
+- Use the `Change panorama` button on the title screen to choose a captured panorama as the background.
+- Open the settings from the gallery, through Mod Menu on Fabric, or from NeoForge's mod configuration screen.
+
+---
+
+## Configuration
+
+The configuration file is created automatically on first launch: `.minecraft/config/screenshot_overhaul.json`.
+
+### General
+
+| Option                            | Type    | Default | Description                                                     |
+|-----------------------------------|---------|:-------:|-----------------------------------------------------------------|
+| `enableWholeMod`                  | Boolean | `true`  | Enables or disables the mod's features.                         |
+| `showScreenshotsOnXaerosWorldMap` | Boolean | `true`  | Shows screenshots on Xaero's World Map if the mod is installed. |
+| `showScreenshotsOnJourneyMap`     | Boolean | `true`  | Shows screenshots on JourneyMap if the mod is installed.        |
+
+### Screenshot
+
+| Option                        | Type    |    Default    | Description                                                                               |
+|-------------------------------|---------|:-------------:|-------------------------------------------------------------------------------------------|
+| `screenshotsFileName`         | String  | `<datetime>`  | Pattern used to name screenshots. Can include tokens and subfolders.                      |
+| `screenshotsDir`              | Path    | `screenshots` | Directory where screenshots are saved.                                                    |
+| `showChatMessage`             | Boolean |    `true`     | Shows the Minecraft chat message after taking a screenshot.                               |
+| `showPreview`                 | Boolean |    `true`     | Shows an animated preview after taking a screenshot.                                      |
+| `hideHudOnScreenshot`         | Boolean |    `false`    | Hides the HUD while taking a screenshot.                                                  |
+| `hideChatOnScreenshot`        | Boolean |    `false`    | Hides the chat while taking a screenshot. Disabled when `hideHudOnScreenshot` is enabled. |
+| `hideHandOnScreenshot`        | Boolean |    `false`    | Hides the player's hand while taking a screenshot.                                        |
+| `grabScreenshotOnAdvancement` | Boolean |    `false`    | Automatically takes a screenshot when an advancement is unlocked.                         |
+| `advancementScreenshotDelay`  | Integer |     `20`      | Delay before taking an advancement screenshot, in ticks. Clamped between `0` and `100`.   |
+
+### Panorama
+
+| Option                    | Type    |        Default        | Description                                                                    |
+|---------------------------|---------|:---------------------:|--------------------------------------------------------------------------------|
+| `panoramaFolderName`      | String  | `panorama_<datetime>` | Pattern used to name panorama folders.                                         |
+| `panoramaResolution`      | Integer |        `1024`         | Resolution in pixels for each panorama face. Clamped between `256` and `4096`. |
+| `rotationSpeed`           | Integer |         `10`          | Title screen panorama rotation speed. Clamped between `0` and `100`.           |
+| `rotationDirection`       | Enum    |       `TO_LEFT`       | Panorama rotation direction. Values: `TO_LEFT`, `TO_RIGHT`.                    |
+| `verticalAngle`           | Integer |         `10`          | Panorama vertical angle. Clamped between `-180` and `180`.                     |
+| `startingHorizontalAngle` | Integer |          `0`          | Initial panorama horizontal angle. Clamped between `0` and `360`.              |
+
+### Photo Mode
+
+This category is only available when photo mode is enabled in the mod environment.
+
+| Option              | Type    | Default | Description                      |
+|---------------------|---------|:-------:|----------------------------------|
+| `freezeInPhotoMode` | Boolean | `true`  | Freezes the world in photo mode. |
+| `showPlayer`        | Boolean | `true`  | Shows the player in photo mode.  |
+| `showNametags`      | Boolean | `true`  | Shows nametags in photo mode.    |
+
+### UI-Saved Data
+
+These values are saved by the mod but are not primary gameplay options.
+
+| Option                 | Type           |   Default   | Description                                             |
+|------------------------|----------------|:-----------:|---------------------------------------------------------|
+| `screenshotSortOrder`  | Enum           | `DATE_DESC` | Saved sort order for the screenshot gallery.            |
+| `panoramaSortOrder`    | Enum           | `DATE_DESC` | Saved sort order for the panorama gallery.              |
+| `selectedPanoramaUUID` | UUID or `null` |   `null`    | Panorama currently used as the title screen background. |
+
+### Naming Tokens
+
+The `screenshotsFileName` and `panoramaFolderName` options support the following tokens:
+
+| Token         | Description                                          |
+|---------------|------------------------------------------------------|
+| `<datetime>`  | Date and time formatted by Minecraft for file names. |
+| `<year>`      | Four-digit year.                                     |
+| `<month>`     | Two-digit month.                                     |
+| `<day>`       | Two-digit day.                                       |
+| `<hour>`      | Two-digit hour.                                      |
+| `<minute>`    | Two-digit minute.                                    |
+| `<second>`    | Two-digit second.                                    |
+| `<worldname>` | Singleplayer world name, empty in multiplayer.       |
+| `<serverip>`  | Server address, empty in singleplayer.               |
+| `<version>`   | Minecraft version.                                   |
+| `<shader>`    | Active shader if Iris is installed, empty otherwise. |
+
+Examples:
+
+```text
+<year>/<month>/<datetime>
+<worldname>/screenshot_<datetime>
+<serverip>/<datetime>_<shader>
+```
+
+---
+
+## Compatibility
+
+| Mod               | Integration                                                |
+|-------------------|------------------------------------------------------------|
+| Mod Menu          | Settings access on Fabric.                                 |
+| Xaero's World Map | Optional screenshot display on the map.                    |
+| JourneyMap        | Optional screenshot display on the map.                    |
+| Iris              | Active shader detection for metadata and file-name tokens. |
+
+---
+
+## License
+
+MIT - see [LICENSE](LICENSE) for details.

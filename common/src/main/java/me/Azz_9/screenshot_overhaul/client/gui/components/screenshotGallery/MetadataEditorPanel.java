@@ -19,6 +19,9 @@ import org.joml.Matrix3x2fStack;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
@@ -42,6 +45,7 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 	private static final int HEADER_HEIGHT = PANEL_PADDING + LABEL_HEIGHT + PANEL_PADDING;
 
 	private static final @NonNull Component FIELD_PLACEHOLDER = Component.translatable("screenshot_overhaul.empty");
+	private static final @NonNull DateTimeFormatter TIMESTAMP_TOOLTIP_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss").withZone(ZoneId.systemDefault());
 
 	// animation
 	private static final int ANIMATION_DURATION = 400;
@@ -81,28 +85,36 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 		Metadata meta = screenshot.getMetadata();
 
 		new FieldListBuilder(this)
-				.intField(meta::getX, meta::setX, "screenshot_overhaul.metadata.x")
-				.intField(meta::getY, meta::setY, "screenshot_overhaul.metadata.y")
-				.intField(meta::getZ, meta::setZ, "screenshot_overhaul.metadata.z")
+				.intField(meta::getX, meta::setX, Component.translatable("screenshot_overhaul.metadata.x"))
+				.intField(meta::getY, meta::setY, Component.translatable("screenshot_overhaul.metadata.y"))
+				.intField(meta::getZ, meta::setZ, Component.translatable("screenshot_overhaul.metadata.z"))
 				.stringField(() -> meta.getDimension() == null ? null : meta.getDimension().toString(),
 						v -> meta.setDimension(v == null ? null : Identifier.tryParse(v)),
-						"screenshot_overhaul.metadata.dimension")
+						Component.translatable("screenshot_overhaul.metadata.dimension"))
 				.stringField(() -> meta.getBiome() == null ? null : meta.getBiome().toString(),
 						v -> meta.setBiome(v == null ? null : Identifier.tryParse(v)),
-						"screenshot_overhaul.metadata.biome")
-				.longField(meta::getSeed, meta::setSeed, "screenshot_overhaul.metadata.seed")
-				.stringField(meta::getWorldName, meta::setWorldName, "screenshot_overhaul.metadata.world_name")
-				.stringField(meta::getServerIp, meta::setServerIp, "screenshot_overhaul.metadata.server")
-				.stringField(meta::getVersion, meta::setVersion, "screenshot_overhaul.metadata.version")
+						Component.translatable("screenshot_overhaul.metadata.biome"))
+				.longField(meta::getSeed, meta::setSeed, Component.translatable("screenshot_overhaul.metadata.seed"))
+				.stringField(meta::getWorldName, meta::setWorldName, Component.translatable("screenshot_overhaul.metadata.world_name"))
+				.stringField(meta::getServerIp, meta::setServerIp, Component.translatable("screenshot_overhaul.metadata.server"))
+				.stringField(meta::getVersion, meta::setVersion, Component.translatable("screenshot_overhaul.metadata.version"))
 				.stringField(() -> String.join(", ", meta.getResourcePacks()),
 						v -> meta.setResourcePacks(v == null
 								? new ArrayList<>()
 								: Arrays.stream(v.split(",")).map(String::trim).toList()),
-						"screenshot_overhaul.metadata.resource_packs",
+						Component.translatable("screenshot_overhaul.metadata.resource_packs"),
 						Component.translatable("screenshot_overhaul.metadata.resource_packs.placeholder"))
-				.stringField(meta::getShader, meta::setShader, "screenshot_overhaul.metadata.shader")
-				.positiveLongField(meta::getTimestamp, meta::setTimestamp, "screenshot_overhaul.metadata.timestamp")
+				.stringField(meta::getShader, meta::setShader, Component.translatable("screenshot_overhaul.metadata.shader"))
+				.positiveLongField(
+						meta::getTimestamp, meta::setTimestamp,
+						Component.translatable("screenshot_overhaul.metadata.timestamp"),
+						MetadataEditorPanel::timestampTooltip)
 				.build();
+	}
+
+	private static @Nullable Component timestampTooltip(@Nullable Long timestamp) {
+		if (timestamp == null) return null;
+		return Component.literal(TIMESTAMP_TOOLTIP_FORMATTER.format(Instant.ofEpochMilli(timestamp)));
 	}
 
 	private @NonNull Button createCloseButton() {
@@ -200,17 +212,27 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 		@NonNull FieldListBuilder intField(
 				@NonNull Supplier<@Nullable Integer> getter,
 				@NonNull Consumer<@Nullable Integer> setter,
-				@NonNull String translationKey
+				@NonNull Component label
+		) {
+			return intField(getter, setter, label, null);
+		}
+
+		@NonNull FieldListBuilder intField(
+				@NonNull Supplier<@Nullable Integer> getter,
+				@NonNull Consumer<@Nullable Integer> setter,
+				@NonNull Component label,
+				@Nullable Function<@Nullable Integer, @Nullable Component> tooltip
 		) {
 			return addField(new NumberField<>(
-					Component.translatable(translationKey),
+					label,
 					fieldX(), cursorY, fieldWidth(), LABEL_HEIGHT + FIELD_HEIGHT,
 					getter.get(),
 					v -> Integer.parseInt(v.trim()),
 					v -> true,
 					v -> v == Integer.MAX_VALUE ? v : v + 1,
 					v -> v - 1,
-					setter));
+					setter,
+					tooltip));
 		}
 
 		FieldListBuilder(@NonNull MetadataEditorPanel panel) {
@@ -220,55 +242,86 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 		@NonNull FieldListBuilder longField(
 				@NonNull Supplier<@Nullable Long> getter,
 				@NonNull Consumer<@Nullable Long> setter,
-				@NonNull String translationKey
+				@NonNull Component label
+		) {
+			return longField(getter, setter, label, null);
+		}
+
+		@NonNull FieldListBuilder longField(
+				@NonNull Supplier<@Nullable Long> getter,
+				@NonNull Consumer<@Nullable Long> setter,
+				@NonNull Component label,
+				@Nullable Function<@Nullable Long, @Nullable Component> tooltip
 		) {
 			return addField(new NumberField<>(
-					Component.translatable(translationKey),
+					label,
 					fieldX(), cursorY, fieldWidth(), LABEL_HEIGHT + FIELD_HEIGHT,
 					getter.get(),
 					v -> Long.parseLong(v.trim()),
 					v -> true,
 					v -> v == Long.MAX_VALUE ? v : v + 1,
 					v -> v - 1,
-					setter));
+					setter,
+					tooltip));
 		}
 
 		@NonNull FieldListBuilder positiveLongField(
 				@NonNull Supplier<@Nullable Long> getter,
 				@NonNull Consumer<@Nullable Long> setter,
-				@NonNull String translationKey
+				@NonNull Component label
+		) {
+			return positiveLongField(getter, setter, label, null);
+		}
+
+		@NonNull FieldListBuilder positiveLongField(
+				@NonNull Supplier<@Nullable Long> getter,
+				@NonNull Consumer<@Nullable Long> setter,
+				@NonNull Component label,
+				@Nullable Function<@Nullable Long, @Nullable Component> tooltip
 		) {
 			return addField(new NumberField<>(
-					Component.translatable(translationKey),
+					label,
 					fieldX(), cursorY, fieldWidth(), LABEL_HEIGHT + FIELD_HEIGHT,
 					getter.get(),
 					v -> Long.parseLong(v.trim()),
 					v -> v >= 0,
 					v -> v == Long.MAX_VALUE ? v : v + 1,
 					v -> v - 1,
-					setter));
+					setter,
+					tooltip));
 		}
 
 		@NonNull FieldListBuilder stringField(
 				@NonNull Supplier<@Nullable String> getter,
 				@NonNull Consumer<@Nullable String> setter,
-				@NonNull String translationKey
+				@NonNull Component label
 		) {
-			return stringField(getter, setter, translationKey, null);
+			return stringField(getter, setter, label, null);
 		}
 
 		@NonNull FieldListBuilder stringField(
 				@NonNull Supplier<@Nullable String> getter,
 				@NonNull Consumer<@Nullable String> setter,
-				@NonNull String translationKey,
+				@NonNull Component label,
 				@Nullable Component placeholder
 		) {
+			return stringField(getter, setter, label, placeholder, null);
+		}
+
+		@NonNull FieldListBuilder stringField(
+				@NonNull Supplier<@Nullable String> getter,
+				@NonNull Consumer<@Nullable String> setter,
+				@NonNull Component label,
+				@Nullable Component placeholder,
+				@Nullable Function<@Nullable String, @Nullable Component> tooltip
+		) {
 			return addField(new StringField(
-					Component.translatable(translationKey),
+					label,
 					fieldX(), cursorY, fieldWidth(), LABEL_HEIGHT + FIELD_HEIGHT,
 					getter.get(),
 					setter,
-					placeholder != null ? placeholder : FIELD_PLACEHOLDER));
+					placeholder != null ? placeholder : FIELD_PLACEHOLDER,
+					tooltip));
 		}
 
 		void build() {
@@ -296,6 +349,9 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 	private static final class NumberField<N extends Number> extends SimpleParentWidget {
 
 		private final @NonNull PlaceholderEditBox editBox;
+		private final @Nullable Function<@Nullable N, @Nullable Component> tooltip;
+		private final N[] current;
+		private boolean valid = true;
 
 		@SuppressWarnings("unchecked")
 		NumberField(
@@ -306,12 +362,14 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 				@NonNull Predicate<N> validator,
 				@NonNull UnaryOperator<N> increment,
 				@NonNull UnaryOperator<N> decrement,
-				@NonNull Consumer<@Nullable N> callback
+				@NonNull Consumer<@Nullable N> callback,
+				@Nullable Function<@Nullable N, @Nullable Component> tooltip
 		) {
 			super(x, y, width, height);
+			this.tooltip = tooltip;
 
 			// Mutable box — lambdas need a stable reference to the current value
-			N[] current = (N[]) new Number[]{initialValue};
+			this.current = (N[]) new Number[]{initialValue};
 
 			addRenderableChild(new StringWidget(
 					x, y, width, LABEL_HEIGHT, label, MINECRAFT.font));
@@ -327,6 +385,7 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 							Component.translatable("screenshot_overhaul.reset"),
 							btn -> {
 								current[0] = initialValue;
+								valid = true;
 								editBox.setValue(initialValue == null ? "" : initialValue.toString());
 								editBox.setTextColor(Colors.WHITE);
 								callback.accept(initialValue);
@@ -370,6 +429,7 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 			editBox.setResponder(text -> {
 				if (text.isEmpty()) {
 					current[0] = null;
+					valid = true;
 					callback.accept(null);
 					editBox.setTextColor(Colors.WHITE);
 					resetBtn.active = initialValue != null;
@@ -378,14 +438,17 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 				try {
 					N parsed = parser.apply(text);
 					if (!validator.test(parsed)) {
+						valid = false;
 						editBox.setTextColor(Colors.RED);
 						return;
 					}
 					current[0] = parsed;
+					valid = true;
 					editBox.setTextColor(Colors.WHITE);
 					callback.accept(parsed);
 					resetBtn.active = !Objects.equals(parsed, initialValue);
 				} catch (NumberFormatException ignored) {
+					valid = false;
 					editBox.setTextColor(Colors.RED);
 				}
 			});
@@ -397,6 +460,12 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 		}
 
 		@Override
+		protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
+			super.extractWidgetRenderState(graphics, mouseX, mouseY, deltaTicks);
+			renderFieldTooltip(graphics, editBox, tooltip, valid ? current[0] : null, mouseX, mouseY);
+		}
+
+		@Override
 		public void updateWidgetNarration(@NonNull NarrationElementOutput output) {
 		}
 	}
@@ -404,15 +473,21 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 	private static final class StringField extends SimpleParentWidget {
 
 		private final @NonNull PlaceholderEditBox editBox;
+		private final @Nullable Function<@Nullable String, @Nullable Component> tooltip;
+		private @Nullable String currentValue;
+		private boolean valid = true;
 
 		StringField(
 				@NonNull Component label,
 				int x, int y, int width, int height,
 				@Nullable String initialValue,
 				@NonNull Consumer<@Nullable String> setter,
-				@NonNull Component placeholder
+				@NonNull Component placeholder,
+				@Nullable Function<@Nullable String, @Nullable Component> tooltip
 		) {
 			super(x, y, width, height);
+			this.tooltip = tooltip;
+			currentValue = initialValue;
 
 			addRenderableChild(new StringWidget(
 					x, y, width, LABEL_HEIGHT, label, MINECRAFT.font));
@@ -428,6 +503,8 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 			Button resetBtn = SpriteIconButton.CenteredIcon.builder(
 							Component.translatable("screenshot_overhaul.reset"),
 							btn -> {
+								currentValue = initialValue;
+								valid = true;
 								editBox.setValue(initialValue == null ? "" : initialValue);
 								editBox.setTextColor(Colors.WHITE);
 								setter.accept(initialValue);
@@ -445,8 +522,11 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 				resetBtn.active = !Objects.equals(value, initialValue);
 				try {
 					setter.accept(value);
+					currentValue = value;
+					valid = true;
 					editBox.setTextColor(Colors.WHITE);
 				} catch (Exception ignored) {
+					valid = false;
 					editBox.setTextColor(Colors.RED);
 				}
 			});
@@ -456,7 +536,27 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 		}
 
 		@Override
+		protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
+			super.extractWidgetRenderState(graphics, mouseX, mouseY, deltaTicks);
+			renderFieldTooltip(graphics, editBox, tooltip, valid ? currentValue : null, mouseX, mouseY);
+		}
+
+		@Override
 		public void updateWidgetNarration(@NonNull NarrationElementOutput output) {
+		}
+	}
+
+	private static <T> void renderFieldTooltip(
+			@NonNull GuiGraphicsExtractor graphics,
+			@NonNull PlaceholderEditBox editBox,
+			@Nullable Function<@Nullable T, @Nullable Component> tooltip,
+			@Nullable T value,
+			int mouseX, int mouseY
+	) {
+		if (tooltip == null || !editBox.isHovered()) return;
+		Component component = tooltip.apply(value);
+		if (component != null) {
+			graphics.setTooltipForNextFrame(MINECRAFT.font, component, mouseX, mouseY);
 		}
 	}
 }
