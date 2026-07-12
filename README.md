@@ -37,13 +37,13 @@ integrations.
 
 ## Installation
 
-1. Install Minecraft `26.2` with Fabric or NeoForge.
+1. Install Minecraft `26.1` with Fabric or NeoForge.
 2. Install the dependencies for your loader:
     - Fabric: Fabric Loader, Fabric API.
     - NeoForge: NeoForge.
 3. Download the Screenshot Overhaul `.jar` file.
-    - [Modrinth](#)
-    - [CurseForge](#)
+    - [Modrinth](https://modrinth.com/project/screenshot-overhaul)
+    - [CurseForge](https://www.curseforge.com/minecraft/mc-mods/screenshot-overhaul)
 4. Place the `.jar` file in your `.minecraft/mods/` folder.
 5. Launch the game once to generate the configuration file.
 
