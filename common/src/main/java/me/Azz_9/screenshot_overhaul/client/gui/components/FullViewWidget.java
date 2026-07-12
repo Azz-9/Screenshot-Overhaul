@@ -1,6 +1,7 @@
 package me.Azz_9.screenshot_overhaul.client.gui.components;
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
+import static me.Azz_9.screenshot_overhaul.Constants.MOD_ID;
 import static me.Azz_9.screenshot_overhaul.utils.StringUtils.pretty;
 
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
@@ -8,12 +9,14 @@ import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.SpriteIconButton;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Ease;
 
 import org.joml.Matrix3x2fStack;
@@ -57,6 +60,7 @@ public class FullViewWidget extends AbstractWidget {
 	// Layout
 	private static final int FULL_VIEW_PADDING = 40;
 	private static final int BOTTOM_PADDING = 60;
+	private static final int CLOSE_BUTTON_SIZE = 20;
 	private static final int NAV_BUTTON_SIZE = 20;
 	private static final int NAV_BUTTON_MARGIN = 30;
 	private static final int ACTION_BUTTON_HEIGHT = 20;
@@ -77,6 +81,7 @@ public class FullViewWidget extends AbstractWidget {
 	private @Nullable Screenshot outgoingScreenshot;
 
 	// Child widgets
+	private final @NonNull Button closeFullViewButton;
 	private final @NonNull NavigationButton backButton;
 	private final @NonNull NavigationButton nextButton;
 	private final @NonNull Button copyButton;
@@ -131,6 +136,16 @@ public class FullViewWidget extends AbstractWidget {
 		this.onClose = onClose;
 		this.nextSupplier = nextSupplier;
 		this.prevSupplier = prevSupplier;
+
+		closeFullViewButton = SpriteIconButton.TextAndIcon.builder(
+						Component.translatable("screenshot_overhaul.close"),
+						button -> onClose.run(),
+						true
+				)
+				.size(CLOSE_BUTTON_SIZE, CLOSE_BUTTON_SIZE)
+				.sprite(Identifier.fromNamespaceAndPath(MOD_ID, "icon/back_arrow"), 15, 15)
+				.build();
+		closeFullViewButton.setPosition(15, 15);
 
 		backButton = new NavigationButton(
 				NAV_BUTTON_MARGIN,
@@ -309,6 +324,7 @@ public class FullViewWidget extends AbstractWidget {
 		int mxNext = occluded ? -1 : mouseX;
 		int myNext = occluded ? -1 : mouseY;
 
+		closeFullViewButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 		backButton.extractRenderState(graphics, mxNext, myNext, deltaTicks);
 		nextButton.extractRenderState(graphics, mxNext, myNext, deltaTicks);
 		deleteButton.extractRenderState(graphics, mxNext, myNext, deltaTicks);
@@ -328,7 +344,7 @@ public class FullViewWidget extends AbstractWidget {
 		int fullViewWidth = width - FULL_VIEW_PADDING * 2;
 		int fullViewHeight = height - FULL_VIEW_PADDING - BOTTOM_PADDING;
 
-		if (texture == null || !texture.isReady()) {
+		if (!texture.isReady()) {
 			graphics.fill(
 					FULL_VIEW_PADDING, FULL_VIEW_PADDING,
 					FULL_VIEW_PADDING + fullViewWidth,
@@ -385,7 +401,8 @@ public class FullViewWidget extends AbstractWidget {
 		if (metadataPanel.isVisible() && metadataPanel.mouseClicked(event, doubleClick))
 			return true;
 
-		if (!backButton.mouseClicked(event, doubleClick) &&
+		if (!closeFullViewButton.mouseClicked(event, doubleClick) &&
+				!backButton.mouseClicked(event, doubleClick) &&
 				!nextButton.mouseClicked(event, doubleClick) &&
 				!deleteButton.mouseClicked(event, doubleClick) &&
 				!copyButton.mouseClicked(event, doubleClick)) {
@@ -398,6 +415,7 @@ public class FullViewWidget extends AbstractWidget {
 	public boolean mouseReleased(@NonNull MouseButtonEvent event) {
 		if (!visible) return false;
 		metadataPanel.mouseReleased(event);
+		closeFullViewButton.mouseReleased(event);
 		backButton.mouseReleased(event);
 		nextButton.mouseReleased(event);
 		deleteButton.mouseReleased(event);
