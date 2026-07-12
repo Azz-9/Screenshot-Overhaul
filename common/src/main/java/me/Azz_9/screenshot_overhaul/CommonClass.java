@@ -39,7 +39,7 @@ import me.Azz_9.screenshot_overhaul.platform.Services;
 // however it will be compatible with all supported mod loaders.
 public class CommonClass {
 
-	public static final boolean PHOTO_MODE_ENABLED = Boolean.parseBoolean(System.getenv().getOrDefault("ENABLE_PHOTO_MODE", "false"));
+	public static final boolean PHOTO_MODE_ENABLED = Boolean.parseBoolean(System.getenv().getOrDefault("SCREENSHOT_OVERHAUL_ENABLE_PHOTO_MODE", "false"));
 
 	public static Minecraft MINECRAFT;
 
