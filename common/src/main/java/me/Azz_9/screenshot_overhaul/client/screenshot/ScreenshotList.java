@@ -342,7 +342,8 @@ public class ScreenshotList {
 	}
 
 	private static boolean isScreenshot(@NonNull Path path) {
+		File file = path.toFile();
 		String name = path.getFileName().toString().toLowerCase();
-		return ACCEPTED_SCREENSHOT_FILE_EXTENSIONS.stream().anyMatch(name::endsWith);
+		return file.exists() && file.isFile() && ACCEPTED_SCREENSHOT_FILE_EXTENSIONS.stream().anyMatch(name::endsWith);
 	}
 }

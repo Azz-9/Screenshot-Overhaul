@@ -24,8 +24,9 @@ public final class ScreenshotFileNameParser {
 
 	// Tous les tokens supportés
 	private static final @NonNull Map<String, Supplier<String>> TOKENS;
+	private static final @NonNull String PNG_EXTENSION = ".png";
 
-	public static final int MAX_FILE_STEM_LENGTH = MAX_FILE_NAME_LENGTH - 4;
+	public static final int MAX_FILE_STEM_LENGTH = MAX_FILE_NAME_LENGTH - PNG_EXTENSION.length();
 
 	static {
 		Map<String, Supplier<String>> map = new LinkedHashMap<>();
@@ -70,7 +71,22 @@ public final class ScreenshotFileNameParser {
 	 * @return Path absolu vers le fichier .png, garanti inexistant
 	 */
 	public static @NonNull Path resolve(@NonNull Path screenshotsFolder, @NonNull String pattern) {
+		return resolve(screenshotsFolder, pattern, PNG_EXTENSION, MAX_FILE_STEM_LENGTH);
+	}
 
+	/**
+	 * Résout le pattern de config et retourne un Path unique vers un dossier sous {@code screenshotsFolder}.
+	 * Le pattern peut contenir des "/" pour des sous-dossiers, et des tokens <...>.
+	 *
+	 * @param screenshotsFolder dossier racine des screenshots (ex. .minecraft/screenshots)
+	 * @param pattern           valeur de la ConfigOption (ex. "panorama_<datetime>")
+	 * @return Path absolu vers le dossier, sans extension, garanti inexistant
+	 */
+	public static @NonNull Path resolveDirectory(@NonNull Path screenshotsFolder, @NonNull String pattern) {
+		return resolve(screenshotsFolder, pattern, "", MAX_FILE_NAME_LENGTH);
+	}
+
+	private static @NonNull Path resolve(@NonNull Path screenshotsFolder, @NonNull String pattern, @NonNull String extension, int maxNameLength) {
 		String resolved = resolveTokens(pattern);
 
 		// normalisation slash
@@ -82,7 +98,7 @@ public final class ScreenshotFileNameParser {
 		List<String> segments = new ArrayList<>();
 		for (int i = 0; i < rawSegments.length; i++) {
 			String cleaned = i == rawSegments.length - 1
-					? sanitizeFileStem(rawSegments[i])
+					? sanitizeName(rawSegments[i], maxNameLength)
 					: sanitizeDirectoryName(rawSegments[i]);
 			if (!cleaned.isEmpty()) {
 				segments.add(cleaned);
@@ -91,12 +107,12 @@ public final class ScreenshotFileNameParser {
 
 		Path folder = screenshotsFolder;
 		if (segments.isEmpty()) {
-			return findNumericFile(folder);
+			return findNumericPath(folder, extension);
 		} else {
 			for (int i = 0; i < segments.size() - 1; i++) {
 				folder = folder.resolve(segments.get(i));
 			}
-			return findUniqueFile(folder, segments.getLast());
+			return findUniquePath(folder, segments.getLast(), extension, maxNameLength);
 		}
 	}
 
@@ -138,20 +154,14 @@ public final class ScreenshotFileNameParser {
 	}
 
 	private static @NonNull String sanitizeDirectoryName(@NonNull String segment) {
-		String s = sanitize(segment);
-
-		if (s.length() > MAX_FILE_NAME_LENGTH) {
-			s = s.substring(0, MAX_FILE_NAME_LENGTH);
-		}
-
-		return s;
+		return sanitizeName(segment, MAX_FILE_NAME_LENGTH);
 	}
 
-	private static @NonNull String sanitizeFileStem(@NonNull String stem) {
-		String s = sanitize(stem);
+	private static @NonNull String sanitizeName(@NonNull String name, int maxLength) {
+		String s = sanitize(name);
 
-		if (s.length() > MAX_FILE_STEM_LENGTH) {
-			s = s.substring(0, MAX_FILE_STEM_LENGTH);
+		if (s.length() > maxLength) {
+			s = s.substring(0, maxLength);
 		}
 
 		return s;
@@ -169,32 +179,32 @@ public final class ScreenshotFileNameParser {
 		return s;
 	}
 
-	private static @NonNull Path findUniqueFile(@NonNull Path folder, @NonNull String stem) {
-		Path candidate = folder.resolve(stem + ".png");
+	private static @NonNull Path findUniquePath(@NonNull Path folder, @NonNull String name, @NonNull String extension, int maxNameLength) {
+		Path candidate = folder.resolve(name + extension);
 		if (!Files.exists(candidate)) return candidate;
 
 		int count = 2;
 		while (true) {
 			String strCount = String.valueOf(count);
 
-			int maxLength = MAX_FILE_STEM_LENGTH - (strCount.length() + 1);
+			int maxLength = maxNameLength - (strCount.length() + 1);
 
-			String truncatedStem = stem.length() > maxLength
-					? stem.substring(0, maxLength)
-					: stem;
+			String truncatedName = name.length() > maxLength
+					? name.substring(0, maxLength)
+					: name;
 
-			candidate = folder.resolve(truncatedStem + "_" + strCount + ".png");
+			candidate = folder.resolve(truncatedName + "_" + strCount + extension);
 
 			if (!Files.exists(candidate)) return candidate;
 			count++;
 		}
 	}
 
-	private static @NonNull Path findNumericFile(@NonNull Path folder) {
+	private static @NonNull Path findNumericPath(@NonNull Path folder, @NonNull String extension) {
 		int count = 1;
 
 		while (true) {
-			Path candidate = folder.resolve(count + ".png");
+			Path candidate = folder.resolve(count + extension);
 			if (!Files.exists(candidate)) return candidate;
 			count++;
 		}

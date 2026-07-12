@@ -105,6 +105,6 @@ public abstract class MinecraftMixin {
 	@Unique
 	private static @NonNull File screenshot_overhaul$getPanoramaFolder(final @NonNull File folder) {
 		String pattern = Config.getInstance().panoramaFolderName.getValue();
-		return ScreenshotFileNameParser.resolve(folder.toPath(), pattern).toFile();
+		return ScreenshotFileNameParser.resolveDirectory(folder.toPath(), pattern).toFile();
 	}
 }
