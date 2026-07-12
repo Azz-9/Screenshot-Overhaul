@@ -63,7 +63,11 @@ public class ConfigLoader {
 
 	public static void load() throws IOException {
 		ScreenshotLogger.info("Loading config...");
-		if (!Files.exists(CONFIG_FILE)) return;
+		if (!Files.exists(CONFIG_FILE)) {
+			ScreenshotLogger.info("Config file does not exist, creating a new one...");
+			ConfigLoader.trySave();
+			return;
+		}
 		JsonObject root = JsonParser.parseString(Files.readString(CONFIG_FILE)).getAsJsonObject();
 		applyFields(root);
 	}
