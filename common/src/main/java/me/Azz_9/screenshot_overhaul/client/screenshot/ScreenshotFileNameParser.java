@@ -16,16 +16,16 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Supplier;
 
+import me.Azz_9.screenshot_overhaul.compat.CompatManager;
 import me.Azz_9.screenshot_overhaul.platform.Services;
 import me.Azz_9.screenshot_overhaul.utils.PathUtils;
-import me.Azz_9.screenshot_overhaul.compat.CompatManager;
 
 public final class ScreenshotFileNameParser {
 
 	// Tous les tokens supportés
 	private static final @NonNull Map<String, Supplier<String>> TOKENS;
 
-	private static final int MAX_FILE_STEM_LENGTH = MAX_FILE_NAME_LENGTH - 4;
+	public static final int MAX_FILE_STEM_LENGTH = MAX_FILE_NAME_LENGTH - 4;
 
 	static {
 		Map<String, Supplier<String>> map = new LinkedHashMap<>();

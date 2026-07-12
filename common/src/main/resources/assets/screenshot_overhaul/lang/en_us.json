@@ -85,6 +85,10 @@
 	"screenshot_overhaul.config.category.panorama": "Panorama",
 	"screenshot_overhaul.config.category.photo_mode": "Photo mode",
 
+	"screenshot_overhaul.config.section.advancement": "Advancement",
+	"screenshot_overhaul.config.section.hidden_element": "Hidden elements",
+	"screenshot_overhaul.config.section.panorama_animation": "Panorama animation",
+
 	"screenshot_overhaul.config.enable_whole_mod": "Enable whole mod",
 	"screenshot_overhaul.config.freeze_in_photo_mode": "Freeze world in photo mode",
 	"screenshot_overhaul.config.show_player": "Show player",
@@ -101,8 +105,10 @@
 	"screenshot_overhaul.config.hide_hud_on_screenshot": "Hide hud on screenshot",
 	"screenshot_overhaul.config.hide_hand_on_screenshot": "Hide hand on screenshot",
 	"screenshot_overhaul.config.grab_on_advancement": "Grab screenshot on advancement",
-	"screenshot_overhaul.config.advancement_screenshot_delay": "Advancement screenshot delay",
+	"screenshot_overhaul.config.advancement_screenshot_delay": "Advancement screenshot delay in ticks",
 	"screenshot_overhaul.config.show_screenshot_preview": "Show preview",
+	"screenshot_overhaul.config.panorama_folder_name": "Panorama folder name",
+	"screenshot_overhaul.config.panorama_folder_name.invalid": "Invalid folder name",
 	"screenshot_overhaul.config.panorama_resolution": "Panorama resolution in pixel",
 	"screenshot_overhaul.config.panorama_resolution.warning_high": "High-resolution panoramas may take significantly longer to generate and can substantially increase video memory (VRAM) usage.",
 	"screenshot_overhaul.config.rotation_speed": "Rotation speed",
