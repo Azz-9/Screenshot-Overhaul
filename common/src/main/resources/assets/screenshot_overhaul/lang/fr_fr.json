@@ -85,6 +85,10 @@
 	"screenshot_overhaul.config.category.panorama": "Panorama",
 	"screenshot_overhaul.config.category.photo_mode": "Mode photo",
 
+	"screenshot_overhaul.config.section.advancement": "Succès",
+	"screenshot_overhaul.config.section.hidden_element": "Éléments cachés",
+	"screenshot_overhaul.config.section.panorama_animation": "Animation du panorama",
+
 	"screenshot_overhaul.config.enable_whole_mod": "Activer le mod",
 	"screenshot_overhaul.config.freeze_in_photo_mode": "Figer le monde en mode photo",
 	"screenshot_overhaul.config.show_player": "Afficher le joueur",
@@ -101,8 +105,10 @@
 	"screenshot_overhaul.config.hide_hud_on_screenshot": "Cacher le hud sur les captures d'écran",
 	"screenshot_overhaul.config.hide_hand_on_screenshot": "Cacher la main sur les captures d'écran",
 	"screenshot_overhaul.config.grab_on_advancement": "Faire une capture d'écran lors d'un succcès",
-	"screenshot_overhaul.config.advancement_screenshot_delay": "Retard des captures d'écran des succès",
+	"screenshot_overhaul.config.advancement_screenshot_delay": "Retard des captures d'écran des succès en ticks",
 	"screenshot_overhaul.config.show_screenshot_preview": "Afficher la prévisualisation",
+	"screenshot_overhaul.config.panorama_folder_name": "Nom de dossier des panorama",
+	"screenshot_overhaul.config.panorama_folder_name.invalid": "Nom de dossier invalide",
 	"screenshot_overhaul.config.panorama_resolution": "Résolution des panoramas en pixel",
 	"screenshot_overhaul.config.panorama_resolution.warning_high": "Les panoramas en haute résolution peuvent prendre beaucoup plus de temps à être générés et peuvent augmenter significativement l'utilisation de la mémoire vidéo (VRAM).",
 	"screenshot_overhaul.config.rotation_speed": "Vitesse de rotation",

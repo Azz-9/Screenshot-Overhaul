@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Util;
 
 import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,6 +25,7 @@ import me.Azz_9.screenshot_overhaul.client.panorama.PanoramaCaptureContext;
 import me.Azz_9.screenshot_overhaul.client.panorama.PanoramaFaceContext;
 import me.Azz_9.screenshot_overhaul.client.panorama.ScreenshotContext;
 import me.Azz_9.screenshot_overhaul.client.photoMode.PhotoMode;
+import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotFileNameParser;
 
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
@@ -105,16 +105,7 @@ public abstract class MinecraftMixin {
 
 	@Unique
 	private static @NonNull File screenshot_overhaul$getPanoramaFolder(final @NonNull File folder) {
-		String name = "panorama_" + Util.getFilenameFormattedDateTime();
-		int count = 1;
-
-		while (true) {
-			File file = new File(folder, name + (count == 1 ? "" : "_" + count));
-			if (!file.exists()) {
-				return file;
-			}
-
-			count++;
-		}
+		String pattern = Config.getInstance().panoramaFolderName.getValue();
+		return ScreenshotFileNameParser.resolve(folder.toPath(), pattern).toFile();
 	}
 }
