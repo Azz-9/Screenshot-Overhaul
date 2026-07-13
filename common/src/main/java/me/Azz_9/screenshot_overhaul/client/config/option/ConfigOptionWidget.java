@@ -54,6 +54,7 @@ public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 	public static final int FULL_ROW_HEIGHT = ROW_HEIGHT + ROW_PADDING_V * 2;
 
 	private static final float LABEL_WIDTH_FRACTION = 0.40f;
+	private static final int LABEL_MARGIN = 2;
 	private static final int RESET_BUTTON_WIDTH = 20;
 	private static final int CONTROL_RESET_GAP = 4;
 	private static final int LABEL_CONTROL_GAP = 8;
@@ -134,8 +135,13 @@ public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 		}
 
 		// Draw label
-		int labelY = getY() + ROW_PADDING_V + (ROW_HEIGHT - MINECRAFT.font.lineHeight) / 2;
-		graphics.text(MINECRAFT.font, option.getLabel(), getX(), labelY, labelColor, true);
+		graphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE)
+				.acceptScrolling(
+						option.getLabel().copy().withColor(labelColor),
+						getX() + LABEL_MARGIN,
+						getX() + LABEL_MARGIN, controlWidget.getX() - LABEL_MARGIN,
+						getY(), getBottom()
+				);
 
 		// Propagate enabled state to sub-widgets
 		controlWidget.active = enabled;
