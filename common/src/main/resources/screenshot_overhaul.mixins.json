@@ -33,7 +33,6 @@
 		"OptionsMixin",
 		"ParticleEngineMixin",
 		"PauseScreenMixin",
-		"ScreenAccessor",
 		"ScreenMixin",
 		"ScreenshotMixin",
 		"TitleScreenMixin",
