@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Input;
 
 import org.jspecify.annotations.Nullable;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 public class PhotoMode {
@@ -48,7 +49,10 @@ public class PhotoMode {
 
 		MINECRAFT.smartCull = false;
 
-		camera = new PhotoCamera(MINECRAFT.level, new GameProfile(UUID.randomUUID(), "Camera"));
+		camera = new PhotoCamera(MINECRAFT.level, new GameProfile(
+				UUID.nameUUIDFromBytes("screenshot_overhaul:photo_camera".getBytes(StandardCharsets.UTF_8)),
+				"Camera"
+		));
 		camera.spawn();
 
 		prevCameraType = MINECRAFT.options.getCameraType();

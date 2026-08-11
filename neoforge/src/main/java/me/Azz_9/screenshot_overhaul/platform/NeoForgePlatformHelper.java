@@ -1,16 +1,17 @@
 package me.Azz_9.screenshot_overhaul.platform;
 
 import static me.Azz_9.screenshot_overhaul.Constants.NEOFORGE;
-import static me.Azz_9.screenshot_overhaul.ScreenshotOverhaul.KEY_MAPPINGS;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
 import org.jspecify.annotations.NonNull;
@@ -23,20 +24,22 @@ import me.Azz_9.screenshot_overhaul.platform.services.IPlatformHelper;
 
 public class NeoForgePlatformHelper implements IPlatformHelper {
 
-    @Override
-    public String getPlatformName() {
+	public static IEventBus eventBus;
+
+	@Override
+	public String getPlatformName() {
 		return NEOFORGE;
-    }
+	}
 
-    @Override
-    public boolean isModLoaded(String modId) {
-        return ModList.get().isLoaded(modId);
-    }
+	@Override
+	public boolean isModLoaded(String modId) {
+		return ModList.get().isLoaded(modId);
+	}
 
-    @Override
-    public boolean isDevelopmentEnvironment() {
-        return !FMLLoader.getCurrent().isProduction();
-    }
+	@Override
+	public boolean isDevelopmentEnvironment() {
+		return !FMLLoader.getCurrent().isProduction();
+	}
 
 	@Override
 	public @NonNull Path getConfigDir() {
@@ -60,7 +63,7 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
 
 	@Override
 	public @NonNull KeyMapping registerKeyMapping(@NonNull KeyMapping keyMapping) {
-		KEY_MAPPINGS.add(keyMapping);
+		eventBus.addListener((RegisterKeyMappingsEvent event) -> event.register(keyMapping));
 		return keyMapping;
 	}
 
