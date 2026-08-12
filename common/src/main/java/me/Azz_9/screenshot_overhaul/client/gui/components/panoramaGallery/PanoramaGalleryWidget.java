@@ -92,10 +92,11 @@ public class PanoramaGalleryWidget extends ScrollableGallery<PanoramaEntryWidget
 	public void refresh(final boolean clearCache, final @Nullable Runnable onRefreshComplete) {
 		if (!refreshing.compareAndSet(false, true)) return;
 
+		final double savedScroll = getScrollOffset();
+
 		ScreenshotLogger.info("Refreshing panorama gallery entries");
 
 		ScreenshotList.reloadAsync();
-
 		ScreenshotList.whenPanoramasLoaded(panoramas -> {
 			if (clearCache) PanoramaTextureCache.clearCache();
 
@@ -104,8 +105,9 @@ public class PanoramaGalleryWidget extends ScrollableGallery<PanoramaEntryWidget
 			sortEntries(getSortButton().getValue());
 			layoutEntries();
 
-			if (onRefreshComplete != null) onRefreshComplete.run();
+			setScrollOffset(savedScroll);
 
+			if (onRefreshComplete != null) onRefreshComplete.run();
 			refreshing.set(false);
 		});
 	}

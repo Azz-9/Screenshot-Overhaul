@@ -245,9 +245,6 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 	@Override
 	public void onClose() {
 		ScreenshotManager.save();
-
-		gallery = null;
-		fullView = null;
 		super.onClose();
 	}
 }
