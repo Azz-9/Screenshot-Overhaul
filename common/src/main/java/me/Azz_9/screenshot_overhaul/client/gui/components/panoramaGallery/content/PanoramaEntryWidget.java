@@ -1,7 +1,6 @@
 package me.Azz_9.screenshot_overhaul.client.gui.components.panoramaGallery.content;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -15,11 +14,12 @@ import java.nio.file.Path;
 import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_overhaul.ScreenshotLogger;
-import me.Azz_9.screenshot_overhaul.client.Colors;
 import me.Azz_9.screenshot_overhaul.client.gui.components.gallery.AbstractGalleryEntryWidget;
+import me.Azz_9.screenshot_overhaul.client.gui.components.gallery.EntryToggleButton;
 import me.Azz_9.screenshot_overhaul.client.gui.components.screenshotGallery.content.ScreenshotNameWidget;
 import me.Azz_9.screenshot_overhaul.client.panorama.Panorama;
 import me.Azz_9.screenshot_overhaul.client.screenshot.Screenshot;
+import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotManager;
 import me.Azz_9.screenshot_overhaul.utils.PathUtils;
 
 public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {
@@ -37,7 +37,7 @@ public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {
 
 	public PanoramaEntryWidget(int x, int y, int thumbnailWidth, int thumbnailHeight, @NonNull Panorama panorama,
 	                           @Nullable Consumer<Panorama> onThumbnailClicked) {
-		super(x, y, thumbnailWidth, thumbnailHeight, 0, panorama.folder().getParentFile().toPath());
+		super(x, y, thumbnailWidth, thumbnailHeight, panorama.folder().getParentFile().toPath());
 		this.INITIAL_NAME = panorama.folderName();
 
 		this.panorama = panorama;
@@ -57,7 +57,7 @@ public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {
 		nameWidget.setTextPredicate(PathUtils::isValidString);
 		nameWidget.setChangedListener(string -> {
 			nameWidget.clearChatFormattings();
-			if (hasChanged()) {
+			if (hasNameChanged()) {
 				nameWidget.addChatFormatting(ChatFormatting.ITALIC);
 			}
 			boolean nameAlreadyTaken = PathUtils.exists(getParentFolder(), getName()) && hasNameChanged();
@@ -69,12 +69,19 @@ public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {
 			}
 		});
 
+		setTopRightButton(EntryToggleButton.createFavorite(
+				getRight() - BUTTON_SIZE, getY(), BUTTON_SIZE, BUTTON_SIZE,
+				(btn, favorite) -> ScreenshotManager.setFavorite(panorama.pathRelativeToScreenshotDir(), favorite),
+				ScreenshotManager.isFavorite(panorama.pathRelativeToScreenshotDir())
+		));
+
 		addRenderableChild(thumbnailWidget);
 		addRenderableChild(nameWidget);
 	}
 
 	@Override
 	protected void updateChildrenPos() {
+		super.updateChildrenPos();
 		thumbnailWidget.setRectangle(getWidth(), getHeight() - DEFAULT_NAME_HEIGHT, getX(), getY());
 		nameWidget.setRectangle(getWidth(), DEFAULT_NAME_HEIGHT, getX(), thumbnailWidget.getBottom());
 	}
@@ -91,7 +98,7 @@ public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {
 
 	@Override
 	public @NonNull String getPathRelativeToScreenshotDir() {
-		return panorama.folder().getPath();
+		return panorama.pathRelativeToScreenshotDir();
 	}
 
 	@Override
@@ -115,12 +122,6 @@ public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {
 	public @Nullable String getServerIp() {
 		if (panorama.presentFaces().isEmpty()) return null;
 		return panorama.presentFaces().getFirst().getMetadata().getServerIp();
-	}
-
-	@Override
-	protected void renderBeforeChildren(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks, float animationProgress) {
-		// fond global
-		graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), Colors.BLACK_TRANSPARENT);
 	}
 
 	@Override

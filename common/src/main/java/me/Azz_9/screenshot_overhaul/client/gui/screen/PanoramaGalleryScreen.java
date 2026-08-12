@@ -2,6 +2,7 @@ package me.Azz_9.screenshot_overhaul.client.gui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
@@ -15,6 +16,7 @@ import me.Azz_9.screenshot_overhaul.client.gui.focusSystem.FocusManager;
 import me.Azz_9.screenshot_overhaul.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_overhaul.client.panorama.PanoramaHolder;
 import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotList;
+import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotManager;
 
 public class PanoramaGalleryScreen extends AbstractSavableScreen implements FocusableScreen {
 
@@ -35,7 +37,9 @@ public class PanoramaGalleryScreen extends AbstractSavableScreen implements Focu
 
 		addRenderableWidget(gallery);
 
-		ScreenshotList.setOnChangeListener(_ -> gallery.refresh(false));
+		ScreenshotList.setOnChangeListener(_ -> {
+			if (gallery != null) gallery.refresh(false);
+		});
 	}
 
 	private @NonNull PanoramaGalleryWidget createGallery() {
@@ -64,7 +68,13 @@ public class PanoramaGalleryScreen extends AbstractSavableScreen implements Focu
 
 	@Override
 	public void onClose() {
+		ScreenshotManager.save();
 		super.onClose();
 		ConfigLoader.trySave();
+	}
+
+	@Override
+	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
+		super.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 	}
 }

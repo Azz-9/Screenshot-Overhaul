@@ -1,7 +1,6 @@
 package me.Azz_9.screenshot_overhaul.client.gui.components.screenshotGallery.content;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -15,8 +14,8 @@ import java.nio.file.Path;
 import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_overhaul.ScreenshotLogger;
-import me.Azz_9.screenshot_overhaul.client.Colors;
 import me.Azz_9.screenshot_overhaul.client.gui.components.gallery.AbstractGalleryEntryWidget;
+import me.Azz_9.screenshot_overhaul.client.gui.components.gallery.EntryToggleButton;
 import me.Azz_9.screenshot_overhaul.client.metadata.Metadata;
 import me.Azz_9.screenshot_overhaul.client.metadata.MetadataUtils;
 import me.Azz_9.screenshot_overhaul.client.screenshot.Screenshot;
@@ -25,22 +24,17 @@ import me.Azz_9.screenshot_overhaul.utils.PathUtils;
 
 public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 
-	private static final int BUTTON_SIZE = 10;
-	private static final int BUTTON_FADE_DURATION = 250;
-
 	private final @NonNull String INITIAL_NAME;
 	private final @NonNull Metadata INITIAL_METADATA;
 
 	private final @NonNull ScreenshotThumbnailWidget thumbnailWidget;
 	private final @NonNull ScreenshotNameWidget nameWidget;
-	private final @NonNull HideFromMapButton hideFromMapButton;
-	private final @NonNull FavoriteButton favoriteButton;
 
 	private final @NonNull Screenshot screenshot;
 
 	public ScreenshotEntryWidget(int x, int y, int thumbnailWidth, int thumbnailHeight, @NonNull Screenshot screenshot,
 	                             @Nullable Consumer<Screenshot> onThumbnailClicked) {
-		super(x, y, thumbnailWidth, thumbnailHeight + DEFAULT_NAME_HEIGHT, BUTTON_FADE_DURATION, screenshot.file().getParentFile().toPath());
+		super(x, y, thumbnailWidth, thumbnailHeight + DEFAULT_NAME_HEIGHT, screenshot.file().getParentFile().toPath());
 		this.INITIAL_NAME = screenshot.file().getName();
 		this.INITIAL_METADATA = Metadata.copyOf(screenshot.getMetadata());
 
@@ -63,7 +57,7 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 		nameWidget.setTextPredicate((text) -> text.endsWith(extension) && PathUtils.isValidString(text));
 		nameWidget.setChangedListener(string -> {
 			nameWidget.clearChatFormattings();
-			if (hasChanged()) {
+			if (hasNameChanged()) {
 				nameWidget.addChatFormatting(ChatFormatting.ITALIC);
 			}
 			boolean nameAlreadyTaken = PathUtils.exists(getParentFolder(), getName()) && hasNameChanged();
@@ -75,21 +69,20 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 			}
 		});
 
-		this.hideFromMapButton = new HideFromMapButton(
+		setTopLeftButton(EntryToggleButton.createHideFromMap(
 				getX(), getY(), BUTTON_SIZE, BUTTON_SIZE,
-				(btn) -> ScreenshotManager.setHiddenFromMap(screenshot.pathRelativeToScreenshotDir(), ((HideFromMapButton) btn).isCrossed()),
+				(btn, hidden) -> ScreenshotManager.setHiddenFromMap(screenshot.pathRelativeToScreenshotDir(), hidden),
 				ScreenshotManager.isHiddenFromMap(screenshot.pathRelativeToScreenshotDir())
-		);
+		));
 
-		this.favoriteButton = new FavoriteButton(
-				getRight() - BUTTON_SIZE,
-				getY(),
-				BUTTON_SIZE, BUTTON_SIZE,
-				(btn) -> ScreenshotManager.setFavorite(screenshot.pathRelativeToScreenshotDir(), ((FavoriteButton) btn).isFilled()),
+		setTopRightButton(EntryToggleButton.createFavorite(
+				getRight() - BUTTON_SIZE, getY(), BUTTON_SIZE, BUTTON_SIZE,
+				(btn, favorite) -> ScreenshotManager.setFavorite(screenshot.pathRelativeToScreenshotDir(), favorite),
 				ScreenshotManager.isFavorite(screenshot.pathRelativeToScreenshotDir())
-		);
+		));
 
-		addAllChildren(hideFromMapButton, favoriteButton, thumbnailWidget, nameWidget);
+		addRenderableChild(thumbnailWidget);
+		addRenderableChild(nameWidget);
 	}
 
 	public ScreenshotEntryWidget(@NonNull Screenshot screenshot, @Nullable Consumer<Screenshot> onThumbnailClicked) {
@@ -101,33 +94,14 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 	}
 
 	@Override
-	protected void renderBeforeChildren(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks, float animationProgress) {
-		// fond global
-		graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), Colors.BLACK_TRANSPARENT);
-
-		thumbnailWidget.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
-		nameWidget.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
-
-		if (isHovered() && favoriteButton.active || favoriteButton.isFilled()) {
-			favoriteButton.setProgress(favoriteButton.isFilled() ? 1 : animationProgress);
-			favoriteButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
-		}
-		if (isHovered() && hideFromMapButton.active || hideFromMapButton.isCrossed()) {
-			hideFromMapButton.setProgress(hideFromMapButton.isCrossed() ? 1 : animationProgress);
-			hideFromMapButton.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
-		}
-	}
-
-	@Override
 	public void triggerLoad() {
 		thumbnailWidget.load();
 	}
 
 	@Override
 	protected void updateChildrenPos() {
+		super.updateChildrenPos();
 		thumbnailWidget.setRectangle(getWidth(), getHeight() - DEFAULT_NAME_HEIGHT, getX(), getY());
-		hideFromMapButton.setPosition(thumbnailWidget.getX(), thumbnailWidget.getY());
-		favoriteButton.setPosition(thumbnailWidget.getRight() - BUTTON_SIZE, thumbnailWidget.getY());
 		nameWidget.setRectangle(getWidth(), DEFAULT_NAME_HEIGHT, getX(), thumbnailWidget.getBottom());
 	}
 
