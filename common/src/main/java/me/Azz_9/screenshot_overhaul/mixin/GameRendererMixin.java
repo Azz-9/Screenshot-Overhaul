@@ -10,13 +10,16 @@ import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import me.Azz_9.screenshot_overhaul.client.config.Config;
 import me.Azz_9.screenshot_overhaul.client.photoMode.PhotoMode;
 import me.Azz_9.screenshot_overhaul.client.screenshot.FutureScreenshotState;
 
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
+
 
 	// Apply roll
 	@Inject(
@@ -40,5 +43,23 @@ public abstract class GameRendererMixin {
 		Runnable grabber = FutureScreenshotState.reset();
 
 		if (grabber != null) grabber.run();
+	}
+
+	@ModifyVariable(method = "render", at = @At("HEAD"), argsOnly = true, name = "deltaTracker")
+	private static DeltaTracker freezeRenderTickDelta(DeltaTracker deltaTracker) {
+		if (PhotoMode.isEnabled() && Config.getInstance().freezeInPhotoMode.getValue()) {
+			return DeltaTracker.ZERO;
+		}
+
+		return deltaTracker;
+	}
+
+	@ModifyVariable(method = "extract", at = @At("HEAD"), argsOnly = true, name = "deltaTracker")
+	private static DeltaTracker freezeExtractTickDelta(DeltaTracker deltaTracker) {
+		if (PhotoMode.isEnabled() && Config.getInstance().freezeInPhotoMode.getValue()) {
+			return DeltaTracker.ZERO;
+		}
+
+		return deltaTracker;
 	}
 }
