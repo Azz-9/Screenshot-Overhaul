@@ -175,7 +175,6 @@ public class ScreenshotPreviewWidget extends AbstractWidget {
 			ScreenshotPreview.deleteCurrentScreenshot();
 		}
 		ScreenshotPreview.dismiss();
-
 	}
 
 	@Override

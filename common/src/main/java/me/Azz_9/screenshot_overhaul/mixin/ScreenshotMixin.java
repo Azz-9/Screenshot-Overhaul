@@ -159,8 +159,15 @@ public abstract class ScreenshotMixin {
 		Files.write(file.toPath(), pngWithMeta);
 
 		// preview
-		if (Config.getInstance().showPreview.getValue())
-			ScreenshotPreview.setScreenshot(file);
+		if (Config.getInstance().showPreview.getValue()) {
+			if (faceCtx != null) {
+				if (faceCtx.faceIndex() == 0) {
+					ScreenshotPreview.setPanorama(file, faceCtx.panoramaId());
+				}
+			} else {
+				ScreenshotPreview.setScreenshot(file);
+			}
+		}
 
 		if (faceCtx != null) {
 			ScreenshotManager.setHiddenFromMap(
@@ -169,7 +176,7 @@ public abstract class ScreenshotMixin {
 			);
 		}
 
-		if (Config.getInstance().screenshotSound.getValue() && faceCtx == null || faceCtx.faceIndex() == 0) { // play once for panorama
+		if (Config.getInstance().screenshotSound.getValue() && (faceCtx == null || faceCtx.faceIndex() == 0)) { // play once for panorama
 			MINECRAFT.player.playSound(Sounds.SHUTTER, 1, 1);
 		}
 	}
