@@ -9,14 +9,18 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
+import java.util.List;
 
 import me.Azz_9.screenshot_overhaul.ScreenshotLogger;
 import me.Azz_9.screenshot_overhaul.client.Colors;
 import me.Azz_9.screenshot_overhaul.client.cache.ScreenshotTextureCache;
 import me.Azz_9.screenshot_overhaul.client.config.Config;
 import me.Azz_9.screenshot_overhaul.client.gui.ScreenshotDrawHelper;
+import me.Azz_9.screenshot_overhaul.client.panorama.Panorama;
 import me.Azz_9.screenshot_overhaul.client.screenshot.CopyScreenshot;
 import me.Azz_9.screenshot_overhaul.client.screenshot.DeleteScreenshot;
+import me.Azz_9.screenshot_overhaul.client.screenshot.Screenshot;
+import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotList;
 import me.Azz_9.screenshot_overhaul.client.texture.ScreenshotTexture;
 
 public class ScreenshotPreview {
@@ -31,6 +35,7 @@ public class ScreenshotPreview {
 
 	private static @Nullable ScreenshotTexture screenshotTexture;
 	private static @Nullable File screenshotFile;
+	private static @Nullable String panoramaUuid;
 	private static long startTime;
 	private static long pausedElapsed = -1;
 
@@ -158,6 +163,8 @@ public class ScreenshotPreview {
 
 	public static void setScreenshot(@NonNull File file) {
 		screenshotFile = file;
+		panoramaUuid = null;
+
 		MINECRAFT.execute(() -> {
 			screenshotTexture = ScreenshotTextureCache.getThumbnail(file.toPath());
 			screenshotTexture.whenReady((_, _) -> {
@@ -169,6 +176,11 @@ public class ScreenshotPreview {
 				}
 			});
 		});
+	}
+
+	public static void setPanorama(@NonNull File file, @NonNull String uuid) {
+		setScreenshot(file);
+		panoramaUuid = uuid;
 	}
 
 	private static float computeSlideOffset(long elapsed) {
@@ -216,7 +228,22 @@ public class ScreenshotPreview {
 	}
 
 	public static void deleteCurrentScreenshot() {
-		if (screenshotFile != null && !DeleteScreenshot.delete(screenshotFile)) {
+		if (panoramaUuid != null) {
+			List<Panorama> panoramas = ScreenshotList.getPanoramas();
+			for (int i = panoramas.size() - 1; i >= 0; i--) {
+				String uuid = panoramas.get(i).faces()[0].getMetadata().getPanoramaId();
+				if (uuid != null && uuid.equals(panoramaUuid)) {
+					for (Screenshot face : panoramas.get(i).faces()) {
+						if (face != null) {
+							if (screenshotFile != null && !DeleteScreenshot.delete(face)) {
+								ScreenshotLogger.error("Could not delete panorama: " + Config.getInstance().getAbsoluteScreenshotsDir().relativize(screenshotFile.toPath()));
+							}
+						}
+					}
+					break;
+				}
+			}
+		} else if (screenshotFile != null && !DeleteScreenshot.delete(screenshotFile)) {
 			ScreenshotLogger.error("Could not delete screenshot: " + Config.getInstance().getAbsoluteScreenshotsDir().relativize(screenshotFile.toPath()));
 		}
 	}
