@@ -2,7 +2,7 @@ package me.Azz_9.screenshot_overhaul.client.gui.focusSystem;
 
 import net.minecraft.client.gui.components.events.GuiEventListener;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class FocusManager {
 
