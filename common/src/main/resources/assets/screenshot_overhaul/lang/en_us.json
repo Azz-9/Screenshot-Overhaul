@@ -3,7 +3,14 @@
 	"screenshot_overhaul.controls.photo_mode": "Open photo mode",
 	"screenshot_overhaul.controls.roll_left": "Roll left",
 	"screenshot_overhaul.controls.roll_right": "Roll right",
+	"screenshot_overhaul.controls.open_effects_panel": "Open effects panel",
 	"screenshot_overhaul.controls.panorama_screenshot": "Take panorama screenshot",
+
+	"screenshot_overhaul.photo_mode.preset.cinematic": "Cinematic",
+	"screenshot_overhaul.photo_mode.preset.black_and_white": "Black and White",
+	"screenshot_overhaul.photo_mode.preset.warm": "Warm",
+	"screenshot_overhaul.photo_mode.preset.custom": "Custom",
+	"screenshot_overhaul.photo_mode.save_as_new_preset": "Save as new preset",
 
 	"screenshot_overhaul.narrator.screenshot_gallery": "Screenshot gallery",
 	"screenshot_overhaul.options.screenshots": "Screenshots...",
@@ -46,6 +53,7 @@
 	"screenshot_overhaul.reset": "Reset",
 	"screenshot_overhaul.empty": "empty",
 	"screenshot_overhaul.edit_metadata": "Edit metadata",
+	"screenshot_overhaul.save": "Save",
 
 	"screenshot_overhaul.metadata.x": "X",
 	"screenshot_overhaul.metadata.y": "Y",

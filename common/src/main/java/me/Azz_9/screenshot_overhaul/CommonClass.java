@@ -22,6 +22,7 @@ import java.util.List;
 
 import me.Azz_9.screenshot_overhaul.client.config.Config;
 import me.Azz_9.screenshot_overhaul.client.config.ConfigLoader;
+import me.Azz_9.screenshot_overhaul.client.gui.screen.EffectsPanelScreen;
 import me.Azz_9.screenshot_overhaul.client.panorama.Panorama;
 import me.Azz_9.screenshot_overhaul.client.panorama.PanoramaHolder;
 import me.Azz_9.screenshot_overhaul.client.photoMode.PhotoMode;
@@ -46,6 +47,7 @@ public class CommonClass {
 	private static KeyMapping openPhotoMode;
 	private static KeyMapping rollLeft;
 	private static KeyMapping rollRight;
+	private static KeyMapping openEffectsPanel;
 	private static KeyMapping panoramaScreenshot;
 
 	private static final List<RunnableState> runnableStates = new ArrayList<>();
@@ -60,6 +62,10 @@ public class CommonClass {
 
 	public static @NonNull KeyMapping getRollRightKeybind() {
 		return rollRight;
+	}
+
+	public static @NonNull KeyMapping getOpenEffectsPanelKeybind() {
+		return openEffectsPanel;
 	}
 
 	public static @NonNull KeyMapping getPanoramaScreenshotKeybind() {
@@ -129,6 +135,7 @@ public class CommonClass {
 			openPhotoMode = Services.PLATFORM.registerKeyMapping(new KeyMapping("screenshot_overhaul.controls.photo_mode", InputConstants.Type.KEYSYM, InputConstants.KEY_F10, keybind_category));
 			rollLeft = Services.PLATFORM.registerKeyMapping(new KeyMapping("screenshot_overhaul.controls.roll_left", InputConstants.Type.KEYSYM, InputConstants.KEY_Q, keybind_category));
 			rollRight = Services.PLATFORM.registerKeyMapping(new KeyMapping("screenshot_overhaul.controls.roll_right", InputConstants.Type.KEYSYM, InputConstants.KEY_E, keybind_category));
+			openEffectsPanel = Services.PLATFORM.registerKeyMapping(new KeyMapping("screenshot_overhaul.controls.open_effects_panel", InputConstants.Type.KEYSYM, InputConstants.KEY_H, keybind_category));
 		}
 
 		// panorama screenshot
@@ -140,13 +147,21 @@ public class CommonClass {
 			PhotoMode.toggle();
 		}
 
-		if (PhotoMode.isEnabled() && PhotoMode.getCamera() != null) {
-			while (getRollLeftKeybind().consumeClick()) {
+		while (getRollLeftKeybind().consumeClick()) {
+			if (PhotoMode.isEnabled() && PhotoMode.getCamera() != null) {
 				PhotoMode.getCamera().rollLeft();
 			}
+		}
 
-			while (getRollRightKeybind().consumeClick()) {
+		while (getRollRightKeybind().consumeClick()) {
+			if (PhotoMode.isEnabled() && PhotoMode.getCamera() != null) {
 				PhotoMode.getCamera().rollRight();
+			}
+		}
+
+		while (getOpenEffectsPanelKeybind().consumeClick()) {
+			if (PhotoMode.isEnabled() && PhotoMode.getCamera() != null) {
+				MINECRAFT.gui.setScreen(new EffectsPanelScreen());
 			}
 		}
 	}

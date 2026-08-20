@@ -16,6 +16,9 @@ import org.jspecify.annotations.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+import me.Azz_9.screenshot_overhaul.client.photoMode.preset.PhotoPreset;
+import me.Azz_9.screenshot_overhaul.client.photoMode.preset.PhotoPresetManager;
+
 public class PhotoMode {
 
 	private static final float SCROLL_SPEED_WITH_CTRL = 0.01f;
@@ -27,6 +30,9 @@ public class PhotoMode {
 	private static @Nullable PhotoCamera camera = null;
 
 	private static @Nullable CameraType prevCameraType = null;
+
+	private static int selectedPresetIndex = 0;
+	private static PhotoSettings appliedSettings = PhotoPresetManager.getPresets().get(selectedPresetIndex).getSettings();
 
 	public static @Nullable PhotoCamera getCamera() {
 		return camera;
@@ -121,7 +127,7 @@ public class PhotoMode {
 	}
 
 	// return whether the base onScroll method should be canceled
-	public static boolean onMouseScroll(long handle, double xoffset, double yoffset) {
+	public static boolean onMouseScroll(long handle, double xOffset, double yOffset) {
 		if (!PhotoMode.isEnabled() || PhotoMode.getCamera() == null || handle != MINECRAFT.getWindow().handle() || MINECRAFT.gui.screen() != null) {
 			return false;
 		}
@@ -129,7 +135,7 @@ public class PhotoMode {
 		boolean discrete = MINECRAFT.options.discreteMouseScroll().get();
 		double sensitivity = MINECRAFT.options.mouseWheelSensitivity().get();
 
-		double scroll = (discrete ? Math.signum(yoffset) : yoffset) * sensitivity;
+		double scroll = (discrete ? Math.signum(yOffset) : yOffset) * sensitivity;
 
 		if (scroll != 0.0) {
 			float scrollSpeed = (MINECRAFT.hasControlDown() ? SCROLL_SPEED_WITH_CTRL : SCROLL_SPEED_WITHOUT_CTRL);
@@ -137,5 +143,87 @@ public class PhotoMode {
 		}
 		
 		return true;
+	}
+
+	public static PhotoPreset selectedPreset() {
+		return PhotoPresetManager.getPresets().get(selectedPresetIndex());
+	}
+
+	public static int selectedPresetIndex() {
+		return selectedPresetIndex;
+	}
+
+	public static void selectPreset(int index) {
+		selectedPresetIndex = index;
+	}
+
+	public static PhotoSettings appliedSettings() {
+		return appliedSettings;
+	}
+
+	public static void setExposure(int exposure) {
+		appliedSettings = new PhotoSettings(
+				exposure,
+				appliedSettings.contrast(),
+				appliedSettings.saturation(),
+				appliedSettings.temperature(),
+				appliedSettings.brightness(),
+				appliedSettings.vignette()
+		);
+	}
+
+	public static void setContrast(int contrast) {
+		appliedSettings = new PhotoSettings(
+				appliedSettings.exposure(),
+				contrast,
+				appliedSettings.saturation(),
+				appliedSettings.temperature(),
+				appliedSettings.brightness(),
+				appliedSettings.vignette()
+		);
+	}
+
+	public static void setSaturation(int saturation) {
+		appliedSettings = new PhotoSettings(
+				appliedSettings.exposure(),
+				appliedSettings.contrast(),
+				saturation,
+				appliedSettings.temperature(),
+				appliedSettings.brightness(),
+				appliedSettings.vignette()
+		);
+	}
+
+	public static void setTemperature(int temperature) {
+		appliedSettings = new PhotoSettings(
+				appliedSettings.exposure(),
+				appliedSettings.contrast(),
+				appliedSettings.saturation(),
+				temperature,
+				appliedSettings.brightness(),
+				appliedSettings.vignette()
+		);
+	}
+
+	public static void setBrightness(int brightness) {
+		appliedSettings = new PhotoSettings(
+				appliedSettings.exposure(),
+				appliedSettings.contrast(),
+				appliedSettings.saturation(),
+				appliedSettings.temperature(),
+				brightness,
+				appliedSettings.vignette()
+		);
+	}
+
+	public static void setVignette(int vignette) {
+		appliedSettings = new PhotoSettings(
+				appliedSettings.exposure(),
+				appliedSettings.contrast(),
+				appliedSettings.saturation(),
+				appliedSettings.temperature(),
+				appliedSettings.brightness(),
+				vignette
+		);
 	}
 }

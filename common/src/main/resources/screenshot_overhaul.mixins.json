@@ -33,6 +33,8 @@
 		"OptionsMixin",
 		"ParticleEngineMixin",
 		"PauseScreenMixin",
+		"PostChainAccessor",
+		"PostPassAccessor",
 		"ScreenMixin",
 		"ScreenshotMixin",
 		"TitleScreenMixin",
