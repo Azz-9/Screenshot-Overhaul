@@ -115,6 +115,7 @@
 	"screenshot_overhaul.config.grab_on_advancement": "Faire une capture d'écran lors d'un succcès",
 	"screenshot_overhaul.config.advancement_screenshot_delay": "Retard des captures d'écran des succès en ticks",
 	"screenshot_overhaul.config.show_screenshot_preview": "Afficher la prévisualisation",
+	"screenshot_overhaul.config.screenshot_sound": "Son de capture d'écran",
 	"screenshot_overhaul.config.panorama_folder_name": "Nom de dossier des panorama",
 	"screenshot_overhaul.config.panorama_folder_name.invalid": "Nom de dossier invalide",
 	"screenshot_overhaul.config.panorama_resolution": "Résolution des panoramas en pixel",
