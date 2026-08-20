@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import me.Azz_9.screenshot_overhaul.client.Sounds;
 import me.Azz_9.screenshot_overhaul.client.config.Config;
 import me.Azz_9.screenshot_overhaul.client.config.ConfigLoader;
 import me.Azz_9.screenshot_overhaul.client.gui.screen.EffectsPanelScreen;
@@ -83,6 +84,8 @@ public class CommonClass {
         // the platform specific approach.
 
 		MINECRAFT = Minecraft.getInstance();
+
+		Sounds.register();
 
 		try {
 			ConfigLoader.load();

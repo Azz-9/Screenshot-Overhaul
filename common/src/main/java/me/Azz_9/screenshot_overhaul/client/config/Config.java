@@ -40,6 +40,7 @@ public final class Config {
 	public final @NonNull ConfigObject<String> screenshotsFileName = ConfigObject.withApplier("<datetime>", "screenshot_overhaul.config.screenshots_file_name", String.class, pattern -> ScreenshotFileNameParser.validate(pattern) ? pattern : "<datetime>");
 	public final @NonNull ConfigObject<Boolean> showChatMessage = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_chat_message", Boolean.class);
 	public final @NonNull ConfigObject<Boolean> showPreview = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_screenshot_preview", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> screenshotSound = ConfigObject.nonNull(false, "screenshot_overhaul.config.screenshot_sound", Boolean.class);
 	public final @NonNull ConfigObject<Boolean> hideChatOnScreenshot = ConfigObject.nonNull(false, "screenshot_overhaul.config.hide_chat_on_screenshot", Boolean.class);
 	public final @NonNull ConfigObject<Boolean> hideHudOnScreenshot = ConfigObject.nonNull(false, "screenshot_overhaul.config.hide_hud_on_screenshot", Boolean.class);
 	public final @NonNull ConfigObject<Boolean> hideHandOnScreenshot = ConfigObject.nonNull(false, "screenshot_overhaul.config.hide_hand_on_screenshot", Boolean.class);
@@ -116,6 +117,9 @@ public final class Config {
 		BooleanConfigOption showPreview = BooleanConfigOption.builder(Config.getInstance().showPreview)
 				.dependsOn(enableWholeMod)
 				.build();
+		BooleanConfigOption screenshotSound = BooleanConfigOption.builder(Config.getInstance().screenshotSound)
+				.dependsOn(enableWholeMod)
+				.build();
 		BooleanConfigOption hideHudOnScreenshot = BooleanConfigOption.builder(Config.getInstance().hideHudOnScreenshot)
 				.dependsOn(enableWholeMod)
 				.build();
@@ -139,6 +143,7 @@ public final class Config {
 				.option(screenshotsDir)
 				.option(showChatMessage)
 				.option(showPreview)
+				.option(screenshotSound)
 				.section(Component.translatable("screenshot_overhaul.config.section.hidden_element"))
 				.option(hideHudOnScreenshot)
 				.option(hideChatOnScreenshot)

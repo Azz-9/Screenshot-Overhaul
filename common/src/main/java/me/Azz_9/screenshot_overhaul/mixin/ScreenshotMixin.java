@@ -1,5 +1,7 @@
 package me.Azz_9.screenshot_overhaul.mixin;
 
+import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
+
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -28,6 +30,7 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.util.function.Consumer;
 
+import me.Azz_9.screenshot_overhaul.client.Sounds;
 import me.Azz_9.screenshot_overhaul.client.config.Config;
 import me.Azz_9.screenshot_overhaul.client.metadata.MetadataUtils;
 import me.Azz_9.screenshot_overhaul.client.panorama.PanoramaFaceContext;
@@ -163,6 +166,10 @@ public abstract class ScreenshotMixin {
 					Config.getInstance().getAbsoluteScreenshotsDir().relativize(file.toPath()).toString(),
 					true
 			);
+		}
+
+		if (Config.getInstance().screenshotSound.getValue() && faceCtx == null || faceCtx.faceIndex() == 0) { // play once for panorama
+			MINECRAFT.player.playSound(Sounds.SHUTTER, 1, 1);
 		}
 	}
 
