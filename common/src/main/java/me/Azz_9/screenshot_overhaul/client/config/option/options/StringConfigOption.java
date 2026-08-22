@@ -32,10 +32,6 @@ public final class StringConfigOption extends AbstractConfigOption<String> {
 		return maxLength;
 	}
 
-	// -------------------------------------------------------------------------
-	// Builder
-	// -------------------------------------------------------------------------
-
 	public static @NonNull Builder builder(@NonNull ConfigObject<String> configObject) {
 		return new Builder(configObject);
 	}

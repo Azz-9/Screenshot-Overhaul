@@ -2,7 +2,6 @@ package me.Azz_9.screenshot_overhaul.client.gui.components;
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
 
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -11,14 +10,17 @@ import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.function.Predicate;
+
 import me.Azz_9.screenshot_overhaul.client.gui.focusSystem.FocusableScreen;
 
-public class PlaceholderEditBox extends EditBox {
+public class CustomEditBox extends EditBox {
 
 	private int placeholderColor = 0xffa0a0a0;
 	private @Nullable Component placeholderText;
+	private @Nullable Predicate<String> filter;
 
-	public PlaceholderEditBox(int x, int y, int width, int height, @NonNull Component text) {
+	public CustomEditBox(int x, int y, int width, int height, @NonNull Component text) {
 		super(MINECRAFT.font, x, y, width, height, text);
 	}
 
@@ -50,5 +52,16 @@ public class PlaceholderEditBox extends EditBox {
 			screen.requestFocus(this);
 		}
 		super.onClick(event, doubleClick);
+	}
+
+	public void setFilter(@Nullable Predicate<String> filter) {
+		this.filter = filter;
+	}
+
+	@Override
+	public void insertText(@NonNull String input) {
+		if (filter != null && filter.test(input)) {
+			super.insertText(input);
+		}
 	}
 }

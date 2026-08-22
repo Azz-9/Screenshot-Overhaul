@@ -1,9 +1,6 @@
 package me.Azz_9.screenshot_overhaul.client.gui.components.config.concreteOptionWidgets;
 
-import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
-
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
 
@@ -14,13 +11,14 @@ import java.util.function.Consumer;
 import me.Azz_9.screenshot_overhaul.client.Colors;
 import me.Azz_9.screenshot_overhaul.client.config.option.ConfigOptionWidget;
 import me.Azz_9.screenshot_overhaul.client.config.option.options.IntFieldConfigOption;
+import me.Azz_9.screenshot_overhaul.client.gui.components.CustomEditBox;
 
 /**
  * Row widget for {@link IntFieldConfigOption}.
  */
 public final class IntFieldConfigOptionWidget extends ConfigOptionWidget<Integer> {
 
-	private EditBox editBox;
+	private CustomEditBox editBox;
 
 	public IntFieldConfigOptionWidget(int x, int y, int width, @NonNull IntFieldConfigOption option, @NonNull Consumer<GuiEventListener> onFocusRequested) {
 		super(x, y, width, option, onFocusRequested);
@@ -28,9 +26,9 @@ public final class IntFieldConfigOptionWidget extends ConfigOptionWidget<Integer
 
 	@Override
 	protected @NonNull AbstractWidget createControlWidget(int x, int y, int width) {
-		editBox = new EditBox(MINECRAFT.font, x, y, width, ROW_HEIGHT, Component.empty());
+		editBox = new CustomEditBox(x, y, width, ROW_HEIGHT, Component.empty());
 		editBox.setValue(String.valueOf(option.getWorkingValue()));
-		//editBox.setFilter(s -> s.isEmpty() || s.matches("-?\\d*"));
+		editBox.setFilter(s -> s.isEmpty() || s.matches("-?\\d*"));
 		editBox.setResponder(text -> {
 			try {
 				int val = Integer.parseInt(text);

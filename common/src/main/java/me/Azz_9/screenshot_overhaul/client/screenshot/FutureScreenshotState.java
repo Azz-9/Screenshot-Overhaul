@@ -12,15 +12,12 @@ public class FutureScreenshotState {
 
 	public static volatile @Nullable Runnable pendingCapture = null;
 
-	public static @Nullable Runnable reset() {
+	public static void reset() {
 		suppressHud = false;
 		suppressChat = false;
 		suppressHand = false;
 		captureRequested = false;
-		Runnable grabber = pendingCapture;
 		pendingCapture = null;
-
-		return grabber;
 	}
 
 	public static boolean shouldRequestScreenshot() {

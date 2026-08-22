@@ -37,7 +37,7 @@ public final class ConfigOptionWidgetFactory {
 	 */
 	public static @NonNull ConfigOptionWidget<?> create(int x, int y, int width, @NonNull ConfigOption<?> option) {
 		Consumer<GuiEventListener> focusRequester = widget -> {
-			if (MINECRAFT.gui.screen() instanceof FocusableScreen fs) fs.requestFocus(widget);
+			if (MINECRAFT.gui.screen() instanceof FocusableScreen screen) screen.requestFocus(widget);
 		};
 
 		ConfigOptionWidget<?> widget = switch (option) {
@@ -47,6 +47,7 @@ public final class ConfigOptionWidgetFactory {
 			case IntFieldConfigOption o -> new IntFieldConfigOptionWidget(x, y, width, o, focusRequester);
 			case StringConfigOption o -> new StringConfigOptionWidget(x, y, width, o, focusRequester);
 			case PathConfigOption o -> new PathConfigOptionWidget(x, y, width, o, focusRequester);
+			case ResolutionConfigOption o -> new ResolutionConfigOptionWidget(x, y, width, o, focusRequester);
 			default -> throw new IllegalArgumentException(
 					"No widget registered for option type: " + option.getClass().getName());
 		};

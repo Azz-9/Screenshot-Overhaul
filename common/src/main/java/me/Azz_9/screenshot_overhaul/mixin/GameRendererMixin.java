@@ -40,9 +40,12 @@ public abstract class GameRendererMixin {
 		if (!FutureScreenshotState.captureRequested) return;
 
 		// Reset immédiatement pour ne pas affecter les frames suivantes
-		Runnable grabber = FutureScreenshotState.reset();
+		Runnable pendingCapture = FutureScreenshotState.pendingCapture;
+		if (pendingCapture != null) {
+			pendingCapture.run();
+		}
 
-		if (grabber != null) grabber.run();
+		FutureScreenshotState.reset();
 	}
 
 	@ModifyVariable(method = "render", at = @At("HEAD"), argsOnly = true, name = "deltaTracker")

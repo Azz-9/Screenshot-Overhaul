@@ -4,6 +4,7 @@ import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -59,6 +60,9 @@ public abstract class SimpleParentWidget extends AbstractWidget implements Conta
 				simpleParentWidget.setActive(active);
 			} else if (child instanceof AbstractWidget clickableWidget) {
 				clickableWidget.active = active;
+			}
+			if (child instanceof EditBox editBox) {
+				editBox.setEditable(active);
 			}
 		}
 	}

@@ -12,8 +12,10 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.platform.Window;
 
 import net.minecraft.TracingExecutor;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Screenshot;
 import net.minecraft.network.chat.Component;
 
@@ -30,6 +32,7 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.util.function.Consumer;
 
+import me.Azz_9.screenshot_overhaul.CommonClass;
 import me.Azz_9.screenshot_overhaul.client.Sounds;
 import me.Azz_9.screenshot_overhaul.client.config.Config;
 import me.Azz_9.screenshot_overhaul.client.metadata.MetadataUtils;
@@ -87,8 +90,31 @@ public abstract class ScreenshotMixin {
 	private static void wrapTakeScreenshot(RenderTarget target, int downscaleFactor, Consumer<NativeImage> consumer, Operation<Void> original) {
 		PanoramaFaceContext faceCtx = ScreenshotContext.PANORAMA_FACE.get();
 
+		if (MINECRAFT.player != null && Config.getInstance().screenshotSound.getValue() && (faceCtx == null || faceCtx.faceIndex() == 0)) {
+			// play shutter sound
+			MINECRAFT.player.playSound(Sounds.SHUTTER, 1, 1);
+		}
+
+		CommonClass.lastScreenshotTime = System.currentTimeMillis();
+
 		if (faceCtx == null) {
+			Window window = MINECRAFT.getWindow();
+			int originalWidth = window.getWidth();
+			int originalHeight = window.getHeight();
+			Config.Resolution2D resolution = Config.getInstance().screenshotResolution.getValue();
+			window.setWidth(resolution.width());
+			window.setHeight(resolution.height());
+			target.resize(resolution.width(), resolution.height());
+
+			MINECRAFT.gameRenderer.update(DeltaTracker.ONE);
+			MINECRAFT.gameRenderer.extract(DeltaTracker.ONE, true);
+			MINECRAFT.gameRenderer.renderLevel(DeltaTracker.ONE);
+
 			original.call(target, downscaleFactor, consumer);
+
+			window.setWidth(originalWidth);
+			window.setHeight(originalHeight);
+			target.resize(originalWidth, originalHeight);
 			return;
 		}
 
@@ -174,10 +200,6 @@ public abstract class ScreenshotMixin {
 					Config.getInstance().getAbsoluteScreenshotsDir().relativize(file.toPath()).toString(),
 					true
 			);
-		}
-
-		if (Config.getInstance().screenshotSound.getValue() && (faceCtx == null || faceCtx.faceIndex() == 0)) { // play once for panorama
-			MINECRAFT.player.playSound(Sounds.SHUTTER, 1, 1);
 		}
 	}
 
