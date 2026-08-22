@@ -41,10 +41,6 @@ public final class IntFieldConfigOption extends AbstractConfigOption<Integer> {
 		return max;
 	}
 
-	// -------------------------------------------------------------------------
-	// Builder
-	// -------------------------------------------------------------------------
-
 	public static @NonNull Builder builder(@NonNull ConfigObject<Integer> configObject) {
 		return new Builder(configObject);
 	}

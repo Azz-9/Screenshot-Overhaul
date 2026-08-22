@@ -37,10 +37,6 @@ public final class IntSliderConfigOption extends AbstractConfigOption<Integer> {
 		return max;
 	}
 
-	// -------------------------------------------------------------------------
-	// Builder
-	// -------------------------------------------------------------------------
-
 	public static @NonNull Builder builder(@NonNull ConfigObject<Integer> configObject, int min, int max) {
 		return new Builder(configObject, min, max);
 	}

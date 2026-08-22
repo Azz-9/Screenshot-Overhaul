@@ -10,6 +10,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.LevelLoadingScreen;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.Ease;
 
 import org.jspecify.annotations.NonNull;
 
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import me.Azz_9.screenshot_overhaul.client.Colors;
 import me.Azz_9.screenshot_overhaul.client.Sounds;
 import me.Azz_9.screenshot_overhaul.client.config.Config;
 import me.Azz_9.screenshot_overhaul.client.config.ConfigLoader;
@@ -51,6 +54,9 @@ public class CommonClass {
 	private static KeyMapping panoramaScreenshot;
 
 	private static final List<RunnableState> runnableStates = new ArrayList<>();
+
+	public static final int FLASH_DURATION = 1000;
+	public static long lastScreenshotTime = -1;
 
 	public static @NonNull KeyMapping getOpenPhotoModeKeybind() {
 		return openPhotoMode;
@@ -179,6 +185,12 @@ public class CommonClass {
 		// screenshot preview
 		if (MINECRAFT.screen == null && !MINECRAFT.options.hideGui)
 			ScreenshotPreview.render(graphics, 0, 0, deltaTracker.getGameTimeDeltaPartialTick(true));
+
+		// screenshot flash
+		long elapsed = System.currentTimeMillis() - lastScreenshotTime;
+		if (Config.getInstance().screenshotFlash.getValue() && elapsed < FLASH_DURATION) {
+			graphics.fill(0, 0, graphics.guiWidth(), graphics.guiHeight(), ARGB.color(1 - Ease.outCubic((float) elapsed / FLASH_DURATION), Colors.WHITE));
+		}
 
 		// hide hud in PhotoMode
 		return PhotoMode.isEnabled();

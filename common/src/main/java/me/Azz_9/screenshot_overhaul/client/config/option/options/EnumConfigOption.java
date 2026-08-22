@@ -69,10 +69,6 @@ public final class EnumConfigOption<E extends Enum<E>> extends AbstractConfigOpt
 		return constants[(current.ordinal() + 1) % constants.length];
 	}
 
-	// -------------------------------------------------------------------------
-	// Builder
-	// -------------------------------------------------------------------------
-
 	public static <E extends Enum<E>> @NonNull Builder<E> builder(
 			@NonNull ConfigObject<E> configObject,
 			@NonNull Class<E> enumClass

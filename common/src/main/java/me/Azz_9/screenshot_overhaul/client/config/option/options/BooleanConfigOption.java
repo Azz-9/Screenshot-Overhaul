@@ -23,10 +23,6 @@ public final class BooleanConfigOption extends AbstractConfigOption<Boolean> {
 		);
 	}
 
-	// -------------------------------------------------------------------------
-	// Builder
-	// -------------------------------------------------------------------------
-
 	public static @NonNull Builder builder(@NonNull ConfigObject<Boolean> configObject) {
 		return new Builder(configObject);
 	}

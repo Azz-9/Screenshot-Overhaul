@@ -138,10 +138,6 @@ public final class PathConfigOptionWidget extends ConfigOptionWidget<Path> {
 		refreshValidation();
 	}
 
-	// -------------------------------------------------------------------------
-	// Composite helper — wraps two widgets as one for the parent contract
-	// -------------------------------------------------------------------------
-
 	private static final class CompositeControlWidget extends AbstractWidget {
 
 		private final @NonNull AbstractWidget first;

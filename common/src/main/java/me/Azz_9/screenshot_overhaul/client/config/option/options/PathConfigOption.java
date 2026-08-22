@@ -73,10 +73,6 @@ public final class PathConfigOption extends AbstractConfigOption<Path> {
 		return fileExtensionDescription;
 	}
 
-	// -------------------------------------------------------------------------
-	// Builder
-	// -------------------------------------------------------------------------
-
 	public static @NonNull Builder builder(@NonNull ConfigObject<Path> configObject) {
 		return new Builder(configObject);
 	}

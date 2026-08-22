@@ -28,7 +28,7 @@ import java.util.Objects;
 import java.util.function.*;
 
 import me.Azz_9.screenshot_overhaul.client.Colors;
-import me.Azz_9.screenshot_overhaul.client.gui.components.PlaceholderEditBox;
+import me.Azz_9.screenshot_overhaul.client.gui.components.CustomEditBox;
 import me.Azz_9.screenshot_overhaul.client.gui.components.SimpleParentWidget;
 import me.Azz_9.screenshot_overhaul.client.gui.components.SmoothScrollableWidget;
 import me.Azz_9.screenshot_overhaul.client.metadata.Metadata;
@@ -348,7 +348,7 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 
 	private static final class NumberField<N extends Number> extends SimpleParentWidget {
 
-		private final @NonNull PlaceholderEditBox editBox;
+		private final @NonNull CustomEditBox editBox;
 		private final @Nullable Function<@Nullable N, @Nullable Component> tooltip;
 		private final N[] current;
 		private boolean valid = true;
@@ -374,7 +374,7 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 			addRenderableChild(new StringWidget(
 					x, y, width, LABEL_HEIGHT, label, MINECRAFT.font));
 
-			editBox = new PlaceholderEditBox(
+			editBox = new CustomEditBox(
 					x + BUTTON_WIDTH, y + LABEL_HEIGHT,
 					width - BUTTON_WIDTH * 3, FIELD_HEIGHT,
 					Component.empty());
@@ -472,7 +472,7 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 
 	private static final class StringField extends SimpleParentWidget {
 
-		private final @NonNull PlaceholderEditBox editBox;
+		private final @NonNull CustomEditBox editBox;
 		private final @Nullable Function<@Nullable String, @Nullable Component> tooltip;
 		private @Nullable String currentValue;
 		private boolean valid = true;
@@ -492,7 +492,7 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 			addRenderableChild(new StringWidget(
 					x, y, width, LABEL_HEIGHT, label, MINECRAFT.font));
 
-			editBox = new PlaceholderEditBox(
+			editBox = new CustomEditBox(
 					x, y + LABEL_HEIGHT,
 					width - BUTTON_WIDTH, FIELD_HEIGHT,
 					Component.empty());
@@ -548,7 +548,7 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 
 	private static <T> void renderFieldTooltip(
 			@NonNull GuiGraphicsExtractor graphics,
-			@NonNull PlaceholderEditBox editBox,
+			@NonNull CustomEditBox editBox,
 			@Nullable Function<@Nullable T, @Nullable Component> tooltip,
 			@Nullable T value,
 			int mouseX, int mouseY

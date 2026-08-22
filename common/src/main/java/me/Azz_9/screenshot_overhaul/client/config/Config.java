@@ -25,6 +25,9 @@ import me.Azz_9.screenshot_overhaul.compat.CompatManager;
 import me.Azz_9.screenshot_overhaul.utils.PathUtils;
 
 public final class Config {
+	public static final int MIN_WINDOW_SIZE = 1;
+	public static final int MAX_WINDOW_SIZE = 16_384;
+
 	private static final @NonNull Config INSTANCE = new Config();
 
 	public final @NonNull ConfigObject<Boolean> enableWholeMod = ConfigObject.nonNull(true, "screenshot_overhaul.config.enable_whole_mod", Boolean.class);
@@ -38,9 +41,12 @@ public final class Config {
 
 	public final @NonNull ConfigObject<Path> screenshotsDir = ConfigObject.withApplier(Path.of("screenshots"), "screenshot_overhaul.config.screenshots_dir", Path.class, path -> path != null ? PathUtils.toStoredPath(path) : Path.of("screenshots"));
 	public final @NonNull ConfigObject<String> screenshotsFileName = ConfigObject.withApplier("<datetime>", "screenshot_overhaul.config.screenshots_file_name", String.class, pattern -> ScreenshotFileNameParser.validate(pattern) ? pattern : "<datetime>");
+	public final @NonNull ConfigObject<Boolean> useCustomResolution = ConfigObject.nonNull(false, "screenshot_overhaul.config.use_custom_resolution", Boolean.class);
+	public final @NonNull ConfigObject<Resolution2D> screenshotResolution = ConfigObject.withApplier(Resolution2D.QHD(), "screenshot_overhaul.config.resolution", Resolution2D.class, this::applyScreenshotResolution);
 	public final @NonNull ConfigObject<Boolean> showChatMessage = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_chat_message", Boolean.class);
 	public final @NonNull ConfigObject<Boolean> showPreview = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_screenshot_preview", Boolean.class);
 	public final @NonNull ConfigObject<Boolean> screenshotSound = ConfigObject.nonNull(false, "screenshot_overhaul.config.screenshot_sound", Boolean.class);
+	public final @NonNull ConfigObject<Boolean> screenshotFlash = ConfigObject.nonNull(false, "screenshot_overhaul.config.screenshot_flash", Boolean.class);
 	public final @NonNull ConfigObject<Boolean> hideChatOnScreenshot = ConfigObject.nonNull(false, "screenshot_overhaul.config.hide_chat_on_screenshot", Boolean.class);
 	public final @NonNull ConfigObject<Boolean> hideHudOnScreenshot = ConfigObject.nonNull(false, "screenshot_overhaul.config.hide_hud_on_screenshot", Boolean.class);
 	public final @NonNull ConfigObject<Boolean> hideHandOnScreenshot = ConfigObject.nonNull(false, "screenshot_overhaul.config.hide_hand_on_screenshot", Boolean.class);
@@ -77,6 +83,18 @@ public final class Config {
 		return absolute;
 	}
 
+	public Resolution2D applyScreenshotResolution(@Nullable Resolution2D resolution) {
+		if (resolution == null) {
+			return Resolution2D.QHD();
+		}
+
+		if (resolution.width() < MIN_WINDOW_SIZE || resolution.width() > MAX_WINDOW_SIZE || resolution.height() < MIN_WINDOW_SIZE || resolution.height() > MAX_WINDOW_SIZE) {
+			return new Resolution2D(Math.clamp(resolution.width(), MIN_WINDOW_SIZE, MAX_WINDOW_SIZE), Math.clamp(resolution.height(), MIN_WINDOW_SIZE, MAX_WINDOW_SIZE));
+		}
+
+		return resolution;
+	}
+
 	public @NonNull Screen getSettingsScreen(@Nullable Screen currentScreen) {
 		SettingsScreen screen = new SettingsScreen(currentScreen);
 
@@ -111,6 +129,16 @@ public final class Config {
 				.selectionMode(PathConfigOption.SelectionMode.DIRECTORIES_ONLY)
 				.dependsOn(enableWholeMod)
 				.build();
+		BooleanConfigOption useCustomResolution = BooleanConfigOption.builder(Config.getInstance().useCustomResolution)
+				.dependsOn(enableWholeMod)
+				.build();
+		ResolutionConfigOption screenshotResolution = ResolutionConfigOption.builder(Config.getInstance().screenshotResolution)
+				.addPreset(Resolution2D.fullHD(), Component.literal("Full HD"))
+				.addPreset(Resolution2D.QHD(), Component.literal("QHD"))
+				.addPreset(Resolution2D.UHD(), Component.literal("UHD"))
+				.dependsOn(useCustomResolution)
+				.dependsOn(enableWholeMod)
+				.build();
 		BooleanConfigOption showChatMessage = BooleanConfigOption.builder(Config.getInstance().showChatMessage)
 				.dependsOn(enableWholeMod)
 				.build();
@@ -118,6 +146,9 @@ public final class Config {
 				.dependsOn(enableWholeMod)
 				.build();
 		BooleanConfigOption screenshotSound = BooleanConfigOption.builder(Config.getInstance().screenshotSound)
+				.dependsOn(enableWholeMod)
+				.build();
+		BooleanConfigOption screenshotFlash = BooleanConfigOption.builder(Config.getInstance().screenshotFlash)
 				.dependsOn(enableWholeMod)
 				.build();
 		BooleanConfigOption hideHudOnScreenshot = BooleanConfigOption.builder(Config.getInstance().hideHudOnScreenshot)
@@ -141,9 +172,12 @@ public final class Config {
 		ConfigTabContent screenshotContent = ConfigTabContent.builder()
 				.option(screenshotsFileName)
 				.option(screenshotsDir)
+				.option(useCustomResolution)
+				.option(screenshotResolution)
 				.option(showChatMessage)
 				.option(showPreview)
 				.option(screenshotSound)
+				.option(screenshotFlash)
 				.section(Component.translatable("screenshot_overhaul.config.section.hidden_element"))
 				.option(hideHudOnScreenshot)
 				.option(hideChatOnScreenshot)
@@ -238,6 +272,29 @@ public final class Config {
 
 		public @NonNull Component getText() {
 			return Component.translatable(getTranslationKey());
+		}
+	}
+
+	public record Resolution2D(int width, int height) {
+		public static Resolution2D fullHD() {
+			return new Resolution2D(1920, 1080);
+		}
+
+		public static Resolution2D QHD() {
+			return new Resolution2D(2560, 1440);
+		}
+
+		public static Resolution2D UHD() {
+			return new Resolution2D(3840, 2160);
+		}
+
+		public Resolution2D copy() {
+			return new Resolution2D(width, height);
+		}
+
+		@Override
+		public @NonNull String toString() {
+			return width + "x" + height;
 		}
 	}
 }
