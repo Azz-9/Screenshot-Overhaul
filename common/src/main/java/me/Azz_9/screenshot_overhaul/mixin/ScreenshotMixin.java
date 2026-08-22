@@ -17,6 +17,7 @@ import com.mojang.blaze3d.platform.Window;
 import net.minecraft.TracingExecutor;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Screenshot;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.Nullable;
@@ -90,9 +91,9 @@ public abstract class ScreenshotMixin {
 	private static void wrapTakeScreenshot(RenderTarget target, int downscaleFactor, Consumer<NativeImage> consumer, Operation<Void> original) {
 		PanoramaFaceContext faceCtx = ScreenshotContext.PANORAMA_FACE.get();
 
-		if (MINECRAFT.player != null && Config.getInstance().screenshotSound.getValue() && (faceCtx == null || faceCtx.faceIndex() == 0)) {
+		if (Config.getInstance().screenshotSound.getValue() && (faceCtx == null || faceCtx.faceIndex() == 0)) {
 			// play shutter sound
-			MINECRAFT.player.playSound(Sounds.SHUTTER, 1, 1);
+			MINECRAFT.getSoundManager().play(SimpleSoundInstance.forUI(Sounds.SHUTTER, 1, 1));
 		}
 
 		CommonClass.lastScreenshotTime = System.currentTimeMillis();
@@ -101,20 +102,25 @@ public abstract class ScreenshotMixin {
 			Window window = MINECRAFT.getWindow();
 			int originalWidth = window.getWidth();
 			int originalHeight = window.getHeight();
-			Config.Resolution2D resolution = Config.getInstance().screenshotResolution.getValue();
-			window.setWidth(resolution.width());
-			window.setHeight(resolution.height());
-			target.resize(resolution.width(), resolution.height());
 
-			MINECRAFT.gameRenderer.update(DeltaTracker.ONE);
-			MINECRAFT.gameRenderer.extract(DeltaTracker.ONE, true);
-			MINECRAFT.gameRenderer.renderLevel(DeltaTracker.ONE);
+			if (Config.getInstance().allowCustomResolution()) {
+				Config.Resolution2D resolution = Config.getInstance().screenshotResolution.getValue();
+				window.setWidth(resolution.width());
+				window.setHeight(resolution.height());
+				target.resize(resolution.width(), resolution.height());
+
+				MINECRAFT.gameRenderer.update(DeltaTracker.ONE);
+				MINECRAFT.gameRenderer.extract(DeltaTracker.ONE, true);
+				MINECRAFT.gameRenderer.renderLevel(DeltaTracker.ONE);
+			}
 
 			original.call(target, downscaleFactor, consumer);
 
-			window.setWidth(originalWidth);
-			window.setHeight(originalHeight);
-			target.resize(originalWidth, originalHeight);
+			if (Config.getInstance().allowCustomResolution()) {
+				window.setWidth(originalWidth);
+				window.setHeight(originalHeight);
+				target.resize(originalWidth, originalHeight);
+			}
 			return;
 		}
 

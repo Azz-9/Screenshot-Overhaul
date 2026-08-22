@@ -200,13 +200,22 @@ public class CommonClass {
 			ScreenshotPreview.render(graphics, 0, 0, deltaTracker.getGameTimeDeltaPartialTick(true));
 
 		// screenshot flash
+		if (MINECRAFT.gui.screen() == null)
+			renderScreenshotFlash(graphics);
+
+		// hide hud in PhotoMode
+		return PhotoMode.isEnabled();
+	}
+
+	public static void screenRenderTailHook(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+		renderScreenshotFlash(graphics);
+	}
+
+	private static void renderScreenshotFlash(@NonNull GuiGraphicsExtractor graphics) {
 		long elapsed = System.currentTimeMillis() - lastScreenshotTime;
 		if (Config.getInstance().screenshotFlash.getValue() && elapsed < FLASH_DURATION) {
 			graphics.fill(0, 0, graphics.guiWidth(), graphics.guiHeight(), ARGB.color(1 - Ease.outCubic((float) elapsed / FLASH_DURATION), Colors.WHITE));
 		}
-
-		// hide hud in PhotoMode
-		return PhotoMode.isEnabled();
 	}
 
 	private static void onScreenshotDirectoryChanged(Path path) {
