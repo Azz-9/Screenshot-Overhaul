@@ -1,5 +1,6 @@
 package me.Azz_9.screenshot_overhaul.client.config;
 
+import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
 import static me.Azz_9.screenshot_overhaul.CommonClass.PHOTO_MODE_ENABLED;
 import static me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotFileNameParser.MAX_FILE_STEM_LENGTH;
 
@@ -93,6 +94,10 @@ public final class Config {
 		}
 
 		return resolution;
+	}
+
+	public boolean allowCustomResolution() {
+		return useCustomResolution.getValue() && MINECRAFT.level != null;
 	}
 
 	public @NonNull Screen getSettingsScreen(@Nullable Screen currentScreen) {

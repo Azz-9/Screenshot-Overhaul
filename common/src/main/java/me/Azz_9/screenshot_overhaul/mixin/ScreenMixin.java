@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
+import me.Azz_9.screenshot_overhaul.CommonClass;
 import me.Azz_9.screenshot_overhaul.client.gui.components.screenshotGallery.ScreenshotPreviewWidget;
 import me.Azz_9.screenshot_overhaul.client.preview.ScreenshotPreview;
 
@@ -55,10 +56,12 @@ public abstract class ScreenMixin {
 	}
 
 	@Inject(method = "extractRenderStateWithTooltipAndSubtitles", at = @At("TAIL"))
-	private void extractPreviewRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci) {
+	private void extractPreviewRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta, CallbackInfo ci) {
 		if (screenshot_overhaul$previewWidget != null) {
-			screenshot_overhaul$previewWidget.extractRenderState(graphics, mouseX, mouseY, a);
+			screenshot_overhaul$previewWidget.extractRenderState(graphics, mouseX, mouseY, delta);
 		}
+
+		CommonClass.screenRenderTailHook(graphics, mouseX, mouseY, delta);
 	}
 
 	@Unique
