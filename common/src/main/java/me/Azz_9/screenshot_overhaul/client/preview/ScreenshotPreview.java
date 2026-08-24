@@ -28,7 +28,7 @@ public class ScreenshotPreview {
 	private static final int SLIDE_DURATION = 400;
 	private static final int HOLD_DURATION = 5000;
 	public static final int PREVIEW_WIDTH = 150;
-	private static final int MARGIN = 8;
+	private static final int MARGIN = 19;
 	public static final int BAR_HEIGHT = 3;
 	private static final int SHADOW_OFFSET = 3;
 	private static final int HOVER_FADE_DURATION = 200;
@@ -127,14 +127,12 @@ public class ScreenshotPreview {
 		int screenW = MINECRAFT.getWindow().getGuiScaledWidth();
 		int screenH = MINECRAFT.getWindow().getGuiScaledHeight();
 
-		// Calcul de la hauteur en conservant le ratio
-		int previewH = Math.round(PREVIEW_WIDTH * screenshotTexture.height() / (float) screenshotTexture.width());
+		int previewH = getPreviewHeight();
 
-		// Calcul de l'offset de slide (0 = visible, PREVIEW_WIDTH + MARGIN = hors écran à droite)
 		float slideOffset = computeSlideOffset(elapsed);
 
-		int x = (int) (screenW - PREVIEW_WIDTH - MARGIN + slideOffset);
-		int y = screenH - previewH - MARGIN - BAR_HEIGHT - 2;
+		int x = (int) (getX(screenW) + slideOffset);
+		int y = getY(screenH);
 
 		// Shadow
 		graphics.fill(
@@ -144,7 +142,7 @@ public class ScreenshotPreview {
 		);
 
 		// Image
-		ScreenshotDrawHelper.drawFit(graphics, screenshotTexture, x, y, PREVIEW_WIDTH, previewH);
+		ScreenshotDrawHelper.drawCover(graphics, screenshotTexture, x, y, PREVIEW_WIDTH, previewH);
 
 		// Barre de progression (temps restant)
 		float holdProgress;
@@ -205,12 +203,15 @@ public class ScreenshotPreview {
 
 	public static int getY(int screenH) {
 		int previewH = getPreviewHeight();
-		return screenH - previewH - MARGIN - BAR_HEIGHT - 2;
+		return screenH - previewH - MARGIN;
 	}
 
 	public static int getPreviewHeight() {
 		if (screenshotTexture == null) return 0;
-		return Math.round(PREVIEW_WIDTH * screenshotTexture.height() / (float) screenshotTexture.width());
+		return Math.min(
+				Math.round(PREVIEW_WIDTH * screenshotTexture.height() / (float) screenshotTexture.width()),
+				MINECRAFT.getWindow().getGuiScaledHeight() - MARGIN * 2
+		);
 	}
 
 	public static boolean isVisible() {
