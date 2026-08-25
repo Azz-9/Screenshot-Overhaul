@@ -1,7 +1,10 @@
 package me.Azz_9.screenshot_overhaul;
 
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.client.Minecraft;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+
+import me.Azz_9.screenshot_overhaul.client.Sounds;
 
 public class ScreenshotOverhaul implements ModInitializer {
 
@@ -16,5 +19,11 @@ public class ScreenshotOverhaul implements ModInitializer {
 
         CommonClass.init();
 		CommonClass.initKeyMappings();
+
+		Registry.register(
+				BuiltInRegistries.SOUND_EVENT,
+				Sounds.SHUTTER_ID,
+				Sounds.SHUTTER
+		);
     }
 }
