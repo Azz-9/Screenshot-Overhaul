@@ -121,9 +121,9 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 	private @NonNull Button createCloseButton() {
 		Button closeButton = SpriteIconButton.CenteredIcon.builder(
 						Component.translatable("screenshot_overhaul.close"),
-						button -> {
-							setVisible(false);
-						}, true)
+						_ -> setVisible(false),
+						true
+				)
 				.withTootip()
 				.sprite(CLOSE_SPRITE, 15, 15)
 				.size(BUTTON_WIDTH, FIELD_HEIGHT)
@@ -184,8 +184,8 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 		return slidingIn;
 	}
 
-	public void setOnVisibilityChange(@Nullable Consumer<Boolean> cb) {
-		this.onVisibilityChange = cb;
+	public void setOnVisibilityChange(@Nullable Consumer<Boolean> onVisibilityChange) {
+		this.onVisibilityChange = onVisibilityChange;
 	}
 
 
@@ -354,6 +354,11 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 		private final N[] current;
 		private boolean valid = true;
 
+		private final @NonNull Predicate<N> validator;
+		private final @NonNull Consumer<@Nullable N> callback;
+		private final @Nullable N initialValue;
+		private final @NonNull Button resetBtn;
+
 		@SuppressWarnings("unchecked")
 		NumberField(
 				@NonNull Component label,
@@ -368,6 +373,9 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 		) {
 			super(x, y, width, height);
 			this.tooltip = tooltip;
+			this.validator = validator;
+			this.callback = callback;
+			this.initialValue = initialValue;
 
 			// Mutable box — lambdas need a stable reference to the current value
 			this.current = (N[]) new Number[]{initialValue};
@@ -382,7 +390,7 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 			editBox.setPlaceholder(FIELD_PLACEHOLDER);
 			editBox.setValue(initialValue == null ? "" : initialValue.toString());
 
-			Button resetBtn = SpriteIconButton.CenteredIcon.builder(
+			resetBtn = SpriteIconButton.CenteredIcon.builder(
 							Component.translatable("screenshot_overhaul.reset"),
 							btn -> {
 								current[0] = initialValue;
@@ -399,29 +407,13 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 			resetBtn.setPosition(x + width - BUTTON_WIDTH, y + LABEL_HEIGHT);
 			resetBtn.active = false;
 
-			Button decrementBtn = Button.builder(Component.literal("-"), btn -> {
-						if (current[0] == null) return;
-						N next = decrement.apply(current[0]);
-						if (!validator.test(next)) return;
-						current[0] = next;
-						editBox.setValue(next.toString());
-						callback.accept(next);
-						resetBtn.active = !Objects.equals(next, initialValue);
-					})
+			Button decrementBtn = Button.builder(Component.literal("-"), _ -> applyOperator(decrement))
 					.tooltip(Tooltip.create(
 							Component.translatable("screenshot_overhaul.int_field.decrement")))
 					.bounds(x, y + LABEL_HEIGHT, BUTTON_WIDTH, FIELD_HEIGHT)
 					.build();
 
-			Button incrementBtn = Button.builder(Component.literal("+"), btn -> {
-						if (current[0] == null) return;
-						N next = increment.apply(current[0]);
-						if (!validator.test(next)) return;
-						current[0] = next;
-						editBox.setValue(next.toString());
-						callback.accept(next);
-						resetBtn.active = !Objects.equals(next, initialValue);
-					})
+			Button incrementBtn = Button.builder(Component.literal("+"), _ -> applyOperator(increment))
 					.tooltip(Tooltip.create(
 							Component.translatable("screenshot_overhaul.int_field.increment")))
 					.bounds(x + width - BUTTON_WIDTH * 2, y + LABEL_HEIGHT, BUTTON_WIDTH, FIELD_HEIGHT)
@@ -458,6 +450,16 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 			addRenderableChild(editBox);
 			addRenderableChild(incrementBtn);
 			addRenderableChild(resetBtn);
+		}
+
+		private void applyOperator(@NonNull UnaryOperator<N> operator) {
+			if (current[0] == null) return;
+			N next = operator.apply(current[0]);
+			if (!validator.test(next)) return;
+			current[0] = next;
+			editBox.setValue(next.toString());
+			callback.accept(next);
+			resetBtn.active = !Objects.equals(next, initialValue);
 		}
 
 		@Override

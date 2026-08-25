@@ -62,7 +62,7 @@ public abstract class BaseScreen extends Screen implements FocusableScreen, Righ
 
 	@Override
 	public boolean mouseClicked(@NonNull MouseButtonEvent event, boolean doubleClick) {
-		getRightClickMenu().hide();
+		hideRightClickMenu();
 		if (getRightClickMenu().mouseClicked(event, doubleClick)) {
 			return true;
 		}

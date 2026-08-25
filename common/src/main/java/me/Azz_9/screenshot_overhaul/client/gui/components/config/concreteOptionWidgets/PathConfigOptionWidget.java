@@ -83,9 +83,10 @@ public final class PathConfigOptionWidget extends ConfigOptionWidget<Path> {
 		// Show the resolved absolute path while hovering the text field
 		if (pathField != null && ((AbstractWidgetAccessor) pathField).invokeAreCoordinatesInRectangle(mouseX, mouseY)) {
 			String absoluteText = PathUtils.toAbsolutePath(option.getWorkingValue()).toString();
-			ScreenRectangle rectangle = Services.PLATFORM.scissorStackPeek(graphics) != null
-					? Services.PLATFORM.scissorStackPeek(graphics)
-					: new ScreenRectangle(0, 0, MINECRAFT.getWindow().getGuiScaledWidth(), MINECRAFT.getWindow().getGuiScaledHeight());
+			ScreenRectangle rectangle = Services.PLATFORM.scissorStackPeek(graphics);
+			if (rectangle == null) {
+				rectangle = new ScreenRectangle(0, 0, MINECRAFT.getWindow().getGuiScaledWidth(), MINECRAFT.getWindow().getGuiScaledHeight());
+			}
 			TooltipRenderer.render(graphics, pathField, absoluteText, rectangle);
 		}
 	}

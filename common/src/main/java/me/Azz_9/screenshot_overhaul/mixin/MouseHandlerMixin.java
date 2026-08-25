@@ -14,7 +14,7 @@ public abstract class MouseHandlerMixin {
 
 	@Inject(method = "onScroll", at = @At("HEAD"), cancellable = true)
 	private void onScroll(long handle, double xoffset, double yoffset, CallbackInfo ci) {
-		if (PhotoMode.onMouseScroll(handle, xoffset, yoffset)) {
+		if (PhotoMode.onMouseScroll(handle, yoffset)) {
 			ci.cancel();
 		}
 	}

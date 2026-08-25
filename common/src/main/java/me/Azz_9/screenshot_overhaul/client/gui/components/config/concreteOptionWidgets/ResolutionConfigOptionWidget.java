@@ -56,7 +56,7 @@ public class ResolutionConfigOptionWidget extends ConfigOptionWidget<Config.Reso
 		private final @NonNull CustomEditBox widthWidget;
 		private final @NonNull CustomEditBox heightWidget;
 
-		private ResolutionConfigOption option;
+		private final ResolutionConfigOption option;
 
 		public ResolutionWidget(int x, int y, int width, @NonNull List<ResolutionConfigOption.ResolutionPreset> presets, @NotNull Config.Resolution2D currentValue, @NonNull ResolutionConfigOption option, @NonNull Runnable refreshValidation) {
 			super(x, y, width, ROW_HEIGHT);

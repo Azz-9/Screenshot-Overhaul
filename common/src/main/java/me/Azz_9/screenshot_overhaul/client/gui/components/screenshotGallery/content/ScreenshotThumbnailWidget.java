@@ -153,9 +153,7 @@ public class ScreenshotThumbnailWidget extends AbstractThumbnailWidget {
 			screen.addRightClickMenuItem(new RightClickMenu.MenuItem(
 					CommonSprites.COPY_SPRITE,
 					Component.translatable("screenshot_overhaul.copy"),
-					_ -> {
-						CopyScreenshot.copyToClipboardWithToastError(screenshotFile, null, null);
-					}
+					_ -> CopyScreenshot.copyToClipboardWithToastError(screenshotFile, null, null)
 			));
 			screen.addRightClickMenuItem(new RightClickMenu.MenuItem(
 					CommonSprites.DELETE_SPRITE,

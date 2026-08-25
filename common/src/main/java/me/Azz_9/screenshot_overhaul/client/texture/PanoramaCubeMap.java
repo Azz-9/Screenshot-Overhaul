@@ -61,10 +61,10 @@ public class PanoramaCubeMap implements AutoCloseable {
 	/**
 	 * Rend la cubemap dans une zone précise du main render target.
 	 *
-	 * @param x, y, width, height  Zone en pixels écran (coordonnées GUI)
+	 * @param width, height  Zone en pixels écran (coordonnées GUI)
 	 * @param rotX, rotY           Rotation en degrés
 	 */
-	public void renderToArea(int x, int y, int width, int height, float rotX, float rotY) {
+	public void renderToArea(int width, int height, float rotX, float rotY) {
 		if (!textureReady) return;
 
 		RenderSystem.assertOnRenderThread();

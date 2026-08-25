@@ -88,7 +88,7 @@ public abstract class ScreenshotMixin {
 					target = "Lnet/minecraft/client/Screenshot;takeScreenshot(Lcom/mojang/blaze3d/pipeline/RenderTarget;ILjava/util/function/Consumer;)V"
 			)
 	)
-	private static void wrapTakeScreenshot(RenderTarget target, int downscaleFactor, Consumer<NativeImage> consumer, Operation<Void> original) {
+	private static void wrapTakeScreenshot(RenderTarget target, int downscaleFactor, Consumer<NativeImage> callback, Operation<Void> original) {
 		PanoramaFaceContext faceCtx = ScreenshotContext.PANORAMA_FACE.get();
 
 		if (Config.getInstance().screenshotSound.getValue() && (faceCtx == null || faceCtx.faceIndex() == 0)) {
@@ -114,7 +114,7 @@ public abstract class ScreenshotMixin {
 				MINECRAFT.gameRenderer.renderLevel(DeltaTracker.ONE);
 			}
 
-			original.call(target, downscaleFactor, consumer);
+			original.call(target, downscaleFactor, callback);
 
 			if (Config.getInstance().allowCustomResolution()) {
 				window.setWidth(originalWidth);
@@ -128,7 +128,7 @@ public abstract class ScreenshotMixin {
 			ScreenshotContext.PANORAMA_FACE.set(faceCtx);
 
 			try {
-				consumer.accept(image);
+				callback.accept(image);
 			} finally {
 				ScreenshotContext.PANORAMA_FACE.remove();
 			}

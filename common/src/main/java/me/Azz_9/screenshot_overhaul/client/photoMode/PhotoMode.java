@@ -127,7 +127,7 @@ public class PhotoMode {
 	}
 
 	// return whether the base onScroll method should be canceled
-	public static boolean onMouseScroll(long handle, double xOffset, double yOffset) {
+	public static boolean onMouseScroll(long handle, double yOffset) {
 		if (!PhotoMode.isEnabled() || PhotoMode.getCamera() == null || handle != MINECRAFT.getWindow().handle() || MINECRAFT.screen != null) {
 			return false;
 		}

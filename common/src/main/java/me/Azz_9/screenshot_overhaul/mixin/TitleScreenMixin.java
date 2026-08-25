@@ -24,11 +24,11 @@ import me.Azz_9.screenshot_overhaul.platform.Services;
 public abstract class TitleScreenMixin extends Screen {
 
 	@Unique
-	private static final int MARGIN = 4;
+	private static final int screenshot_overhaul$MARGIN = 4;
 	@Unique
-	private static final int SIZE = 20;
+	private static final int screenshot_overhaul$SIZE = 20;
 	@Unique
-	private static final int BUTTONS_WIDTH = 200;
+	private static final int screenshot_overhaul$BUTTONS_WIDTH = 200;
 
 	protected TitleScreenMixin(Component title) {
 		super(title);
@@ -37,11 +37,11 @@ public abstract class TitleScreenMixin extends Screen {
 	// add buttons on the title screen
 	@Inject(method = "init", at = @At("TAIL"))
 	public void init(CallbackInfo info) {
-		int screenshotButtonX = (this.width + BUTTONS_WIDTH) / 2 + MARGIN;
+		int screenshotButtonX = (this.width + screenshot_overhaul$BUTTONS_WIDTH) / 2 + screenshot_overhaul$MARGIN;
 		int screenshotButtonY = this.height / 4 + 96;
 		if (!Services.PLATFORM.isNeoForge()) {
 			if (CompatManager.modMenuPresent()) {
-				screenshotButtonY -= SIZE + MARGIN;
+				screenshotButtonY -= screenshot_overhaul$SIZE + screenshot_overhaul$MARGIN;
 			}
 		} else {
 			screenshotButtonY += 8;
@@ -50,11 +50,11 @@ public abstract class TitleScreenMixin extends Screen {
 		SpriteIconButton screenshotViewerButton = this.addRenderableWidget(
 				SpriteIconButton.TextAndIcon.builder(
 								Component.translatable("screenshot_overhaul.options.screenshots"),
-								(btn) -> MINECRAFT.setScreen(new ScreenshotGalleryScreen(this)),
+								_ -> MINECRAFT.setScreen(new ScreenshotGalleryScreen(this)),
 								true
 						)
 						.withTootip()
-						.size(SIZE, SIZE)
+						.size(screenshot_overhaul$SIZE, screenshot_overhaul$SIZE)
 						.sprite(SCREENSHOT_SPRITE, 15, 15)
 						.build()
 		);
@@ -63,7 +63,7 @@ public abstract class TitleScreenMixin extends Screen {
 
 		this.addRenderableWidget(Button.builder(
 						Component.translatable("screenshot_overhaul.options.change_panorama"),
-						(btn) -> MINECRAFT.setScreen(new PanoramaGalleryScreen(Component.empty(), this))
+						_ -> MINECRAFT.setScreen(new PanoramaGalleryScreen(Component.empty(), this))
 				)
 				.bounds(width - 100 - 10, 10, 100, 20)
 				.build());

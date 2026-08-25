@@ -96,9 +96,10 @@ public class EffectsPanel extends SmoothScrollableWidget {
 	}
 
 	private Button createSaveButton() {
-		return Button.builder(Component.translatable("screenshot_overhaul.save"), _ -> {
-					PhotoPresetManager.updatePreset(PhotoMode.selectedPreset(), PhotoMode.appliedSettings());
-				})
+		return Button.builder(
+						Component.translatable("screenshot_overhaul.save"),
+						_ -> PhotoPresetManager.updatePreset(PhotoMode.selectedPreset(), PhotoMode.appliedSettings())
+				)
 				.bounds(
 						getX() + (getWidth() + PADDING) / 2, getBottom() - PADDING * 2 - FOOTER_BUTTONS_HEIGHT * 2,
 						(getWidth() - PADDING * 3) / 2, FOOTER_BUTTONS_HEIGHT

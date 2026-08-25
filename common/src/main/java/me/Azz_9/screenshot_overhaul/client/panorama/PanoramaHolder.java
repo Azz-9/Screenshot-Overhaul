@@ -172,9 +172,4 @@ public class PanoramaHolder {
 				texture
 		);
 	}
-
-	public static void register(Panorama panorama, Identifier location) {
-		NativeImage[] images = loadImages(panorama);
-		if (images != null) register(images, location);
-	}
 }

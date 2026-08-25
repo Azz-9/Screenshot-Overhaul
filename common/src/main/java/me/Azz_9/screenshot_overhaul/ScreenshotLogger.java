@@ -1,6 +1,7 @@
 package me.Azz_9.screenshot_overhaul;
 
 import static me.Azz_9.screenshot_overhaul.Constants.MOD_ID;
+import static me.Azz_9.screenshot_overhaul.Constants.MOD_NAME;
 
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -10,18 +11,18 @@ public class ScreenshotLogger {
 	private static final @NonNull Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	public static void info(@NonNull String message, Object... args) {
-		LOGGER.info("[Screenshot overhaul] " + message, args);
+		LOGGER.info("[" + MOD_NAME + "] " + message, args);
 	}
 
 	public static void warn(@NonNull String message, Object... args) {
-		LOGGER.warn("[Screenshot overhaul] " + message, args);
+		LOGGER.warn("[" + MOD_NAME + "] " + message, args);
 	}
 
 	public static void error(@NonNull String message, Object... args) {
-		LOGGER.error("[Screenshot overhaul] " + message, args);
+		LOGGER.error("[" + MOD_NAME + "] " + message, args);
 	}
 
 	public static void debug(@NonNull String message, Object... args) {
-		LOGGER.debug("[Screenshot overhaul] " + message, args);
+		LOGGER.debug("[" + MOD_NAME + "] " + message, args);
 	}
 }

@@ -104,8 +104,4 @@ public class JourneyMapIntegration implements IClientPlugin {
 			}
 		});
 	}
-
-	public static IClientAPI getAPI() {
-		return api;
-	}
 }

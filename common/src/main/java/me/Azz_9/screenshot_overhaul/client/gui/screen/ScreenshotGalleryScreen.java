@@ -58,12 +58,14 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen {
 			Screenshot prev = (currentDeleted && next == null) ? gallery.getPreviousVisibleScreenshot(current) : null;
 
 			gallery.refresh(false, () -> {
-				if (currentDeleted) {
-					if (next != null) fullView.show(next);
-					else if (prev != null) fullView.show(prev);
-					else closeFullView();
+				if (fullView != null) {
+					if (currentDeleted) {
+						if (next != null) fullView.show(next);
+						else if (prev != null) fullView.show(prev);
+						else closeFullView();
+					}
+					if (fullView.isVisible()) fullView.refreshNavButtons();
 				}
-				if (fullView.isVisible()) fullView.refreshNavButtons();
 			});
 		});
 	}
