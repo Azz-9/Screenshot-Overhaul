@@ -13,6 +13,7 @@ import java.util.List;
 
 import me.Azz_9.screenshot_overhaul.client.Colors;
 import me.Azz_9.screenshot_overhaul.client.cache.ScreenshotTextureCache;
+import me.Azz_9.screenshot_overhaul.client.config.Config;
 import me.Azz_9.screenshot_overhaul.client.gui.ScreenshotDrawHelper;
 import me.Azz_9.screenshot_overhaul.client.panorama.Panorama;
 import me.Azz_9.screenshot_overhaul.client.screenshot.CopyScreenshot;
@@ -126,9 +127,7 @@ public class ScreenshotPreview {
 
 		int previewH = getPreviewHeight();
 
-		float slideOffset = computeSlideOffset(elapsed);
-
-		int x = (int) (getX(screenW) + slideOffset);
+		int x = getX(screenW);
 		int y = getY(screenH);
 
 		// Shadow
@@ -192,15 +191,20 @@ public class ScreenshotPreview {
 	}
 
 	public static int getX(int screenW) {
-		// Même calcul que dans render()
 		long elapsed = System.currentTimeMillis() - startTime;
 		float slideOffset = computeSlideOffset(elapsed);
-		return (int) (screenW - PREVIEW_WIDTH - MARGIN + slideOffset);
+		return (int) switch (Config.getInstance().previewPlacement.getValue()) {
+			case TOP_LEFT, BOTTOM_LEFT -> MARGIN - slideOffset;
+			case TOP_RIGHT, BOTTOM_RIGHT -> screenW - PREVIEW_WIDTH - MARGIN + slideOffset;
+		};
 	}
 
 	public static int getY(int screenH) {
 		int previewH = getPreviewHeight();
-		return screenH - previewH - MARGIN;
+		return switch (Config.getInstance().previewPlacement.getValue()) {
+			case TOP_LEFT, TOP_RIGHT -> MARGIN;
+			case BOTTOM_LEFT, BOTTOM_RIGHT -> screenH - previewH - MARGIN;
+		};
 	}
 
 	public static int getPreviewHeight() {

@@ -64,9 +64,10 @@ public final class EnumConfigOption<E extends Enum<E>> extends AbstractConfigOpt
 	/**
 	 * Returns the constant that follows the given value, wrapping around.
 	 */
-	public @NonNull E nextValue(@NonNull E current) {
+	public @NonNull E nextValue(@NonNull E current, boolean reversed) {
 		E[] constants = enumConstants;
-		return constants[(current.ordinal() + 1) % constants.length];
+		int offset = reversed ? -1 : 1;
+		return constants[(current.ordinal() + offset + constants.length) % constants.length];
 	}
 
 	public static <E extends Enum<E>> @NonNull Builder<E> builder(

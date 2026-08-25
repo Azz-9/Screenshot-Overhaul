@@ -23,14 +23,7 @@ public class SettingsScreen extends TabsScreen {
 
 	private static final int LIST_TOP_PADDING = 8;
 
-	/**
-	 * Maps each Tab to its content definition.
-	 */
 	private final @NonNull Map<Tab, ConfigTabContent> tabContents = new LinkedHashMap<>();
-
-	/**
-	 * The currently displayed list widget.
-	 */
 	private @Nullable ConfigOptionListWidget listWidget;
 
 	public SettingsScreen(@Nullable Screen parent) {
