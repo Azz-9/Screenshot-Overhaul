@@ -23,6 +23,9 @@ public class ScreenshotOverhaul {
 		NeoForgePlatformHelper.eventBus = eventBus;
 
 		CommonClass.initKeyMappings();
+
+		SoundsNeoForge.register(eventBus);
+
 		eventBus.addListener(FMLClientSetupEvent.class, (event) -> CommonClass.init());
 
 		ModLoadingContext.get().registerExtensionPoint(
