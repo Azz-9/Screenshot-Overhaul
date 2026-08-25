@@ -17,10 +17,13 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
 
+import me.Azz_9.screenshot_overhaul.client.CommonSprites;
 import me.Azz_9.screenshot_overhaul.client.cache.PanoramaTextureCache;
 import me.Azz_9.screenshot_overhaul.client.gui.Loading;
 import me.Azz_9.screenshot_overhaul.client.gui.components.gallery.AbstractThumbnailWidget;
 import me.Azz_9.screenshot_overhaul.client.gui.focusSystem.FocusableScreen;
+import me.Azz_9.screenshot_overhaul.client.gui.rightClickMenu.RightClickMenu;
+import me.Azz_9.screenshot_overhaul.client.gui.rightClickMenu.RightClickMenuScreen;
 import me.Azz_9.screenshot_overhaul.client.panorama.Panorama;
 import me.Azz_9.screenshot_overhaul.client.renderState.PanoramaThumbnailRenderQueue;
 import me.Azz_9.screenshot_overhaul.client.renderState.PanoramaThumbnailRenderState;
@@ -41,12 +44,29 @@ public class PanoramaThumbnailWidget extends AbstractThumbnailWidget {
 	private float yaw = 0f;
 	private float pitch = 0f;
 	private final @Nullable Consumer<Panorama> onClick;
+	private final @NonNull Consumer<Panorama> onDeleteRequested;
 
 	public PanoramaThumbnailWidget(int x, int y, int width, int height, final @NonNull Panorama panorama,
-								   final @Nullable Consumer<Panorama> onClick) {
+								   final @Nullable Consumer<Panorama> onClick, @NonNull Consumer<Panorama> onDeleteRequested) {
 		super(x, y, width, height, Component.empty());
 		this.panorama = panorama;
 		this.onClick = onClick;
+		this.onDeleteRequested = onDeleteRequested;
+	}
+
+	@Override
+	public void showRightClickMenu(double mouseX, double mouseY) {
+		if (MINECRAFT.screen instanceof RightClickMenuScreen screen) {
+			screen.clearRightClickMenuItems();
+
+			screen.addRightClickMenuItem(new RightClickMenu.MenuItem(
+					CommonSprites.DELETE_SPRITE,
+					Component.translatable("screenshot_overhaul.delete"),
+					_ -> onDeleteRequested.accept(panorama)
+			));
+
+			screen.showRightClickMenu(mouseX, mouseY);
+		}
 	}
 
 	@Override
@@ -85,7 +105,7 @@ public class PanoramaThumbnailWidget extends AbstractThumbnailWidget {
 	@Override
 	public boolean mouseClicked(@NonNull MouseButtonEvent click, boolean doubleClick) {
 		if (this.isActive()) {
-			if (this.isValidClickButton(click.buttonInfo()) && this.isMouseOver(click.x(), click.y())) {
+			if (click.button() == 0 && this.isMouseOver(click.x(), click.y())) {
 				if (MINECRAFT.screen instanceof FocusableScreen screen) screen.requestFocus(this);
 
 				clickStartX = click.x();
@@ -93,7 +113,9 @@ public class PanoramaThumbnailWidget extends AbstractThumbnailWidget {
 				didDrag = false;
 				return true;
 			}
-
+			if (click.button() == 1) {
+				showRightClickMenu(click.x(), click.y());
+			}
 		}
 		return false;
 	}
@@ -126,6 +148,8 @@ public class PanoramaThumbnailWidget extends AbstractThumbnailWidget {
 	@Override
 	public void onClick(@NonNull MouseButtonEvent click, boolean doubled) {
 		super.onClick(click, doubled);
-		if (onClick != null) onClick.accept(panorama);
+		if (onClick != null && click.buttonInfo().button() == 0) {
+			onClick.accept(panorama);
+		}
 	}
 }

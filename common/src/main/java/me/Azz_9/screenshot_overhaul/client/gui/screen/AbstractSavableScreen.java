@@ -45,39 +45,19 @@ import me.Azz_9.screenshot_overhaul.client.gui.trackableChanges.TrackableChanges
  * widgets. Tooltips are suppressed by passing (-1,-1) as mouse coords.
  * </p>
  */
-public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen {
-
-	// -------------------------------------------------------------------------
-	// Layout
-	// -------------------------------------------------------------------------
+public abstract class AbstractSavableScreen extends BaseScreen {
 
 	protected static final int BOTTOM_BAR_HEIGHT = 36;
 	private static final int BUTTON_WIDTH = 200;
 	private static final int BUTTON_HEIGHT = 20;
 	private static final int BUTTON_GAP = 10;
 
-	// -------------------------------------------------------------------------
-	// Tracked items — identity set so distinct equal objects are both tracked
-	// -------------------------------------------------------------------------
-
 	private final @NonNull Set<TrackableChanges> trackedItems = Collections.newSetFromMap(new IdentityHashMap<>());
-
-	// -------------------------------------------------------------------------
-	// Widgets
-	// -------------------------------------------------------------------------
 
 	private @Nullable Button saveButton;
 	private @Nullable Button cancelButton;
 
-	// -------------------------------------------------------------------------
-	// Overlay
-	// -------------------------------------------------------------------------
-
 	private @Nullable UnsavedChangesOverlay unsavedOverlay;
-
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 
 	protected AbstractSavableScreen(@NonNull Component title, @Nullable Screen parent) {
 		super(title, parent);
@@ -87,9 +67,7 @@ public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen 
 		super(title);
 	}
 
-	// -------------------------------------------------------------------------
 	// Screen lifecycle
-	// -------------------------------------------------------------------------
 
 	@Override
 	protected final void init() {
@@ -129,13 +107,12 @@ public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen 
 	protected abstract void initContent();
 
 	@Override
-	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
-		// Suppress hover / tooltips on everything below the overlay
-		int mx = unsavedOverlay != null ? -1 : mouseX;
-		int my = unsavedOverlay != null ? -1 : mouseY;
+	public boolean overlayHovered(int mouseX, int mouseY) {
+		return unsavedOverlay != null || super.overlayHovered(mouseX, mouseY);
+	}
 
-		super.extractRenderState(graphics, mx, my, deltaTicks);
-
+	@Override
+	public void extractAfterChildren(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
 		// Bottom-bar separator
 		graphics.fill(0, height - BOTTOM_BAR_HEIGHT, width, height - BOTTOM_BAR_HEIGHT + 1, Colors.GRAY);
 
@@ -147,11 +124,6 @@ public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen 
 			unsavedOverlay.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
 		}
 	}
-
-	// -------------------------------------------------------------------------
-	// Event routing — overlay takes absolute priority
-	// -------------------------------------------------------------------------
-
 
 	@Override
 	public boolean mouseClicked(@NonNull MouseButtonEvent event, boolean doubleClick) {
@@ -189,9 +161,7 @@ public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen 
 		return super.charTyped(event);
 	}
 
-	// -------------------------------------------------------------------------
 	// Close guard
-	// -------------------------------------------------------------------------
 
 	@Override
 	public void onClose() {
@@ -202,9 +172,7 @@ public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen 
 		}
 	}
 
-	// -------------------------------------------------------------------------
 	// Tracked-items API
-	// -------------------------------------------------------------------------
 
 	/**
 	 * Registers an item so this screen considers it when computing dirty / valid state.
@@ -237,9 +205,7 @@ public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen 
 		return Collections.unmodifiableSet(trackedItems);
 	}
 
-	// -------------------------------------------------------------------------
 	// Save hook
-	// -------------------------------------------------------------------------
 
 	/**
 	 * <p>Called when the user confirms "Save and quit", before the screen closes.</p>
@@ -257,9 +223,7 @@ public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen 
 		trackedItems.forEach(TrackableChanges::commitChanges);
 	}
 
-	// -------------------------------------------------------------------------
 	// Internal helpers
-	// -------------------------------------------------------------------------
 
 	private synchronized boolean hasUnsavedChanges() {
 		return trackedItems.stream().anyMatch(TrackableChanges::hasChanged);
@@ -286,9 +250,7 @@ public abstract class AbstractSavableScreen extends AbstractBackNavigableScreen 
 		);
 	}
 
-	// -------------------------------------------------------------------------
 	// Layout helper for subclasses
-	// -------------------------------------------------------------------------
 
 	/**
 	 * Returns the Y coordinate of the top edge of the bottom bar.

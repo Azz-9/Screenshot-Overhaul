@@ -1,7 +1,8 @@
 package me.Azz_9.screenshot_overhaul.client.gui.components.screenshotGallery;
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
-import static me.Azz_9.screenshot_overhaul.Constants.MOD_ID;
+import static me.Azz_9.screenshot_overhaul.client.CommonSprites.CLOSE_SPRITE;
+import static me.Azz_9.screenshot_overhaul.client.CommonSprites.RESET_SPRITE;
 
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 
@@ -124,7 +125,7 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 							setVisible(false);
 						}, true)
 				.withTootip()
-				.sprite(Identifier.fromNamespaceAndPath(MOD_ID, "icon/close"), 15, 15)
+				.sprite(CLOSE_SPRITE, 15, 15)
 				.size(BUTTON_WIDTH, FIELD_HEIGHT)
 				.build();
 		closeButton.setPosition(getRight() - BUTTON_WIDTH - PANEL_PADDING, PANEL_PADDING);
@@ -392,7 +393,7 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 								btn.active = false;
 							}, true)
 					.withTootip()
-					.sprite(Identifier.fromNamespaceAndPath(MOD_ID, "icon/reset"), 15, 15)
+					.sprite(RESET_SPRITE, 15, 15)
 					.size(BUTTON_WIDTH, FIELD_HEIGHT)
 					.build();
 			resetBtn.setPosition(x + width - BUTTON_WIDTH, y + LABEL_HEIGHT);
@@ -511,7 +512,7 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 								btn.active = false;
 							}, true)
 					.withTootip()
-					.sprite(Identifier.fromNamespaceAndPath(MOD_ID, "icon/reset"), 15, 15)
+					.sprite(RESET_SPRITE, 15, 15)
 					.size(BUTTON_WIDTH, FIELD_HEIGHT)
 					.build();
 			resetBtn.setPosition(x + width - BUTTON_WIDTH, y + LABEL_HEIGHT);

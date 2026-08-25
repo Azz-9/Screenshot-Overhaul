@@ -1,5 +1,7 @@
 package me.Azz_9.screenshot_overhaul.client.gui.components.screenshotGallery.content;
 
+import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
+
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -13,10 +15,14 @@ import java.io.File;
 import java.util.function.Consumer;
 
 import me.Azz_9.screenshot_overhaul.client.Colors;
+import me.Azz_9.screenshot_overhaul.client.CommonSprites;
 import me.Azz_9.screenshot_overhaul.client.cache.ScreenshotTextureCache;
 import me.Azz_9.screenshot_overhaul.client.gui.Loading;
 import me.Azz_9.screenshot_overhaul.client.gui.ScreenshotDrawHelper;
 import me.Azz_9.screenshot_overhaul.client.gui.components.gallery.AbstractThumbnailWidget;
+import me.Azz_9.screenshot_overhaul.client.gui.rightClickMenu.RightClickMenu;
+import me.Azz_9.screenshot_overhaul.client.gui.rightClickMenu.RightClickMenuScreen;
+import me.Azz_9.screenshot_overhaul.client.screenshot.CopyScreenshot;
 import me.Azz_9.screenshot_overhaul.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_overhaul.client.texture.ScreenshotTexture;
 
@@ -31,17 +37,19 @@ public class ScreenshotThumbnailWidget extends AbstractThumbnailWidget {
 	private final @NonNull File screenshotFile;
 	private boolean loaded = false;
 	private final @Nullable Consumer<Screenshot> onClick;
+	private final @NonNull Consumer<Screenshot> onDeleteRequested;
 
 	private float currentScale = 1.0f;
 	private float appearProgress = 0f; // 0 → 1
 	private boolean appeared = false;
 
 	public ScreenshotThumbnailWidget(int x, int y, int width, int height, @NonNull Screenshot screenshot,
-	                                 @Nullable Consumer<Screenshot> onClick) {
+									 @Nullable Consumer<Screenshot> onClick, @NonNull Consumer<Screenshot> onDeleteRequested) {
 		super(x, y, width, height, Component.literal(screenshot.file().getName()));
 		this.screenshotFile = screenshot.file();
 		this.screenshot = screenshot;
 		this.onClick = onClick;
+		this.onDeleteRequested = onDeleteRequested;
 	}
 
 	/**
@@ -130,6 +138,32 @@ public class ScreenshotThumbnailWidget extends AbstractThumbnailWidget {
 	@Override
 	public void onClick(@NonNull MouseButtonEvent click, boolean doubled) {
 		super.onClick(click, doubled);
-		if (onClick != null) onClick.accept(screenshot);
+		if (click.buttonInfo().button() == 1) {
+			showRightClickMenu(click.x(), click.y());
+		} else if (onClick != null && click.buttonInfo().button() == 0) {
+			onClick.accept(screenshot);
+		}
+	}
+
+	@Override
+	public void showRightClickMenu(double mouseX, double mouseY) {
+		if (MINECRAFT.screen instanceof RightClickMenuScreen screen) {
+			screen.clearRightClickMenuItems();
+
+			screen.addRightClickMenuItem(new RightClickMenu.MenuItem(
+					CommonSprites.COPY_SPRITE,
+					Component.translatable("screenshot_overhaul.copy"),
+					_ -> {
+						CopyScreenshot.copyToClipboardWithToastError(screenshotFile, null, null);
+					}
+			));
+			screen.addRightClickMenuItem(new RightClickMenu.MenuItem(
+					CommonSprites.DELETE_SPRITE,
+					Component.translatable("screenshot_overhaul.delete"),
+					_ -> onDeleteRequested.accept(screenshot)
+			));
+
+			screen.showRightClickMenu(mouseX, mouseY);
+		}
 	}
 }

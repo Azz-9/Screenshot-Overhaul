@@ -252,7 +252,12 @@ public class ScreenshotList {
 							dir = watchedDirs.get(key);
 						}
 						if (dir == null) {
-							key.reset();
+							boolean valid = key.reset();
+							if (!valid) {
+								synchronized (lock) {
+									watchedDirs.remove(key);
+								}
+							}
 							continue;
 						}
 
@@ -281,8 +286,12 @@ public class ScreenshotList {
 								}
 							} else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
 								synchronized (lock) {
-									watchedDirs.entrySet().removeIf(e -> e.getValue().startsWith(fullPath));
-									screenshots.removeIf(s -> s.file().toPath().startsWith(fullPath));
+									watchedDirs.entrySet().removeIf(entry ->
+											entry.getValue().startsWith(fullPath)
+									);
+									screenshots.removeIf(screenshot ->
+											screenshot.file().toPath().startsWith(fullPath)
+									);
 								}
 							}
 
@@ -316,7 +325,9 @@ public class ScreenshotList {
 				StandardWatchEventKinds.ENTRY_CREATE,
 				StandardWatchEventKinds.ENTRY_DELETE
 		);
+		synchronized (lock) {
 		watchedDirs.put(key, dir);
+		}
 	}
 
 	private static @NonNull Metadata readMetadataWithRetry(@NonNull File file) {

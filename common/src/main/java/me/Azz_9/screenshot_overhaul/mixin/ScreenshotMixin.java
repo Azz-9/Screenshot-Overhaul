@@ -96,9 +96,9 @@ public abstract class ScreenshotMixin {
 			MINECRAFT.getSoundManager().play(SimpleSoundInstance.forUI(Sounds.SHUTTER, 1, 1));
 		}
 
-		CommonClass.lastScreenshotTime = System.currentTimeMillis();
-
 		if (faceCtx == null) {
+			CommonClass.lastScreenshotTime = System.currentTimeMillis();
+
 			Window window = MINECRAFT.getWindow();
 			int originalWidth = window.getWidth();
 			int originalHeight = window.getHeight();

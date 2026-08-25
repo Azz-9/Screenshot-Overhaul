@@ -39,6 +39,7 @@ public class PanoramaGalleryWidget extends ScrollableGallery<PanoramaEntryWidget
 
 	private final @Nullable Consumer<List<PanoramaEntryWidget>> onEntriesChanged;
 	private final @Nullable Consumer<Panorama> onThumbnailClicked;
+	private final @NonNull Consumer<Panorama> onDeleteRequested;
 	private final @Nullable Runnable onResetToDefault;
 
 	private final @NonNull AtomicBoolean refreshing = new AtomicBoolean(false);
@@ -46,10 +47,12 @@ public class PanoramaGalleryWidget extends ScrollableGallery<PanoramaEntryWidget
 	public PanoramaGalleryWidget(int x, int y, int width, int height,
 	                             @Nullable Consumer<List<PanoramaEntryWidget>> onEntriesChanged,
 								 @Nullable Consumer<Panorama> onThumbnailClicked,
+								 @NonNull Consumer<Panorama> onDeleteRequested,
 								 @Nullable Runnable onResetToDefault) {
 		super(x, y, width, height, MIN_THUMB_WIDTH, MAX_THUMB_WIDTH, ASPECT_RATIO, Config.getInstance().panoramaSortOrder);
 		this.onEntriesChanged = onEntriesChanged;
 		this.onThumbnailClicked = onThumbnailClicked;
+		this.onDeleteRequested = onDeleteRequested;
 		this.onResetToDefault = onResetToDefault;
 
 		if (onResetToDefault != null) {
@@ -81,7 +84,7 @@ public class PanoramaGalleryWidget extends ScrollableGallery<PanoramaEntryWidget
 	private void buildEntries(@NonNull List<Panorama> panoramas) {
 		List<PanoramaEntryWidget> newEntries = new ArrayList<>();
 		for (Panorama panorama : panoramas) {
-			newEntries.add(new PanoramaEntryWidget(panorama, onThumbnailClicked));
+			newEntries.add(new PanoramaEntryWidget(panorama, onThumbnailClicked, onDeleteRequested));
 		}
 		setEntries(newEntries);
 		if (onEntriesChanged != null) onEntriesChanged.accept(getEntries());
@@ -138,5 +141,27 @@ public class PanoramaGalleryWidget extends ScrollableGallery<PanoramaEntryWidget
 		}
 
 		super.extractWidgetRenderState(graphics, mouseX, mouseY, deltaTicks);
+	}
+
+	public int indexOf(@NonNull Panorama panorama) {
+		List<PanoramaEntryWidget> entries = getEntries();
+		for (int i = 0; i < entries.size(); i++) {
+			if (entries.get(i).getPanorama().folder().equals(panorama.folder())) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	public void removeEntry(@NonNull Panorama panorama) {
+		int index = indexOf(panorama);
+		if (index < 0) return;
+
+		List<PanoramaEntryWidget> entries = new ArrayList<>(getEntries());
+		entries.remove(index);
+		setEntries(entries);
+		layoutEntries();
+
+		if (onEntriesChanged != null) onEntriesChanged.accept(getEntries());
 	}
 }

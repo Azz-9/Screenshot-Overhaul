@@ -89,7 +89,7 @@ public class PanoramaHolder {
 					// Dernier check sur le main thread : on est toujours le task courant ?
 					register(images, PANORAMA_LOCATION);
 					currentPanorama = panorama;
-					Config.getInstance().selectedPanoramaUUID.setValue(currentPanorama.id());
+					Config.getInstance().selectedPanoramaUUID.setValue(currentPanorama.uuid());
 				});
 			} finally {
 				// Se retire proprement de la référence (seulement si c'est encore nous)

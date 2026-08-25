@@ -18,21 +18,15 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
-import me.Azz_9.screenshot_overhaul.ScreenshotLogger;
 import me.Azz_9.screenshot_overhaul.client.gui.components.FullViewWidget;
 import me.Azz_9.screenshot_overhaul.client.gui.components.screenshotGallery.ScreenshotGalleryWidget;
 import me.Azz_9.screenshot_overhaul.client.gui.components.toasts.CustomToastId;
-import me.Azz_9.screenshot_overhaul.client.gui.focusSystem.FocusManager;
-import me.Azz_9.screenshot_overhaul.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_overhaul.client.screenshot.DeleteScreenshot;
 import me.Azz_9.screenshot_overhaul.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotList;
 import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotManager;
 
-public class ScreenshotGalleryScreen extends AbstractSavableScreen implements FocusableScreen {
-
-	// focus manager
-	private final @NonNull FocusManager focusManager = new FocusManager();
+public class ScreenshotGalleryScreen extends AbstractSavableScreen {
 
 	// layout
 	private static final int GLOBAL_PADDING = 10;
@@ -43,11 +37,6 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 
 	public ScreenshotGalleryScreen(Screen parent) {
 		super(Component.translatable("screenshot_overhaul.narrator.screenshot_gallery"), parent);
-	}
-
-	@Override
-	public @NonNull FocusManager getFocusManager() {
-		return focusManager;
 	}
 
 	@Override
@@ -83,7 +72,7 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 		return new ScreenshotGalleryWidget(
 				GLOBAL_PADDING, GLOBAL_PADDING,
 				width - GLOBAL_PADDING * 2, getBottomBarTop() - GLOBAL_PADDING,
-				this::setTrackedItems, this::openFullView);
+				this::setTrackedItems, this::openFullView, this::onDeleteRequested);
 	}
 
 	private FullViewWidget createFullView() {
@@ -99,14 +88,12 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 		return fullView;
 	}
 
-	// -------------------------------------------------------------------------
-	// Fullview open / close
-	// -------------------------------------------------------------------------
+	// fullview
 
 	public void openFullView(@NonNull Screenshot screenshot) {
 		if (fullView == null) return;
 		fullView.show(screenshot);
-		clearFocus();
+		getFocusManager().clearFocus();
 
 		// Freeze the gallery layer and the settings button
 		if (gallery != null) {
@@ -124,28 +111,29 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 	}
 
 	private void onDeleteRequested(@NonNull Screenshot screenshot) {
-		if (gallery == null || fullView == null) return;
-
-		Screenshot next = gallery.getNextVisibleScreenshot(screenshot);
-		Screenshot prev = next == null ? gallery.getPreviousVisibleScreenshot(screenshot) : null;
+		if (gallery == null) return;
 
 		final double savedScroll = gallery.getScrollOffset();
 		gallery.removeEntry(screenshot);
 		gallery.setScrollOffset(savedScroll);
 
-		if (next != null) fullView.show(next);
-		else if (prev != null) fullView.show(prev);
-		else closeFullView();
+		if (fullView != null && fullView.isVisible()) {
+			Screenshot next = gallery.getNextVisibleScreenshot(screenshot);
+			Screenshot prev = next == null ? gallery.getPreviousVisibleScreenshot(screenshot) : null;
 
-		if (fullView.isVisible()) fullView.refreshNavButtons();
+			if (next != null) fullView.show(next);
+			else if (prev != null) fullView.show(prev);
+			else closeFullView();
+
+			if (fullView.isVisible()) fullView.refreshNavButtons();
+		}
 
 		CompletableFuture.runAsync(() -> {
 			boolean success = DeleteScreenshot.delete(screenshot);
 			if (!success) {
-				ScreenshotLogger.error("Could not delete screenshot: " + screenshot.pathRelativeToScreenshotDir());
 				MINECRAFT.execute(() -> {
 					// Rollback : refresh remet le screenshot dans la liste
-					gallery.refresh(false, null);
+					if (gallery != null) gallery.refresh(false, null);
 					// Toaster
 					SystemToast.add(
 							MINECRAFT.getToastManager(),
@@ -163,21 +151,16 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 
 	// render
 
+
 	@Override
-	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
-		boolean fullViewActive = fullView != null && fullView.isVisible();
+	public boolean overlayHovered(int mouseX, int mouseY) {
+		return fullView != null && fullView.isVisible() || super.overlayHovered(mouseX, mouseY);
+	}
 
-		// Pass (-1,-1) to every widget except fullView while the overlay is up,
-		// so no thumbnail, no settings button, and no bottom-bar button shows hover.
-		int bgMouseX = fullViewActive ? -1 : mouseX;
-		int bgMouseY = fullViewActive ? -1 : mouseY;
-
-		if (gallery != null) gallery.extractRenderState(graphics, bgMouseX, bgMouseY, deltaTicks);
-
-		super.extractRenderState(graphics, bgMouseX, bgMouseY, deltaTicks);
-
-		// FullView renders on top with real coords
+	@Override
+	public void extractAfterChildren(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
 		if (fullView != null) fullView.extractRenderState(graphics, mouseX, mouseY, deltaTicks);
+		super.extractAfterChildren(graphics, mouseX, mouseY, deltaTicks);
 	}
 
 	/* ---------------- Inputs ---------------- */
@@ -189,7 +172,7 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen implements Fo
 			return fullView.mouseClicked(event, doubleClick);
 		boolean handled = super.mouseClicked(event, doubleClick);
 		if (!handled) {
-			focusManager.clearFocus();
+			getFocusManager().clearFocus();
 		}
 
 		return handled;

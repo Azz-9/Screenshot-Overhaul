@@ -1,14 +1,13 @@
 package me.Azz_9.screenshot_overhaul.mixin;
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
-import static me.Azz_9.screenshot_overhaul.Constants.MOD_ID;
+import static me.Azz_9.screenshot_overhaul.client.CommonSprites.SCREENSHOT_SPRITE;
 
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.SpriteIconButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -56,7 +55,7 @@ public abstract class TitleScreenMixin extends Screen {
 						)
 						.withTootip()
 						.size(SIZE, SIZE)
-						.sprite(Identifier.fromNamespaceAndPath(MOD_ID, "icon/screenshot"), 15, 15)
+						.sprite(SCREENSHOT_SPRITE, 15, 15)
 						.build()
 		);
 

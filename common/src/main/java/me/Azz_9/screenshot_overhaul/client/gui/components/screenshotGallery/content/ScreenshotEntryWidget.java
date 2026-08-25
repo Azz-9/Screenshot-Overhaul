@@ -33,7 +33,7 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 	private final @NonNull Screenshot screenshot;
 
 	public ScreenshotEntryWidget(int x, int y, int thumbnailWidth, int thumbnailHeight, @NonNull Screenshot screenshot,
-	                             @Nullable Consumer<Screenshot> onThumbnailClicked) {
+								 @Nullable Consumer<Screenshot> onThumbnailClicked, @NonNull Consumer<Screenshot> onDeleteRequested) {
 		super(x, y, thumbnailWidth, thumbnailHeight + DEFAULT_NAME_HEIGHT, screenshot.file().getParentFile().toPath());
 		this.INITIAL_NAME = screenshot.file().getName();
 		this.INITIAL_METADATA = Metadata.copyOf(screenshot.getMetadata());
@@ -44,7 +44,8 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 				x, y,
 				thumbnailWidth, thumbnailHeight,
 				screenshot,
-				onThumbnailClicked
+				onThumbnailClicked,
+				onDeleteRequested
 		);
 
 		this.nameWidget = new ScreenshotNameWidget(
@@ -85,12 +86,12 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 		addRenderableChild(nameWidget);
 	}
 
-	public ScreenshotEntryWidget(@NonNull Screenshot screenshot, @Nullable Consumer<Screenshot> onThumbnailClicked) {
-		this(0, 0, 0, 0, screenshot, onThumbnailClicked);
+	public ScreenshotEntryWidget(@NonNull Screenshot screenshot, @Nullable Consumer<Screenshot> onThumbnailClicked, @NonNull Consumer<Screenshot> onDeleteRequested) {
+		this(0, 0, 0, 0, screenshot, onThumbnailClicked, onDeleteRequested);
 	}
 
-	public ScreenshotEntryWidget(@NonNull Screenshot screenshot) {
-		this(0, 0, 0, 0, screenshot, null);
+	public ScreenshotEntryWidget(@NonNull Screenshot screenshot, @NonNull Consumer<Screenshot> onDeleteRequested) {
+		this(0, 0, 0, 0, screenshot, null, onDeleteRequested);
 	}
 
 	@Override

@@ -1,7 +1,8 @@
 package me.Azz_9.screenshot_overhaul.client.gui.components.screenshotGallery;
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
-import static me.Azz_9.screenshot_overhaul.Constants.MOD_ID;
+import static me.Azz_9.screenshot_overhaul.client.CommonSprites.COPY_SPRITE;
+import static me.Azz_9.screenshot_overhaul.client.CommonSprites.DELETE_SPRITE;
 
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 
@@ -21,9 +22,6 @@ import me.Azz_9.screenshot_overhaul.client.Colors;
 import me.Azz_9.screenshot_overhaul.client.preview.ScreenshotPreview;
 
 public class ScreenshotPreviewWidget extends AbstractWidget {
-
-	private static final @NonNull Identifier ICON_COPY = Identifier.fromNamespaceAndPath(MOD_ID, "icon/copy");
-	private static final @NonNull Identifier ICON_DELETE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/delete");
 
 	private static final int BUTTON_HOVER_DURATION = 150;
 	private float copyHoverProgress = 0f;
@@ -133,7 +131,7 @@ public class ScreenshotPreviewWidget extends AbstractWidget {
 			int copyAlpha = (int) (0x44 * copyHoverProgress * hoverProgress);
 			graphics.fill(getX(), getY(), getX() + halfW, getY() + height, ARGB.color(copyAlpha, Colors.WHITE));
 		}
-		renderIcon(graphics, ICON_COPY, getX(), getY(), halfW, height, hoverProgress);
+		renderIcon(graphics, COPY_SPRITE, getX(), getY(), halfW, height, hoverProgress);
 		renderLabel(graphics, getX(), getY(), halfW, height, Component.translatable("screenshot_overhaul.copy"), hoverProgress);
 
 		// Bouton Supprimer
@@ -142,7 +140,7 @@ public class ScreenshotPreviewWidget extends AbstractWidget {
 			int deleteAlpha = (int) (0x44 * deleteHoverProgress * hoverProgress);
 			graphics.fill(deleteX, getY(), deleteX + halfW, getY() + height, ARGB.color(deleteAlpha, Colors.RED));
 		}
-		renderIcon(graphics, ICON_DELETE, deleteX, getY(), halfW, height, hoverProgress);
+		renderIcon(graphics, DELETE_SPRITE, deleteX, getY(), halfW, height, hoverProgress);
 		renderLabel(graphics, deleteX, getY(), halfW, height, Component.translatable("screenshot_overhaul.delete"), hoverProgress);
 
 		if (copyHoverProgress > 0 || deleteHoverProgress > 0) {

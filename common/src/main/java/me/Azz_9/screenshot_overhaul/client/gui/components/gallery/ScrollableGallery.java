@@ -1,7 +1,7 @@
 package me.Azz_9.screenshot_overhaul.client.gui.components.gallery;
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
-import static me.Azz_9.screenshot_overhaul.Constants.MOD_ID;
+import static me.Azz_9.screenshot_overhaul.client.CommonSprites.FOLDER_SPRITE;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -9,7 +9,6 @@ import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.SpriteIconButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 
 import org.jspecify.annotations.NonNull;
@@ -30,8 +29,6 @@ import me.Azz_9.screenshot_overhaul.client.gui.focusSystem.FocusableScreen;
 import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotManager;
 
 public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> extends SmoothScrollableWidget {
-
-	private static final @NonNull Identifier FOLDER_SPRITE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/folder");
 
 	protected static final int PADDING = 10;
 	protected static final int ROW_SPACING = 14;

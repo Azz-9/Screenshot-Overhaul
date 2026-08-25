@@ -1,7 +1,7 @@
 package me.Azz_9.screenshot_overhaul.client.gui.components;
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
-import static me.Azz_9.screenshot_overhaul.Constants.MOD_ID;
+import static me.Azz_9.screenshot_overhaul.client.CommonSprites.ARROW_BACK_SPRITE;
 import static me.Azz_9.screenshot_overhaul.utils.StringUtils.pretty;
 
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
@@ -16,7 +16,6 @@ import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.util.Ease;
 
 import org.joml.Matrix3x2fStack;
@@ -143,7 +142,7 @@ public class FullViewWidget extends AbstractWidget {
 						true
 				)
 				.size(CLOSE_BUTTON_SIZE, CLOSE_BUTTON_SIZE)
-				.sprite(Identifier.fromNamespaceAndPath(MOD_ID, "icon/back_arrow"), 15, 15)
+				.sprite(ARROW_BACK_SPRITE, 15, 15)
 				.build();
 		closeFullViewButton.setPosition(15, 15);
 
