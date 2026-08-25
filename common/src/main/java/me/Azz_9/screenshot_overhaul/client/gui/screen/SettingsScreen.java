@@ -14,26 +14,14 @@ import me.Azz_9.screenshot_overhaul.client.config.ConfigLoader;
 import me.Azz_9.screenshot_overhaul.client.config.option.ConfigOption;
 import me.Azz_9.screenshot_overhaul.client.gui.components.config.ConfigOptionListWidget;
 import me.Azz_9.screenshot_overhaul.client.gui.components.config.ConfigTabContent;
-import me.Azz_9.screenshot_overhaul.client.gui.focusSystem.FocusManager;
-import me.Azz_9.screenshot_overhaul.client.gui.focusSystem.FocusableScreen;
 
 /**
  * Settings screen with tabs, scrollable option lists, validation, and an
  * "unsaved changes" overlay.
  */
-public class SettingsScreen extends TabsScreen implements FocusableScreen {
-
-	// -------------------------------------------------------------------------
-	// Layout
-	// -------------------------------------------------------------------------
+public class SettingsScreen extends TabsScreen {
 
 	private static final int LIST_TOP_PADDING = 8;
-
-	// -------------------------------------------------------------------------
-	// State
-	// -------------------------------------------------------------------------
-
-	private final @NonNull FocusManager focusManager = new FocusManager();
 
 	/**
 	 * Maps each Tab to its content definition.
@@ -45,17 +33,11 @@ public class SettingsScreen extends TabsScreen implements FocusableScreen {
 	 */
 	private @Nullable ConfigOptionListWidget listWidget;
 
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
-
 	public SettingsScreen(@Nullable Screen parent) {
 		super(Component.translatable("screenshot_overhaul.settings"), parent);
 	}
 
-	// -------------------------------------------------------------------------
 	// Tab registration (call before the screen is opened)
-	// -------------------------------------------------------------------------
 
 	/**
 	 * Registers a tab with its content. Tabs are displayed in registration order.
@@ -68,9 +50,7 @@ public class SettingsScreen extends TabsScreen implements FocusableScreen {
 		tabContents.put(tab, content);
 	}
 
-	// -------------------------------------------------------------------------
 	// Screen lifecycle
-	// -------------------------------------------------------------------------
 
 	@Override
 	protected void initContent() {
@@ -99,9 +79,7 @@ public class SettingsScreen extends TabsScreen implements FocusableScreen {
 		}
 	}
 
-	// -------------------------------------------------------------------------
 	// Tab switching
-	// -------------------------------------------------------------------------
 
 	@Override
 	public void selectTab(@NonNull Tab tab) {
@@ -113,18 +91,7 @@ public class SettingsScreen extends TabsScreen implements FocusableScreen {
 		}
 	}
 
-	// -------------------------------------------------------------------------
-	// FocusableScreen
-	// -------------------------------------------------------------------------
-
-	@Override
-	public @NonNull FocusManager getFocusManager() {
-		return focusManager;
-	}
-
-	// -------------------------------------------------------------------------
 	// ConfigTab — Tab subtype carrying content metadata
-	// -------------------------------------------------------------------------
 
 	/**
 	 * Extension of {@link Tab} that carries a reference to the tab's content,

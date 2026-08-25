@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.NonNull;
@@ -22,6 +23,8 @@ public abstract class AbstractThumbnailWidget extends AbstractWidget {
 
 	public void load() {
 	}
+
+	public abstract void showRightClickMenu(double mouseX, double mouseY);
 
 	// rendering
 
@@ -38,6 +41,11 @@ public abstract class AbstractThumbnailWidget extends AbstractWidget {
 	}
 
 	// input
+
+	@Override
+	protected boolean isValidClickButton(MouseButtonInfo buttonInfo) {
+		return buttonInfo.button() == 0 || buttonInfo.button() == 1;
+	}
 
 	@Override
 	public void onClick(@NonNull MouseButtonEvent click, boolean doubled) {

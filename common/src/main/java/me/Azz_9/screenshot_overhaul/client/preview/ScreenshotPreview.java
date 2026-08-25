@@ -11,15 +11,12 @@ import org.jspecify.annotations.Nullable;
 import java.io.File;
 import java.util.List;
 
-import me.Azz_9.screenshot_overhaul.ScreenshotLogger;
 import me.Azz_9.screenshot_overhaul.client.Colors;
 import me.Azz_9.screenshot_overhaul.client.cache.ScreenshotTextureCache;
-import me.Azz_9.screenshot_overhaul.client.config.Config;
 import me.Azz_9.screenshot_overhaul.client.gui.ScreenshotDrawHelper;
 import me.Azz_9.screenshot_overhaul.client.panorama.Panorama;
 import me.Azz_9.screenshot_overhaul.client.screenshot.CopyScreenshot;
 import me.Azz_9.screenshot_overhaul.client.screenshot.DeleteScreenshot;
-import me.Azz_9.screenshot_overhaul.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotList;
 import me.Azz_9.screenshot_overhaul.client.texture.ScreenshotTexture;
 
@@ -229,23 +226,19 @@ public class ScreenshotPreview {
 	}
 
 	public static void deleteCurrentScreenshot() {
-		if (panoramaUuid != null) {
-			List<Panorama> panoramas = ScreenshotList.getPanoramas();
-			for (int i = panoramas.size() - 1; i >= 0; i--) {
-				String uuid = panoramas.get(i).faces()[0].getMetadata().getPanoramaId();
-				if (uuid != null && uuid.equals(panoramaUuid)) {
-					for (Screenshot face : panoramas.get(i).faces()) {
-						if (face != null) {
-							if (screenshotFile != null && !DeleteScreenshot.delete(face)) {
-								ScreenshotLogger.error("Could not delete panorama: " + Config.getInstance().getAbsoluteScreenshotsDir().relativize(screenshotFile.toPath()));
-							}
-						}
+		if (screenshotFile != null) {
+			if (panoramaUuid != null) {
+				List<Panorama> panoramas = ScreenshotList.getPanoramas();
+				for (int i = panoramas.size() - 1; i >= 0; i--) {
+					if (panoramas.get(i).uuid().toString().equals(panoramaUuid)) {
+						Panorama panorama = panoramas.get(i);
+						DeleteScreenshot.deletePanorama(panorama);
+						break;
 					}
-					break;
 				}
+			} else {
+				DeleteScreenshot.delete(screenshotFile);
 			}
-		} else if (screenshotFile != null && !DeleteScreenshot.delete(screenshotFile)) {
-			ScreenshotLogger.error("Could not delete screenshot: " + Config.getInstance().getAbsoluteScreenshotsDir().relativize(screenshotFile.toPath()));
 		}
 	}
 }

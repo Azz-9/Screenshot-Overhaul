@@ -1,7 +1,7 @@
 package me.Azz_9.screenshot_overhaul.client.config.option;
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
-import static me.Azz_9.screenshot_overhaul.Constants.MOD_ID;
+import static me.Azz_9.screenshot_overhaul.client.CommonSprites.RESET_SPRITE;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -14,7 +14,6 @@ import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 
 import org.jspecify.annotations.NonNull;
 
@@ -43,12 +42,6 @@ import me.Azz_9.screenshot_overhaul.client.Colors;
  */
 public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 
-	private static final Identifier RESET_BUTTON_SPRITE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/reset");
-
-	// -------------------------------------------------------------------------
-	// Layout constants
-	// -------------------------------------------------------------------------
-
 	public static final int ROW_HEIGHT = 20;
 	public static final int ROW_PADDING_V = 4;
 	public static final int FULL_ROW_HEIGHT = ROW_HEIGHT + ROW_PADDING_V * 2;
@@ -58,10 +51,6 @@ public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 	private static final int RESET_BUTTON_WIDTH = 20;
 	private static final int CONTROL_RESET_GAP = 4;
 	private static final int LABEL_CONTROL_GAP = 8;
-
-	// -------------------------------------------------------------------------
-	// State
-	// -------------------------------------------------------------------------
 
 	protected final @NonNull ConfigOption<T> option;
 
@@ -76,10 +65,6 @@ public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 	private ConfigOption.@NonNull ValidationResult lastValidation = ConfigOption.ValidationResult.valid();
 
 	private final @NonNull Consumer<GuiEventListener> onFocusRequested;
-
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 
 	protected ConfigOptionWidget(int x, int y, int width, @NonNull ConfigOption<T> option, @NonNull Consumer<GuiEventListener> onFocusRequested) {
 		super(x, y, width, FULL_ROW_HEIGHT, Component.empty());
@@ -99,9 +84,7 @@ public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 		refreshValidation();
 	}
 
-	// -------------------------------------------------------------------------
 	// Abstract factory method — subclasses provide the type-specific control
-	// -------------------------------------------------------------------------
 
 	/**
 	 * Creates the control widget (toggle, slider, text field, etc.) for this option.
@@ -113,10 +96,7 @@ public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 	 */
 	protected abstract @NonNull AbstractWidget createControlWidget(int x, int y, int width);
 
-	// -------------------------------------------------------------------------
 	// Rendering
-	// -------------------------------------------------------------------------
-
 
 	@Override
 	protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTicks) {
@@ -168,10 +148,7 @@ public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 		output.add(NarratedElementType.TITLE, option.getLabel());
 	}
 
-	// -------------------------------------------------------------------------
 	// Mouse / keyboard forwarding
-	// -------------------------------------------------------------------------
-
 
 	@Override
 	public boolean mouseClicked(@NonNull MouseButtonEvent event, boolean doubleClick) {
@@ -225,9 +202,7 @@ public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 		return controlWidget.charTyped(event);
 	}
 
-	// -------------------------------------------------------------------------
 	// Repositioning (called by the list widget on layout)
-	// -------------------------------------------------------------------------
 
 	@Override
 	public void setX(int x) {
@@ -255,9 +230,7 @@ public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 		resetButton.setY(widgetY);
 	}
 
-	// -------------------------------------------------------------------------
 	// Validation helper
-	// -------------------------------------------------------------------------
 
 	/**
 	 * Re-runs validation and stores the result. Called by concrete subclasses
@@ -275,9 +248,7 @@ public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 		return option;
 	}
 
-	// -------------------------------------------------------------------------
 	// Reset button factory
-	// -------------------------------------------------------------------------
 
 	private @NonNull Button createResetButton(int x, int y) {
 		Button button = SpriteIconButton.CenteredIcon.builder(Component.translatable("screenshot_overhaul.settings.reset_to_default"), btn -> {
@@ -286,7 +257,7 @@ public abstract class ConfigOptionWidget<T> extends AbstractWidget {
 					refreshValidation();
 				}, true)
 				.withTootip()
-				.sprite(RESET_BUTTON_SPRITE, 15, 15)
+				.sprite(RESET_SPRITE, 15, 15)
 				.size(RESET_BUTTON_WIDTH, ROW_HEIGHT)
 				.build();
 		button.setPosition(x, y);

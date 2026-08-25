@@ -1,20 +1,16 @@
 package me.Azz_9.screenshot_overhaul.client.gui.components.screenshotGallery;
 
-import static me.Azz_9.screenshot_overhaul.Constants.MOD_ID;
+import static me.Azz_9.screenshot_overhaul.client.CommonSprites.ARROW_LEFT_SPRITE;
+import static me.Azz_9.screenshot_overhaul.client.CommonSprites.ARROW_RIGHT_SPRITE;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 
 import org.jspecify.annotations.NonNull;
 
 public class NavigationButton extends Button {
-
-	private static final @NonNull Identifier BACK_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/arrow_left");
-	private static final @NonNull Identifier NEXT_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/arrow_right");
-
 	private final @NonNull NavigationType navigation;
 
 	public NavigationButton(int x, int y, int width, int height, @NonNull NavigationType navigation, @NonNull OnPress onPress) {
@@ -32,14 +28,14 @@ public class NavigationButton extends Button {
 		if (navigation == NavigationType.BACK) {
 			graphics.blitSprite(
 					RenderPipelines.GUI_TEXTURED,
-					BACK_TEXTURE,
+					ARROW_LEFT_SPRITE,
 					getX(), getY(),
 					getWidth(), getHeight()
 			);
 		} else {
 			graphics.blitSprite(
 					RenderPipelines.GUI_TEXTURED,
-					NEXT_TEXTURE,
+					ARROW_RIGHT_SPRITE,
 					getX(), getY(),
 					getWidth(), getHeight()
 			);

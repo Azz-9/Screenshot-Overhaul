@@ -1,15 +1,13 @@
 package me.Azz_9.screenshot_overhaul.client.gui.components.screenshotGallery;
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
-import static me.Azz_9.screenshot_overhaul.Constants.MOD_ID;
+import static me.Azz_9.screenshot_overhaul.client.CommonSprites.SETTINGS_SPRITE;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.SpriteIconButton;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -32,8 +30,6 @@ import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotList;
 
 public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWidget> {
 
-	private static final @NonNull Identifier SETTINGS_SPRITE = Identifier.fromNamespaceAndPath(MOD_ID, "icon/cogwheel");
-
 	// settings
 	private static final int SETTINGS_BUTTON_SIZE = 20;
 
@@ -45,6 +41,7 @@ public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWi
 	// gallery content
 	private final @Nullable Consumer<List<ScreenshotEntryWidget>> onEntriesChanged;
 	private final @Nullable Consumer<Screenshot> onThumbnailClicked;
+	private final @NonNull Consumer<Screenshot> onDeleteRequested;
 	// Marge de préchargement en pixels au-delà de la zone visible
 	private static final int FULLVIEW_PRELOAD_RADIUS = 2;
 
@@ -52,10 +49,12 @@ public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWi
 
 	public ScreenshotGalleryWidget(int x, int y, int width, int height,
 	                               @Nullable Consumer<List<ScreenshotEntryWidget>> onEntriesChanged,
-	                               @Nullable Consumer<Screenshot> onThumbnailClicked) {
+								   @Nullable Consumer<Screenshot> onThumbnailClicked,
+								   @NonNull Consumer<Screenshot> onDeleteRequested) {
 		super(x, y, width, height, MIN_THUMB_WIDTH, MAX_THUMB_WIDTH, ASPECT_RATIO, Config.getInstance().screenshotSortOrder);
 		this.onEntriesChanged = onEntriesChanged;
 		this.onThumbnailClicked = onThumbnailClicked;
+		this.onDeleteRequested = onDeleteRequested;
 
 		addFixedChild(createSettingsButton());
 
@@ -125,7 +124,7 @@ public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWi
 	private void buildEntries(@NonNull List<Screenshot> screenshots) {
 		List<ScreenshotEntryWidget> newEntries = new ArrayList<>();
 		for (Screenshot screenshot : screenshots) {
-			newEntries.add(new ScreenshotEntryWidget(screenshot, onThumbnailClicked));
+			newEntries.add(new ScreenshotEntryWidget(screenshot, onThumbnailClicked, onDeleteRequested));
 		}
 		setEntries(newEntries);
 		if (onEntriesChanged != null) onEntriesChanged.accept(getEntries());
@@ -217,10 +216,5 @@ public class ScreenshotGalleryWidget extends ScrollableGallery<ScreenshotEntryWi
 		layoutEntries();
 
 		if (onEntriesChanged != null) onEntriesChanged.accept(getEntries());
-	}
-
-
-	@Override
-	public void updateWidgetNarration(@NonNull NarrationElementOutput output) {
 	}
 }

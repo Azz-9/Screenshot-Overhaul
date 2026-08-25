@@ -43,9 +43,7 @@ public class TabsScreen extends AbstractSavableScreen {
 		super(title, parent);
 	}
 
-	// -------------------------------------------------------------------------
 	// AbstractSavableScreen — default no-op so non-saving subclasses compile
-	// -------------------------------------------------------------------------
 
 	/**
 	 * Called by {@link AbstractSavableScreen#init()} before the bottom bar is added.
@@ -60,9 +58,7 @@ public class TabsScreen extends AbstractSavableScreen {
 		clearTabs();
 	}
 
-	// -------------------------------------------------------------------------
 	// Tab management
-	// -------------------------------------------------------------------------
 
 	/**
 	 * Clears the tab list without touching the widget list.
@@ -111,9 +107,7 @@ public class TabsScreen extends AbstractSavableScreen {
 		return TABS_Y + MINECRAFT.font.lineHeight + Tab.PADDING_VERTICAL * 2;
 	}
 
-	// -------------------------------------------------------------------------
 	// Tab widget
-	// -------------------------------------------------------------------------
 
 	public static class Tab extends Button {
 

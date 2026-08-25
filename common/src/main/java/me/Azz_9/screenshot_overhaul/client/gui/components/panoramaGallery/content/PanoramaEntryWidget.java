@@ -31,12 +31,12 @@ public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {
 
 	private final @NonNull Panorama panorama;
 
-	public PanoramaEntryWidget(@NonNull Panorama panorama, @Nullable Consumer<Panorama> onThumbnailClicked) {
-		this(0, 0, 0, 0, panorama, onThumbnailClicked);
+	public PanoramaEntryWidget(@NonNull Panorama panorama, @Nullable Consumer<Panorama> onThumbnailClicked, @NonNull Consumer<Panorama> onDeleteRequested) {
+		this(0, 0, 0, 0, panorama, onThumbnailClicked, onDeleteRequested);
 	}
 
 	public PanoramaEntryWidget(int x, int y, int thumbnailWidth, int thumbnailHeight, @NonNull Panorama panorama,
-	                           @Nullable Consumer<Panorama> onThumbnailClicked) {
+							   @Nullable Consumer<Panorama> onThumbnailClicked, @NonNull Consumer<Panorama> onDeleteRequested) {
 		super(x, y, thumbnailWidth, thumbnailHeight, panorama.folder().getParentFile().toPath());
 		this.INITIAL_NAME = panorama.folderName();
 
@@ -46,7 +46,8 @@ public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {
 				x, y,
 				thumbnailWidth, thumbnailHeight,
 				panorama,
-				onThumbnailClicked
+				onThumbnailClicked,
+				onDeleteRequested
 		);
 
 		this.nameWidget = new ScreenshotNameWidget(
@@ -116,6 +117,10 @@ public class PanoramaEntryWidget extends AbstractGalleryEntryWidget {
 	public @Nullable String getWorldName() {
 		if (panorama.presentFaces().isEmpty()) return null;
 		return panorama.presentFaces().getFirst().getMetadata().getWorldName();
+	}
+
+	public @NonNull Panorama getPanorama() {
+		return panorama;
 	}
 
 	@Override

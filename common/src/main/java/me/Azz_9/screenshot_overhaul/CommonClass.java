@@ -108,7 +108,7 @@ public class CommonClass {
 			ScreenshotList.whenPanoramasLoaded(panoramas -> {
 				Panorama selectedPanorama = null;
 				for (Panorama panorama : panoramas) {
-					if (Config.getInstance().selectedPanoramaUUID.getValue().equals(panorama.id())) {
+					if (Config.getInstance().selectedPanoramaUUID.getValue().equals(panorama.uuid())) {
 						selectedPanorama = panorama;
 					}
 				}
