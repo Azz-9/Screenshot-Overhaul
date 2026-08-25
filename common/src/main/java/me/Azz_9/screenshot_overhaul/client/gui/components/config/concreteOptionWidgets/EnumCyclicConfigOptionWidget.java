@@ -1,5 +1,7 @@
 package me.Azz_9.screenshot_overhaul.client.gui.components.config.concreteOptionWidgets;
 
+import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
+
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -27,8 +29,8 @@ public final class EnumCyclicConfigOptionWidget<E extends Enum<E>> extends Confi
 
 	@Override
 	protected @NonNull AbstractWidget createControlWidget(int x, int y, int width) {
-		cycleButton = Button.builder(getCurrentLabel(), btn -> {
-					E next = enumOption.nextValue(option.getWorkingValue());
+		cycleButton = Button.builder(getCurrentLabel(), _ -> {
+					E next = enumOption.nextValue(option.getWorkingValue(), MINECRAFT.hasShiftDown());
 					option.setWorkingValue(next);
 					cycleButton.setMessage(getCurrentLabel());
 					refreshValidation();

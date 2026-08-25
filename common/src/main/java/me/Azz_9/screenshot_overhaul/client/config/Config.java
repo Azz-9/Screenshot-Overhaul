@@ -46,6 +46,7 @@ public final class Config {
 	public final @NonNull ConfigObject<Resolution2D> screenshotResolution = ConfigObject.withApplier(Resolution2D.QHD(), "screenshot_overhaul.config.resolution", Resolution2D.class, this::applyScreenshotResolution);
 	public final @NonNull ConfigObject<Boolean> showChatMessage = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_chat_message", Boolean.class);
 	public final @NonNull ConfigObject<Boolean> showPreview = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_screenshot_preview", Boolean.class);
+	public final @NonNull ConfigObject<PreviewPlacement> previewPlacement = ConfigObject.nonNull(PreviewPlacement.BOTTOM_RIGHT, "screenshot_overhaul.config.preview_placement", PreviewPlacement.class);
 	public final @NonNull ConfigObject<Boolean> screenshotSound = ConfigObject.nonNull(false, "screenshot_overhaul.config.screenshot_sound", Boolean.class);
 	public final @NonNull ConfigObject<Boolean> screenshotFlash = ConfigObject.nonNull(false, "screenshot_overhaul.config.screenshot_flash", Boolean.class);
 	public final @NonNull ConfigObject<Boolean> hideChatOnScreenshot = ConfigObject.nonNull(false, "screenshot_overhaul.config.hide_chat_on_screenshot", Boolean.class);
@@ -150,6 +151,11 @@ public final class Config {
 		BooleanConfigOption showPreview = BooleanConfigOption.builder(Config.getInstance().showPreview)
 				.dependsOn(enableWholeMod)
 				.build();
+		EnumConfigOption<PreviewPlacement> previewPlacement = EnumConfigOption.builder(Config.getInstance().previewPlacement, PreviewPlacement.class)
+				.valueName(PreviewPlacement::getText)
+				.dependsOn(showPreview)
+				.dependsOn(enableWholeMod)
+				.build();
 		BooleanConfigOption screenshotSound = BooleanConfigOption.builder(Config.getInstance().screenshotSound)
 				.dependsOn(enableWholeMod)
 				.build();
@@ -181,6 +187,7 @@ public final class Config {
 				.option(screenshotResolution)
 				.option(showChatMessage)
 				.option(showPreview)
+				.option(previewPlacement)
 				.option(screenshotSound)
 				.option(screenshotFlash)
 				.section(Component.translatable("screenshot_overhaul.config.section.hidden_element"))
@@ -268,6 +275,27 @@ public final class Config {
 		private final @NonNull String translationKey;
 
 		RotationDirection(@NonNull String translationKey) {
+			this.translationKey = translationKey;
+		}
+
+		public @NonNull String getTranslationKey() {
+			return translationKey;
+		}
+
+		public @NonNull Component getText() {
+			return Component.translatable(getTranslationKey());
+		}
+	}
+
+	public enum PreviewPlacement {
+		TOP_LEFT("screenshot_overhaul.config.preview_placement.top_left"),
+		TOP_RIGHT("screenshot_overhaul.config.preview_placement.top_right"),
+		BOTTOM_RIGHT("screenshot_overhaul.config.preview_placement.bottom_right"),
+		BOTTOM_LEFT("screenshot_overhaul.config.preview_placement.bottom_left");
+
+		private final @NonNull String translationKey;
+
+		PreviewPlacement(@NonNull String translationKey) {
 			this.translationKey = translationKey;
 		}
 
