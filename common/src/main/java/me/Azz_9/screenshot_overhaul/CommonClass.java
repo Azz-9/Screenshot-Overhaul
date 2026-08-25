@@ -14,6 +14,7 @@ import net.minecraft.util.ARGB;
 import net.minecraft.util.Ease;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -46,34 +47,34 @@ public class CommonClass {
 
 	public static Minecraft MINECRAFT;
 
-	private static KeyMapping openPhotoMode;
-	private static KeyMapping rollLeft;
-	private static KeyMapping rollRight;
-	private static KeyMapping openEffectsPanel;
-	private static KeyMapping panoramaScreenshot;
+	private static @Nullable KeyMapping openPhotoMode;
+	private static @Nullable KeyMapping rollLeft;
+	private static @Nullable KeyMapping rollRight;
+	private static @Nullable KeyMapping openEffectsPanel;
+	private static @Nullable KeyMapping panoramaScreenshot;
 
 	private static final List<RunnableState> runnableStates = new ArrayList<>();
 
 	public static final int FLASH_DURATION = 1000;
 	public static long lastScreenshotTime = -1;
 
-	public static @NonNull KeyMapping getOpenPhotoModeKeybind() {
+	public static @Nullable KeyMapping getOpenPhotoModeKeybind() {
 		return openPhotoMode;
 	}
 
-	public static @NonNull KeyMapping getRollLeftKeybind() {
+	public static @Nullable KeyMapping getRollLeftKeybind() {
 		return rollLeft;
 	}
 
-	public static @NonNull KeyMapping getRollRightKeybind() {
+	public static @Nullable KeyMapping getRollRightKeybind() {
 		return rollRight;
 	}
 
-	public static @NonNull KeyMapping getOpenEffectsPanelKeybind() {
+	public static @Nullable KeyMapping getOpenEffectsPanelKeybind() {
 		return openEffectsPanel;
 	}
 
-	public static @NonNull KeyMapping getPanoramaScreenshotKeybind() {
+	public static @Nullable KeyMapping getPanoramaScreenshotKeybind() {
 		return panoramaScreenshot;
 	}
 
@@ -148,23 +149,23 @@ public class CommonClass {
 	}
 
 	public static void handleKeybindsHook() {
-		while (PHOTO_MODE_ENABLED && getOpenPhotoModeKeybind().consumeClick()) {
+		while (PHOTO_MODE_ENABLED && getOpenPhotoModeKeybind() != null && getOpenPhotoModeKeybind().consumeClick()) {
 			PhotoMode.toggle();
 		}
 
-		while (getRollLeftKeybind().consumeClick()) {
+		while (getRollLeftKeybind() != null && getRollLeftKeybind().consumeClick()) {
 			if (PhotoMode.isEnabled() && PhotoMode.getCamera() != null) {
 				PhotoMode.getCamera().rollLeft();
 			}
 		}
 
-		while (getRollRightKeybind().consumeClick()) {
+		while (getRollRightKeybind() != null && getRollRightKeybind().consumeClick()) {
 			if (PhotoMode.isEnabled() && PhotoMode.getCamera() != null) {
 				PhotoMode.getCamera().rollRight();
 			}
 		}
 
-		while (getOpenEffectsPanelKeybind().consumeClick()) {
+		while (getOpenEffectsPanelKeybind() != null && getOpenEffectsPanelKeybind().consumeClick()) {
 			if (PhotoMode.isEnabled() && PhotoMode.getCamera() != null) {
 				MINECRAFT.setScreen(new EffectsPanelScreen());
 			}

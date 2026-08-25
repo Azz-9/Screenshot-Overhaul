@@ -27,6 +27,7 @@ public abstract class KeyboardHandlerMixin {
 				action == InputConstants.PRESS &&
 				(!(MINECRAFT.screen instanceof KeyBindsScreen keybindsScreen) ||
 						(keybindsScreen.lastKeySelection <= Util.getMillis() - 20L)) &&
+				CommonClass.getPanoramaScreenshotKeybind() != null &&
 				CommonClass.getPanoramaScreenshotKeybind().matches(event)) {
 
 			Component text = MINECRAFT.grabPanoramixScreenshot(Config.getInstance().getAbsoluteScreenshotsDir().toFile());

@@ -17,8 +17,8 @@ public class ScreenshotOverhaul implements ModInitializer {
 
         // Use Fabric to bootstrap the Common mod.
 
-        CommonClass.init();
 		CommonClass.initKeyMappings();
+		CommonClass.init();
 
 		Registry.register(
 				BuiltInRegistries.SOUND_EVENT,
