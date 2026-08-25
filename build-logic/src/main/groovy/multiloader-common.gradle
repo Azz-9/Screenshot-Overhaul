@@ -10,7 +10,6 @@ base {
 java {
 	toolchain.languageVersion = JavaLanguageVersion.of(java_version)
 	withSourcesJar()
-	withJavadocJar()
 }
 
 tasks.withType(Jar).configureEach {
@@ -73,7 +72,10 @@ processResources {
 publishing {
 	publications {
 		register('mavenJava', MavenPublication) {
-			artifactId base.archivesName.get()
+			groupId = "me.Azz_9"
+			artifactId = "screenshot-overhaul-${project.name}"
+			version = project.mod_version
+
 			from components.java
 		}
 	}
