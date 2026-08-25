@@ -94,7 +94,7 @@ public abstract class GuiMapMixin extends ScreenBase {
 		int centerX = guiGraphics.guiWidth() / 2;
 		int centerY = guiGraphics.guiHeight() / 2;
 
-		if (texture == null || !texture.isReady()) {
+		if (!texture.isReady()) {
 			guiGraphics.fill(
 					SCREENSHOT_PADDING, SCREENSHOT_PADDING,
 					guiGraphics.guiWidth() - SCREENSHOT_PADDING,

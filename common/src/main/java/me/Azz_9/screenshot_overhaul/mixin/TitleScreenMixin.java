@@ -33,7 +33,7 @@ public abstract class TitleScreenMixin extends Screen {
 	protected abstract int getHorizontalPosition(int currentButton, int numberOfButtons, int buttonWidth);
 
 	@Unique
-	private static final int SIZE = 20;
+	private static final int screenshot_overhaul$SIZE = 20;
 
 	protected TitleScreenMixin(Component title) {
 		super(title);
@@ -65,21 +65,21 @@ public abstract class TitleScreenMixin extends Screen {
 		this.addRenderableWidget(
 				SpriteIconButton.TextAndIcon.builder(
 								Component.translatable("screenshot_overhaul.options.screenshots"),
-								(btn) -> MINECRAFT.gui.setScreen(new ScreenshotGalleryScreen(this)),
+								_ -> MINECRAFT.gui.setScreen(new ScreenshotGalleryScreen(this)),
 								true
 						)
 						.withTootip()
-						.size(SIZE, SIZE)
+						.size(screenshot_overhaul$SIZE, screenshot_overhaul$SIZE)
 						.sprite(SCREENSHOT_SPRITE, 15, 15)
 						.build()
 		).setPosition(
-				this.getHorizontalPosition(currentButton.get(), numberOfButtons, SIZE),
+				this.getHorizontalPosition(currentButton.get(), numberOfButtons, screenshot_overhaul$SIZE),
 				topPos
 		);
 
 		this.addRenderableWidget(Button.builder(
 						Component.translatable("screenshot_overhaul.options.change_panorama"),
-						(btn) -> MINECRAFT.gui.setScreen(new PanoramaGalleryScreen(Component.empty(), this))
+						_ -> MINECRAFT.gui.setScreen(new PanoramaGalleryScreen(Component.empty(), this))
 				)
 				.bounds(width - 100 - 10, 10, 100, 20)
 				.build());

@@ -140,7 +140,6 @@ public class RightClickMenu extends SimpleParentWidget {
 		@Override
 		protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
 			graphics.fill(getX(), getY(), getRight(), getBottom(), isHovered() ? Colors.GRAY : Colors.DARK_GRAY);
-			//graphics.outline(getX(), getY(), getWidth(), getHeight(), Colors.WHITE);
 			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, icon, getX() + PADDING, getY() + PADDING, ICON_SIZE, ICON_SIZE);
 			graphics.text(MINECRAFT.font, label, getX() + PADDING * 2 + ICON_SIZE, getY() + TEXT_OFFSET, Colors.WHITE);
 

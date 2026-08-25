@@ -90,35 +90,11 @@ public class FullViewWidget extends AbstractWidget {
 
 	private long copyResetAt = -1;
 
-	// Callbacks supplied by the parent screen
-	/**
-	 * Called when the user navigates to a different screenshot.
-	 */
 	private final @NonNull Consumer<Screenshot> onScreenshotChanged;
-
-	/**
-	 * Called when the user requests deletion of the current screenshot.
-	 */
 	private final @NonNull Consumer<Screenshot> onDeleteRequested;
-
-	/**
-	 * Called when the user closes the full view (ESC or back-navigation to gallery).
-	 */
 	private final @NonNull Runnable onClose;
-
-	/**
-	 * Supplies the next screenshot relative to the given one, or null if none.
-	 */
 	private final @NonNull Function<Screenshot, @Nullable Screenshot> nextSupplier;
-
-	/**
-	 * Supplies the previous screenshot relative to the given one, or null if none.
-	 */
 	private final @NonNull Function<Screenshot, @Nullable Screenshot> prevSupplier;
-
-	// -------------------------------------------------------------------------
-	// Constructor
-	// -------------------------------------------------------------------------
 
 	public FullViewWidget(
 			int screenWidth,
@@ -138,7 +114,7 @@ public class FullViewWidget extends AbstractWidget {
 
 		closeFullViewButton = SpriteIconButton.TextAndIcon.builder(
 						Component.translatable("screenshot_overhaul.close"),
-						button -> onClose.run(),
+						_ -> onClose.run(),
 						true
 				)
 				.size(CLOSE_BUTTON_SIZE, CLOSE_BUTTON_SIZE)
@@ -151,21 +127,21 @@ public class FullViewWidget extends AbstractWidget {
 				(screenHeight - NAV_BUTTON_SIZE) / 2,
 				NAV_BUTTON_SIZE, NAV_BUTTON_SIZE,
 				NavigationButton.NavigationType.BACK,
-				btn -> navigatePrevious());
+				_ -> navigatePrevious());
 
 		nextButton = new NavigationButton(
 				screenWidth - NAV_BUTTON_MARGIN - NAV_BUTTON_SIZE,
 				(screenHeight - NAV_BUTTON_SIZE) / 2,
 				NAV_BUTTON_SIZE, NAV_BUTTON_SIZE,
 				NavigationButton.NavigationType.NEXT,
-				btn -> navigateNext());
+				_ -> navigateNext());
 
 		int centerX = screenWidth / 2;
 		int btnY = screenHeight - ACTION_BUTTON_HEIGHT - ACTION_BUTTON_MARGIN_BOT;
 
 		deleteButton = Button.builder(
 						Component.translatable("screenshot_overhaul.delete"),
-						btn -> {
+						_ -> {
 							if (currentScreenshot != null) onDeleteRequested.accept(currentScreenshot);
 						})
 				.bounds(centerX - ACTION_BUTTON_WIDTH / 2 - ACTION_BUTTON_GAP - ACTION_BUTTON_WIDTH,
@@ -189,13 +165,10 @@ public class FullViewWidget extends AbstractWidget {
 
 		metadataPanel = new MetadataEditorPanel(METADATA_PANEL_WIDTH, screenHeight);
 		metadataPanel.setVisible(false);
-		// When the panel opens, it obscures nextButton — handled in mouse coord routing below.
-		metadataPanel.setOnVisibilityChange(visible -> {
-		});
 
 		editMetadataButton = Button.builder(
 						Component.translatable("screenshot_overhaul.edit_metadata"),
-						btn -> {
+						_ -> {
 							if (currentScreenshot != null)
 								metadataPanel.setVisible(!metadataPanel.isVisible());
 						})

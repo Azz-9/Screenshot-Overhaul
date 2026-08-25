@@ -24,7 +24,6 @@ public abstract class GuiRendererMixin {
 	private void onRenderHead(CallbackInfo ci) {
 		for (PanoramaThumbnailRenderState state : PanoramaThumbnailRenderQueue.drain()) {
 			state.cubeMap().renderToArea(
-					state.x(), state.y(),
 					state.width(), state.height(),
 					state.pitch(), state.yaw()
 			);

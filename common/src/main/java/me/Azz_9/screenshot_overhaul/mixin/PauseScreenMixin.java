@@ -26,7 +26,7 @@ import me.Azz_9.screenshot_overhaul.client.gui.screen.ScreenshotGalleryScreen;
 public abstract class PauseScreenMixin extends Screen {
 
 	@Unique
-	private static final int SIZE = 20;
+	private static final int screenshot_overhaul$SIZE = 20;
 
 	protected PauseScreenMixin(Component title) {
 		super(title);
@@ -38,11 +38,11 @@ public abstract class PauseScreenMixin extends Screen {
 	private void insertIconButton(CallbackInfo ci, @Local(name = "iconButtonRow") LinearLayout iconButtonRow) {
 		iconButtonRow.addChild(SpriteIconButton.TextAndIcon.builder(
 								Component.translatable("screenshot_overhaul.options.screenshots"),
-						(btn) -> MINECRAFT.gui.setScreen(new ScreenshotGalleryScreen(this)),
+						_ -> MINECRAFT.gui.setScreen(new ScreenshotGalleryScreen(this)),
 								true
 						)
 						.withTootip()
-				.size(SIZE, SIZE)
+				.size(screenshot_overhaul$SIZE, screenshot_overhaul$SIZE)
 				.sprite(SCREENSHOT_SPRITE, 15, 15)
 				.build());
 	}

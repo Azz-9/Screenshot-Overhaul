@@ -46,7 +46,7 @@ public abstract class HudMixin {
 
 	// Don't render equipped-item overlays while PhotoMode is active
 	@Inject(method = "extractTextureOverlay", at = @At("HEAD"), cancellable = true)
-	private void onExtractTextureOverlay(GuiGraphicsExtractor graphics, Identifier texture, float opacity, CallbackInfo ci) {
+	private void onExtractTextureOverlay(GuiGraphicsExtractor graphics, Identifier texture, float alpha, CallbackInfo ci) {
 		if (PhotoMode.isEnabled()) {
 			ci.cancel();
 		}

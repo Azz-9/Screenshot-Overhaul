@@ -15,13 +15,6 @@ import me.Azz_9.screenshot_overhaul.client.screenshot.Screenshot;
  */
 public record Panorama(@NonNull UUID uuid, @NonNull File folder, @Nullable Screenshot[] faces,
 					   @NonNull String pathRelativeToScreenshotDir) {
-	public Panorama(@NonNull UUID uuid, @NonNull File folder, @Nullable Screenshot[] faces,
-					@NonNull String pathRelativeToScreenshotDir) {
-		this.uuid = uuid;
-		this.folder = folder;
-		this.faces = faces;
-		this.pathRelativeToScreenshotDir = pathRelativeToScreenshotDir;
-	}
 
 	public Panorama(@NonNull UUID id, @NonNull File folder, @Nullable Screenshot[] faces) {
 		this(id, folder, faces, Config.getInstance().getAbsoluteScreenshotsDir().relativize(folder.toPath()).toString());

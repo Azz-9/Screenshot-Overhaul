@@ -13,7 +13,7 @@ import me.Azz_9.screenshot_overhaul.platform.Services;
 public abstract class GlCommandEncoderMixin {
 
 	@Inject(method = "awaitSubmit", at = @At("HEAD"), cancellable = true, remap = false)
-	private void awaitSubmit(long p1, long p2, CallbackInfoReturnable<Boolean> cir) {
+	private void awaitSubmit(long index, long timeoutNS, CallbackInfoReturnable<Boolean> cir) {
 		if (ScreenshotContext.capturingPanorama && Services.PLATFORM.isModLoaded("sodium")) {
 			GL11C.glFinish();
 			cir.setReturnValue(true);

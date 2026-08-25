@@ -214,7 +214,7 @@ public abstract class AbstractSavableScreen extends BaseScreen {
 	 * disk, trigger async renames, etc.
 	 * </p>
 	 * <p>
-	 * Note: the screen closes after this method returns. If your save is async and
+	 * Note: the screen closes after this method returns. If your save is async, and
 	 * you need to delay the close, do not call super.onSave() and schedule
 	 * super.onClose() yourself once the async work completes.
 	 * </p>

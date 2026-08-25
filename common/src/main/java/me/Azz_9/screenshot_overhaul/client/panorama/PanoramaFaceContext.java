@@ -12,6 +12,6 @@ public record PanoramaFaceContext(
 		int faceIndex
 ) {
 	public PanoramaFaceContext(PanoramaCaptureContext ctx, int faceIndex) {
-		this(ctx.panoramaId, ctx.pendingFaces, ctx.panoramaFolder, faceIndex);
+		this(ctx.panoramaId(), ctx.pendingFaces(), ctx.panoramaFolder(), faceIndex);
 	}
 }

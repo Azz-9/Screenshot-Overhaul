@@ -293,10 +293,6 @@ public final class Config {
 			return new Resolution2D(3840, 2160);
 		}
 
-		public Resolution2D copy() {
-			return new Resolution2D(width, height);
-		}
-
 		@Override
 		public @NonNull String toString() {
 			return width + "x" + height;

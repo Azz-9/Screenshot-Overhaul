@@ -90,10 +90,6 @@ public class ScreenshotEntryWidget extends AbstractGalleryEntryWidget {
 		this(0, 0, 0, 0, screenshot, onThumbnailClicked, onDeleteRequested);
 	}
 
-	public ScreenshotEntryWidget(@NonNull Screenshot screenshot, @NonNull Consumer<Screenshot> onDeleteRequested) {
-		this(0, 0, 0, 0, screenshot, null, onDeleteRequested);
-	}
-
 	@Override
 	public void triggerLoad() {
 		thumbnailWidget.load();

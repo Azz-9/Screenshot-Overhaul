@@ -305,6 +305,34 @@ public class ScreenshotNameWidget extends AbstractWidget {
 					}
 
 					return true;
+				case 261:
+					if (this.editable) {
+						this.erase(1, input.hasControlDown());
+					}
+
+					return true;
+				case 262:
+					if (input.hasControlDown()) {
+						this.setCursor(this.getWordSkipPosition(1), input.hasShiftDown());
+					} else {
+						this.moveCursor(1, input.hasShiftDown());
+					}
+
+					return true;
+				case 263:
+					if (input.hasControlDown()) {
+						this.setCursor(this.getWordSkipPosition(-1), input.hasShiftDown());
+					} else {
+						this.moveCursor(-1, input.hasShiftDown());
+					}
+
+					return true;
+				case 268:
+					this.setCursorToStart(input.hasShiftDown());
+					return true;
+				case 269:
+					this.setCursorToEnd(input.hasShiftDown());
+					return true;
 				case 260:
 				case 264:
 				case 265:
@@ -336,34 +364,6 @@ public class ScreenshotNameWidget extends AbstractWidget {
 
 						return false;
 					}
-				case 261:
-					if (this.editable) {
-						this.erase(1, input.hasControlDown());
-					}
-
-					return true;
-				case 262:
-					if (input.hasControlDown()) {
-						this.setCursor(this.getWordSkipPosition(1), input.hasShiftDown());
-					} else {
-						this.moveCursor(1, input.hasShiftDown());
-					}
-
-					return true;
-				case 263:
-					if (input.hasControlDown()) {
-						this.setCursor(this.getWordSkipPosition(-1), input.hasShiftDown());
-					} else {
-						this.moveCursor(-1, input.hasShiftDown());
-					}
-
-					return true;
-				case 268:
-					this.setCursorToStart(input.hasShiftDown());
-					return true;
-				case 269:
-					this.setCursorToEnd(input.hasShiftDown());
-					return true;
 			}
 		} else {
 			return false;

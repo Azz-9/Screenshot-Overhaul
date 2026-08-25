@@ -10,7 +10,6 @@ import net.minecraft.util.Mth;
 import org.jspecify.annotations.NonNull;
 
 import me.Azz_9.screenshot_overhaul.client.Colors;
-import me.Azz_9.screenshot_overhaul.mixin.AbstractWidgetAccessor;
 
 /**
  * Renders a single-line tooltip as a filled rectangle with text, positioned
@@ -20,7 +19,7 @@ import me.Azz_9.screenshot_overhaul.mixin.AbstractWidgetAccessor;
  * <ol>
  *   <li>Preferred position: centred horizontally over {@code anchorWidget},
  *       placed just above it with a small gap.</li>
- *   <li>If that would clip the top edge of the screen, the tooltip is placed
+ *   <li>If that clip the top edge of the screen, the tooltip is placed
  *       below the widget instead.</li>
  *   <li>Horizontal position is clamped so the box stays within
  *       {@code [0, screenWidth]}.</li>
@@ -38,28 +37,6 @@ public final class TooltipRenderer {
 	private static final int BORDER_COLOR = Colors.GRAY;
 
 	private TooltipRenderer() {
-	}
-
-	/**
-	 * Renders a tooltip above (or below) {@code anchor} if the mouse is
-	 * currently hovering over it.
-	 *
-	 * @param graphics     the current graphics context
-	 * @param anchor       the widget to attach the tooltip to
-	 * @param text         the text to display
-	 * @param mouseX       current mouse X
-	 * @param mouseY       current mouse Y
-	 * @param rectangle    box that the tooltip should not overflow
-	 */
-	public static void renderIfHovered(
-			@NonNull GuiGraphicsExtractor graphics,
-			@NonNull AbstractWidget anchor,
-			@NonNull String text,
-			int mouseX, int mouseY,
-			@NonNull ScreenRectangle rectangle
-	) {
-		if (!((AbstractWidgetAccessor) anchor).invokeAreCoordinatesInRectangle(mouseX, mouseY)) return;
-		render(graphics, anchor, text, rectangle);
 	}
 
 	/**

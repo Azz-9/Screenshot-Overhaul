@@ -24,10 +24,6 @@ public class ConfigObject<T> extends SavableObject<T> {
 		return new ConfigObject<>(defaultValue, translationKey, valueType, applier);
 	}
 
-	public @NonNull String getTranslationKey() {
-		return translationKey;
-	}
-
 	public @NonNull Component getTranslationText() {
 		return Component.translatable(translationKey);
 	}
