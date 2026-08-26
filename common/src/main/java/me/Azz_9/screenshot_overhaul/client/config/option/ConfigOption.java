@@ -22,35 +22,12 @@ import me.Azz_9.screenshot_overhaul.client.gui.trackableChanges.TrackableChanges
  */
 public interface ConfigOption<T> extends TrackableChanges {
 
-	// -------------------------------------------------------------------------
-	// Identity & metadata
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Human-readable label shown on the left side of the option row.
-	 */
 	@NonNull Component getLabel();
 
-	/**
-	 * Returns the tooltip for the current working value, or {@link Optional#empty()}
-	 * if no tooltip supplier was provided.
-	 */
 	@NonNull Optional<Component> getTooltip();
 
-	// -------------------------------------------------------------------------
-	// Working copy
-	// -------------------------------------------------------------------------
-
-	/**
-	 * The current working (unsaved) value.
-	 */
 	@NonNull T getWorkingValue();
 
-	/**
-	 * Updates the working value.
-	 *
-	 * @param value the new value; must not be {@code null}
-	 */
 	void setWorkingValue(@NonNull T value);
 
 	@Override
@@ -58,63 +35,22 @@ public interface ConfigOption<T> extends TrackableChanges {
 		return validate().isValid();
 	}
 
-	/**
-	 * Resets the working value to the {@link ConfigObject}'s {@code defaultValue}.
-	 */
 	void resetToDefault();
 
 	@NonNull T getDefaultValue();
 
-	// -------------------------------------------------------------------------
-	// Validation
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Validates the current working value.
-	 *
-	 * @return {@link ValidationResult#valid()} if the value is acceptable,
-	 * or a {@link ValidationResult#invalid(Component)} describing the error
-	 */
 	@NonNull ValidationResult validate();
 
-	// -------------------------------------------------------------------------
-	// Dependencies
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Returns {@code true} if all dependencies of this option are currently satisfied
-	 * (i.e. the option should be enabled and interactive).
-	 */
 	boolean isDependencySatisfied();
 
-	// -------------------------------------------------------------------------
-	// TrackableChanges
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Returns {@code true} if the working value differs from the value currently
-	 * stored in the backing {@link ConfigObject}.
-	 */
 	@Override
 	boolean hasChanged();
 
-	/**
-	 * Discards the working copy and resets it to the value currently stored
-	 * in the backing {@link ConfigObject}.
-	 */
 	@Override
 	void revertChanges();
 
-	/**
-	 * Commits the working value back to the backing {@link ConfigObject}.
-	 * Call this when the user confirms they want to save.
-	 */
 	@Override
 	void commitChanges();
-
-	// -------------------------------------------------------------------------
-	// Immutable result type for validation
-	// -------------------------------------------------------------------------
 
 	/**
 	 * Holds the result of validating a config option's working value.

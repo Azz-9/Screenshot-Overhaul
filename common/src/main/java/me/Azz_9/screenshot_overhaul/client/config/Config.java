@@ -1,7 +1,6 @@
 package me.Azz_9.screenshot_overhaul.client.config;
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
-import static me.Azz_9.screenshot_overhaul.CommonClass.PHOTO_MODE_ENABLED;
 import static me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotFileNameParser.MAX_FILE_STEM_LENGTH;
 
 import net.minecraft.client.gui.screens.Screen;
@@ -17,6 +16,7 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 import me.Azz_9.screenshot_overhaul.ScreenshotLogger;
+import me.Azz_9.screenshot_overhaul.api.SettingsContext;
 import me.Azz_9.screenshot_overhaul.client.config.option.options.*;
 import me.Azz_9.screenshot_overhaul.client.gui.components.config.ConfigTabContent;
 import me.Azz_9.screenshot_overhaul.client.gui.components.gallery.ScrollableGallery;
@@ -32,10 +32,6 @@ public final class Config {
 	private static final @NonNull Config INSTANCE = new Config();
 
 	public final @NonNull ConfigObject<Boolean> enableWholeMod = ConfigObject.nonNull(true, "screenshot_overhaul.config.enable_whole_mod", Boolean.class);
-
-	public final @NonNull ConfigObject<Boolean> freezeInPhotoMode = ConfigObject.nonNull(true, "screenshot_overhaul.config.freeze_in_photo_mode", Boolean.class);
-	public final @NonNull ConfigObject<Boolean> showPlayer = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_player", Boolean.class);
-	public final @NonNull ConfigObject<Boolean> showNametags = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_nametags", Boolean.class);
 
 	public final @NonNull ConfigObject<Boolean> showScreenshotsOnXaerosWorldMap = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_screenshots_on_xaeros_world_map", Boolean.class);
 	public final @NonNull ConfigObject<Boolean> showScreenshotsOnJourneyMap = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_screenshots_on_journey_map", Boolean.class);
@@ -105,13 +101,13 @@ public final class Config {
 		SettingsScreen screen = new SettingsScreen(currentScreen);
 
 		// General
-		BooleanConfigOption enableWholeMod = BooleanConfigOption.builder(Config.getInstance().enableWholeMod).build();
-		BooleanConfigOption showScreenshotsOnXaerosWorldMap = BooleanConfigOption.builder(Config.getInstance().showScreenshotsOnXaerosWorldMap)
+		BooleanConfigOption enableWholeMod = BooleanConfigOption.builder(getInstance().enableWholeMod).build();
+		BooleanConfigOption showScreenshotsOnXaerosWorldMap = BooleanConfigOption.builder(getInstance().showScreenshotsOnXaerosWorldMap)
 				.dependsOn(CompatManager::xaerosWorldMapPresent)
 				.dependsOn(enableWholeMod)
 				.build();
 
-		BooleanConfigOption showScreenshotsOnJourneyMap = BooleanConfigOption.builder(Config.getInstance().showScreenshotsOnJourneyMap)
+		BooleanConfigOption showScreenshotsOnJourneyMap = BooleanConfigOption.builder(getInstance().showScreenshotsOnJourneyMap)
 				.dependsOn(CompatManager::journeyMapPresent)
 				.dependsOn(enableWholeMod)
 				.build();
@@ -125,57 +121,57 @@ public final class Config {
 		screen.addConfigTab(Component.translatable("screenshot_overhaul.config.category.general"), generalContent);
 
 		// Screenshot
-		StringConfigOption screenshotsFileName = StringConfigOption.builder(Config.getInstance().screenshotsFileName)
+		StringConfigOption screenshotsFileName = StringConfigOption.builder(getInstance().screenshotsFileName)
 				.maxLength(MAX_FILE_STEM_LENGTH)
 				.tooltip(Component.translatable("screenshot_overhaul.config.screenshots_file_name.tooltip"))
 				.validate(ScreenshotFileNameParser::validate, Component.translatable("screenshot_overhaul.config.screenshots_file_name.invalid"))
 				.dependsOn(enableWholeMod)
 				.build();
-		PathConfigOption screenshotsDir = PathConfigOption.builder(Config.getInstance().screenshotsDir)
+		PathConfigOption screenshotsDir = PathConfigOption.builder(getInstance().screenshotsDir)
 				.selectionMode(PathConfigOption.SelectionMode.DIRECTORIES_ONLY)
 				.dependsOn(enableWholeMod)
 				.build();
-		BooleanConfigOption useCustomResolution = BooleanConfigOption.builder(Config.getInstance().useCustomResolution)
+		BooleanConfigOption useCustomResolution = BooleanConfigOption.builder(getInstance().useCustomResolution)
 				.dependsOn(enableWholeMod)
 				.build();
-		ResolutionConfigOption screenshotResolution = ResolutionConfigOption.builder(Config.getInstance().screenshotResolution)
+		ResolutionConfigOption screenshotResolution = ResolutionConfigOption.builder(getInstance().screenshotResolution)
 				.addPreset(Resolution2D.fullHD(), Component.literal("Full HD"))
 				.addPreset(Resolution2D.QHD(), Component.literal("QHD"))
 				.addPreset(Resolution2D.UHD(), Component.literal("UHD"))
 				.dependsOn(useCustomResolution)
 				.dependsOn(enableWholeMod)
 				.build();
-		BooleanConfigOption showChatMessage = BooleanConfigOption.builder(Config.getInstance().showChatMessage)
+		BooleanConfigOption showChatMessage = BooleanConfigOption.builder(getInstance().showChatMessage)
 				.dependsOn(enableWholeMod)
 				.build();
-		BooleanConfigOption showPreview = BooleanConfigOption.builder(Config.getInstance().showPreview)
+		BooleanConfigOption showPreview = BooleanConfigOption.builder(getInstance().showPreview)
 				.dependsOn(enableWholeMod)
 				.build();
-		EnumConfigOption<PreviewPlacement> previewPlacement = EnumConfigOption.builder(Config.getInstance().previewPlacement, PreviewPlacement.class)
+		EnumConfigOption<PreviewPlacement> previewPlacement = EnumConfigOption.builder(getInstance().previewPlacement, PreviewPlacement.class)
 				.valueName(PreviewPlacement::getText)
 				.dependsOn(showPreview)
 				.dependsOn(enableWholeMod)
 				.build();
-		BooleanConfigOption screenshotSound = BooleanConfigOption.builder(Config.getInstance().screenshotSound)
+		BooleanConfigOption screenshotSound = BooleanConfigOption.builder(getInstance().screenshotSound)
 				.dependsOn(enableWholeMod)
 				.build();
-		BooleanConfigOption screenshotFlash = BooleanConfigOption.builder(Config.getInstance().screenshotFlash)
+		BooleanConfigOption screenshotFlash = BooleanConfigOption.builder(getInstance().screenshotFlash)
 				.dependsOn(enableWholeMod)
 				.build();
-		BooleanConfigOption hideHudOnScreenshot = BooleanConfigOption.builder(Config.getInstance().hideHudOnScreenshot)
+		BooleanConfigOption hideHudOnScreenshot = BooleanConfigOption.builder(getInstance().hideHudOnScreenshot)
 				.dependsOn(enableWholeMod)
 				.build();
-		BooleanConfigOption hideChatOnScreenshot = BooleanConfigOption.builder(Config.getInstance().hideChatOnScreenshot)
+		BooleanConfigOption hideChatOnScreenshot = BooleanConfigOption.builder(getInstance().hideChatOnScreenshot)
 				.dependsOn(() -> !hideHudOnScreenshot.getWorkingValue())
 				.dependsOn(enableWholeMod)
 				.build();
-		BooleanConfigOption hideHandOnScreenshot = BooleanConfigOption.builder(Config.getInstance().hideHandOnScreenshot)
+		BooleanConfigOption hideHandOnScreenshot = BooleanConfigOption.builder(getInstance().hideHandOnScreenshot)
 				.dependsOn(enableWholeMod)
 				.build();
-		BooleanConfigOption grabScreenshotOnAdvancement = BooleanConfigOption.builder(Config.getInstance().grabScreenshotOnAdvancement)
+		BooleanConfigOption grabScreenshotOnAdvancement = BooleanConfigOption.builder(getInstance().grabScreenshotOnAdvancement)
 				.dependsOn(enableWholeMod)
 				.build();
-		IntSliderConfigOption advancementScreenshotDelay = IntSliderConfigOption.builder(Config.getInstance().advancementScreenshotDelay, 0, 100)
+		IntSliderConfigOption advancementScreenshotDelay = IntSliderConfigOption.builder(getInstance().advancementScreenshotDelay, 0, 100)
 				.dependsOn(grabScreenshotOnAdvancement)
 				.dependsOn(enableWholeMod)
 				.build();
@@ -202,13 +198,13 @@ public final class Config {
 		screen.addConfigTab(Component.translatable("screenshot_overhaul.config.category.screenshot"), screenshotContent);
 
 		// panorama
-		StringConfigOption panoramaFolderName = StringConfigOption.builder(Config.getInstance().panoramaFolderName)
+		StringConfigOption panoramaFolderName = StringConfigOption.builder(getInstance().panoramaFolderName)
 				.maxLength(MAX_FILE_STEM_LENGTH)
 				.tooltip(Component.translatable("screenshot_overhaul.config.screenshots_file_name.tooltip"))
 				.validate(ScreenshotFileNameParser::validate, Component.translatable("screenshot_overhaul.config.panorama_folder_name.invalid"))
 				.dependsOn(enableWholeMod)
 				.build();
-		IntFieldConfigOption panoramaResolution = IntFieldConfigOption.builder(Config.getInstance().panoramaResolution)
+		IntFieldConfigOption panoramaResolution = IntFieldConfigOption.builder(getInstance().panoramaResolution)
 				.range(256, 4096)
 				.tooltip(integer -> {
 					if (integer > 2048) {
@@ -218,17 +214,17 @@ public final class Config {
 				})
 				.dependsOn(enableWholeMod)
 				.build();
-		IntSliderConfigOption rotationSpeed = IntSliderConfigOption.builder(Config.getInstance().rotationSpeed, 0, 100)
+		IntSliderConfigOption rotationSpeed = IntSliderConfigOption.builder(getInstance().rotationSpeed, 0, 100)
 				.dependsOn(enableWholeMod)
 				.buildLive();
-		EnumConfigOption<RotationDirection> rotationDirection = EnumConfigOption.builder(Config.getInstance().rotationDirection, RotationDirection.class)
+		EnumConfigOption<RotationDirection> rotationDirection = EnumConfigOption.builder(getInstance().rotationDirection, RotationDirection.class)
 				.valueName(RotationDirection::getText)
 				.dependsOn(enableWholeMod)
 				.buildLive();
-		IntSliderConfigOption verticalAngle = IntSliderConfigOption.builder(Config.getInstance().verticalAngle, -180, 180)
+		IntSliderConfigOption verticalAngle = IntSliderConfigOption.builder(getInstance().verticalAngle, -180, 180)
 				.dependsOn(enableWholeMod)
 				.buildLive();
-		IntSliderConfigOption startingHorizontalAngle = IntSliderConfigOption.builder(Config.getInstance().startingHorizontalAngle, 0, 360)
+		IntSliderConfigOption startingHorizontalAngle = IntSliderConfigOption.builder(getInstance().startingHorizontalAngle, 0, 360)
 				.dependsOn(enableWholeMod)
 				.buildLive();
 
@@ -244,25 +240,9 @@ public final class Config {
 
 		screen.addConfigTab(Component.translatable("screenshot_overhaul.config.category.panorama"), panoramaContent);
 
-		if (PHOTO_MODE_ENABLED) {
-			// Photo mode
-			BooleanConfigOption freezeInPhotoMode = BooleanConfigOption.builder(Config.getInstance().freezeInPhotoMode)
-					.dependsOn(enableWholeMod)
-					.build();
-			BooleanConfigOption showPlayer = BooleanConfigOption.builder(Config.getInstance().showPlayer)
-					.dependsOn(enableWholeMod)
-					.build();
-			BooleanConfigOption showNametags = BooleanConfigOption.builder(Config.getInstance().showNametags)
-					.dependsOn(enableWholeMod)
-					.build();
-
-			ConfigTabContent photoModeContent = ConfigTabContent.builder()
-					.option(freezeInPhotoMode)
-					.option(showPlayer)
-					.option(showNametags)
-					.build();
-
-			screen.addConfigTab(Component.translatable("screenshot_overhaul.config.category.photo_mode"), photoModeContent);
+		SettingsContext context = () -> enableWholeMod;
+		for (AddonConfigRegistry.Entry entry : AddonConfigRegistry.getEntries()) {
+			screen.addConfigTab(entry.label(), entry.contentSupplier().apply(context));
 		}
 
 		return screen;

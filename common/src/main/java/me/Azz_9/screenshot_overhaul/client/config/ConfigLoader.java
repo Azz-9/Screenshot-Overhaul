@@ -46,37 +46,48 @@ public class ConfigLoader {
 			.create();
 	private static final @NonNull Path CONFIG_FILE = Services.PLATFORM.getConfigDir().resolve(MOD_ID + ".json");
 
-	public static void save() throws IOException {
+	public static void save(@NonNull Object holder, @NonNull Path file) throws IOException {
 		ScreenshotLogger.info("Saving config...");
 		JsonObject root = new JsonObject();
-		collectFields(root);
-		Files.writeString(CONFIG_FILE, GSON.toJson(root));
+		collectFields(holder, root);
+		Files.writeString(file, GSON.toJson(root));
 	}
 
-	public static void trySave() {
+	public static void save() throws IOException {
+		save(Config.getInstance(), CONFIG_FILE);
+	}
+
+	public static void trySave(@NonNull Object holder, @NonNull Path file) {
 		try {
-			save();
+			save(holder, file);
 		} catch (IOException e) {
 			ScreenshotLogger.error("Failed to save config file : {}", e.getMessage());
 		}
 	}
 
-	public static void load() throws IOException {
-		ScreenshotLogger.info("Loading config...");
-		if (!Files.exists(CONFIG_FILE)) {
-			ScreenshotLogger.info("Config file does not exist, creating a new one...");
-			ConfigLoader.trySave();
-			return;
-		}
-		JsonObject root = JsonParser.parseString(Files.readString(CONFIG_FILE)).getAsJsonObject();
-		applyFields(root);
+	public static void trySave() {
+		trySave(Config.getInstance(), CONFIG_FILE);
 	}
 
-	private static void collectFields(@NonNull JsonObject root) {
-		for (Field field : Config.getInstance().getClass().getDeclaredFields()) {
+	public static void load(@NonNull Object holder, @NonNull Path file) throws IOException {
+		ScreenshotLogger.info("Loading config...");
+		if (!Files.exists(file)) {
+			ScreenshotLogger.info("Config file does not exist, creating a new one...");
+			trySave(holder, file);
+			return;
+		}
+		applyFields(holder, JsonParser.parseString(Files.readString(file)).getAsJsonObject());
+	}
+
+	public static void load() throws IOException {
+		load(Config.getInstance(), CONFIG_FILE);
+	}
+
+	private static void collectFields(@NonNull Object holder, @NonNull JsonObject root) {
+		for (Field field : holder.getClass().getDeclaredFields()) {
 			field.setAccessible(true);
 			try {
-				Object val = field.get(Config.getInstance());
+				Object val = field.get(holder);
 				if (!(val instanceof SavableObject<?> savable)) continue;
 
 				String key = field.getName();
@@ -87,11 +98,11 @@ public class ConfigLoader {
 		}
 	}
 
-	private static void applyFields(@NonNull JsonObject root) {
-		for (Field field : Config.getInstance().getClass().getDeclaredFields()) {
+	private static void applyFields(@NonNull Object holder, @NonNull JsonObject root) {
+		for (Field field : holder.getClass().getDeclaredFields()) {
 			field.setAccessible(true);
 			try {
-				Object val = field.get(Config.getInstance());
+				Object val = field.get(holder);
 				if (!(val instanceof SavableObject<?> savable)) continue;
 
 				String key = field.getName();

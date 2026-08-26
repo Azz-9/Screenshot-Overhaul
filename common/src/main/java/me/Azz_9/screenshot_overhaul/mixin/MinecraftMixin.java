@@ -5,8 +5,6 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.NonNull;
@@ -24,51 +22,10 @@ import me.Azz_9.screenshot_overhaul.client.config.Config;
 import me.Azz_9.screenshot_overhaul.client.panorama.PanoramaCaptureContext;
 import me.Azz_9.screenshot_overhaul.client.panorama.PanoramaFaceContext;
 import me.Azz_9.screenshot_overhaul.client.panorama.ScreenshotContext;
-import me.Azz_9.screenshot_overhaul.client.photoMode.PhotoMode;
 import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotFileNameParser;
 
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
-
-	// Disable attack in PhotoMode
-	@Inject(method = "startAttack", at = @At("HEAD"), cancellable = true)
-	private void onStartAttack(CallbackInfoReturnable<Boolean> cir) {
-		if (PhotoMode.isEnabled()) {
-			cir.cancel();
-		}
-	}
-
-	// Disable pick block or entity in PhotoMode
-	@Inject(method = "pickBlockOrEntity", at = @At("HEAD"), cancellable = true)
-	private void onPickBlockOrEntity(CallbackInfo ci) {
-		if (PhotoMode.isEnabled()) {
-			ci.cancel();
-		}
-	}
-
-	// Disable block breaking in PhotoMode
-	@Inject(method = "continueAttack", at = @At("HEAD"), cancellable = true)
-	private void onContinueAttack(CallbackInfo ci) {
-		if (PhotoMode.isEnabled()) {
-			ci.cancel();
-		}
-	}
-
-	// Disable PhotoMode on disconnect
-	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;ZZ)V", at = @At(value = "HEAD"))
-	private void onDisconnect(CallbackInfo ci) {
-		if (PhotoMode.isEnabled()) {
-			PhotoMode.disable();
-		}
-	}
-
-	// Disable opening container screens in PhotoMode
-	@Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
-	private void onSetScreen(Screen screen, CallbackInfo ci) {
-		if (PhotoMode.isEnabled() && screen instanceof AbstractContainerScreen<?>) {
-			ci.cancel();
-		}
-	}
 
 	@Inject(method = "handleKeybinds", at = @At("HEAD"))
 	private void onHandleKeybinds(CallbackInfo ci) {

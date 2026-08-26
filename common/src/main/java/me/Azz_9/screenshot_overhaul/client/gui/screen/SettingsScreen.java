@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import me.Azz_9.screenshot_overhaul.client.config.AddonConfigRegistry;
 import me.Azz_9.screenshot_overhaul.client.config.ConfigLoader;
 import me.Azz_9.screenshot_overhaul.client.config.option.ConfigOption;
 import me.Azz_9.screenshot_overhaul.client.gui.components.config.ConfigOptionListWidget;
@@ -103,5 +104,8 @@ public class SettingsScreen extends TabsScreen {
 	protected void onSave() {
 		super.onSave();
 		ConfigLoader.trySave();
+		AddonConfigRegistry.getEntries().forEach(e -> {
+			if (e.onSave() != null) e.onSave().run();
+		});
 	}
 }

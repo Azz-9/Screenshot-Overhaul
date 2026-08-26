@@ -13,13 +13,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import me.Azz_9.screenshot_overhaul.client.photoMode.PhotoMode;
 import me.Azz_9.screenshot_overhaul.client.screenshot.FutureScreenshotState;
 
 @Mixin(ItemInHandRenderer.class)
 public abstract class ItemInHandRendererMixin {
 
-	// Hide hand in PhotoMode and on screenshot
+	// Hide hand on screenshot
 	@Inject(
 			method = "renderArmWithItem",
 			at = @At("HEAD"),
@@ -30,7 +29,7 @@ public abstract class ItemInHandRendererMixin {
 										float inverseArmHeight, PoseStack poseStack,
 										SubmitNodeCollector submitNodeCollector, int lightCoords,
 										CallbackInfo ci) {
-		if (PhotoMode.isEnabled() || FutureScreenshotState.suppressHand) {
+		if (FutureScreenshotState.suppressHand) {
 			ci.cancel();
 		}
 	}

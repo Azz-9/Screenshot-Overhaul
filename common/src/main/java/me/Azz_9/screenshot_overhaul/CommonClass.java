@@ -8,11 +8,11 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.screens.LevelLoadingScreen;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Ease;
 
+import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -25,11 +25,8 @@ import java.util.List;
 import me.Azz_9.screenshot_overhaul.client.Colors;
 import me.Azz_9.screenshot_overhaul.client.config.Config;
 import me.Azz_9.screenshot_overhaul.client.config.ConfigLoader;
-import me.Azz_9.screenshot_overhaul.client.gui.screen.EffectsPanelScreen;
 import me.Azz_9.screenshot_overhaul.client.panorama.Panorama;
 import me.Azz_9.screenshot_overhaul.client.panorama.PanoramaHolder;
-import me.Azz_9.screenshot_overhaul.client.photoMode.PhotoMode;
-import me.Azz_9.screenshot_overhaul.client.photoMode.PhotoModeHud;
 import me.Azz_9.screenshot_overhaul.client.preview.ScreenshotPreview;
 import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotList;
 import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotManager;
@@ -43,36 +40,16 @@ import me.Azz_9.screenshot_overhaul.platform.Services;
 // however it will be compatible with all supported mod loaders.
 public class CommonClass {
 
-	public static final boolean PHOTO_MODE_ENABLED = Boolean.parseBoolean(System.getenv().getOrDefault("SCREENSHOT_OVERHAUL_ENABLE_PHOTO_MODE", "false"));
-
 	public static Minecraft MINECRAFT;
 
-	private static @Nullable KeyMapping openPhotoMode;
-	private static @Nullable KeyMapping rollLeft;
-	private static @Nullable KeyMapping rollRight;
-	private static @Nullable KeyMapping openEffectsPanel;
+	public static final @NotNull KeyMapping.Category KEYBIND_CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "screenshot-overhaul"));
+
 	private static @Nullable KeyMapping panoramaScreenshot;
 
 	private static final List<RunnableState> runnableStates = new ArrayList<>();
 
 	public static final int FLASH_DURATION = 1000;
 	public static long lastScreenshotTime = -1;
-
-	public static @Nullable KeyMapping getOpenPhotoModeKeybind() {
-		return openPhotoMode;
-	}
-
-	public static @Nullable KeyMapping getRollLeftKeybind() {
-		return rollLeft;
-	}
-
-	public static @Nullable KeyMapping getRollRightKeybind() {
-		return rollRight;
-	}
-
-	public static @Nullable KeyMapping getOpenEffectsPanelKeybind() {
-		return openEffectsPanel;
-	}
 
 	public static @Nullable KeyMapping getPanoramaScreenshotKeybind() {
 		return panoramaScreenshot;
@@ -114,8 +91,6 @@ public class CommonClass {
 		}
 
 		Services.PLATFORM.registerOnStartTickEvent(() -> {
-			PhotoMode.startTick();
-
 			Iterator<RunnableState> iterator = runnableStates.iterator();
 			while (iterator.hasNext()) {
 				RunnableState runnableState = iterator.next();
@@ -134,52 +109,15 @@ public class CommonClass {
 	}
 
 	public static void initKeyMappings() {
-		KeyMapping.Category keybind_category = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "screenshot-overhaul"));
-
-		// photo mode
-		if (PHOTO_MODE_ENABLED) {
-			openPhotoMode = Services.PLATFORM.registerKeyMapping(new KeyMapping("screenshot_overhaul.controls.photo_mode", InputConstants.Type.KEYSYM, InputConstants.KEY_F10, keybind_category));
-			rollLeft = Services.PLATFORM.registerKeyMapping(new KeyMapping("screenshot_overhaul.controls.roll_left", InputConstants.Type.KEYSYM, InputConstants.KEY_Q, keybind_category));
-			rollRight = Services.PLATFORM.registerKeyMapping(new KeyMapping("screenshot_overhaul.controls.roll_right", InputConstants.Type.KEYSYM, InputConstants.KEY_E, keybind_category));
-			openEffectsPanel = Services.PLATFORM.registerKeyMapping(new KeyMapping("screenshot_overhaul.controls.open_effects_panel", InputConstants.Type.KEYSYM, InputConstants.KEY_H, keybind_category));
-		}
-
 		// panorama screenshot
-		panoramaScreenshot = Services.PLATFORM.registerKeyMapping(new KeyMapping("screenshot_overhaul.controls.panorama_screenshot", InputConstants.Type.KEYSYM, InputConstants.KEY_F9, keybind_category));
+		panoramaScreenshot = Services.PLATFORM.registerKeyMapping(new KeyMapping("screenshot_overhaul.controls.panorama_screenshot", InputConstants.Type.KEYSYM, InputConstants.KEY_F9, KEYBIND_CATEGORY));
 	}
 
 	public static void handleKeybindsHook() {
-		while (PHOTO_MODE_ENABLED && getOpenPhotoModeKeybind() != null && getOpenPhotoModeKeybind().consumeClick()) {
-			PhotoMode.toggle();
-		}
-
-		while (getRollLeftKeybind() != null && getRollLeftKeybind().consumeClick()) {
-			if (PhotoMode.isEnabled() && PhotoMode.getCamera() != null) {
-				PhotoMode.getCamera().rollLeft();
-			}
-		}
-
-		while (getRollRightKeybind() != null && getRollRightKeybind().consumeClick()) {
-			if (PhotoMode.isEnabled() && PhotoMode.getCamera() != null) {
-				PhotoMode.getCamera().rollRight();
-			}
-		}
-
-		while (getOpenEffectsPanelKeybind() != null && getOpenEffectsPanelKeybind().consumeClick()) {
-			if (PhotoMode.isEnabled() && PhotoMode.getCamera() != null) {
-				MINECRAFT.setScreen(new EffectsPanelScreen());
-			}
-		}
 	}
 
 	// return whether the base render method should be canceled
 	public static boolean hudRenderHook(final @NonNull GuiGraphicsExtractor graphics, final @NonNull DeltaTracker deltaTracker) {
-		if (!(MINECRAFT.screen instanceof LevelLoadingScreen)) {
-			if (!MINECRAFT.options.hideGui) {
-				PhotoModeHud.render(graphics, deltaTracker);
-			}
-		}
-
 		// screenshot preview
 		if (MINECRAFT.screen == null && !MINECRAFT.options.hideGui)
 			ScreenshotPreview.render(graphics, 0, 0, deltaTracker.getGameTimeDeltaPartialTick(true));
@@ -188,8 +126,7 @@ public class CommonClass {
 		if (MINECRAFT.screen == null)
 			renderScreenshotFlash(graphics);
 
-		// hide hud in PhotoMode
-		return PhotoMode.isEnabled();
+		return false;
 	}
 
 	public static void screenRenderTailHook(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {

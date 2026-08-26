@@ -47,12 +47,12 @@ public class FabricPlatformHelper implements IPlatformHelper {
 
 	@Override
 	public void registerOnJoinWorldEvent(@NonNull Runnable runnable) {
-		ClientPlayConnectionEvents.JOIN.register((listener, sender, client) -> runnable.run());
+		ClientPlayConnectionEvents.JOIN.register((_, _, _) -> runnable.run());
 	}
 
 	@Override
 	public void registerOnStartTickEvent(@NonNull Runnable runnable) {
-		ClientTickEvents.START_CLIENT_TICK.register(client -> runnable.run());
+		ClientTickEvents.START_CLIENT_TICK.register(_ -> runnable.run());
 	}
 
 	@Override

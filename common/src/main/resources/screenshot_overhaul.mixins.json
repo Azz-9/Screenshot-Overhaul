@@ -7,33 +7,19 @@
 		"minVersion": "0.5.4"
 	},
 	"mixins": [
-		"EntityMixin"
 	],
 	"client": [
 		"AbstractWidgetAccessor",
 		"AWTHackMixin",
-		"CameraMixin",
 		"ClientAdvancementsMixin",
-		"ClientClockManagerMixin",
-		"ClientLevelMixin",
-		"ClientPacketListenerMixin",
-		"EntityRendererMixin",
 		"GameRendererMixin",
 		"GuiGraphicsExtractorAccessor",
-		"GuiMixin",
 		"GuiRendererMixin",
 		"ItemInHandRendererMixin",
 		"KeyboardHandlerMixin",
-		"LevelRendererMixin",
 		"MinecraftMixin",
-		"MouseHandlerMixin",
-		"MultiPlayerGameModeMixin",
 		"NativeImageAccessor",
-		"OptionsMixin",
-		"ParticleEngineMixin",
 		"PauseScreenMixin",
-		"PostChainAccessor",
-		"PostPassAccessor",
 		"ScreenMixin",
 		"ScreenshotMixin",
 		"TitleScreenMixin"

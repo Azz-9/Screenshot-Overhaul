@@ -37,9 +37,6 @@ public abstract class AbstractConfigOption<T> implements ConfigOption<T> {
 	private final @Nullable Component validationErrorMessage;
 	private final @NonNull List<Supplier<Boolean>> dependencies;
 
-	/**
-	 * The mutable working copy — never touches the original until {@link #commitChanges()}.
-	 */
 	private @NonNull T workingValue;
 
 	private boolean live = false;
@@ -62,9 +59,7 @@ public abstract class AbstractConfigOption<T> implements ConfigOption<T> {
 		this.workingValue = configObject.getValue();
 	}
 
-	// -------------------------------------------------------------------------
 	// Live mode activation — called by Builder.buildLive()
-	// -------------------------------------------------------------------------
 
 	final void enableLive() {
 		this.live = true;
@@ -75,9 +70,7 @@ public abstract class AbstractConfigOption<T> implements ConfigOption<T> {
 		return live;
 	}
 
-	// -------------------------------------------------------------------------
 	// ConfigOption
-	// -------------------------------------------------------------------------
 
 	@Override
 	public @NonNull Component getLabel() {
@@ -150,17 +143,11 @@ public abstract class AbstractConfigOption<T> implements ConfigOption<T> {
 		if (!live) configObject.setValue(workingValue);
 	}
 
-	// -------------------------------------------------------------------------
-	// Accessor for subclasses
-	// -------------------------------------------------------------------------
-
 	protected @NonNull ConfigObject<T> getConfigObject() {
 		return configObject;
 	}
 
-	// -------------------------------------------------------------------------
-	// Builder base
-	// -------------------------------------------------------------------------
+	// Builder
 
 	/**
 	 * Fluent builder base shared by all concrete option builders.
