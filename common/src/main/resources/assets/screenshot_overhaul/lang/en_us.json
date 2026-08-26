@@ -1,16 +1,6 @@
 {
 	"key.category.screenshot_overhaul.screenshot-overhaul": "Screenshot overhaul",
-	"screenshot_overhaul.controls.photo_mode": "Open photo mode",
-	"screenshot_overhaul.controls.roll_left": "Roll left",
-	"screenshot_overhaul.controls.roll_right": "Roll right",
-	"screenshot_overhaul.controls.open_effects_panel": "Open effects panel",
 	"screenshot_overhaul.controls.panorama_screenshot": "Take panorama screenshot",
-
-	"screenshot_overhaul.photo_mode.preset.cinematic": "Cinematic",
-	"screenshot_overhaul.photo_mode.preset.black_and_white": "Black and White",
-	"screenshot_overhaul.photo_mode.preset.warm": "Warm",
-	"screenshot_overhaul.photo_mode.preset.custom": "Custom",
-	"screenshot_overhaul.photo_mode.save_as_new_preset": "Save as new preset",
 
 	"screenshot_overhaul.narrator.screenshot_gallery": "Screenshot gallery",
 	"screenshot_overhaul.options.screenshots": "Screenshots...",
@@ -93,16 +83,12 @@
 	"screenshot_overhaul.config.category.general": "General",
 	"screenshot_overhaul.config.category.screenshot": "Screenshot",
 	"screenshot_overhaul.config.category.panorama": "Panorama",
-	"screenshot_overhaul.config.category.photo_mode": "Photo mode",
 
 	"screenshot_overhaul.config.section.advancement": "Advancement",
 	"screenshot_overhaul.config.section.hidden_element": "Hidden elements",
 	"screenshot_overhaul.config.section.panorama_animation": "Panorama animation",
 
 	"screenshot_overhaul.config.enable_whole_mod": "Enable whole mod",
-	"screenshot_overhaul.config.freeze_in_photo_mode": "Freeze world in photo mode",
-	"screenshot_overhaul.config.show_player": "Show player",
-	"screenshot_overhaul.config.show_nametags": "Show nametags",
 	"screenshot_overhaul.config.show_screenshots_on_xaeros_world_map": "Show screenshots on Xaero's World Map",
 	"screenshot_overhaul.config.show_screenshots_on_journey_map": "Show screenshots on Journey Map",
 	"screenshot_overhaul.config.screenshots_dir": "Screenshots directory",

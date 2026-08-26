@@ -30,9 +30,6 @@ integrations.
 - Iris compatibility to save the active shader in metadata and file-name tokens.
 - Fabric and NeoForge support.
 
-> Photo mode exists in the codebase but is gated behind `SCREENSHOT_OVERHAUL_ENABLE_PHOTO_MODE` since this feature is
-> still in the development phase.
-
 ---
 
 ## Installation
@@ -96,16 +93,6 @@ The configuration file is created automatically on first launch: `.minecraft/con
 | `rotationDirection`       | Enum    |       `TO_LEFT`       | Panorama rotation direction. Values: `TO_LEFT`, `TO_RIGHT`.                    |
 | `verticalAngle`           | Integer |         `10`          | Panorama vertical angle. Clamped between `-180` and `180`.                     |
 | `startingHorizontalAngle` | Integer |          `0`          | Initial panorama horizontal angle. Clamped between `0` and `360`.              |
-
-### Photo Mode
-
-This category is only available when photo mode is enabled in the mod environment.
-
-| Option              | Type    | Default | Description                      |
-|---------------------|---------|:-------:|----------------------------------|
-| `freezeInPhotoMode` | Boolean | `true`  | Freezes the world in photo mode. |
-| `showPlayer`        | Boolean | `true`  | Shows the player in photo mode.  |
-| `showNametags`      | Boolean | `true`  | Shows nametags in photo mode.    |
 
 ### UI-Saved Data
 

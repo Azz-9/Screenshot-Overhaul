@@ -1,16 +1,6 @@
 {
 	"key.category.screenshot_overhaul.screenshot-overhaul": "Screenshot overhaul",
-	"screenshot_overhaul.controls.photo_mode": "Ouvrir le mode photo",
-	"screenshot_overhaul.controls.roll_left": "Roulis vers la gauche",
-	"screenshot_overhaul.controls.roll_right": "Roulis vers la droite",
-	"screenshot_overhaul.controls.open_effects_panel": "Ouvrir le panneau des effets",
 	"screenshot_overhaul.controls.panorama_screenshot": "Prendre une capture d'écran panoramique",
-
-	"screenshot_overhaul.photo_mode.preset.cinematic": "Cinématique",
-	"screenshot_overhaul.photo_mode.preset.black_and_white": "Noir et Blanc",
-	"screenshot_overhaul.photo_mode.preset.warm": "Chaud",
-	"screenshot_overhaul.photo_mode.preset.custom": "Personnalisé",
-	"screenshot_overhaul.photo_mode.save_as_new_preset": "Enregistrer en tant que nouveau preset",
 
 	"screenshot_overhaul.narrator.screenshot_gallery": "Visionneuse de captures d'écran",
 	"screenshot_overhaul.options.screenshots": "Captures d'écrans...",
@@ -93,16 +83,12 @@
 	"screenshot_overhaul.config.category.general": "Général",
 	"screenshot_overhaul.config.category.screenshot": "Capture d'écran",
 	"screenshot_overhaul.config.category.panorama": "Panorama",
-	"screenshot_overhaul.config.category.photo_mode": "Mode photo",
 
 	"screenshot_overhaul.config.section.advancement": "Succès",
 	"screenshot_overhaul.config.section.hidden_element": "Éléments cachés",
 	"screenshot_overhaul.config.section.panorama_animation": "Animation du panorama",
 
 	"screenshot_overhaul.config.enable_whole_mod": "Activer le mod",
-	"screenshot_overhaul.config.freeze_in_photo_mode": "Figer le monde en mode photo",
-	"screenshot_overhaul.config.show_player": "Afficher le joueur",
-	"screenshot_overhaul.config.show_nametags": "Afficher les noms",
 	"screenshot_overhaul.config.show_screenshots_on_xaeros_world_map": "Afficher les captures d'écran sur la Xaero's World Map",
 	"screenshot_overhaul.config.show_screenshots_on_journey_map": "Afficher les captures d'écran sur la Journey Map",
 	"screenshot_overhaul.config.screenshots_dir": "Dossier des captures d'écran",
