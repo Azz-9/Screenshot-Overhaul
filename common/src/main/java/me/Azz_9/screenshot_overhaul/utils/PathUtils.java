@@ -77,10 +77,6 @@ public final class PathUtils {
 				.normalize();
 	}
 
-	// -------------------------------------------------------------------------
-	// Internal helpers
-	// -------------------------------------------------------------------------
-
 	private static boolean sameRoot(@NonNull Path a, @NonNull Path b) {
 		Path rootA = a.getRoot();
 		Path rootB = b.getRoot();

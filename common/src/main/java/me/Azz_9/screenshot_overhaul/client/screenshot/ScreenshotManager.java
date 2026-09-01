@@ -41,13 +41,14 @@ public class ScreenshotManager {
 
 	public static void save() {
 		ScreenshotLogger.info("Saving screenshot-states.json");
+		clean();
 		try {
 			Files.createDirectories(statesFile.getParent());
 			try (Writer writer = Files.newBufferedWriter(statesFile)) {
 				new GsonBuilder().setPrettyPrinting().create().toJson(states, writer);
 			}
 		} catch (IOException e) {
-			ScreenshotLogger.error("Failed to save favorites {}", e.getMessage());
+			ScreenshotLogger.error("Failed to save screenshot-states.json {}", e.getMessage());
 		}
 	}
 
@@ -77,8 +78,8 @@ public class ScreenshotManager {
 		return states.get(filePathRelativeToScreenshotDir).hiddenFromMap;
 	}
 
-	public static void remove(@NonNull String filePath) {
-		states.remove(filePath);
+	public static void remove(@NonNull String filePathRelativeToScreenshotDir) {
+		states.remove(filePathRelativeToScreenshotDir);
 	}
 
 	public static void changeFilePath(@NonNull String oldFilePathRelativeToScreenshotDir, @NonNull String newFilePathRelativeToScreenshotDir) {
@@ -103,6 +104,17 @@ public class ScreenshotManager {
 		statesFile = path.resolve(STATES_FILE_NAME);
 	}
 
+	public static void clean() {
+		Path screenshotsDir = Config.getInstance().getAbsoluteScreenshotsDir();
+
+		states.entrySet().removeIf(entry -> {
+			ScreenshotState state = entry.getValue();
+			Path screenshot = screenshotsDir.resolve(entry.getKey());
+
+			return state.isDefault() || !Files.exists(screenshot);
+		});
+	}
+
 	private static class ScreenshotState {
 		private boolean favorite;
 		private boolean hiddenFromMap;
@@ -110,6 +122,10 @@ public class ScreenshotManager {
 		public ScreenshotState(boolean favorite, boolean hiddenFromMap) {
 			this.favorite = favorite;
 			this.hiddenFromMap = hiddenFromMap;
+		}
+
+		public boolean isDefault() {
+			return !favorite && !hiddenFromMap;
 		}
 
 		@Override
