@@ -30,7 +30,7 @@ public class ScreenshotOverhaul {
 
 		ModLoadingContext.get().registerExtensionPoint(
 				IConfigScreenFactory.class,
-				() -> (container, parent) -> Config.getInstance().getSettingsScreen(parent)
+				() -> (_, parent) -> Config.getInstance().getSettingsScreen(parent)
 		);
     }
 }
