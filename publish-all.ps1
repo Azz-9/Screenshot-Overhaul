@@ -1,7 +1,8 @@
 param(
     [string[]] $Branches = @(
     "26.1-multiloader",
-    "26.2-multiloader"
+    "26.2-multiloader",
+    "26.3"
 ),
 
     [string] $ReleaseBranch = "26.2-multiloader",
