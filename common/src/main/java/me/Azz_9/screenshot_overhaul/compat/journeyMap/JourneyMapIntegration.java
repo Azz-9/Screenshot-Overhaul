@@ -53,7 +53,10 @@ public class JourneyMapIntegration implements IClientPlugin {
 		ScreenshotList.whenScreenshotsLoaded(screenshots -> {
 			for (Screenshot screenshot : screenshots) {
 				Metadata metadata = screenshot.getMetadata();
-				if (ScreenshotManager.isHiddenFromMap(screenshot.pathRelativeToScreenshotDir()) || metadata.getX() == null || metadata.getY() == null || metadata.getZ() == null || metadata.getDimension() == null)
+				if (ScreenshotManager.isHiddenFromMap(screenshot.pathRelativeToScreenshotDir())
+						|| !screenshot.hasBeenTakenInTheCurrentWorldOrServer()
+						|| metadata.getX() == null || metadata.getY() == null || metadata.getZ() == null
+						|| metadata.getDimension() == null)
 					continue;
 
 				ScreenshotTextureCache.getSmallThumbnail(screenshot.file().toPath()).whenReady((nativeImage, throwable) -> {
@@ -103,5 +106,13 @@ public class JourneyMapIntegration implements IClientPlugin {
 				});
 			}
 		});
+	}
+
+	public static void onScreenshotListChange() {
+		if (MINECRAFT.level != null) {
+			api.removeAll(MOD_ID);
+
+			init();
+		}
 	}
 }

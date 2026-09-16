@@ -20,6 +20,8 @@ import me.Azz_9.screenshot_overhaul.client.config.Config;
 import me.Azz_9.screenshot_overhaul.client.metadata.Metadata;
 import me.Azz_9.screenshot_overhaul.client.metadata.MetadataUtils;
 import me.Azz_9.screenshot_overhaul.client.panorama.Panorama;
+import me.Azz_9.screenshot_overhaul.compat.CompatManager;
+import me.Azz_9.screenshot_overhaul.compat.journeyMap.JourneyMapIntegration;
 
 public class ScreenshotList {
 	private static final @NonNull List<String> ACCEPTED_SCREENSHOT_FILE_EXTENSIONS = List.of(".png");
@@ -193,7 +195,12 @@ public class ScreenshotList {
 			snapshot = List.copyOf(screenshots);
 		}
 		if (listener != null) {
-			MINECRAFT.execute(() -> listener.accept(snapshot));
+			MINECRAFT.execute(() -> {
+				listener.accept(snapshot);
+			});
+		}
+		if (CompatManager.journeyMapPresent()) {
+			MINECRAFT.execute(JourneyMapIntegration::onScreenshotListChange);
 		}
 	}
 

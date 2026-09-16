@@ -1,5 +1,7 @@
 package me.Azz_9.screenshot_overhaul.client.screenshot;
 
+import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
+
 import org.jspecify.annotations.NonNull;
 
 import java.io.File;
@@ -7,6 +9,7 @@ import java.util.Objects;
 
 import me.Azz_9.screenshot_overhaul.client.config.Config;
 import me.Azz_9.screenshot_overhaul.client.metadata.Metadata;
+import me.Azz_9.screenshot_overhaul.client.metadata.MetadataUtils;
 
 public class Screenshot {
 	private final @NonNull File file;
@@ -48,5 +51,10 @@ public class Screenshot {
 	@Override
 	public int hashCode() {
 		return Objects.hashCode(file);
+	}
+
+	public boolean hasBeenTakenInTheCurrentWorldOrServer() {
+		return MINECRAFT.getSingleplayerServer() != null && Objects.equals(getMetadata().getWorldId(), MetadataUtils.getWorldId()) ||
+				MINECRAFT.getCurrentServer() != null && Objects.equals(getMetadata().getServerIp(), MINECRAFT.getCurrentServer().ip);
 	}
 }
