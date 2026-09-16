@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import me.Azz_9.screenshot_overhaul.compat.xaeroWorldmap.ScreenshotRenderer;
 import xaero.map.element.MapElementRenderHandler;
 
-@Mixin(value = MapElementRenderHandler.Builder.class, remap = false)
+@Mixin(MapElementRenderHandler.Builder.class)
 public abstract class MapElementRenderHandlerBuilderMixin {
 
 	@Inject(method = "build", at = @At("RETURN"))

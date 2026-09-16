@@ -2,6 +2,8 @@ package me.Azz_9.screenshot_overhaul.client.gui.components.screenshotGallery.con
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -138,9 +140,9 @@ public class ScreenshotThumbnailWidget extends AbstractThumbnailWidget {
 	@Override
 	public void onClick(@NonNull MouseButtonEvent click, boolean doubled) {
 		super.onClick(click, doubled);
-		if (click.buttonInfo().button() == 1) {
+		if (click.buttonInfo().button() == InputConstants.MOUSE_BUTTON_RIGHT) {
 			showRightClickMenu(click.x(), click.y());
-		} else if (onClick != null && click.buttonInfo().button() == 0) {
+		} else if (onClick != null && click.buttonInfo().button() == InputConstants.MOUSE_BUTTON_LEFT) {
 			onClick.accept(screenshot);
 		}
 	}
