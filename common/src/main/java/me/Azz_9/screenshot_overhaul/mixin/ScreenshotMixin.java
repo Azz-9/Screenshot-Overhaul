@@ -111,7 +111,7 @@ public abstract class ScreenshotMixin {
 
 				MINECRAFT.gameRenderer.update(DeltaTracker.ONE);
 				MINECRAFT.gameRenderer.extract(DeltaTracker.ONE, true);
-				MINECRAFT.gameRenderer.renderLevel(DeltaTracker.ONE);
+				MINECRAFT.gameRenderer.renderLevel();
 			}
 
 			original.call(target, downscaleFactor, callback);

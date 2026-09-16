@@ -2,7 +2,10 @@
 	"required": true,
 	"minVersion": "0.8",
 	"package": "me.Azz_9.screenshot_overhaul.compat.xaeroWorldmap.mixin",
-	"compatibilityLevel": "JAVA_21",
+	"compatibilityLevel": "JAVA_25",
+
+	"plugin": "me.Azz_9.screenshot_overhaul.compat.xaeroWorldmap.mixin.XaeroWorldmapMixinPlugin",
+
 	"mixins": [
 		"MapElementRenderHandlerBuilderMixin"
 	],

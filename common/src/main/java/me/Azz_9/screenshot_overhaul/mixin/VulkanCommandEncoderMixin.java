@@ -1,7 +1,7 @@
 package me.Azz_9.screenshot_overhaul.mixin;
 
-import com.mojang.blaze3d.vulkan.VulkanCommandEncoder;
-import com.mojang.blaze3d.vulkan.VulkanDevice;
+import com.mojang.renderpearl.backend.vulkan.VulkanCommandEncoder;
+import com.mojang.renderpearl.backend.vulkan.VulkanDevice;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;

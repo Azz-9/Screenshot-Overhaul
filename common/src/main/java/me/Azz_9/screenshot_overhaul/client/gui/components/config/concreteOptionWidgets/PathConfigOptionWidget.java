@@ -9,17 +9,17 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.PointerBuffer;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 import java.nio.file.Path;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import javax.swing.*;
@@ -30,6 +30,7 @@ import me.Azz_9.screenshot_overhaul.client.config.option.options.PathConfigOptio
 import me.Azz_9.screenshot_overhaul.client.gui.TooltipRenderer;
 import me.Azz_9.screenshot_overhaul.mixin.AbstractWidgetAccessor;
 import me.Azz_9.screenshot_overhaul.platform.Services;
+import me.Azz_9.screenshot_overhaul.utils.FileDialogUtils;
 import me.Azz_9.screenshot_overhaul.utils.PathUtils;
 
 /**
@@ -94,49 +95,41 @@ public final class PathConfigOptionWidget extends ConfigOptionWidget<Path> {
 	private void openFileChooser() {
 		Path currentAbsolute = PathUtils.toAbsolutePath(option.getWorkingValue());
 
-		String selectedPath = switch (pathOption.getSelectionMode()) {
+		CompletableFuture<Optional<Path>> future;
+
+		switch (pathOption.getSelectionMode()) {
 			case FILES_ONLY -> {
-				try (MemoryStack stack = MemoryStack.stackPush()) {
-
-					PointerBuffer filters = null;
-
-					// Extension filter
-					if (pathOption.getFileExtensionFilter() != null) {
-						String ext = pathOption.getFileExtensionFilter();
-
-						// TinyFD expects patterns like "*.json"
-						filters = stack.mallocPointer(1);
-						filters.put(stack.UTF8("*." + ext));
-						filters.flip();
-					}
-
-					String description = pathOption.getFileExtensionDescription() != null
-							? pathOption.getFileExtensionDescription()
-							: pathOption.getFileExtensionFilter();
-
-					yield TinyFileDialogs.tinyfd_openFileDialog(
-							pathOption.getDialogTitle(),
-							currentAbsolute.toString(),
-							filters,
-							description,
-							false
-					);
-				}
+				future = FileDialogUtils.openFile(
+						pathOption.getDialogTitle(),
+						currentAbsolute,
+						pathOption.getFileExtensionFilter(),
+						pathOption.getFileExtensionDescription()
+				);
 			}
 
-			case DIRECTORIES_ONLY -> TinyFileDialogs.tinyfd_selectFolderDialog(
+			case DIRECTORIES_ONLY -> future = FileDialogUtils.selectFolder(
 					pathOption.getDialogTitle(),
-					currentAbsolute.toString()
+					currentAbsolute
 			);
-		};
-		if (selectedPath == null) return;
 
-		Path selected = PathUtils.toStoredPath(Path.of(selectedPath));
+			default -> throw new IllegalStateException("Unsupported selection mode: " + pathOption.getSelectionMode());
+		}
 
-		option.setWorkingValue(selected);
-		pathField.setValue(selected.toString());
+		Screen screen = MINECRAFT.gui.screen();
 
-		refreshValidation();
+		future.thenAccept(result -> {
+			if (MINECRAFT.gui.screen() != screen || result.isEmpty()) {
+				return;
+			}
+
+			Path selected = PathUtils.toStoredPath(result.get());
+
+			MINECRAFT.execute(() -> {
+				option.setWorkingValue(selected);
+				pathField.setValue(selected.toString());
+				refreshValidation();
+			});
+		});
 	}
 
 	private static final class CompositeControlWidget extends AbstractWidget {

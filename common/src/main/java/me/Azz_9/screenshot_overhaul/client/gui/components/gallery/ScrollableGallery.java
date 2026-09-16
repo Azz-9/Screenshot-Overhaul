@@ -3,13 +3,14 @@ package me.Azz_9.screenshot_overhaul.client.gui.components.gallery;
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
 import static me.Azz_9.screenshot_overhaul.client.CommonSprites.FOLDER_SPRITE;
 
+import com.mojang.blaze3d.Blaze3D;
+
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.SpriteIconButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Util;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -138,7 +139,7 @@ public abstract class ScrollableGallery<T extends AbstractGalleryEntryWidget> ex
 							if (MINECRAFT.gui.screen() instanceof FocusableScreen focusableScreen)
 								focusableScreen.requestFocus(btn);
 
-							Util.getPlatform().openPath(Config.getInstance().getAbsoluteScreenshotsDir());
+							Blaze3D.openPath(Config.getInstance().getAbsoluteScreenshotsDir());
 						},
 						true
 				)

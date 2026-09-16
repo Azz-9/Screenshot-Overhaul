@@ -2,8 +2,8 @@ package me.Azz_9.screenshot_overhaul.compat.xaeroWorldmap;
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
 
-import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
 
 import net.minecraft.client.renderer.texture.DynamicTexture;
 

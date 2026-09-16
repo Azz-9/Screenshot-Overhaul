@@ -2,6 +2,7 @@ package me.Azz_9.screenshot_overhaul.client.gui.components.gallery;
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -44,7 +45,7 @@ public abstract class AbstractThumbnailWidget extends AbstractWidget {
 
 	@Override
 	protected boolean isValidClickButton(MouseButtonInfo buttonInfo) {
-		return buttonInfo.button() == 0 || buttonInfo.button() == 1;
+		return buttonInfo.button() == InputConstants.MOUSE_BUTTON_LEFT || buttonInfo.button() == InputConstants.MOUSE_BUTTON_RIGHT;
 	}
 
 	@Override

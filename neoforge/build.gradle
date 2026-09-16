@@ -7,11 +7,12 @@ final def includeXaero = project.hasProperty("launch_with_xaero_worldmap") && pr
 final def includeIrisAndSodium = project.hasProperty("launch_with_iris_and_sodium") && project.launch_with_iris_and_sodium.toBoolean()
 
 dependencies {
-	if (includeXaero) {
+	// TODO
+	/*if (includeXaero) {
 		implementation "xaero.map:xaeroworldmap-neoforge-${project.xaero_worldmap_version}"
 	} else {
 		compileOnly "xaero.map:xaeroworldmap-neoforge-${project.xaero_worldmap_version}"
-	}
+	}*/
 
 	compileOnly "info.journeymap:journeymap-api-neoforge:${project.journeymap_api_version}"
 

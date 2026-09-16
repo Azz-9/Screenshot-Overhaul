@@ -111,7 +111,7 @@ public class CommonClass {
 
 	public static void initKeyMappings() {
 		// panorama screenshot
-		panoramaScreenshot = Services.PLATFORM.registerKeyMapping(new KeyMapping("screenshot_overhaul.controls.panorama_screenshot", InputConstants.Type.KEYSYM, InputConstants.KEY_F9, KEYBIND_CATEGORY));
+		panoramaScreenshot = Services.PLATFORM.registerKeyMapping(new KeyMapping("screenshot_overhaul.controls.panorama_screenshot", InputConstants.Type.KEYBOARD, InputConstants.KEY_F9, KEYBIND_CATEGORY));
 	}
 
 	public static void handleKeybindsHook() {

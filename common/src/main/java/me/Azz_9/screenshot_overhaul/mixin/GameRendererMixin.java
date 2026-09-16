@@ -1,6 +1,5 @@
 package me.Azz_9.screenshot_overhaul.mixin;
 
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.GameRenderer;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,7 +13,7 @@ import me.Azz_9.screenshot_overhaul.client.screenshot.FutureScreenshotState;
 public abstract class GameRendererMixin {
 
 	@Inject(method = "render", at = @At("TAIL"))
-	private void afterRender(DeltaTracker deltaTracker, boolean advanceGameTime, CallbackInfo ci) {
+	private void afterRender(CallbackInfo ci) {
 		if (!FutureScreenshotState.captureRequested) return;
 
 		// Reset immédiatement pour ne pas affecter les frames suivantes

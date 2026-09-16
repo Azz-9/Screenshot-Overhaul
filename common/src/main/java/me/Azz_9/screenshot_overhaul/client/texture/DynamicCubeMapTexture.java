@@ -2,10 +2,10 @@ package me.Azz_9.screenshot_overhaul.client.texture;
 
 import static me.Azz_9.screenshot_overhaul.Constants.MOD_ID;
 
-import com.mojang.blaze3d.GpuFormat;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.renderpearl.api.GpuFormat;
+import com.mojang.renderpearl.api.device.GpuDevice;
 
 import net.minecraft.client.renderer.texture.AbstractTexture;
 

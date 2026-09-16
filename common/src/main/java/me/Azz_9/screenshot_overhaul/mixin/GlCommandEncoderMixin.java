@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import me.Azz_9.screenshot_overhaul.client.panorama.ScreenshotContext;
 import me.Azz_9.screenshot_overhaul.platform.Services;
 
-@Mixin(targets = "com.mojang.blaze3d.opengl.GlCommandEncoder", remap = false)
+@Mixin(targets = "com.mojang.renderpearl.backend.opengl.GlCommandEncoder", remap = false)
 public abstract class GlCommandEncoderMixin {
 
 	@Inject(method = "awaitSubmit", at = @At("HEAD"), cancellable = true, remap = false)

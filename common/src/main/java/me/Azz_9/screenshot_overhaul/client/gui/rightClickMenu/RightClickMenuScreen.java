@@ -23,6 +23,4 @@ public interface RightClickMenuScreen extends Renderable {
 	default void showRightClickMenu(double mouseX, double mouseY) {
 		getRightClickMenu().show(mouseX, mouseY);
 	}
-
-
 }
