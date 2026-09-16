@@ -98,6 +98,7 @@ public class MetadataEditorPanel extends SmoothScrollableWidget {
 				.longField(meta::getSeed, meta::setSeed, Component.translatable("screenshot_overhaul.metadata.seed"))
 				.stringField(meta::getWorldName, meta::setWorldName, Component.translatable("screenshot_overhaul.metadata.world_name"))
 				.stringField(meta::getServerIp, meta::setServerIp, Component.translatable("screenshot_overhaul.metadata.server"))
+				.stringField(meta::getWorldId, meta::setWorldId, Component.translatable("screenshot_overhaul.metadata.world_id"))
 				.stringField(meta::getVersion, meta::setVersion, Component.translatable("screenshot_overhaul.metadata.version"))
 				.stringField(() -> String.join(", ", meta.getResourcePacks()),
 						v -> meta.setResourcePacks(v == null

@@ -18,6 +18,7 @@ public class Metadata {
 	private @Nullable Long seed;
 	private @Nullable String worldName;
 	private @Nullable String serverIp;
+	private @Nullable String worldId;
 	private @Nullable String version;
 	private @NonNull List<String> resourcePacks;
 	private @Nullable String shader;
@@ -28,9 +29,9 @@ public class Metadata {
 	public Metadata(@Nullable Integer x, @Nullable Integer y, @Nullable Integer z,
 	                @Nullable Identifier dimension, @Nullable Identifier biome,
 	                @Nullable Long seed, @Nullable String worldName,
-	                @Nullable String serverIp, @Nullable String version,
-	                @NonNull List<String> resourcePacks, @Nullable String shader,
-	                @Nullable Long timestamp,
+					@Nullable String serverIp, @Nullable String worldId,
+					@Nullable String version, @NonNull List<String> resourcePacks,
+					@Nullable String shader, @Nullable Long timestamp,
 	                @Nullable String panoramaId, @Nullable Integer panoramaFace) {
 		this.x = x;
 		this.y = y;
@@ -40,6 +41,7 @@ public class Metadata {
 		this.seed = seed;
 		this.worldName = worldName;
 		this.serverIp = serverIp;
+		this.worldId = worldId;
 		this.version = version;
 		this.resourcePacks = resourcePacks;
 		this.shader = shader;
@@ -50,13 +52,13 @@ public class Metadata {
 
 	public static @NonNull Metadata empty() {
 		return new Metadata(null, null, null, null, null, null,
-				null, null, null, new ArrayList<>(), null, null,
+				null, null, null, null, new ArrayList<>(), null, null,
 				null, null);
 	}
 
 	public static @NonNull Metadata copyOf(@NonNull Metadata from) {
-		return new Metadata(from.x, from.y, from.z, from.dimension, from.biome, from.seed, from.worldName,
-				from.serverIp, from.version, from.resourcePacks, from.shader, from.timestamp, from.panoramaId, from.panoramaFace);
+		return new Metadata(from.x, from.y, from.z, from.dimension, from.biome, from.seed, from.worldName, from.serverIp,
+				from.worldId, from.version, from.resourcePacks, from.shader, from.timestamp, from.panoramaId, from.panoramaFace);
 	}
 
 	public @Nullable Integer getX() {
@@ -123,6 +125,14 @@ public class Metadata {
 		this.serverIp = serverIp;
 	}
 
+	public @Nullable String getWorldId() {
+		return worldId;
+	}
+
+	public void setWorldId(@Nullable String worldId) {
+		this.worldId = worldId;
+	}
+
 	public @Nullable String getVersion() {
 		return version;
 	}
@@ -183,6 +193,7 @@ public class Metadata {
 				Objects.equals(getSeed(), that.getSeed()) &&
 				Objects.equals(getWorldName(), that.getWorldName()) &&
 				Objects.equals(getServerIp(), that.getServerIp()) &&
+				Objects.equals(getWorldId(), that.getWorldId()) &&
 				Objects.equals(getVersion(), that.getVersion()) &&
 				Objects.equals(getResourcePacks(), that.getResourcePacks()) &&
 				Objects.equals(getShader(), that.getShader()) &&
@@ -193,8 +204,8 @@ public class Metadata {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getX(), getY(), getZ(), getDimension(), getBiome(), getSeed(), getWorldName(),
-				getServerIp(), getVersion(), getResourcePacks(), getShader(), getTimestamp(), getPanoramaId(), getPanoramaFace());
+		return Objects.hash(getX(), getY(), getZ(), getDimension(), getBiome(), getSeed(), getWorldName(), getServerIp(),
+				getWorldId(), getVersion(), getResourcePacks(), getShader(), getTimestamp(), getPanoramaId(), getPanoramaFace());
 	}
 
 	@Override
@@ -208,6 +219,7 @@ public class Metadata {
 				", seed=" + seed +
 				", worldName='" + worldName + '\'' +
 				", server='" + serverIp + '\'' +
+				", worldId='" + worldId + '\'' +
 				", version='" + version + '\'' +
 				", resourcePacks='" + resourcePacks + '\'' +
 				", shader='" + shader + '\'' +
