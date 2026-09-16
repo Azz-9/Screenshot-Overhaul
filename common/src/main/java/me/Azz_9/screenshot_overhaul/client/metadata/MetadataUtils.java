@@ -8,6 +8,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.storage.LevelResource;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -33,6 +34,7 @@ public class MetadataUtils {
 	private static final @NonNull String KEY_SEED = "Seed";
 	private static final @NonNull String KEY_WORLD = "World";
 	private static final @NonNull String KEY_SERVER = "Server";
+	private static final @NonNull String KEY_WORLD_ID = "World ID";
 	private static final @NonNull String KEY_VERSION = "Version";
 	private static final @NonNull String KEY_RESOURCE_PACKS = "ResourcePacks";
 	private static final @NonNull String KEY_SHADER = "Shader";
@@ -106,6 +108,7 @@ public class MetadataUtils {
 		if (meta.getSeed() != null) textChunks.add(buildTextChunk(KEY_SEED, String.valueOf(meta.getSeed())));
 		if (meta.getWorldName() != null) textChunks.add(buildTextChunk(KEY_WORLD, meta.getWorldName()));
 		if (meta.getServerIp() != null) textChunks.add(buildTextChunk(KEY_SERVER, meta.getServerIp()));
+		if (meta.getWorldId() != null) textChunks.add(buildTextChunk(KEY_WORLD_ID, meta.getWorldId()));
 		if (meta.getVersion() != null) textChunks.add(buildTextChunk(KEY_VERSION, meta.getVersion()));
 		if (!meta.getResourcePacks().isEmpty())
 			textChunks.add(buildTextChunk(KEY_RESOURCE_PACKS, String.join(",", meta.getResourcePacks())));
@@ -156,6 +159,7 @@ public class MetadataUtils {
 				meta.containsKey(KEY_SEED) ? Long.parseLong(meta.get(KEY_SEED)) : null,
 				meta.get(KEY_WORLD),
 				meta.get(KEY_SERVER),
+				meta.get(KEY_WORLD_ID),
 				meta.get(KEY_VERSION),
 				meta.containsKey(KEY_RESOURCE_PACKS) ? Arrays.asList(meta.get(KEY_RESOURCE_PACKS).split(",")) : List.of(),
 				meta.get(KEY_SHADER),
@@ -169,7 +173,7 @@ public class MetadataUtils {
 		if (MINECRAFT.player == null || MINECRAFT.level == null)
 			return new Metadata(
 					null, null, null,
-					null, null, null, null, null,
+					null, null, null, null, null, null,
 					SharedConstants.getCurrentVersion().name(),
 					MINECRAFT.getResourceManager().listPacks().map(PackResources::packId).toList(),
 					null, System.currentTimeMillis(), panoramaId, faceIndex
@@ -208,6 +212,7 @@ public class MetadataUtils {
 				seed,
 				worldName,
 				serverIp,
+				getWorldId(),
 				SharedConstants.getCurrentVersion().id(),
 				MINECRAFT.getResourcePackRepository().getSelectedPacks()
 						.stream()
@@ -272,5 +277,13 @@ public class MetadataUtils {
 		}
 
 		return out.toByteArray();
+	}
+
+	public static @Nullable String getWorldId() {
+		if (MINECRAFT.getSingleplayerServer() != null) {
+			return MINECRAFT.getSingleplayerServer().getWorldPath(LevelResource.ROOT).getParent().getFileName().toString();
+		}
+
+		return null;
 	}
 }

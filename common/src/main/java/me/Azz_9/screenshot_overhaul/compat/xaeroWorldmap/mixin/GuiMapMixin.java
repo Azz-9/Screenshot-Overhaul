@@ -29,7 +29,7 @@ import xaero.lib.client.gui.ScreenBase;
 import xaero.map.element.HoveredMapElementHolder;
 import xaero.map.gui.GuiMap;
 
-@Mixin(value = GuiMap.class, remap = false)
+@Mixin(GuiMap.class)
 public abstract class GuiMapMixin extends ScreenBase {
 	@Unique
 	private static final int SCREENSHOT_PADDING = 40;

@@ -1,11 +1,14 @@
 package me.Azz_9.screenshot_overhaul.compat.xaeroWorldmap;
 
+import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
+
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
 import java.util.Iterator;
 import java.util.Objects;
 
+import me.Azz_9.screenshot_overhaul.client.metadata.MetadataUtils;
 import me.Azz_9.screenshot_overhaul.client.screenshot.Screenshot;
 import me.Azz_9.screenshot_overhaul.client.screenshot.ScreenshotList;
 import xaero.map.WorldMapSession;
@@ -21,10 +24,10 @@ public class ScreenshotRenderProvider extends ElementRenderProvider<Screenshot, 
 	public void begin(ElementRenderLocation location, ScreenshotRenderContext ctx) {
 		MapWorld mapWorld = WorldMapSession.getCurrentSession().getMapProcessor().getMapWorld();
 		ResourceKey<Level> currentDim = mapWorld.getCurrentDimension().getDimId();
-		String currentWorld = mapWorld.getMapProcessor().getCurrentWorldId();
 
 		iterator = ScreenshotList.getScreenshots().stream()
-				.filter(s -> Objects.equals(s.getMetadata().getWorldName(), currentWorld) &&
+				.filter(s -> MINECRAFT.getSingleplayerServer() != null && Objects.equals(s.getMetadata().getWorldId(), MetadataUtils.getWorldId()) &&
+						MINECRAFT.getCurrentServer() != null && Objects.equals(s.getMetadata().getServerIp(), MINECRAFT.getCurrentServer().ip) &&
 						Objects.equals(s.getMetadata().getDimension(), currentDim.identifier()))
 				.iterator();
 	}
