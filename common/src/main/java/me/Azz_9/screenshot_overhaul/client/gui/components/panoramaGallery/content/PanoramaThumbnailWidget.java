@@ -3,6 +3,7 @@ package me.Azz_9.screenshot_overhaul.client.gui.components.panoramaGallery.conte
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.FilterMode;
 
@@ -105,7 +106,7 @@ public class PanoramaThumbnailWidget extends AbstractThumbnailWidget {
 	@Override
 	public boolean mouseClicked(@NonNull MouseButtonEvent click, boolean doubleClick) {
 		if (this.isActive()) {
-			if (click.button() == 0 && this.isMouseOver(click.x(), click.y())) {
+			if (click.button() == InputConstants.MOUSE_BUTTON_LEFT && this.isMouseOver(click.x(), click.y())) {
 				if (MINECRAFT.gui.screen() instanceof FocusableScreen screen) screen.requestFocus(this);
 
 				clickStartX = click.x();
@@ -113,7 +114,7 @@ public class PanoramaThumbnailWidget extends AbstractThumbnailWidget {
 				didDrag = false;
 				return true;
 			}
-			if (click.button() == 1) {
+			if (click.button() == InputConstants.MOUSE_BUTTON_RIGHT) {
 				showRightClickMenu(click.x(), click.y());
 			}
 		}
@@ -122,7 +123,7 @@ public class PanoramaThumbnailWidget extends AbstractThumbnailWidget {
 
 	@Override
 	public boolean mouseDragged(@NonNull MouseButtonEvent click, double dx, double dy) {
-		if (click.button() == 0) {
+		if (click.button() == InputConstants.MOUSE_BUTTON_LEFT) {
 			double dist = Math.hypot(click.x() - clickStartX, click.y() - clickStartY);
 			if (dist > DRAG_THRESHOLD) didDrag = true;
 
@@ -137,7 +138,7 @@ public class PanoramaThumbnailWidget extends AbstractThumbnailWidget {
 
 	@Override
 	public boolean mouseReleased(@NonNull MouseButtonEvent click) {
-		if (click.button() == 0 && !didDrag) {
+		if (click.button() == InputConstants.MOUSE_BUTTON_LEFT && !didDrag) {
 			this.playDownSound(Minecraft.getInstance().getSoundManager());
 			this.onClick(click, false);
 		}
@@ -148,7 +149,7 @@ public class PanoramaThumbnailWidget extends AbstractThumbnailWidget {
 	@Override
 	public void onClick(@NonNull MouseButtonEvent click, boolean doubled) {
 		super.onClick(click, doubled);
-		if (onClick != null && click.buttonInfo().button() == 0) {
+		if (onClick != null && click.buttonInfo().button() == InputConstants.MOUSE_BUTTON_LEFT) {
 			onClick.accept(panorama);
 		}
 	}

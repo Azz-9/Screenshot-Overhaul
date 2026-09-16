@@ -2,6 +2,8 @@ package me.Azz_9.screenshot_overhaul.client.gui.components;
 
 import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
@@ -190,7 +192,7 @@ public abstract class SimpleParentWidget extends AbstractWidget implements Conta
 		if (optional.isPresent()) {
 			GuiEventListener element = optional.get();
 			if (element.mouseClicked(click, doubled)) {
-				if (click.button() == 0) {
+				if (click.button() == InputConstants.MOUSE_BUTTON_LEFT) {
 					this.setDragging(true);
 				}
 
