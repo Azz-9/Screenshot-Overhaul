@@ -1,5 +1,6 @@
 package me.Azz_9.screenshot_overhaul.compat.xaeroWorldmap.mixin;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -61,7 +62,7 @@ public abstract class GuiMapMixin extends ScreenBase {
 
 	@Inject(method = "mapClicked", at = @At("HEAD"))
 	private void onMapClicked(int button, int x, int y, CallbackInfo ci) {
-		if (button != 0) return;
+		if (button != InputConstants.MOUSE_BUTTON_LEFT) return;
 
 		GuiMap self = (GuiMap) (Object) this;
 		HoveredMapElementHolder<?, ?> viewed = ((GuiMapAccessor) self).getViewed();

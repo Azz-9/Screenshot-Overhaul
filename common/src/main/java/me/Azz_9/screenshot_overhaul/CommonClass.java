@@ -75,6 +75,10 @@ public class CommonClass {
 			ScreenshotLogger.error("Failed to load config file.", e.getMessage());
 		}
 
+		if (CompatManager.journeyMapPresent()) {
+			Config.getInstance().showScreenshotsOnJourneyMap.addOnChangeListener(_ -> JourneyMapIntegration.onScreenshotListChange());
+		}
+
 		// load screenshots
 		ScreenshotList.loadAsync();
 		ScreenshotManager.load();
