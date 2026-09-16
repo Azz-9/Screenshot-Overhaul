@@ -14,6 +14,7 @@
 		"ClientAdvancementsMixin",
 		"GameRendererMixin",
 		"GuiGraphicsExtractorAccessor",
+		"GuiMixin",
 		"GuiRendererMixin",
 		"ItemInHandRendererMixin",
 		"KeyboardHandlerMixin",
