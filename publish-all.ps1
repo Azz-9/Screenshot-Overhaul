@@ -5,7 +5,7 @@ param(
     "26.3"
 ),
 
-    [string] $ReleaseBranch = "26.2-multiloader",
+    [string] $ReleaseBranch = "26.3",
 
     [switch] $DryRun
 )
