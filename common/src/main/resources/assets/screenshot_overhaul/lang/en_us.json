@@ -3,7 +3,8 @@
 	"screenshot_overhaul.controls.panorama_screenshot": "Take panorama screenshot",
 
 	"screenshot_overhaul.narrator.screenshot_gallery": "Screenshot gallery",
-	"screenshot_overhaul.options.screenshots": "Screenshots...",
+	"screenshot_overhaul.options.screenshots_toolitp": "Screenshots...",
+	"screenshot_overhaul.options.screenshots": "Screenshots",
 	"screenshot_overhaul.options.change_panorama": "Change panorama",
 
 	"screenshot_overhaul.navigation.back": "Back",
@@ -90,6 +91,9 @@
 	"screenshot_overhaul.config.section.panorama_animation": "Panorama animation",
 
 	"screenshot_overhaul.config.enable_whole_mod": "Enable whole mod",
+	"screenshot_overhaul.config.button_style": "Title screen button style",
+	"screenshot_overhaul.config.button_style.icon": "Icon",
+	"screenshot_overhaul.config.button_style.classic": "Classic",
 	"screenshot_overhaul.config.show_screenshots_on_xaeros_world_map": "Show screenshots on Xaero's World Map",
 	"screenshot_overhaul.config.show_screenshots_on_journey_map": "Show screenshots on Journey Map",
 	"screenshot_overhaul.config.screenshots_dir": "Screenshots directory",
