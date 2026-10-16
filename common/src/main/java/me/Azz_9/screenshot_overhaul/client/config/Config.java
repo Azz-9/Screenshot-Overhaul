@@ -32,6 +32,7 @@ public final class Config {
 	private static final @NonNull Config INSTANCE = new Config();
 
 	public final @NonNull ConfigObject<Boolean> enableWholeMod = ConfigObject.nonNull(true, "screenshot_overhaul.config.enable_whole_mod", Boolean.class);
+	public final @NonNull ConfigObject<TitleScreenButtonStyle> titleScreenButtonStyle = ConfigObject.nonNull(TitleScreenButtonStyle.ICON, "screenshot_overhaul.config.button_style", TitleScreenButtonStyle.class);
 
 	public final @NonNull ConfigObject<Boolean> showScreenshotsOnXaerosWorldMap = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_screenshots_on_xaeros_world_map", Boolean.class);
 	public final @NonNull ConfigObject<Boolean> showScreenshotsOnJourneyMap = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_screenshots_on_journey_map", Boolean.class);
@@ -102,11 +103,14 @@ public final class Config {
 
 		// General
 		BooleanConfigOption enableWholeMod = BooleanConfigOption.builder(getInstance().enableWholeMod).build();
+		EnumConfigOption<TitleScreenButtonStyle> titleScreenButtonStyle = EnumConfigOption.builder(getInstance().titleScreenButtonStyle, TitleScreenButtonStyle.class)
+				.valueName(TitleScreenButtonStyle::getText)
+				.dependsOn(enableWholeMod)
+				.build();
 		BooleanConfigOption showScreenshotsOnXaerosWorldMap = BooleanConfigOption.builder(getInstance().showScreenshotsOnXaerosWorldMap)
 				.dependsOn(CompatManager::xaerosWorldMapPresent)
 				.dependsOn(enableWholeMod)
 				.build();
-
 		BooleanConfigOption showScreenshotsOnJourneyMap = BooleanConfigOption.builder(getInstance().showScreenshotsOnJourneyMap)
 				.dependsOn(CompatManager::journeyMapPresent)
 				.dependsOn(enableWholeMod)
@@ -114,6 +118,7 @@ public final class Config {
 
 		ConfigTabContent generalContent = ConfigTabContent.builder()
 				.option(enableWholeMod)
+				.option(titleScreenButtonStyle)
 				.option(showScreenshotsOnXaerosWorldMap)
 				.option(showScreenshotsOnJourneyMap)
 				.build();
@@ -246,6 +251,25 @@ public final class Config {
 		}
 
 		return screen;
+	}
+
+	public enum TitleScreenButtonStyle {
+		ICON("screenshot_overhaul.config.button_style.icon"),
+		CLASSIC("screenshot_overhaul.config.button_style.classic");
+
+		private final @NonNull String translationKey;
+
+		TitleScreenButtonStyle(@NonNull String translationKey) {
+			this.translationKey = translationKey;
+		}
+
+		public @NonNull String getTranslationKey() {
+			return translationKey;
+		}
+
+		public @NonNull Component getText() {
+			return Component.translatable(getTranslationKey());
+		}
 	}
 
 	public enum RotationDirection {
