@@ -29,7 +29,6 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import me.Azz_9.screenshot_overhaul.client.config.Config;
-import me.Azz_9.screenshot_overhaul.client.gui.screen.PanoramaGalleryScreen;
 import me.Azz_9.screenshot_overhaul.client.gui.screen.ScreenshotGalleryScreen;
 
 @Mixin(value = TitleScreen.class, priority = 1100)
@@ -110,12 +109,6 @@ public abstract class TitleScreenMixin extends Screen {
 			}
 		}
 
-		this.addRenderableWidget(Button.builder(
-						Component.translatable("screenshot_overhaul.options.change_panorama"),
-						_ -> MINECRAFT.gui.setScreen(new PanoramaGalleryScreen(Component.empty(), this))
-				)
-				.bounds(width - 100 - 10, 10, 100, 20)
-				.build());
 	}
 
 	@ModifyArg(method = "init", at = @At(value = "INVOKE", target = "Lcom/mojang/realmsclient/gui/screens/RealmsNotificationsScreen;init(II)V"), index = 1)
