@@ -5,6 +5,7 @@ import static me.Azz_9.screenshot_overhaul.CommonClass.MINECRAFT;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.Screen;
@@ -30,6 +31,8 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen {
 
 	// layout
 	private static final int GLOBAL_PADDING = 10;
+	private static final int PANORAMA_BUTTON_WIDTH = 160;
+	private static final int PANORAMA_BUTTON_HEIGHT = 20;
 
 	// widgets
 	private @Nullable ScreenshotGalleryWidget gallery;
@@ -41,6 +44,13 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen {
 
 	@Override
 	protected void initContent() {
+		// Bouton pour passer au panorama, placé en haut à gauche
+		addRenderableWidget(Button.builder(
+						Component.translatable("screenshot_overhaul.options.panoramas"),
+						_ -> MINECRAFT.setScreen(new PanoramaGalleryScreen(Component.empty(), this)))
+				.bounds(GLOBAL_PADDING, GLOBAL_PADDING, PANORAMA_BUTTON_WIDTH, PANORAMA_BUTTON_HEIGHT)
+				.build());
+
 		gallery = createGallery();
 		fullView = createFullView();
 
@@ -71,9 +81,11 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen {
 	}
 
 	private ScreenshotGalleryWidget createGallery() {
+		// La galerie commence en dessous du bouton panorama (padding + hauteur bouton + padding)
+		int galleryTop = GLOBAL_PADDING + PANORAMA_BUTTON_HEIGHT + GLOBAL_PADDING / 2;
 		return new ScreenshotGalleryWidget(
-				GLOBAL_PADDING, GLOBAL_PADDING,
-				width - GLOBAL_PADDING * 2, getBottomBarTop() - GLOBAL_PADDING,
+				GLOBAL_PADDING, galleryTop,
+				width - GLOBAL_PADDING * 2, getBottomBarTop() - galleryTop,
 				this::setTrackedItems, this::openFullView, this::onDeleteRequested);
 	}
 
