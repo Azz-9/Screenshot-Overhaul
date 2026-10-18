@@ -91,7 +91,8 @@
 	"screenshot_overhaul.config.section.panorama_animation": "Panorama animation",
 
 	"screenshot_overhaul.config.enable_whole_mod": "Enable whole mod",
-	"screenshot_overhaul.config.button_style": "Title screen button style",
+	"screenshot_overhaul.config.title_button_style": "Title screen button style",
+	"screenshot_overhaul.config.pause_button_style": "Pause screen button style",
 	"screenshot_overhaul.config.button_style.icon": "Icon",
 	"screenshot_overhaul.config.button_style.classic": "Classic",
 	"screenshot_overhaul.config.show_screenshots_on_xaeros_world_map": "Show screenshots on Xaero's World Map",

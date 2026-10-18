@@ -91,7 +91,8 @@
 	"screenshot_overhaul.config.section.panorama_animation": "Animation du panorama",
 
 	"screenshot_overhaul.config.enable_whole_mod": "Activer le mod",
-	"screenshot_overhaul.config.button_style": "Style du bouton dans l'écran titre",
+	"screenshot_overhaul.config.title_button_style": "Style du bouton dans l'écran titre",
+	"screenshot_overhaul.config.pause_button_style": "Style du bouton dans l'écran pause",
 	"screenshot_overhaul.config.button_style.icon": "Icône",
 	"screenshot_overhaul.config.button_style.classic": "Classique",
 	"screenshot_overhaul.config.show_screenshots_on_xaeros_world_map": "Afficher les captures d'écran sur la Xaero's World Map",
