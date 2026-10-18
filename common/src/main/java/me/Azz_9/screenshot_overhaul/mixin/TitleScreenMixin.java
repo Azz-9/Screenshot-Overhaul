@@ -49,7 +49,7 @@ public abstract class TitleScreenMixin extends Screen {
 			)
 	)
 	public void addClassicButton(CallbackInfo info, @Local(name = "topPos") int topPos) {
-		if (Config.getInstance().titleScreenButtonStyle.getValue() == Config.TitleScreenButtonStyle.CLASSIC) {
+		if (Config.getInstance().titleScreenButtonStyle.getValue() == Config.ScreenButtonStyle.CLASSIC) {
 			int screenshotButtonX = (this.width - screenshot_overhaul$BUTTONS_WIDTH) / 2;
 
 			for (GuiEventListener child : this.children()) {
@@ -74,7 +74,7 @@ public abstract class TitleScreenMixin extends Screen {
 
 	@Inject(method = "init", at = @At("TAIL"))
 	private void addIconButton(CallbackInfo ci) {
-		if (Config.getInstance().titleScreenButtonStyle.getValue() != Config.TitleScreenButtonStyle.ICON) return;
+		if (Config.getInstance().titleScreenButtonStyle.getValue() != Config.ScreenButtonStyle.ICON) return;
 		int buttonsX = (this.width - screenshot_overhaul$BUTTONS_WIDTH) / 2;
 
 		int screenshotButtonX = 10;
@@ -118,7 +118,7 @@ public abstract class TitleScreenMixin extends Screen {
 
 	@ModifyArg(method = "init", at = @At(value = "INVOKE", target = "Lcom/mojang/realmsclient/gui/screens/RealmsNotificationsScreen;init(II)V"), index = 1)
 	private int adjustRealmsHeight(int height) {
-		if (Config.getInstance().titleScreenButtonStyle.getValue() == Config.TitleScreenButtonStyle.CLASSIC) {
+		if (Config.getInstance().titleScreenButtonStyle.getValue() == Config.ScreenButtonStyle.CLASSIC) {
 			return height - 51;
 		} else {
 			return height;
