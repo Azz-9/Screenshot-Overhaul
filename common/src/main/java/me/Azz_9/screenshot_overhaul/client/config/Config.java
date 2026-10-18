@@ -32,8 +32,8 @@ public final class Config {
 	private static final @NonNull Config INSTANCE = new Config();
 
 	public final @NonNull ConfigObject<Boolean> enableWholeMod = ConfigObject.nonNull(true, "screenshot_overhaul.config.enable_whole_mod", Boolean.class);
-	public final @NonNull ConfigObject<ScreenButtonStyle> titleScreenButtonStyle = ConfigObject.nonNull(ScreenButtonStyle.ICON, "screenshot_overhaul.config.button_style", ScreenButtonStyle.class);
-	public final @NonNull ConfigObject<ScreenButtonStyle> pauseScreenButtonStyle = ConfigObject.nonNull(ScreenButtonStyle.ICON, "screenshot_overhaul.config.button_style", ScreenButtonStyle.class);
+	public final @NonNull ConfigObject<ScreenButtonStyle> titleScreenButtonStyle = ConfigObject.nonNull(ScreenButtonStyle.ICON, "screenshot_overhaul.config.title_button_style", ScreenButtonStyle.class);
+	public final @NonNull ConfigObject<ScreenButtonStyle> pauseScreenButtonStyle = ConfigObject.nonNull(ScreenButtonStyle.ICON, "screenshot_overhaul.config.pause_button_style", ScreenButtonStyle.class);
 
 	public final @NonNull ConfigObject<Boolean> showScreenshotsOnXaerosWorldMap = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_screenshots_on_xaeros_world_map", Boolean.class);
 	public final @NonNull ConfigObject<Boolean> showScreenshotsOnJourneyMap = ConfigObject.nonNull(true, "screenshot_overhaul.config.show_screenshots_on_journey_map", Boolean.class);
