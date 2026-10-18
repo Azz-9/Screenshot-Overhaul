@@ -56,7 +56,7 @@ public abstract class TitleScreenMixin extends Screen {
 	@Expression("numberOfButtons = ?")
 	@Inject(method = "init", at = @At(value = "MIXINEXTRAS:EXPRESSION", shift = At.Shift.AFTER))
 	private void reserveSlot(CallbackInfo ci, @Local(name = "numberOfButtons") LocalIntRef numberOfButtons) {
-		if (Config.getInstance().titleScreenButtonStyle.getValue() == Config.TitleScreenButtonStyle.ICON) {
+		if (Config.getInstance().titleScreenButtonStyle.getValue() == Config.ScreenButtonStyle.ICON) {
 			numberOfButtons.set(numberOfButtons.get() + 1);
 		}
 	}
@@ -113,7 +113,7 @@ public abstract class TitleScreenMixin extends Screen {
 
 	@ModifyArg(method = "init", at = @At(value = "INVOKE", target = "Lcom/mojang/realmsclient/gui/screens/RealmsNotificationsScreen;init(II)V"), index = 1)
 	private int adjustRealmsHeight(int height) {
-		if (Config.getInstance().titleScreenButtonStyle.getValue() == Config.TitleScreenButtonStyle.CLASSIC) {
+		if (Config.getInstance().titleScreenButtonStyle.getValue() == Config.ScreenButtonStyle.CLASSIC) {
 			return height - 51;
 		} else {
 			return height;
