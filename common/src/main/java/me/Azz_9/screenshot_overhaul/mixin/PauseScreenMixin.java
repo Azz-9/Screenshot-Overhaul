@@ -7,7 +7,9 @@ import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.sugar.Local;
 
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.SpriteIconButton;
+import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -20,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import me.Azz_9.screenshot_overhaul.client.config.Config;
 import me.Azz_9.screenshot_overhaul.client.gui.screen.ScreenshotGalleryScreen;
 
 @Mixin(PauseScreen.class)
@@ -27,6 +30,8 @@ public abstract class PauseScreenMixin extends Screen {
 
 	@Unique
 	private static final int screenshot_overhaul$SIZE = 20;
+	@Unique
+	private static final int screenshot_overhaul$CLASSIC_WIDTH = 200;
 
 	protected PauseScreenMixin(Component title) {
 		super(title);
@@ -35,15 +40,23 @@ public abstract class PauseScreenMixin extends Screen {
 	@Definition(id = "integratedServer", local = @Local(type = IntegratedServer.class, name = "integratedServer"))
 	@Expression("integratedServer = ?")
 	@Inject(method = "createPauseMenu", at = @At("MIXINEXTRAS:EXPRESSION"))
-	private void insertIconButton(CallbackInfo ci, @Local(name = "iconButtonRow") LinearLayout iconButtonRow) {
-		iconButtonRow.addChild(SpriteIconButton.TextAndIcon.builder(
-								Component.translatable("screenshot_overhaul.options.screenshots"),
-						_ -> MINECRAFT.gui.setScreen(new ScreenshotGalleryScreen(this)),
-								true
-						)
-						.withTootip()
-				.size(screenshot_overhaul$SIZE, screenshot_overhaul$SIZE)
-				.sprite(SCREENSHOT_SPRITE, 15, 15)
-				.build());
+	private void insertButton(CallbackInfo ci, @Local(name = "iconButtonRow") LinearLayout iconButtonRow, @Local(name = "helper") GridLayout.RowHelper helper) {
+		switch (Config.getInstance().pauseScreenButtonStyle.getValue()) {
+			case ICON -> iconButtonRow.addChild(SpriteIconButton.TextAndIcon.builder(
+							Component.translatable("screenshot_overhaul.options.screenshots_toolitp"),
+							_ -> MINECRAFT.gui.setScreen(new ScreenshotGalleryScreen(this)),
+							true
+					)
+					.withTootip()
+					.size(screenshot_overhaul$SIZE, screenshot_overhaul$SIZE)
+					.sprite(SCREENSHOT_SPRITE, 15, 15)
+					.build());
+			case CLASSIC -> helper.addChild(Button.builder(
+							Component.translatable("screenshot_overhaul.options.screenshots"),
+							_ -> MINECRAFT.gui.setScreen(new ScreenshotGalleryScreen(this))
+					)
+					.size(screenshot_overhaul$CLASSIC_WIDTH, screenshot_overhaul$SIZE)
+					.build(), 2);
+		}
 	}
 }
