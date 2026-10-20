@@ -48,7 +48,7 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen {
 		addRenderableWidget(Button.builder(
 						Component.translatable("screenshot_overhaul.options.panoramas"),
 						_ -> MINECRAFT.setScreen(new PanoramaGalleryScreen(Component.empty(), this)))
-				.bounds(GLOBAL_PADDING, GLOBAL_PADDING, PANORAMA_BUTTON_WIDTH, PANORAMA_BUTTON_HEIGHT)
+				.bounds(GLOBAL_PADDING, GLOBAL_PADDING / 2, PANORAMA_BUTTON_WIDTH, PANORAMA_BUTTON_HEIGHT)
 				.build());
 
 		gallery = createGallery();
@@ -81,8 +81,7 @@ public class ScreenshotGalleryScreen extends AbstractSavableScreen {
 	}
 
 	private ScreenshotGalleryWidget createGallery() {
-		// La galerie commence en dessous du bouton panorama (padding + hauteur bouton + padding)
-		int galleryTop = GLOBAL_PADDING + PANORAMA_BUTTON_HEIGHT + GLOBAL_PADDING / 2;
+		int galleryTop = GLOBAL_PADDING + PANORAMA_BUTTON_HEIGHT;
 		return new ScreenshotGalleryWidget(
 				GLOBAL_PADDING, galleryTop,
 				width - GLOBAL_PADDING * 2, getBottomBarTop() - galleryTop,
