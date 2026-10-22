@@ -9,6 +9,7 @@ plugins {
 
 allprojects {
 	repositories {
+		mavenLocal()
 		maven {
 			name = "Xaero's Maven"
 			url = "https://chocolateminecraft.com/maven"

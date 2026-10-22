@@ -50,6 +50,8 @@ dependencies {
 	} else {
 		compileOnly "maven.modrinth:sodium:mc${project.sodium_version}-fabric"
 	}
+
+	implementation("me.Azz_9:flex_lib-fabric:${project.flex_lib_version}")
 }
 
 loom {

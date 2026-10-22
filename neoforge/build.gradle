@@ -26,6 +26,8 @@ dependencies {
 	} else {
 		compileOnly "maven.modrinth:sodium:mc${project.sodium_version}-neoforge"
 	}
+
+	implementation("me.Azz_9:flex_lib-neoforge:${project.flex_lib_version}")
 }
 
 neoForge {
