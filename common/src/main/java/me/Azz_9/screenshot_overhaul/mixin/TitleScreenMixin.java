@@ -29,7 +29,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import me.Azz_9.screenshot_overhaul.client.config.Config;
-import me.Azz_9.screenshot_overhaul.client.gui.screen.ScreenshotGalleryScreen;
+import me.Azz_9.screenshot_overhaul.client.guiFlexLib.screen.ScreenshotGalleryScreen;
 
 @Mixin(value = TitleScreen.class, priority = 1100)
 public abstract class TitleScreenMixin extends Screen {
@@ -80,9 +80,9 @@ public abstract class TitleScreenMixin extends Screen {
 										Component.translatable("screenshot_overhaul.options.screenshots_toolitp"),
 										_ -> {
 											if (MINECRAFT.hasShiftDown()) {
-												MINECRAFT.gui.setScreen();
-											} else {
 												MINECRAFT.gui.setScreen(new ScreenshotGalleryScreen(this));
+											} else {
+												MINECRAFT.gui.setScreen(new me.Azz_9.screenshot_overhaul.client.gui.screen.ScreenshotGalleryScreen(this));
 											}
 										},
 										true
@@ -108,7 +108,13 @@ public abstract class TitleScreenMixin extends Screen {
 
 				this.addRenderableWidget(Button.builder(
 								Component.translatable("screenshot_overhaul.options.screenshots"),
-								_ -> MINECRAFT.gui.setScreen(new ScreenshotGalleryScreen(this))
+								_ -> {
+									if (MINECRAFT.hasShiftDown()) {
+										MINECRAFT.gui.setScreen(new ScreenshotGalleryScreen(this));
+									} else {
+										MINECRAFT.gui.setScreen(new me.Azz_9.screenshot_overhaul.client.gui.screen.ScreenshotGalleryScreen(this));
+									}
+								}
 						)
 						.bounds(mainX, topPos - 24, 200, 20)
 						.build());

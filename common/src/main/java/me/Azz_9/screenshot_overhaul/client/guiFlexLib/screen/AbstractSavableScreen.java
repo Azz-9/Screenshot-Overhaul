@@ -17,11 +17,10 @@ import me.Azz_9.flex_lib.client.gui.events.EventType;
 import me.Azz_9.flex_lib.client.gui.screens.FlexScreen;
 import me.Azz_9.flex_lib.client.gui.style.Length;
 import me.Azz_9.flex_lib.client.gui.style.StyleProperties;
-import me.Azz_9.flex_lib.client.gui.style.properties.AlignItems;
-import me.Azz_9.flex_lib.client.gui.style.properties.Display;
-import me.Azz_9.flex_lib.client.gui.style.properties.JustifyContent;
-import me.Azz_9.screenshot_overhaul.client.gui.components.config.UnsavedChangesOverlay;
+import me.Azz_9.flex_lib.client.gui.style.properties.*;
+import me.Azz_9.screenshot_overhaul.client.Colors;
 import me.Azz_9.screenshot_overhaul.client.gui.trackableChanges.TrackableChanges;
+import me.Azz_9.screenshot_overhaul.client.guiFlexLib.components.config.UnsavedChangesOverlay;
 
 /**
  * <p>
@@ -52,7 +51,6 @@ public abstract class AbstractSavableScreen extends FlexScreen {
 
 	protected static final int BOTTOM_BAR_HEIGHT = 36;
 	private static final int BUTTON_WIDTH = 200;
-	private static final int BUTTON_HEIGHT = 20;
 	private static final int BUTTON_GAP = 10;
 
 	private final @NonNull Set<TrackableChanges> trackedItems = Collections.newSetFromMap(new IdentityHashMap<>());
@@ -73,9 +71,9 @@ public abstract class AbstractSavableScreen extends FlexScreen {
 
 	// Screen lifecycle
 
+
 	@Override
-	protected final void init() {
-		// todo add top border
+	protected void onInit() {
 		bottomBar = new Div();
 		bottomBar.declaredStyle()
 				.set(StyleProperties.HEIGHT, Length.px(BOTTOM_BAR_HEIGHT))
@@ -83,21 +81,20 @@ public abstract class AbstractSavableScreen extends FlexScreen {
 				.set(StyleProperties.DISPLAY, Display.FLEX)
 				.set(StyleProperties.JUSTIFY_CONTENT, JustifyContent.CENTER)
 				.set(StyleProperties.ALIGN_ITEMS, AlignItems.CENTER)
-				.set(StyleProperties.GAP, Length.px(BUTTON_GAP));
+				.set(StyleProperties.GAP, Length.px(BUTTON_GAP))
+				.set(StyleProperties.BORDER_TOP, Border.of(Length.px(1), LineStyle.SOLID, Colors.GRAY));
 
 		cancelButton = new FlexButton();
 		cancelButton.addText("screenshot_overhaul.cancel");
 		cancelButton.events().addEventListener(EventType.MOUSE_DOWN, _ -> onClose());
 		cancelButton.declaredStyle()
-				.set(StyleProperties.WIDTH, Length.px(BUTTON_WIDTH))
-				.set(StyleProperties.HEIGHT, Length.px(BUTTON_HEIGHT));
+				.set(StyleProperties.WIDTH, Length.px(BUTTON_WIDTH));
 
 		saveButton = new FlexButton();
 		saveButton.addText("screenshot_overhaul.save_and_quit");
 		saveButton.events().addEventListener(EventType.MOUSE_DOWN, _ -> onSavePressed());
 		saveButton.declaredStyle()
-				.set(StyleProperties.WIDTH, Length.px(BUTTON_WIDTH))
-				.set(StyleProperties.HEIGHT, Length.px(BUTTON_HEIGHT));
+				.set(StyleProperties.WIDTH, Length.px(BUTTON_WIDTH));
 
 		saveButton.setDisabled(!canSave());
 
@@ -184,15 +181,18 @@ public abstract class AbstractSavableScreen extends FlexScreen {
 	}
 
 	private synchronized void showUnsavedOverlay() {
-		unsavedOverlay = new UnsavedChangesOverlay(
-				width, height,
-				/* onCancel  */ () -> unsavedOverlay = null,
-				/* onDiscard */ () -> {
+		root().add(unsavedOverlay = new UnsavedChangesOverlay(
+				() -> hideUnsavedOverlay(),
+				() -> {
 			trackedItems.forEach(TrackableChanges::revertChanges);
-			unsavedOverlay = null;
+					hideUnsavedOverlay();
 			super.onClose();
-		}
-		);
+				}));
+	}
+
+	private synchronized void hideUnsavedOverlay() {
+		root().remove(unsavedOverlay);
+		unsavedOverlay = null;
 	}
 
 	/**
